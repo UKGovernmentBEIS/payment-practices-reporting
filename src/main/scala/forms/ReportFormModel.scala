@@ -71,18 +71,30 @@ object PaymentTerms {
 
 case class DateFields(day: Int, month: Int, year: Int)
 
+/**
+  * DateFields provides two mappings. On will check that that the three day/month/year fields
+  * are numbers and the other will build on that to transform valid combinations of those three
+  * individual values to a Joda LocalDate.
+  */
 object DateFields {
-  val validateFields: DateFields => Boolean = fields => Try(toDate(fields)).isSuccess
-
   val dateFields: Mapping[DateFields] = mapping(
-    "day" -> number, "month" -> number, "year" -> number
-  )(DateFields.apply)(DateFields.unapply) verifying("error.date", validateFields)
-
-  def toDate(fields: DateFields): LocalDate = new LocalDate(fields.year, fields.month, fields.day)
-
-  def fromDate(date: LocalDate): DateFields = DateFields(date.getDayOfMonth, date.getMonthOfYear, date.getYear)
+    "day" -> number,
+    "month" -> number,
+    "year" -> number
+  )(DateFields.apply)(DateFields.unapply) verifying("error.date", fields => validateFields(fields))
 
   val dateFromFields: Mapping[LocalDate] = dateFields.transform(toDate, fromDate)
+
+  private def validateFields(fields: DateFields): Boolean = Try(toDate(fields)).isSuccess
+
+  /**
+    * Warning: Will throw an exception if the fields don't constitute a valid date. This is provided
+    * to support the `.transform` call below on the basis that the fields themselves will have alreadybeen
+    * been verified with `validateFields`
+    */
+  private def toDate(fields: DateFields): LocalDate = new LocalDate(fields.year, fields.month, fields.day)
+
+  private def fromDate(date: LocalDate): DateFields = DateFields(date.getDayOfMonth, date.getMonthOfYear, date.getYear)
 }
 
 case class ReportFormModel(
