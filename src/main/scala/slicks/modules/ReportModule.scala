@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016  Department for Business, Energy and Industrial Strategy
+ * Copyright (C) 2017  Department for Business, Energy and Industrial Strategy
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

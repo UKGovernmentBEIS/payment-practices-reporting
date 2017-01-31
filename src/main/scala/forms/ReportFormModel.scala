@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016  Department for Business, Energy and Industrial Strategy
+ * Copyright (C) 2017  Department for Business, Energy and Industrial Strategy
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -67,6 +67,16 @@ object PaymentTerms {
     "paymentTermsNotifiedComment" -> optional(nonEmptyText),
     "paymentTermsComment" -> optional(nonEmptyText)
   )(PaymentTerms.apply)(PaymentTerms.unapply)
+    .verifying("error.changedcomment.required", pt => pt.paymentTermsChanged && pt.paymentTermsChangedComment.isDefined)
+    .verifying("error.notifiedcomment.required", pt => pt.paymentTermsChanged && pt.paymentTermsChangedNotified && pt.paymentTermsChangedNotifiedComment.isDefined)
+
+  def validateTermsChanged(paymentTerms: PaymentTerms): Boolean = {
+    (paymentTerms.paymentTermsChanged, paymentTerms.paymentTermsChangedComment) match {
+      case (true, Some(_)) => true
+      case (false, None) => true
+      case _ => false
+    }
+  }
 }
 
 case class DateFields(day: Int, month: Int, year: Int)
@@ -81,7 +91,8 @@ object DateFields {
     "day" -> number,
     "month" -> number,
     "year" -> number
-  )(DateFields.apply)(DateFields.unapply) verifying("error.date", fields => validateFields(fields))
+  )(DateFields.apply)(DateFields.unapply)
+    .verifying("error.date", fields => validateFields(fields))
 
   val dateFromFields: Mapping[LocalDate] = dateFields.transform(toDate, fromDate)
 
@@ -133,4 +144,5 @@ object ReportFormModel {
     "retentionChargesInPolicy" -> boolean,
     "retentionChargesInPast" -> boolean
   )(ReportFormModel.apply)(ReportFormModel.unapply)
+    .verifying("error.paymentcodes.required", rf => rf.hasPaymentCodes && rf.paymentCodes.isDefined)
 }
