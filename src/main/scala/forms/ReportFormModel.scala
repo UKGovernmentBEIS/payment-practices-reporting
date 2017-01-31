@@ -76,7 +76,7 @@ object DateFields {
 
   val dateFields: Mapping[DateFields] = mapping(
     "day" -> number, "month" -> number, "year" -> number
-  )(DateFields.apply)(DateFields.unapply) verifying("Please enter a valid date", validateFields)
+  )(DateFields.apply)(DateFields.unapply) verifying("error.date", validateFields)
 
   def toDate(fields: DateFields): LocalDate = new LocalDate(fields.year, fields.month, fields.day)
 
