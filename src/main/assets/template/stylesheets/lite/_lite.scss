@@ -1,0 +1,121 @@
+@import "js";
+@import "../_conditionals.scss";
+@import "../colours/_palette";
+
+button {
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: normal;
+  line-height: inherit;
+}
+
+button.link {
+  background: none;
+  border: none;
+  box-shadow: none;
+  color: $link-colour;
+  cursor: pointer;
+  padding-left: 0px;
+  padding-right: 0px;
+  text-align: left;
+  text-decoration: none;
+}
+
+button.link.underlined {
+  text-decoration: underline;
+}
+
+button.link:hover {
+  background: none;
+  color: $link-hover-colour;
+}
+
+button.link-back {
+  background: none;
+  border: none;
+  box-shadow: none;
+  cursor: pointer;
+  text-align: left;
+  text-decoration: underline;
+}
+
+button.secondary {
+  @include button ($govuk-blue);
+  @include box-sizing (border-box);
+  padding: em(10) em(15) em(5) em(15);
+  vertical-align: top;
+  @include media (mobile) {
+    width: 100%;
+  }
+}
+
+// Fix unwanted button padding in Firefox
+button.secondary::-moz-focus-inner {
+  border: 0;
+  padding: 0;
+}
+
+button.secondary:focus {
+  outline: 3px solid $focus-colour;
+}
+
+// Disabled buttons
+button.secondary[disabled="disabled"] {
+  background: $govuk-blue;
+}
+
+button.secondary[disabled="disabled"]:focus {
+  outline: none;
+}
+
+h1.heading-tight, h2.heading-tight, h3.heading-tight, h4.heading-tight {
+  margin-bottom: 10px;
+}
+
+// Follows pattern set by .form-control in ../_forms.scss
+.form-control-wide {
+  width: 100%;
+  @include media(tablet) {
+    width: 75%;
+  }
+}
+
+select.ui-autocomplete-base {
+  width: 100%;
+}
+
+.ui-autocomplete-input {
+  width: 70%;
+  margin-right: 15px;
+  @include media (mobile) {
+    width: 100%;
+    margin-right: inherit;
+  }
+}
+
+.link-next-to-button {
+  display: inline-block;
+  margin-left: 50px;
+  padding-top: 0.5em;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  &.section {
+    border-bottom: 1px solid #bfc1c3;
+    padding-bottom: 5px;
+
+  }
+}
+
+input.hidden {
+  width: 0px;
+  height: 0px;
+  margin: 0px;
+  padding: 0px;
+  outline: none;
+  border: 0px;
+}
+
+a.not-visited:visited {
+  color: $link-colour;
+}

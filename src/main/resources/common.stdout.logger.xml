@@ -1,0 +1,7 @@
+<included>
+  <appender name="OUTPUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%date{ISO8601,UTC} %-5level %logger{36} - %msg%n</pattern>
+    </encoder>
+  </appender>
+</included>
