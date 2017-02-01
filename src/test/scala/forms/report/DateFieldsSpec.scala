@@ -1,15 +1,17 @@
-package forms
+package forms.report
 
 import org.joda.time.LocalDate
 import org.scalatest.{EitherValues, Matchers, WordSpecLike}
 import play.api.data.FormError
+import utils.SystemTimeSource
 
 class DateFieldsSpec extends WordSpecLike with Matchers with EitherValues {
+  val validations = new Validations(new SystemTimeSource)
 
-  import DateFields.dateFields
-  import DateFields.dateFromFields
+  import validations.dateFields
+  import validations.dateFromFields
 
-  def errorFor(fieldName:String) = List(FormError(fieldName, List("error.number")))
+  def errorFor(fieldName: String) = List(FormError(fieldName, List("error.number")))
 
   "dateFields" should {
     "validate successfully" in {
@@ -31,7 +33,7 @@ class DateFieldsSpec extends WordSpecLike with Matchers with EitherValues {
 
   "dateFromFields" should {
     "validate successfully" in {
-      dateFromFields.bind(Map("day" -> "1", "month" -> "10", "year" -> "2017")).right.value shouldBe new LocalDate(2017,10,1)
+      dateFromFields.bind(Map("day" -> "1", "month" -> "10", "year" -> "2017")).right.value shouldBe new LocalDate(2017, 10, 1)
     }
 
     "reject an invalid set of date fields" in {
