@@ -23,11 +23,11 @@ case class CompaniesHouseId(id: String)
 
 
 case class PercentageSplit(
-                            percentWithin30Days: BigDecimal,
-                            percentWithin60Days: BigDecimal,
-                            percentBeyond60Days: BigDecimal
+                            percentWithin30Days: Int,
+                            percentWithin60Days: Int,
+                            percentBeyond60Days: Int
                           ) {
-  def total: BigDecimal = percentWithin30Days + percentWithin60Days + percentBeyond60Days
+  def total: Int = percentWithin30Days + percentWithin60Days + percentBeyond60Days
 }
 
 case class PaymentHistory(

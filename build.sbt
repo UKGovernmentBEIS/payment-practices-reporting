@@ -2,7 +2,7 @@ import de.heikoseeberger.sbtheader.CommentStyleMapping._
 import de.heikoseeberger.sbtheader.license.GPLv3
 import sbtbuildinfo.BuildInfoPlugin.autoImport._
 
-name := "prompt-payments"
+name := "payment-practices-reporting"
 
 startYear := Some(2017)
 

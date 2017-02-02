@@ -12,14 +12,16 @@ import scala.util.Try
 class Validations @Inject()(timeSource: TimeSource) {
   val companiesHouseId: Mapping[CompaniesHouseId] = nonEmptyText.transform(s => CompaniesHouseId(s), (c: CompaniesHouseId) => c.id)
 
+  val percentage = number(min = 0, max = 100)
+
   val percentageSplit: Mapping[PercentageSplit] = mapping(
-    "percentWithin30Days" -> bigDecimal,
-    "percentWithin60Days" -> bigDecimal,
-    "percentBeyond60Days" -> bigDecimal
+    "percentWithin30Days" -> percentage,
+    "percentWithin60Days" -> percentage,
+    "percentBeyond60Days" -> percentage
   )(PercentageSplit.apply)(PercentageSplit.unapply)
     .verifying("error.sumto100", sumTo100(_))
 
-  private def sumTo100(ps: PercentageSplit): Boolean = (100.0 - ps.total).abs < 2.001
+  private def sumTo100(ps: PercentageSplit): Boolean = (100 - ps.total).abs <= 2
 
   val paymentHistory: Mapping[PaymentHistory] = mapping(
     "averageTimeToPay" -> number,
