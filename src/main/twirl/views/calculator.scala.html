@@ -1,4 +1,4 @@
-@(dateForm: Form[forms.DateRange])
+@(dateForm: Form[forms.DateRange])(implicit messages: MessagesApi, lang: Lang)
 
 <div class="scannable-wrapper">
     <h1 class="heading-xlarge">Find out how to report</h1>
@@ -10,14 +10,20 @@
         <fieldset class='@(if(dateForm.hasErrors) "error" else "")'>
             @if(dateForm.hasErrors) {
                 <span class="error-message">
-                    These dates are not valid
+                @dateForm.error("").map(err => messages(err.message)).getOrElse("These dates are not valid")
                 </span>
             }
 
             <p class="heading-small">Enter the start date of your financial year</p>
+            @dateForm.error("startDate").map { err =>
+                <span class="error-message">@messages(err.message)</span>
+            }
             @shared._dateinput("startDate", dateForm("startDate.day").value, dateForm("startDate.month").value, dateForm("startDate.year").value)
 
             <p class="heading-small">Enter the end date of your financial year</p>
+            @dateForm.error("endDate").map { err =>
+                <span class="error-message">@messages(err.message)</span>
+            }
             @shared._dateinput("endDate", dateForm("endDate.day").value, dateForm("endDate.month").value, dateForm("endDate.year").value)
         </fieldset>
 

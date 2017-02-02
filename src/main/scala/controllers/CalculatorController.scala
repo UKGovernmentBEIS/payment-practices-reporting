@@ -17,11 +17,14 @@
 
 package controllers
 
+import javax.inject.Inject
+
 import forms.DateRange
 import play.api.data.Form
+import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, Controller}
 
-class CalculatorController extends Controller with PageHelper {
+class CalculatorController @Inject()(implicit messages: MessagesApi) extends Controller with PageHelper {
 
   val emptyForm = Form[DateRange](forms.Validations.dateRange)
 
@@ -39,7 +42,7 @@ class CalculatorController extends Controller with PageHelper {
   def submit = Action { implicit request =>
     emptyForm.bindFromRequest().fold(
       formWithErrs => Ok(page(views.html.calculator(discardErrorsIfEmpty(formWithErrs)))),
-      dates => Redirect(controllers.routes.HomeController.index())
+      _ => Redirect(controllers.routes.HomeController.index())
     )
   }
 }
