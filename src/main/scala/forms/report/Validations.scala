@@ -24,9 +24,9 @@ import play.api.data.Forms._
 import play.api.data.Mapping
 import utils.TimeSource
 
-import scala.util.Try
-
 class Validations @Inject()(timeSource: TimeSource) {
+  import forms.Validations._
+
   val companiesHouseId: Mapping[CompaniesHouseId] = nonEmptyText.transform(s => CompaniesHouseId(s), (c: CompaniesHouseId) => c.id)
 
   val percentage = number(min = 0, max = 100)
@@ -66,38 +66,11 @@ class Validations @Inject()(timeSource: TimeSource) {
     }
   }
 
-  val dateFields: Mapping[DateFields] = mapping(
-    "day" -> number,
-    "month" -> number,
-    "year" -> number
-  )(DateFields.apply)(DateFields.unapply)
-    .verifying("error.date", fields => validateFields(fields))
-
-  val dateFromFields: Mapping[LocalDate] = dateFields.transform(toDate, fromDate)
-
-  private def validateFields(fields: DateFields): Boolean = Try(toDate(fields)).isSuccess
-
-  /**
-    * Warning: Will throw an exception if the fields don't constitute a valid date. This is provided
-    * to support the `.transform` call below on the basis that the fields themselves will have already
-    * been verified with `validateFields`
-    */
-  private def toDate(fields: DateFields): LocalDate = new LocalDate(fields.year, fields.month, fields.day)
-
-  private def fromDate(date: LocalDate): DateFields = DateFields(date.getDayOfMonth, date.getMonthOfYear, date.getYear)
-
-  val dateRange: Mapping[DateRange] = mapping(
-    "startDate" -> dateFromFields,
-    "endDate" -> dateFromFields
-  )(DateRange.apply)(DateRange.unapply)
-    .verifying("error.beforenow", dr => dr.startDate.isBefore(now()))
-    .verifying("error.endafterstart", dr => dr.endDate.isAfter(dr.startDate))
-
   private def now() = new LocalDate(timeSource.currentTimeMillis())
 
   val reportFormModel = mapping(
     "companiesHouseId" -> companiesHouseId,
-    "reportDates" -> dateRange,
+    "reportDates" -> dateRange.verifying("error.beforenow", dr => dr.startDate.isBefore(now())),
     "paymentHistory" -> paymentHistory,
     "paymentTerms" -> paymentTerms,
     "disputeResolution" -> nonEmptyText,

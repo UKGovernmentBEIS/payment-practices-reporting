@@ -54,6 +54,10 @@ javaOptions := Seq(
   "-Dlogger.file=src/main/resources/development.logger.xml"
 )
 
+// need this because we've disabled the PlayLayoutPlugin. without it twirl templates won't get
+// re-compiled on change in dev mode
+PlayKeys.playMonitoredFiles ++= (sourceDirectories in(Compile, TwirlKeys.compileTemplates)).value
+
 buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion)
 buildInfoPackage := "buildinfo"
 buildInfoOptions ++= Seq(BuildInfoOption.ToJson, BuildInfoOption.BuildTime)

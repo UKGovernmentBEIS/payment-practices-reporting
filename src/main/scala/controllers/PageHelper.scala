@@ -17,14 +17,8 @@
 
 package controllers
 
-import javax.inject.Inject
-
-import play.api.mvc.{Action, Controller}
 import play.twirl.api.Html
 
-class HomeController @Inject()() extends Controller with PageHelper{
-
-  def index = Action {
-    Ok(page(views.html.index()))
-  }
+trait PageHelper {
+  def page(content: Html) = views.html.templates.govukTemplateDefaults.render("Payment practices reporting", content)
 }

@@ -15,16 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package controllers
+package forms
 
-import javax.inject.Inject
+import org.joda.time.LocalDate
 
-import play.api.mvc.{Action, Controller}
-import play.twirl.api.Html
-
-class HomeController @Inject()() extends Controller with PageHelper{
-
-  def index = Action {
-    Ok(page(views.html.index()))
-  }
-}
+case class DateRange(startDate: LocalDate, endDate: LocalDate)

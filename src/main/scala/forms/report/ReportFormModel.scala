@@ -17,7 +17,7 @@
 
 package forms.report
 
-import org.joda.time.LocalDate
+import forms.DateRange
 
 case class CompaniesHouseId(id: String)
 
@@ -46,10 +46,6 @@ case class PaymentTerms(
                          paymentTermsChangedNotifiedComment: Option[String],
                          paymentTermsComment: Option[String]
                        )
-
-case class DateFields(day: Int, month: Int, year: Int)
-
-case class DateRange(startDate: LocalDate, endDate: LocalDate)
 
 case class ReportFormModel(
                             companiesHouseId: CompaniesHouseId,

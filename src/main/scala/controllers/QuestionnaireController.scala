@@ -17,14 +17,14 @@
 
 package controllers
 
-import javax.inject.Inject
-
 import play.api.mvc.{Action, Controller}
-import play.twirl.api.Html
 
-class HomeController @Inject()() extends Controller with PageHelper{
+class QuestionnaireController extends Controller with PageHelper {
 
-  def index = Action {
-    Ok(page(views.html.index()))
-  }
+  def start = Action(Ok(page(views.html.questionnaire.start())))
+
+  def companyOrLLC = Action(Ok(page(views.html.questionnaire.companyOrLLC())))
+
+  def postCompanyOrLLC = Action(Ok(page(views.html.questionnaire.companyOrLLC())))
+
 }

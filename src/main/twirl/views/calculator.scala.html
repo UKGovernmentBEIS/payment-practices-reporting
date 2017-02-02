@@ -1,0 +1,26 @@
+@(dateForm: Form[forms.DateRange])
+
+<div class="scannable-wrapper">
+    <h1 class="heading-xlarge">Find out how to report</h1>
+    <h3 class="heading-medium">
+        Enter the start and end dates of your financial year
+    </h3>
+    <p class="form-hint">This will tell you your next reporting periods and your deadlines for reporting.</p>
+    <form method="post" action="@controllers.routes.CalculatorController.submit()">
+        <fieldset class='@(if(dateForm.hasErrors) "error" else "")'>
+            @if(dateForm.hasErrors) {
+                <span class="error-message">
+                    These dates are not valid
+                </span>
+            }
+
+            <p class="heading-small">Enter the start date of your financial year</p>
+            @shared._dateinput("startDate", dateForm("startDate.day").value, dateForm("startDate.month").value, dateForm("startDate.year").value)
+
+            <p class="heading-small">Enter the end date of your financial year</p>
+            @shared._dateinput("endDate", dateForm("endDate.day").value, dateForm("endDate.month").value, dateForm("endDate.year").value)
+        </fieldset>
+
+        <input type="submit" class="button" value="Continue">
+    </form>
+</div>

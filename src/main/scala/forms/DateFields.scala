@@ -15,16 +15,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package controllers
+package forms
 
-import javax.inject.Inject
+import org.joda.time.LocalDate
 
-import play.api.mvc.{Action, Controller}
-import play.twirl.api.Html
+case class DateFields(day: Int, month: Int, year: Int)
 
-class HomeController @Inject()() extends Controller with PageHelper{
-
-  def index = Action {
-    Ok(page(views.html.index()))
-  }
+object DateFields {
+  def fromLocalDate(ld: LocalDate) = DateFields(ld.getDayOfMonth, ld.getMonthOfYear, ld.getYear)
 }

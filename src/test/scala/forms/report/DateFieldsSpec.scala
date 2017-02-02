@@ -1,5 +1,6 @@
 package forms.report
 
+import forms.DateFields
 import org.joda.time.LocalDate
 import org.scalatest.{EitherValues, Matchers, WordSpecLike}
 import play.api.data.FormError
