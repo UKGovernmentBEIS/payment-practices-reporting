@@ -1,0 +1,143 @@
+@(title: Option[String],
+  bodyClasses: Option[String],
+  htmlLang: Option[String] = None
+)(head:Html,
+  bodyStart:Html,
+  bodyEnd:Html,
+  insideHeader:Html,
+  afterHeader:Html,
+  footerTop:Html,
+  footerLinks:Html,
+  headerClass:Html = HtmlFormat.empty,
+  propositionHeader:Html = HtmlFormat.empty,
+  homepageUrl:Option[Html] = None,
+  globalHeaderText:Option[Html] = None,
+  cookieMessage:Option[Html] = None,
+  skipLinkMessage:Option[Html] = None,
+  skipLinkTarget:String = "content",
+  logoLinkTitle:Option[Html] = None,
+  licenceMessage:Html,
+  crownCopyrightMessage:Option[Html] = None
+)(content:Html)
+<!DOCTYPE html>
+<!--[if lt IE 9]><html class="lte-ie8" lang="@htmlLang.getOrElse("en")"><![endif]-->
+  <!--[if gt IE 8]><!--><html lang="@htmlLang.getOrElse("en")"><!--<![endif]-->
+  <head>
+    <meta charset="utf-8" />
+    <title>@title.getOrElse("GOV.UK - The best place to find government services and information")</title>
+
+      <!--[if gt IE 8]><!--><link href="@controllers.routes.Assets.at("template/stylesheets/govuk-template.css")" media="screen" rel="stylesheet" type="text/css" /><!--<![endif]-->
+    <!--[if IE 6]><link href="@controllers.routes.Assets.at("template/stylesheets/govuk-template-ie6.css")" media="screen" rel="stylesheet" type="text/css" /><![endif]-->
+    <!--[if IE 7]><link href="@controllers.routes.Assets.at("template/stylesheets/govuk-template-ie7.css")" media="screen" rel="stylesheet" type="text/css" /><![endif]-->
+    <!--[if IE 8]><link href="@controllers.routes.Assets.at("template/stylesheets/govuk-template-ie8.css")" media="screen" rel="stylesheet" type="text/css" /><![endif]-->
+    <link href="@controllers.routes.Assets.at("template/stylesheets/govuk-template-print.css")" media="print" rel="stylesheet" type="text/css" />
+    <link href="@controllers.routes.Assets.at("template/stylesheets/main.css")" media="screen" rel="stylesheet" type="text/css" />
+    <link href="@controllers.routes.Assets.at("template/stylesheets/vendor/jquery/jquery-ui.min.css")" media="screen" rel="stylesheet" type="text/css" />
+    <link href="@controllers.routes.Assets.at("template/stylesheets/vendor/jquery/jquery-ui.structure.min.css")" media="screen" rel="stylesheet" type="text/css" />
+    <link href="@controllers.routes.Assets.at("template/stylesheets/vendor/jquery/jquery-select-to-autocomplete.css")" media="screen" rel="stylesheet" type="text/css" />
+
+      <!--[if IE 8]>
+    <script>
+      (function(){if(window.opera){return;}
+       setTimeout(function(){var a=document,g,b={families:(g=
+       ["nta"]),urls:["@controllers.routes.Assets.at("template/stylesheets/fonts-ie8.css")"]},
+      c="@controllers.routes.Assets.at("template/javascripts/vendor/goog/webfont-debug.js")",d="script",
+      e=a.createElement(d),f=a.getElementsByTagName(d)[0],h=g.length;WebFontConfig
+      ={custom:b},e.src=c,f.parentNode.insertBefore(e,f);for(;h=h-1;a.documentElement
+      .className+=' wf-'+g[h].replace(/\s/g,'').toLowerCase()+'-n4-loading');},0)
+      })()
+    </script>
+    <![endif]-->
+    <!--[if gte IE 9]><!--><link href="@controllers.routes.Assets.at("template/stylesheets/fonts.css")" media="all" rel="stylesheet" type="text/css" /><!--<![endif]-->
+    <!--[if lt IE 9]><script src="@controllers.routes.Assets.at("template/javascripts/ie.js")"></script><![endif]-->
+
+
+    <script src="@controllers.routes.Assets.at("template/javascripts/vendor/jquery/jquery-1.12.4.min.js")"></script>
+    <script src="@controllers.routes.Assets.at("template/javascripts/vendor/jquery/jquery-ui.min.js")"></script>
+    <script src="@controllers.routes.Assets.at("template/javascripts/vendor/jquery/jquery.select-to-autocomplete.min.js")"></script>
+
+
+    <link rel="shortcut icon" href="@controllers.routes.Assets.at("template/images/favicon.ico")" type="image/x-icon" />
+    <link rel="mask-icon" href="@controllers.routes.Assets.at("template/images/gov.uk_logotype_crown.svg")" color="#0b0c0c">
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="@controllers.routes.Assets.at("template/images/apple-touch-icon-152x152.png")">
+    <link rel="apple-touch-icon-precomposed" sizes="120x120" href="@controllers.routes.Assets.at("template/images/apple-touch-icon-120x120.png")">
+    <link rel="apple-touch-icon-precomposed" sizes="76x76" href="@controllers.routes.Assets.at("template/images/apple-touch-icon-76x76.png")">
+    <link rel="apple-touch-icon-precomposed" href="@controllers.routes.Assets.at("template/images/apple-touch-icon-60x60.png")">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta property="og:image" content="@controllers.routes.Assets.at("template/images/opengraph-image.png")">
+
+    @head
+  </head>
+
+  <body class="@bodyClasses.getOrElse("") js-disabled">
+    <script>document.body.className = ((document.body.className) ? document.body.className.replace(" js-disabled","") + ' js-enabled' : 'js-enabled');</script>
+
+    @bodyStart
+
+    <div id="skiplink-container">
+      <div>
+        <a href="#@skipLinkTarget" class="skiplink">@skipLinkMessage.getOrElse("Skip to main content")</a>
+      </div>
+    </div>
+
+    <div id="global-cookie-message">
+
+      @cookieMessage.getOrElse(Html("<p>GOV.UK uses cookies to make the site simpler. <a href=\"https://www.gov.uk/help/cookies\">Find out more about cookies</a></p>"))
+
+    </div>
+
+
+    <header role="banner" id="global-header" class="@headerClass">
+      <div class="header-wrapper">
+        <div class="header-global">
+          <div class="header-logo">
+            <a href="@homepageUrl.getOrElse("https://www.gov.uk/")" title="@logoLinkTitle.getOrElse("Go to the GOV.UK homepage")" id="logo" class="content">
+              <img src="@controllers.routes.Assets.at("template/images/gov.uk_logotype_crown_invert_trans.png")" width="35" height="31" alt=""> @globalHeaderText.getOrElse("GOV.UK")
+            </a>
+          </div>
+          @insideHeader
+        </div>
+        @propositionHeader
+      </div>
+    </header>
+
+
+    @afterHeader
+
+    <div id="global-header-bar"></div>
+
+    @content
+
+    <footer class="group js-footer" id="footer" role="contentinfo">
+
+      <div class="footer-wrapper">
+        @footerTop
+
+        <div class="footer-meta">
+          <div class="footer-meta-inner">
+            @footerLinks
+
+            <div class="open-government-licence">
+              <p class="logo"><a href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/" rel="license">Open Government Licence</a></p>
+
+              @licenceMessage
+
+            </div>
+          </div>
+
+          <div class="copyright">
+            <a href="http://www.nationalarchives.gov.uk/information-management/re-using-public-sector-information/copyright-and-re-use/crown-copyright/">@crownCopyrightMessage.getOrElse(Html("&copy; Crown copyright"))</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <div id="global-app-error" class="app-error hidden"></div>
+
+    <script src="@controllers.routes.Assets.at("template/javascripts/govuk-template.js")"></script>
+    <script src="@controllers.routes.Assets.at("template/javascripts/vendor/details.polyfill.js")"></script>
+
+    @bodyEnd
+    </body>
+</html>

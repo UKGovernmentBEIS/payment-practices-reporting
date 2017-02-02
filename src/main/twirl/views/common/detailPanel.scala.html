@@ -1,0 +1,10 @@
+@(id: String)(summary: Html)(detailContent: Html)
+
+<details class="expanded-details" role="group">
+  <summary aria-expanded="false" aria-controls="@id" role="button">
+    <span class="summary">@summary</span>
+  </summary>
+  <div aria-hidden="true" class="panel panel-border-wide" id="@id">
+    @detailContent
+  </div>
+</details>

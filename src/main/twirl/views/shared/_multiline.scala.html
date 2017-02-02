@@ -1,0 +1,4 @@
+@(value: String)
+@if(value != null) {
+    @Html(HtmlFormat.escape(value).toString.replace("\n", "<br />"))
+}

@@ -3,6 +3,8 @@ resolvers += "Typesafe Repository" at "https://repo.typesafe.com/typesafe/releas
 
 addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.5.10")
 
+addSbtPlugin("org.irundaia.sbt" % "sbt-sassify" % "1.4.2")
+
 addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.2.0-M5")
 
 addSbtPlugin("de.heikoseeberger" % "sbt-header" % "1.6.0")

@@ -1,0 +1,14 @@
+@(prefix: String, day: String = "", month: String = "", year: String = "")
+<div class="input-float-left">
+    <label class="form-label" for='@(prefix + "day")'>Day</label>
+    <input class="form-control" type="text" id='@(prefix + "day")' name='@(prefix + "day")' value="@day"/>
+</div>
+<div class="input-float-left">
+    <label class="form-label" for='@(prefix + "month")'>Month</label>
+    <input class="form-control" type="text" id='@(prefix + "month")' name='@(prefix + "month")' value="@month" />
+</div>
+<div class="input-float-left wide">
+    <label class="form-label" for='@(prefix + "year")'>Year</label>
+    <input class="form-control" type="text" id='@(prefix + "year")' name='@(prefix + "year")' value="@year"/>
+</div>
+<div style="clear:both"></div>
