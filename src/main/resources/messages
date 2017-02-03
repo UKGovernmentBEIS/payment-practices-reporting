@@ -1,1 +1,3 @@
 error.endafterstart=The end date must be later than the start date
+
+reason.firstyear=Your business doesn't have to report in its first year of operations. You should check at the beginning of your second financial year to see if you have to report.

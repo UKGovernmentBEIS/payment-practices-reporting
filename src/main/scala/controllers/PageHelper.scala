@@ -20,6 +20,7 @@ package controllers
 import play.api.data.Form
 import play.api.mvc.Call
 import play.twirl.api.Html
+import views.html.defaultpages.todo
 
 import scala.collection.immutable
 
@@ -41,4 +42,6 @@ trait PageHelper {
     */
   def discardErrorsIfEmpty[T](form: Form[T]): Form[T] =
     if (form.data.exists(_._2 != "")) form else form.discardingErrors
+
+  val todo = controllers.routes.Default.todo()
 }

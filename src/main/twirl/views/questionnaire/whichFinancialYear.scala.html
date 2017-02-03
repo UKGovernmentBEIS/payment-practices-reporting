@@ -1,0 +1,24 @@
+<div class="scannable-wrapper">
+    <h1 class="heading-xlarge">Find out if your business needs to report</h1>
+    <h3 class="heading-medium">
+        Which financial year is your business currently in?
+    </h3>
+    <form method="POST" action="@controllers.routes.QuestionnaireController.postWhichFinancialYear()">
+        <fieldset class='form-group'>
+            <label class="block-label" for='first'>
+                <input type="radio" class="form-control" id='first' name='year' value='first'>
+                First year
+            </label>
+            <label class="block-label" for='second'>
+                <input type="radio" class="form-control" id='second' name='year' value='second'>
+                Second year
+            </label>
+            <label class="block-label" for='third'>
+                <input type="radio" class="form-control" id='third' name='year' value='third'>
+                Third year or later
+            </label>
+        </fieldset>
+
+        <input type="submit" class="button" value="Continue">
+    </form>
+</div>
