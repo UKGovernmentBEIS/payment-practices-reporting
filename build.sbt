@@ -38,6 +38,9 @@ libraryDependencies ++= Seq(
   "joda-time" % "joda-time" % "2.9.6",
   "org.joda" % "joda-convert" % "1.8.1",
   "org.typelevel" %% "cats-core" % "0.9.0",
+  "com.beachape" %% "enumeratum" % "1.5.2",
+  "com.beachape" %% "enumeratum-play-json" % "1.5.2",
+  "eu.timepit" %% "refined" % "0.6.1",
 
   "org.scalatest" %% "scalatest" % "3.0.0" % Test)
 
