@@ -1,0 +1,9 @@
+@(crumbs: Seq[Breadcrumb])
+
+<div class="breadcrumbs">
+    <ol>
+        @crumbs.map { crumb =>
+            <li><a href="@crumb.href">@crumb.name</a></li>
+        }
+    </ol>
+</div>

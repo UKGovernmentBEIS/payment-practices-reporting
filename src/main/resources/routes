@@ -5,9 +5,11 @@ GET         /                                                  controllers.Defau
 GET         /report-your-payment-practices                     controllers.HomeController.index()
 
 GET         /check-if-you-need-to-report                       controllers.QuestionnaireController.start()
+GET         /check-if-you-need-to-report/exempt                controllers.QuestionnaireController.exempt()
 
 GET         /check-if-you-need-to-report/company-or-llc        controllers.QuestionnaireController.companyOrLLC()
 POST        /check-if-you-need-to-report/company-or-llc        controllers.QuestionnaireController.postCompanyOrLLC()
 
 GET         /calculate-reporting-deadlines                     controllers.CalculatorController.show()
 POST        /calculate-reporting-deadlines                     controllers.CalculatorController.submit()
+

@@ -17,8 +17,28 @@
 
 package controllers
 
+import play.api.data.Form
+import play.api.mvc.Call
 import play.twirl.api.Html
 
+import scala.collection.immutable
+
+case class Breadcrumb(href: Call, name: String)
+
 trait PageHelper {
-  def page(content: Html) = views.html.templates.govukTemplateDefaults.render("Payment practices reporting", content)
+  def page(contents: Html*) = {
+    val content = new Html(immutable.Seq[Html](contents: _*))
+    views.html.templates.govukTemplateDefaults.render("Payment practices reporting", content)
+  }
+
+  val homeBreadcrumb = Breadcrumb(routes.HomeController.index(), "Payment practices reporting")
+  val home = breadcrumbs(homeBreadcrumb)
+
+  def breadcrumbs(crumbs: Breadcrumb*): Html = views.html.shared._breadcrumbs(crumbs)
+
+  /**
+    * If all the fields are empty then don't report any errors
+    */
+  def discardErrorsIfEmpty[T](form: Form[T]): Form[T] =
+    if (form.data.exists(_._2 != "")) form else form.discardingErrors
 }

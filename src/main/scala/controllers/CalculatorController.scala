@@ -28,20 +28,13 @@ class CalculatorController @Inject()(implicit messages: MessagesApi) extends Con
 
   val emptyForm = Form[DateRange](forms.Validations.dateRange)
 
-  def show = Action {
-    Ok(page(views.html.calculator(emptyForm)))
-  }
+  def calculatorPage(form: Form[DateRange]) = page(home, views.html.calculator(form))
 
-
-  /**
-    * If all the fields are empty then don't report any errors
-    */
-  private def discardErrorsIfEmpty(form: Form[DateRange]) =
-    if (form.data.exists(_._2 != "")) form else form.discardingErrors
+  def show = Action(Ok(calculatorPage(emptyForm)))
 
   def submit = Action { implicit request =>
     emptyForm.bindFromRequest().fold(
-      formWithErrs => Ok(page(views.html.calculator(discardErrorsIfEmpty(formWithErrs)))),
+      formWithErrs => Ok(calculatorPage(discardErrorsIfEmpty(formWithErrs))),
       _ => Redirect(controllers.routes.HomeController.index())
     )
   }

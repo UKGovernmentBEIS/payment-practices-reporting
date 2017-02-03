@@ -18,7 +18,7 @@
 package forms
 
 import org.joda.time.LocalDate
-import play.api.data.Forms.{mapping, _}
+import play.api.data.Forms._
 import play.api.data.Mapping
 
 import scala.util.Try

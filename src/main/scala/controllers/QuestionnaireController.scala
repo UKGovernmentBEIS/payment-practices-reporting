@@ -21,10 +21,23 @@ import play.api.mvc.{Action, Controller}
 
 class QuestionnaireController extends Controller with PageHelper {
 
-  def start = Action(Ok(page(views.html.questionnaire.start())))
+  import controllers.routes.{QuestionnaireController => routeTo}
+  import views.html.{questionnaire => pages}
 
-  def companyOrLLC = Action(Ok(page(views.html.questionnaire.companyOrLLC())))
+  def start = Action(Ok(page(home, views.html.questionnaire.start())))
 
-  def postCompanyOrLLC = Action(Ok(page(views.html.questionnaire.companyOrLLC())))
+  def companyOrLLC = Action(Ok(page(home, pages.companyOrLLC())))
+
+  def postCompanyOrLLC = Action(parse.urlFormEncoded) { implicit request =>
+    val redirectTo = request.body.get("company").flatMap(_.headOption) match {
+      case Some("true") => routeTo.start()
+      case Some("false") => routeTo.exempt()
+      case _ => routeTo.companyOrLLC()
+    }
+
+    Redirect(redirectTo)
+  }
+
+  def exempt = Action(Ok(page(pages.exempt(None))))
 
 }

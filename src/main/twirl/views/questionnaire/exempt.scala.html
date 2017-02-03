@@ -1,0 +1,13 @@
+@(reason: Option[String])
+
+<div class="scannable-wrapper">
+    <h1 class="heading-xlarge">Find out if your business needs to report</h1>
+    <div class="govuk-box-highlight left-align">
+        <h3 class="bold-medium">Your business does not have to report on its payment practices.</h3>
+        @reason.map { text => <p>text</p> }
+    </div>
+    <p>
+        You can <a href="@routes.CalculatorController.show()">publish reports if you want to</a>
+        . These will be available for anyone to read.
+    </p>
+</div>
