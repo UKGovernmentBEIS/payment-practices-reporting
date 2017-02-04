@@ -18,18 +18,18 @@
 package questionnaire
 
 import play.api.libs.json.Json
-import questionnaire.Answer._
+import questionnaire.YesNo._
 
 case class DecisionState(
-                          isCompanyOrLLP: Answer,
-                          financialYear: FinancialYear,
+                          isCompanyOrLLP: Option[YesNo],
+                          financialYear: Option[FinancialYear],
                           companyAnswers: AnswerGroup,
-                          subsidiaries: Answer,
+                          subsidiaries: Option[YesNo],
                           subsidiaryAnswers: AnswerGroup
                         )
 
 object DecisionState {
-  val empty: DecisionState = DecisionState(Unanswered, FinancialYear.Unknown, AnswerGroup.empty, Unanswered, AnswerGroup.empty)
+  val empty: DecisionState = DecisionState(None, None, AnswerGroup.empty, None, AnswerGroup.empty)
 
   implicit val format = Json.format[DecisionState]
 }
@@ -40,15 +40,15 @@ object Decider {
   import Questions._
 
   def calculateDecision(state: DecisionState): Decision = state.isCompanyOrLLP match {
-    case Unanswered => AskQuestion(isCompanyOrLLCQuestion)
-    case No => Exempt(None)
-    case Yes => checkFinancialYear(state)
+    case None => AskQuestion(isCompanyOrLLCQuestion)
+    case Some(No) => Exempt(None)
+    case Some(Yes) => checkFinancialYear(state)
   }
 
   def checkFinancialYear(state: DecisionState): Decision = state.financialYear match {
-    case Unknown => AskQuestion(financialYearQuestion)
-    case First => Exempt(Some("reason.firstyear"))
-    case Second | ThirdOrLater => checkCompanyAnswers(state)
+    case None => AskQuestion(financialYearQuestion)
+    case Some(First) => Exempt(Some("reason.firstyear"))
+    case _ => checkCompanyAnswers(state)
   }
 
   def checkCompanyAnswers(state: DecisionState): Decision = state.companyAnswers.nextQuestion(companyQuestionGroup) match {
@@ -58,9 +58,9 @@ object Decider {
   }
 
   def checkIfSubsidiaries(state: DecisionState): Decision = state.subsidiaries match {
-    case Unanswered => AskQuestion(hasSubsidiariesQuestion)
-    case No => Required
-    case Yes => checkSubsidiaryAnswers(state)
+    case None => AskQuestion(hasSubsidiariesQuestion)
+    case Some(No) => Required
+    case Some(Yes) => checkSubsidiaryAnswers(state)
   }
 
   def checkSubsidiaryAnswers(state: DecisionState): Decision = state.subsidiaryAnswers.nextQuestion(companyQuestionGroup) match {

@@ -19,8 +19,8 @@ package questionnaire
 
 sealed trait Question
 
-case class YesNoQuestion() extends Question
+case class YesNoQuestion(text: String) extends Question
 
-case class MultipleChoiceQuestion() extends Question
+case class MultipleChoiceQuestion(text: String) extends Question
 
-case class QuestionGroup(turnoverQuestion: Question, balanceSheetQuestion: Question, employeesQuestion: Question)
+case class QuestionGroup(turnoverQuestion: YesNoQuestion, balanceSheetQuestion: YesNoQuestion, employeesQuestion: YesNoQuestion)
