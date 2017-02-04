@@ -22,10 +22,10 @@ import play.api.libs.json.Json
 case class Thresholds(turnover: Option[YesNo], balanceSheet: Option[YesNo], employees: Option[YesNo]) {
   def score: Int = Seq(turnover, balanceSheet, employees).count(_ == YesNo.Yes)
 
-  def nextQuestion(questionGroup: ThresholdQuestions): Option[Question] = (turnover, balanceSheet, employees) match {
-    case (None, _, _) => Some(questionGroup.turnoverQuestion)
-    case (Some(_), None, _) => Some(questionGroup.balanceSheetQuestion)
-    case (Some(_), Some(_), None) => Some(questionGroup.employeesQuestion)
+  def nextQuestion(questionGroup: ThresholdQuestions): Option[AskQuestion] = (turnover, balanceSheet, employees) match {
+    case (None, _, _) => Some(AskQuestion("turnover", questionGroup.turnoverQuestion))
+    case (Some(_), None, _) => Some(AskQuestion("balanceSheet", questionGroup.balanceSheetQuestion))
+    case (Some(_), Some(_), None) => Some(AskQuestion("employees", questionGroup.employeesQuestion))
     case _ => None
   }
 }

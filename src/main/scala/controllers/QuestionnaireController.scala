@@ -27,7 +27,7 @@ class QuestionnaireController @Inject()(implicit messages: MessagesApi) extends 
   import controllers.routes.{QuestionnaireController => routeTo}
   import views.html.{questionnaire => pages}
 
-  private val exempt_reason_key = "exempt_reason"
+  private val exemptReasonKey = "exempt_reason"
 
   def start = Action(Ok(page(home, views.html.questionnaire.start())))
 
@@ -36,11 +36,11 @@ class QuestionnaireController @Inject()(implicit messages: MessagesApi) extends 
   def postCompanyOrLLC = Action(parse.urlFormEncoded) { implicit request =>
     val redirectTo = request.body.get("company").flatMap(_.headOption) match {
       case Some("true") => routeTo.whichFinancialYear()
-      case Some("false") => routeTo.exempt
+      case Some("false") => routeTo.exempt()
       case _ => routeTo.companyOrLLC()
     }
 
-    Redirect(redirectTo).removingFromSession(exempt_reason_key)
+    Redirect(redirectTo).removingFromSession(exemptReasonKey)
   }
 
   def whichFinancialYear = Action(Ok(page(home, pages.whichFinancialYear())))
@@ -54,11 +54,11 @@ class QuestionnaireController @Inject()(implicit messages: MessagesApi) extends 
       case _ => routeTo.whichFinancialYear()
     }
 
-    Redirect(redirectTo).addingToSession((exempt_reason_key, "reason.firstyear"))
+    Redirect(redirectTo).addingToSession((exemptReasonKey, "reason.firstyear"))
   }
 
   def exempt = Action { request =>
-    val reason = request.session.get(exempt_reason_key)
+    val reason = request.session.get(exemptReasonKey)
     Ok(page(home, pages.exempt(reason)))
   }
 }

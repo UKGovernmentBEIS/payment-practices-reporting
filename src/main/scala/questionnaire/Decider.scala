@@ -36,7 +36,7 @@ object DecisionState {
 
 sealed trait Decision
 
-case class AskQuestion(question: Question) extends Decision
+case class AskQuestion(key: String, question: Question) extends Decision
 
 case class Exempt(reason: Option[String]) extends Decision
 
@@ -49,31 +49,31 @@ object Decider {
   import YesNo._
 
   def calculateDecision(state: DecisionState): Decision = state.isCompanyOrLLP match {
-    case None => AskQuestion(isCompanyOrLLCQuestion)
+    case None => AskQuestion("isCompanyOrLLP", isCompanyOrLLPQuestion)
     case Some(No) => Exempt(None)
     case Some(Yes) => checkFinancialYear(state)
   }
 
   def checkFinancialYear(state: DecisionState): Decision = state.financialYear match {
-    case None => AskQuestion(financialYearQuestion)
+    case None => AskQuestion("financialYear", financialYearQuestion)
     case Some(First) => Exempt(Some("reason.firstyear"))
     case _ => checkCompanyAnswers(state)
   }
 
   def checkCompanyAnswers(state: DecisionState): Decision = state.companyThresholds.nextQuestion(companyQuestionGroup) match {
-    case Some(question) => AskQuestion(question)
+    case Some(AskQuestion(key, q)) => AskQuestion(s"companyThresholds.$key", q)
     case None if state.companyThresholds.score >= 2 => checkIfSubsidiaries(state)
     case None => Exempt(Some("reason.company.notlargeenough"))
   }
 
   def checkIfSubsidiaries(state: DecisionState): Decision = state.subsidiaries match {
-    case None => AskQuestion(hasSubsidiariesQuestion)
+    case None => AskQuestion("subsidiaries", hasSubsidiariesQuestion)
     case Some(No) => Required
     case Some(Yes) => checkSubsidiaryAnswers(state)
   }
 
   def checkSubsidiaryAnswers(state: DecisionState): Decision = state.subsidiaryThresholds.nextQuestion(companyQuestionGroup) match {
-    case Some(question) => AskQuestion(question)
+    case Some(AskQuestion(key, q)) => AskQuestion(s"subsidiaryThresholds.$key", q)
     case None if state.companyThresholds.score >= 2 => Required
     case None => Exempt(Some("reason.group.notlargeenough"))
   }
