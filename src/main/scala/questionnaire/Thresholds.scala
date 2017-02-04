@@ -17,24 +17,12 @@
 
 package questionnaire
 
-import enumeratum.EnumEntry.Lowercase
-import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
 import play.api.libs.json.Json
 
-sealed trait YesNo extends EnumEntry with Lowercase
-
-object YesNo extends Enum[YesNo] with PlayJsonEnum[YesNo] {
-  override def values = findValues
-
-  case object Yes extends YesNo
-
-  case object No extends YesNo
-}
-
-case class AnswerGroup(turnover: Option[YesNo], balanceSheet: Option[YesNo], employees: Option[YesNo]) {
+case class Thresholds(turnover: Option[YesNo], balanceSheet: Option[YesNo], employees: Option[YesNo]) {
   def score: Int = Seq(turnover, balanceSheet, employees).count(_ == YesNo.Yes)
 
-  def nextQuestion(questionGroup: QuestionGroup): Option[Question] = (turnover, balanceSheet, employees) match {
+  def nextQuestion(questionGroup: ThresholdQuestions): Option[Question] = (turnover, balanceSheet, employees) match {
     case (None, _, _) => Some(questionGroup.turnoverQuestion)
     case (Some(_), None, _) => Some(questionGroup.balanceSheetQuestion)
     case (Some(_), Some(_), None) => Some(questionGroup.employeesQuestion)
@@ -42,8 +30,8 @@ case class AnswerGroup(turnover: Option[YesNo], balanceSheet: Option[YesNo], emp
   }
 }
 
-object AnswerGroup {
-  val empty: AnswerGroup = AnswerGroup(None, None, None)
+object Thresholds {
+  val empty: Thresholds = Thresholds(None, None, None)
 
-  implicit val format = Json.format[AnswerGroup]
+  implicit val format = Json.format[Thresholds]
 }

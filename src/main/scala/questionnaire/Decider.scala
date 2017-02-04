@@ -18,26 +18,35 @@
 package questionnaire
 
 import play.api.libs.json.Json
-import questionnaire.YesNo._
+
 
 case class DecisionState(
                           isCompanyOrLLP: Option[YesNo],
                           financialYear: Option[FinancialYear],
-                          companyAnswers: AnswerGroup,
+                          companyThresholds: Thresholds,
                           subsidiaries: Option[YesNo],
-                          subsidiaryAnswers: AnswerGroup
+                          subsidiaryThresholds: Thresholds
                         )
 
 object DecisionState {
-  val empty: DecisionState = DecisionState(None, None, AnswerGroup.empty, None, AnswerGroup.empty)
+  val empty: DecisionState = DecisionState(None, None, Thresholds.empty, None, Thresholds.empty)
 
   implicit val format = Json.format[DecisionState]
 }
+
+sealed trait Decision
+
+case class AskQuestion(question: Question) extends Decision
+
+case class Exempt(reason: Option[String]) extends Decision
+
+case object Required extends Decision
 
 object Decider {
 
   import FinancialYear._
   import Questions._
+  import YesNo._
 
   def calculateDecision(state: DecisionState): Decision = state.isCompanyOrLLP match {
     case None => AskQuestion(isCompanyOrLLCQuestion)
@@ -51,9 +60,9 @@ object Decider {
     case _ => checkCompanyAnswers(state)
   }
 
-  def checkCompanyAnswers(state: DecisionState): Decision = state.companyAnswers.nextQuestion(companyQuestionGroup) match {
+  def checkCompanyAnswers(state: DecisionState): Decision = state.companyThresholds.nextQuestion(companyQuestionGroup) match {
     case Some(question) => AskQuestion(question)
-    case None if state.companyAnswers.score >= 2 => checkIfSubsidiaries(state)
+    case None if state.companyThresholds.score >= 2 => checkIfSubsidiaries(state)
     case None => Exempt(Some("reason.company.notlargeenough"))
   }
 
@@ -63,9 +72,9 @@ object Decider {
     case Some(Yes) => checkSubsidiaryAnswers(state)
   }
 
-  def checkSubsidiaryAnswers(state: DecisionState): Decision = state.subsidiaryAnswers.nextQuestion(companyQuestionGroup) match {
+  def checkSubsidiaryAnswers(state: DecisionState): Decision = state.subsidiaryThresholds.nextQuestion(companyQuestionGroup) match {
     case Some(question) => AskQuestion(question)
-    case None if state.companyAnswers.score >= 2 => Required
+    case None if state.companyThresholds.score >= 2 => Required
     case None => Exempt(Some("reason.group.notlargeenough"))
   }
 }

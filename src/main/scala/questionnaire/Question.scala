@@ -23,4 +23,8 @@ case class YesNoQuestion(text: String) extends Question
 
 case class MultipleChoiceQuestion(text: String) extends Question
 
-case class QuestionGroup(turnoverQuestion: YesNoQuestion, balanceSheetQuestion: YesNoQuestion, employeesQuestion: YesNoQuestion)
+case class ThresholdQuestions(
+                               turnoverQuestion: YesNoQuestion,
+                               balanceSheetQuestion: YesNoQuestion,
+                               employeesQuestion: YesNoQuestion
+                             )

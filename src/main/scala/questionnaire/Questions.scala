@@ -25,9 +25,9 @@ object Questions {
   val companyTurnoverQuestion = YesNoQuestion("")
   val companyBalanceSheetQuestion = YesNoQuestion("")
   val companyEmployeesQuestion = YesNoQuestion("")
-  val companyQuestionGroup = QuestionGroup(companyTurnoverQuestion, companyBalanceSheetQuestion, companyEmployeesQuestion)
+  val companyQuestionGroup = ThresholdQuestions(companyTurnoverQuestion, companyBalanceSheetQuestion, companyEmployeesQuestion)
   val subsidiaryTurnoverQuestion = YesNoQuestion("")
   val subsidiaryBalanceSheetQuestion = YesNoQuestion("")
   val subsidiaryEmployeesQuestion = YesNoQuestion("")
-  val subsidiariesQuestionGroup = QuestionGroup(subsidiaryTurnoverQuestion, subsidiaryBalanceSheetQuestion, subsidiaryEmployeesQuestion)
+  val subsidiariesQuestionGroup = ThresholdQuestions(subsidiaryTurnoverQuestion, subsidiaryBalanceSheetQuestion, subsidiaryEmployeesQuestion)
 }
