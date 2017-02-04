@@ -99,7 +99,7 @@ function Validation() {
         var message = findErrorMessage(container);
 
 
-        for (i = 0; i < elements.length; i++) {
+        for (var i = 0; i < elements.length; i++) {
             subscribe(elements[i], "onblur", function () {
                 var values = [];
                 for (var j = 0; j < elements.length; j++) {
@@ -158,7 +158,7 @@ function Validation() {
         var e = document.getElementsByName(name);
         if (!e) return false;
         for (var i = 0; i < e.length; i++) {
-            if (e[i].checked && e[i].value == "1") {
+            if (e[i].checked && e[i].value === "1") {
                 return true;
             }
         }
@@ -246,7 +246,7 @@ function Validation() {
 
     this.validations = {
         dateValid: function (y, m, d) {
-            return dateValid(y, m, d) || dateFuture(y, m, d)
+            return dateValid(y, m, d) || dateFuture(y, m, d);
         },
 
         textPositiveInteger: textPositiveInteger,
