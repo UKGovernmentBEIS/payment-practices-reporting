@@ -21,6 +21,7 @@ import javax.inject.Inject
 
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, Controller}
+import questionnaire.FinancialYear
 
 class QuestionnaireController @Inject()(implicit messages: MessagesApi) extends Controller with PageHelper {
 
@@ -48,9 +49,9 @@ class QuestionnaireController @Inject()(implicit messages: MessagesApi) extends 
 
   def postWhichFinancialYear = Action(parse.urlFormEncoded) { implicit request =>
     val redirectTo = request.body.get("year").flatMap(_.headOption) match {
-      case Some("first") => routeTo.exempt()
-      case Some("second") => todo
-      case Some("third") => todo
+      case Some(name) if name == FinancialYear.First.entryName => routeTo.exempt()
+      case Some(name) if name == FinancialYear.Second.entryName => todo
+      case Some(name) if name == FinancialYear.ThirdOrLater.entryName => todo
       case _ => routeTo.whichFinancialYear()
     }
 

@@ -17,8 +17,6 @@
 
 package questionnaire
 
-import play.api.libs.json.Json
-
 case class Thresholds(turnover: Option[YesNo], balanceSheet: Option[YesNo], employees: Option[YesNo]) {
   def score: Int = Seq(turnover, balanceSheet, employees).count(_ == YesNo.Yes)
 
@@ -32,6 +30,4 @@ case class Thresholds(turnover: Option[YesNo], balanceSheet: Option[YesNo], empl
 
 object Thresholds {
   val empty: Thresholds = Thresholds(None, None, None)
-
-  implicit val format = Json.format[Thresholds]
 }

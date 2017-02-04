@@ -17,8 +17,6 @@
 
 package questionnaire
 
-import play.api.libs.json.Json
-
 
 case class DecisionState(
                           isCompanyOrLLP: Option[YesNo],
@@ -30,8 +28,6 @@ case class DecisionState(
 
 object DecisionState {
   val empty: DecisionState = DecisionState(None, None, Thresholds.empty, None, Thresholds.empty)
-
-  implicit val format = Json.format[DecisionState]
 }
 
 sealed trait Decision
