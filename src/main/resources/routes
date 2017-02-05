@@ -9,8 +9,8 @@ GET         /report-your-payment-practices                           controllers
 GET         /check-if-you-need-to-report                             controllers.QuestionnaireController.start()
 GET         /check-if-you-need-to-report/exempt                      controllers.QuestionnaireController.exempt
 
-GET         /check-if-you-need-to-report/company-or-llc              controllers.QuestionnaireController.companyOrLLC()
-POST        /check-if-you-need-to-report/company-or-llc              controllers.QuestionnaireController.postCompanyOrLLC()
+GET         /check-if-you-need-to-report/company-or-llp              controllers.QuestionnaireController.companyOrLLP()
+POST        /check-if-you-need-to-report/company-or-llp              controllers.QuestionnaireController.postCompanyOrLLP()
 
 GET         /check-if-you-need-to-report/which-financial-year        controllers.QuestionnaireController.whichFinancialYear()
 POST        /check-if-you-need-to-report/which-financial-year        controllers.QuestionnaireController.postWhichFinancialYear()

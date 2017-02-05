@@ -17,6 +17,8 @@
 
 import enumeratum.EnumEntry.Lowercase
 import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
+import play.api.data.FormError
+import play.api.data.format.Formatter
 
 package object questionnaire {
 
@@ -28,6 +30,19 @@ package object questionnaire {
     case object Yes extends YesNo
 
     case object No extends YesNo
+
+    implicit val yesNoFormatter: Formatter[YesNo] = new Formatter[YesNo] {
+      override def unbind(key: String, value: YesNo): Map[String, String] = Map(key -> value.entryName)
+
+      override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], YesNo] =
+        data.get(key) match {
+          case None => Left(Seq(FormError(key, "no value found")))
+          case Some(s) => YesNo.withNameOption(s) match {
+            case Some(yn) => Right(yn)
+            case None => Left(Seq(FormError(key, "not a valid yes/no")))
+          }
+        }
+    }
 
   }
 
@@ -42,6 +57,19 @@ package object questionnaire {
 
     case object ThirdOrLater extends FinancialYear
 
+    implicit val formatter: Formatter[FinancialYear] = new Formatter[FinancialYear] {
+      override def unbind(key: String, value: FinancialYear) = Map(key -> value.entryName)
+
+      override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], FinancialYear] = {
+        data.get(key) match {
+          case None => Left(Seq(FormError(key, "no value found")))
+          case Some(s) => FinancialYear.withNameOption(s) match {
+            case Some(fy) => Right(fy)
+            case None => Left(Seq(FormError(key, "not a valid Financial Year option")))
+          }
+        }
+      }
+    }
   }
 
 }

@@ -19,51 +19,43 @@ package controllers
 
 import javax.inject.Inject
 
-import play.api.data.Forms._
-import play.api.data.Mapping
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, Controller}
-import questionnaire.{DecisionState, FinancialYear, Thresholds, YesNo}
+import questionnaire._
 
 class QuestionnaireController @Inject()(implicit messages: MessagesApi) extends Controller with PageHelper {
 
-  val yesNo: Mapping[YesNo] = ???
-  val financialYear: Mapping[FinancialYear] = ???
-  val thresholds: Mapping[Thresholds] = mapping(
-    "turnover" -> optional(yesNo),
-    "balanceSheet" -> optional(yesNo),
-    "employees" -> optional(yesNo)
-  )(Thresholds.apply)(Thresholds.unapply)
-
-  val decisionStateMapping: Mapping[DecisionState] = mapping(
-    "isCompanyOrLLP" -> optional(yesNo),
-    "financialYear" -> optional(financialYear),
-    "companyThresholds" -> thresholds,
-    "subsidiaries" -> optional(yesNo),
-    "subsidiaryThresholds" -> thresholds
-  )(DecisionState.apply)(DecisionState.unapply)
-
-  val emptyState = decisionStateMapping.unbind(DecisionState.empty)
-
+  import QuestionnaireValidations._
   import controllers.routes.{QuestionnaireController => routeTo}
   import views.html.{questionnaire => pages}
 
   private val exemptReasonKey = "exempt_reason"
 
   def start = Action { implicit request =>
-    Ok(page(home, views.html.questionnaire.start())).addingToSession(emptyState.toSeq: _*)
+    Ok(page(home, views.html.questionnaire.start()))
   }
 
-  def companyOrLLC = Action(Ok(page(home, pages.companyOrLLC())))
+  def companyOrLLP = Action { implicit request =>
+    val state = decisionStateMapping.bind(request.flash.data).fold(_ => DecisionState.empty, s => s)
 
-  def postCompanyOrLLC = Action(parse.urlFormEncoded) { implicit request =>
+    Decider.calculateDecision(state) match {
+      case AskQuestion(key, q) => ???
+      case Exempt(reason) => ???
+      case Required => ???
+    }
+
+    Ok(page(home, pages.companyOrLLC()))
+  }
+
+  def postCompanyOrLLP = Action(parse.urlFormEncoded) { implicit request =>
     val redirectTo = request.body.get("company").flatMap(_.headOption) match {
       case Some("true") => routeTo.whichFinancialYear()
       case Some("false") => routeTo.exempt()
-      case _ => routeTo.companyOrLLC()
+      case _ => routeTo.companyOrLLP()
     }
 
-    Redirect(redirectTo).removingFromSession(exemptReasonKey)
+    val state = decisionStateMapping.unbind(DecisionState.empty.copy(isCompanyOrLLP = Some(YesNo.Yes)))
+    Redirect(redirectTo).removingFromSession(exemptReasonKey).addingToSession(state.toSeq: _*)
   }
 
   def whichFinancialYear = Action(Ok(page(home, pages.whichFinancialYear())))
