@@ -45,18 +45,21 @@ class QuestionnaireController @Inject()(decider: Decider)(implicit messages: Mes
     val state = stateHolderMapping.bind(sessionState).fold(_ => DecisionState.empty, s => s.decisionState)
 
     decider.calculateDecision(state) match {
-      case aq@AskQuestion(key, q) => Ok(page(home, pages.question(key, q)))
+      case AskQuestion(key, q) => Ok(page(home, pages.question(key, q)))
       case Exempt(Some(reason)) => Redirect(routeTo.exempt()).addingToSession((exemptReasonKey, reason))
       case Exempt(None) => Redirect(routeTo.exempt()).removingFromSession(exemptReasonKey)
       case Required => Redirect(routeTo.required())
     }
   }
 
-  private def stateValues(input: Map[String, Seq[String]]): Map[String, String] = input.map { case (k, v) =>
-    (k, v.headOption)
-  }.collect {
-    case (k, Some(v)) if k.startsWith(stateWrapperPrefix) => (k, v)
-  }
+  /**
+    * The url-encoded form values arrive in the form of a `Map[String, Seq[String]]`. For convenience,
+    * reduce this to a `Map[String, String]` (as we only expect one value per form key) and filter out
+    * keys that don't start with the state wrapper prefix to eliminate noise.
+    */
+  private def stateValues(input: Map[String, Seq[String]]): Map[String, String] =
+    input.map { case (k, v) => (k, v.headOption) }
+      .collect { case (k, Some(v)) if k.startsWith(stateWrapperPrefix) => (k, v) }
 
   def postAnswer = Action(parse.urlFormEncoded) { implicit request =>
     val priorState = sessionState
