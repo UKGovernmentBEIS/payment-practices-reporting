@@ -23,7 +23,7 @@ import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, Controller, Request}
 import questionnaire._
 
-class QuestionnaireController @Inject()(decider: Decider)(implicit messages: MessagesApi) extends Controller with PageHelper {
+class QuestionnaireController @Inject()(decider: Decider, summarizer: Summarizer)(implicit messages: MessagesApi) extends Controller with PageHelper {
 
   import QuestionnaireValidations._
   import controllers.routes.{QuestionnaireController => routeTo}
@@ -73,5 +73,10 @@ class QuestionnaireController @Inject()(decider: Decider)(implicit messages: Mes
 
   def exempt = Action(request => Ok(page(home, pages.exempt(request.session.get(exemptReasonKey)))))
 
-  def required = Action(Ok(page(home, pages.required())))
+  def required = Action { implicit request =>
+    val state = decisionStateMapping.bind(sessionState).fold(_ => DecisionState.empty, s => s)
+
+    val summary = summarizer.summarize(state)
+    Ok(page(home, pages.required(state, summary)))
+  }
 }

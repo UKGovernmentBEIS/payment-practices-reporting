@@ -30,3 +30,13 @@ question.subsidiaries.turnover.y3=Did you and your subsidiaries have an total tu
 question.subsidiaries.balance.y3=Did you and your subsidiaries have a combined balance sheet total of £18 million net or £21.6 million gross on both of the last 2 balance sheet dates?
 question.subsidiaries.employees.y3=Did the you and your subsidiaries have a combined workforce of at least 250 on both of the last 2 balance sheet dates?
 
+summary.iscompanyorllp=is a company or Limited Liability Partnership incorporated in the UK
+summary.company.turnover.y2=had a turnover of more than £36 million on its last balance sheet date
+summary.company.balance.y2=had more than £18 million balance sheet total at its last financial year end
+summary.company.employees.y2=had an average of at least 250 employees during its last financial year
+summary.company.turnover.y3=had a turnover of more than £36 million on its last 2 balance sheet dates
+summary.company.balance.y3=had more than £18 million balance sheet total at its last 2 financial year ends
+summary.company.employees.y3=had an average of at least 250 employees during both of its last 2 financial years
+summary.subsidiaries.turnover=had an total turnover of at least £36 million net or £43.2 million gross
+summary.subsidiaries.balance=had a combined balance sheet total of £18 million net or £21.6 million gross
+summary.subsidiaries.employees=had a combined workforce of at least 250

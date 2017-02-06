@@ -1,4 +1,21 @@
+@(state: _root_.questionnaire.DecisionState, summary: _root_.questionnaire.StateSummary)
 
+    @import _root_.questionnaire.FinancialYear
+
+@messageGroup1 = @{
+    Seq(
+        summary.companyOrLLP,
+        summary.companyThresholdSummary.turnover,
+        summary.companyThresholdSummary.balance,
+        summary.companyThresholdSummary.employees).flatten
+}
+
+@messageGroup2 = @{
+    Seq(
+        summary.groupThresholdSummary.turnover,
+        summary.groupThresholdSummary.balance,
+        summary.groupThresholdSummary.employees).flatten
+}
 
 <div class="scannable-wrapper">
     <h1 class="heading-xlarge">Find out if your business needs to report</h1>
@@ -8,6 +25,33 @@
     <p>
         This is because you told us that your business:
     </p>
+
+    <ul class="list list-bullet">
+    @messageGroup1.map { s =>
+        <li>@s</li>
+    }
+    </ul>
+
+    @if(messageGroup2.nonEmpty) {
+        <p>
+            You also stated that your business has subsidiaries and:
+        </p>
+        <ul class="list list-bullet">
+        @messageGroup2.map { s =>
+            <li>@s</li>
+        }
+        </ul>
+
+        @if(state.financialYear.contains(FinancialYear.ThirdOrLater)) {
+            <p>
+                on both of the last 2 balance sheet dates.
+            </p>
+        }
+    }
+
+    <form method="GET" action="@routes.CalculatorController.show()">
+        <input type="submit" class="button button-start" value="Find out how to report">
+    </form>
 
     <p>
         You’ll normally have to report twice a year, with each report covering 6 months.
