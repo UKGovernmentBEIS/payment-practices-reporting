@@ -31,21 +31,17 @@ class QuestionnaireController @Inject()(decider: Decider)(implicit messages: Mes
 
   private val exemptReasonKey = "exempt_reason"
 
-  private val stateWrapperPrefix = "ds."
-
   def start = Action { implicit request =>
-    val cleanState = request.session.data.filterNot(_._1.startsWith(stateWrapperPrefix))
-
     Ok(page(home, views.html.questionnaire.start()))
-      .withSession(cleanState.toSeq: _*)
+      .removingFromSession(decisionStateKeys: _*)
       .removingFromSession(exemptReasonKey)
   }
 
   private def sessionState(implicit request: Request[_]): Map[String, String] =
-    request.session.data.filter(_._1.startsWith(stateWrapperPrefix))
+    request.session.data.filter { case (k, _) => decisionStateKeys.contains(k) }
 
   def nextQuestion = Action { implicit request =>
-    val state = stateHolderMapping.bind(sessionState).fold(_ => DecisionState.empty, s => s.decisionState)
+    val state = decisionStateMapping.bind(sessionState).fold(_ => DecisionState.empty, s => s)
 
     decider.calculateDecision(state) match {
       case AskQuestion(key, q) => Ok(page(home, pages.question(key, q)))
@@ -58,20 +54,20 @@ class QuestionnaireController @Inject()(decider: Decider)(implicit messages: Mes
   /**
     * The url-encoded form values arrive in the form of a `Map[String, Seq[String]]`. For convenience,
     * reduce this to a `Map[String, String]` (as we only expect one value per form key) and filter out
-    * keys that don't start with the state wrapper prefix to eliminate noise.
+    * keys that don't relate to the decision state to eliminate noise.
     */
   private def stateValues(input: Map[String, Seq[String]]): Map[String, String] =
     input.map { case (k, v) => (k, v.headOption) }
-      .collect { case (k, Some(v)) if k.startsWith(stateWrapperPrefix) => (k, v) }
+      .collect { case (k, Some(v)) if decisionStateKeys.contains(k) => (k, v) }
 
   def postAnswer = Action(parse.urlFormEncoded) { implicit request =>
     val priorState = sessionState
     val formState = stateValues(request.body)
     val combinedState = priorState ++ formState
 
-    stateHolderMapping.bind(combinedState).fold(
+    decisionStateMapping.bind(combinedState).fold(
       _ => Redirect(routeTo.nextQuestion()), // try again without modifying the session state
-      newState => Redirect(routeTo.nextQuestion()).addingToSession(stateHolderMapping.unbind(newState).toSeq: _*)
+      newState => Redirect(routeTo.nextQuestion()).addingToSession(decisionStateMapping.unbind(newState).toSeq: _*)
     )
   }
 

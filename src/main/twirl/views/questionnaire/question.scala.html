@@ -17,7 +17,7 @@
         <fieldset class='form-group @inlineClass(question)'>
         @question.choices.map { case Choice(label, value) =>
         <label class="block-label" for='@value'>
-            <input type="radio" class="form-control" id='@value' name='ds.@key' value='@value'>@label
+            <input type="radio" class="form-control" id='@value' name='@key' value='@value'>@label
         </label>
         }
         </fieldset>
