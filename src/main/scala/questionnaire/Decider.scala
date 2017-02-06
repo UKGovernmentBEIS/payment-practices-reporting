@@ -56,11 +56,17 @@ object Decider {
     case _ => checkCompanyThresholds(state)
   }
 
-  def checkCompanyThresholds(state: DecisionState): Decision = state.companyThresholds.nextQuestion(companyQuestionGroup) match {
-    case _ if state.companyThresholds.score >= 2 => checkIfSubsidiaries(state)
-    case Some(AskQuestion(key, q)) => AskQuestion(s"companyThresholds.$key", q)
-    case None => Exempt(Some("reason.company.notlargeenough"))
+  def companyQuestionGroupForFY(financialYear: FinancialYear) = financialYear match {
+    case ThirdOrLater => companyQuestionGroupY3
+    case _ => companyQuestionGroupY2
   }
+
+  def checkCompanyThresholds(state: DecisionState): Decision =
+    state.companyThresholds.nextQuestion(companyQuestionGroupForFY(state.financialYear.getOrElse(Second))) match {
+      case _ if state.companyThresholds.score >= 2 => checkIfSubsidiaries(state)
+      case Some(AskQuestion(key, q)) => AskQuestion(s"companyThresholds.$key", q)
+      case None => Exempt(Some("reason.company.notlargeenough"))
+    }
 
   def checkIfSubsidiaries(state: DecisionState): Decision = state.subsidiaries match {
     case None => AskQuestion("subsidiaries", hasSubsidiariesQuestion)
@@ -68,9 +74,15 @@ object Decider {
     case Some(Yes) => checkSubsidiaryThresholds(state)
   }
 
-  def checkSubsidiaryThresholds(state: DecisionState): Decision = state.subsidiaryThresholds.nextQuestion(companyQuestionGroup) match {
-    case _ if state.subsidiaryThresholds.score >= 2 => Required
-    case Some(AskQuestion(key, q)) => AskQuestion(s"subsidiaryThresholds.$key", q)
-    case None => Exempt(Some("reason.group.notlargeenough"))
+  def subsidiariesQuestionGroupForFY(financialYear: FinancialYear) = financialYear match {
+    case ThirdOrLater => subsidiariesQuestionGroupY3
+    case _ => subsidiariesQuestionGroupY2
   }
+
+  def checkSubsidiaryThresholds(state: DecisionState): Decision =
+    state.subsidiaryThresholds.nextQuestion(subsidiariesQuestionGroupForFY(state.financialYear.getOrElse(Second))) match {
+      case _ if state.subsidiaryThresholds.score >= 2 => Required
+      case Some(AskQuestion(key, q)) => AskQuestion(s"subsidiaryThresholds.$key", q)
+      case None => Exempt(Some("reason.group.notlargeenough"))
+    }
 }
