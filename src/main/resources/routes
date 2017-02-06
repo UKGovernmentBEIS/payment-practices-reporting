@@ -1,10 +1,8 @@
 GET         /assets/*file                                 controllers.Assets.at(path="/public", file)
 
-GET         /                                             controllers.Default.redirect(to = controllers.routes.HomeController.index().url)
+GET         /                                             controllers.HomeController.index()
 
 GET         /wip                                          controllers.Default.todo
-
-GET         /report-your-payment-practices                controllers.HomeController.index()
 
 GET         /check-if-you-need-to-report                  controllers.QuestionnaireController.start()
 GET         /check-if-you-need-to-report/questions        controllers.QuestionnaireController.nextQuestion
