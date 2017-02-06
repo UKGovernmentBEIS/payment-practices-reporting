@@ -35,7 +35,10 @@ class QuestionnaireController @Inject()(decider: Decider)(implicit messages: Mes
 
   def start = Action { implicit request =>
     val cleanState = request.session.data.filterNot(_._1.startsWith(stateWrapperPrefix))
-    Ok(page(home, views.html.questionnaire.start())).withSession(cleanState.toSeq: _*)
+
+    Ok(page(home, views.html.questionnaire.start()))
+      .withSession(cleanState.toSeq: _*)
+      .removingFromSession(exemptReasonKey)
   }
 
   private def sessionState(implicit request: Request[_]): Map[String, String] =
@@ -67,7 +70,7 @@ class QuestionnaireController @Inject()(decider: Decider)(implicit messages: Mes
     val combinedState = priorState ++ formState
 
     stateHolderMapping.bind(combinedState).fold(
-      errs => Redirect(routeTo.nextQuestion()), // try again without modifying the session state
+      _ => Redirect(routeTo.nextQuestion()), // try again without modifying the session state
       newState => Redirect(routeTo.nextQuestion()).addingToSession(stateHolderMapping.unbind(newState).toSeq: _*)
     )
   }
