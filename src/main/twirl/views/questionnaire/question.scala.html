@@ -1,0 +1,26 @@
+@(key: String, question: _root_.questionnaire.Question)
+    @import _root_.questionnaire._
+
+@inlineClass(question: Question) = @{
+    if(question.inline) "inline" else ""
+}
+
+<div class="scannable-wrapper">
+    <h1 class="heading-xlarge">Find out if your business needs to report</h1>
+    <h3 class="heading-medium">
+    @question.text
+    </h3>
+    <p class="form-hint">
+    @question.hintText
+    </p>
+    <form method="POST" action="">
+        <fieldset class='form-group @inlineClass(question)'>
+        @question.choices.map { case Choice(label, value) =>
+        <label class="block-label" for='@value'>
+            <input type="radio" class="form-control" id='@value' name='ds.@key' value='@value'>@label
+        </label>
+        }
+        </fieldset>
+        <input type="submit" class="button" value="Continue">
+    </form>
+</div>
