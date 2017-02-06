@@ -17,77 +17,43 @@
 
 package questionnaire
 
-object Questions {
-  val isCompanyOrLLPQuestion = YesNoQuestion("Is your business a company or Limited Liability Partnership incorporated in the UK?", None)
-  val financialYearQuestion = MultipleChoiceQuestion("Which financial year is your business currently in?", None,
-    Seq(Choice("First year", FinancialYear.First.entryName),
-      Choice("Second year", FinancialYear.Second.entryName),
-      Choice("Third year or later", FinancialYear.ThirdOrLater.entryName)
+import javax.inject.Inject
+
+import play.api.i18n.MessagesApi
+
+class Questions @Inject()(implicit messages: MessagesApi) {
+  val isCompanyOrLLPQuestion = YesNoQuestion(messages("question.iscompanyorllp"), None)
+  val financialYearQuestion = MultipleChoiceQuestion(messages("question.financialyear"), None,
+    Seq(Choice(messages("choice.first"), FinancialYear.First.entryName),
+      Choice(messages("choice.second"), FinancialYear.Second.entryName),
+      Choice(messages("choice.third"), FinancialYear.ThirdOrLater.entryName)
     ))
 
-  val hasSubsidiariesQuestion = YesNoQuestion("Does your company have subsidiaries?", None)
+  val hasSubsidiariesQuestion = YesNoQuestion(messages("question.hassubsidiaries"), None)
 
-  private val companyThresholdHint = Some("If your business is part of a group, your answers must be for your business on its own. Every business within the group will need to do this individually")
+  private val companyThresholdHint = Some(messages("hint.company"))
 
-  val companyTurnoverQuestionY2 = YesNoQuestion(
-    "Did your business have a turnover of more than £36 million on its last balance sheet date?",
-    companyThresholdHint
-  )
+  val companyTurnoverQuestionY2 = YesNoQuestion(messages("question.company.turnover.y2"), companyThresholdHint)
 
-  val companyBalanceSheetQuestionY2 = YesNoQuestion(
-    "Did your business have a balance sheet total greater than £18 million at its last financial year end?",
-    companyThresholdHint
-  )
-  val companyEmployeesQuestionY2 = YesNoQuestion(
-    "Did your business have an average of at least 250 employees during its last financial year?",
-    companyThresholdHint
-  )
-  val companyTurnoverQuestionY3 = YesNoQuestion(
-    "Did your business have a turnover of more than £36 million on its last 2 balance sheet dates?",
-    companyThresholdHint
-  )
+  val companyBalanceSheetQuestionY2 = YesNoQuestion(messages("question.company.balance.y2"), companyThresholdHint)
+  val companyEmployeesQuestionY2 = YesNoQuestion(messages("question.company.employees.y2"), companyThresholdHint)
+  val companyTurnoverQuestionY3 = YesNoQuestion(messages("question.company.turnover.y3"), companyThresholdHint)
 
-  val companyBalanceSheetQuestionY3 = YesNoQuestion(
-    "Did your business have a balance sheet total greater than £18 million at its last 2 financial year ends?",
-    companyThresholdHint
-  )
-  val companyEmployeesQuestionY3 = YesNoQuestion(
-    "Did your business have an average of at least 250 employees during its last 2 financial years?",
-    companyThresholdHint
-  )
+  val companyBalanceSheetQuestionY3 = YesNoQuestion(messages("question.company.balance.y3"), companyThresholdHint)
+  val companyEmployeesQuestionY3 = YesNoQuestion(messages("question.company.employees.y3"), companyThresholdHint)
 
   val companyQuestionGroupY2 = ThresholdQuestions(companyTurnoverQuestionY2, companyBalanceSheetQuestionY2, companyEmployeesQuestionY2)
   val companyQuestionGroupY3 = ThresholdQuestions(companyTurnoverQuestionY3, companyBalanceSheetQuestionY3, companyEmployeesQuestionY3)
 
-  private val subsidiariesThresholdHint = Some("'Net' here means after any set-offs and other adjustments to exclude group transactions. 'Gross' means without those set-offs and adjustments.")
+  private val subsidiariesThresholdHint = Some(messages("hint.subsidiaries"))
 
-  val subsidiaryTurnoverQuestionY2 = YesNoQuestion(
-    "Did you and your subsidiaries have an total turnover of at least £36 million net or £43.2 million gross on the last balance sheet date?",
-    subsidiariesThresholdHint
-  )
-  val subsidiaryBalanceSheetQuestionY2 = YesNoQuestion(
-    "Did you and your subsidiaries have a combined balance sheet total of £18 million net or £21.6 million gross on the last balance sheet date?",
-    subsidiariesThresholdHint
-  )
-  val subsidiaryEmployeesQuestionY2 = YesNoQuestion(
-    "Did the you and your subsidiaries have a combined workforce of at least 250 on the last balance sheet date?",
-    None
-  )
+  val subsidiaryTurnoverQuestionY2 = YesNoQuestion(messages("question.subsidiaries.turnover.y2"), subsidiariesThresholdHint)
+  val subsidiaryBalanceSheetQuestionY2 = YesNoQuestion(messages("question.subsidiaries.balance.y2"), subsidiariesThresholdHint)
+  val subsidiaryEmployeesQuestionY2 = YesNoQuestion(messages("question.subsidiaries.employees.y2"), None)
 
-
-
-  val subsidiaryTurnoverQuestionY3 = YesNoQuestion(
-    "Did you and your subsidiaries have an total turnover of at least £36 million net or £43.2 million gross on both of the last 2 balance sheet dates?",
-    subsidiariesThresholdHint
-  )
-  val subsidiaryBalanceSheetQuestionY3 = YesNoQuestion(
-    "Did you and your subsidiaries have a combined balance sheet total of £18 million net or £21.6 million gross on both of the last 2 balance sheet dates?",
-    subsidiariesThresholdHint
-  )
-  val subsidiaryEmployeesQuestionY3 = YesNoQuestion(
-    "Did the you and your subsidiaries have a combined workforce of at least 250 on both of the last 2 balance sheet dates?",
-    None
-  )
+  val subsidiaryTurnoverQuestionY3 = YesNoQuestion(messages("question.subsidiaries.turnover.y3"), subsidiariesThresholdHint)
+  val subsidiaryBalanceSheetQuestionY3 = YesNoQuestion(messages("question.subsidiaries.balance.y3"), subsidiariesThresholdHint)
+  val subsidiaryEmployeesQuestionY3 = YesNoQuestion(messages("question.subsidiaries.employees.y3"), None)
 
   val subsidiariesQuestionGroupY2 = ThresholdQuestions(subsidiaryTurnoverQuestionY2, subsidiaryBalanceSheetQuestionY2, subsidiaryEmployeesQuestionY2)
   val subsidiariesQuestionGroupY3 = ThresholdQuestions(subsidiaryTurnoverQuestionY3, subsidiaryBalanceSheetQuestionY3, subsidiaryEmployeesQuestionY3)

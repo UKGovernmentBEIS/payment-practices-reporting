@@ -1,3 +1,30 @@
 error.endafterstart=The end date must be later than the start date
 
 reason.firstyear=Your business doesn't have to report in its first year of operations. You should check at the beginning of your second financial year to see if you have to report.
+
+question.iscompanyorllp=Is your business a company or Limited Liability Partnership incorporated in the UK?
+question.financialyear=Which financial year is your business currently in?
+choice.first=First Year
+choice.second=Second Year
+choice.third=Third year or later
+
+question.hassubsidiaries=Does your company have subsidiaries?
+
+hint.company=If your business is part of a group, your answers must be for your business on its own. Every business within the group will need to do this individually
+question.company.turnover.y2=Did your business have a turnover of more than £36 million on its last balance sheet date?
+question.company.balance.y2=Did your business have a balance sheet total greater than £18 million at its last financial year end?
+question.company.employees.y2=Did your business have an average of at least 250 employees during its last financial year?
+
+question.company.turnover.y3=Did your business have a turnover of more than £36 million on its last 2 balance sheet dates?
+question.company.balance.y3=Did your business have a balance sheet total greater than £18 million at its last 2 financial year ends?
+question.company.employees.y3=Did your business have an average of at least 250 employees during its last 2 financial years?
+
+hint.subsidiaries='Net' here means after any set-offs and other adjustments to exclude group transactions. 'Gross' means without those set-offs and adjustments.
+question.subsidiaries.turnover.y2=Did you and your subsidiaries have an total turnover of at least £36 million net or £43.2 million gross on the last balance sheet date?
+question.subsidiaries.balance.y2=Did you and your subsidiaries have a combined balance sheet total of £18 million net or £21.6 million gross on the last balance sheet date?
+question.subsidiaries.employees.y2=Did the you and your subsidiaries have a combined workforce of at least 250 on the last balance sheet date?
+
+question.subsidiaries.turnover.y3=Did you and your subsidiaries have an total turnover of at least £36 million net or £43.2 million gross on both of the last 2 balance sheet dates?
+question.subsidiaries.balance.y3=Did you and your subsidiaries have a combined balance sheet total of £18 million net or £21.6 million gross on both of the last 2 balance sheet dates?
+question.subsidiaries.employees.y3=Did the you and your subsidiaries have a combined workforce of at least 250 on both of the last 2 balance sheet dates?
+

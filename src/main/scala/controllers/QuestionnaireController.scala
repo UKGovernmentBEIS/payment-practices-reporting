@@ -24,7 +24,7 @@ import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, Controller, Request}
 import questionnaire._
 
-class QuestionnaireController @Inject()(implicit messages: MessagesApi) extends Controller with PageHelper {
+class QuestionnaireController @Inject()(decider: Decider)(implicit messages: MessagesApi) extends Controller with PageHelper {
 
   import QuestionnaireValidations._
   import controllers.routes.{QuestionnaireController => routeTo}
@@ -33,8 +33,8 @@ class QuestionnaireController @Inject()(implicit messages: MessagesApi) extends 
   private val exemptReasonKey = "exempt_reason"
 
   def start = Action { implicit request =>
-    val cleanSate = request.session.data.filterNot(_._1.startsWith("ds."))
-    Ok(page(home, views.html.questionnaire.start())).withSession(cleanSate.toSeq: _*)
+    val cleanState = request.session.data.filterNot(_._1.startsWith("ds."))
+    Ok(page(home, views.html.questionnaire.start())).withSession(cleanState.toSeq: _*)
   }
 
   private def sessionState(implicit request: Request[_]): Map[String, String] =
@@ -45,7 +45,7 @@ class QuestionnaireController @Inject()(implicit messages: MessagesApi) extends 
 
     Logger.debug(state.toString)
 
-    Decider.calculateDecision(state) match {
+    decider.calculateDecision(state) match {
       case aq@AskQuestion(key, q) => Ok(page(home, pages.question(key, q)))
       case Exempt(Some(reason)) => Redirect(routeTo.exempt()).addingToSession((exemptReasonKey, reason))
       case Exempt(None) => Redirect(routeTo.exempt()).removingFromSession(exemptReasonKey)
