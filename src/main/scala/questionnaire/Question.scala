@@ -17,11 +17,27 @@
 
 package questionnaire
 
-sealed trait Question
+case class Choice(label: String, value: String)
 
-case class YesNoQuestion(text: String) extends Question
+sealed trait Question {
+  def choices: Seq[Choice]
 
-case class MultipleChoiceQuestion(text: String) extends Question
+  def inline: Boolean
+
+  def text: String
+
+  def hintText: Option[String]
+}
+
+case class YesNoQuestion(text: String, hintText: Option[String]) extends Question {
+  override def choices: Seq[Choice] = Seq(Choice("Yes", YesNo.Yes.entryName), Choice("No", YesNo.No.entryName))
+
+  override def inline = true
+}
+
+case class MultipleChoiceQuestion(text: String, hintText: Option[String], choices: Seq[Choice]) extends Question {
+  override def inline = false
+}
 
 case class ThresholdQuestions(
                                turnoverQuestion: YesNoQuestion,

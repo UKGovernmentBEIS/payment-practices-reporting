@@ -21,6 +21,12 @@ import play.api.data.Forms.{mapping, optional}
 import play.api.data.{Forms, Mapping}
 import questionnaire.{DecisionState, FinancialYear, Thresholds, YesNo}
 
+/**
+  * Adds an extra level of structure so that when we convert to key/value pairs
+  * to store the state in the session all the keys will start with a common root.
+  */
+case class DecisionStateHolder(decisionState: DecisionState)
+
 object QuestionnaireValidations {
   val yesNo: Mapping[YesNo] = Forms.of[YesNo]
 
@@ -39,6 +45,10 @@ object QuestionnaireValidations {
     "subsidiaries" -> optional(yesNo),
     "subsidiaryThresholds" -> thresholds
   )(DecisionState.apply)(DecisionState.unapply)
+
+  val stateHolderMapping: Mapping[DecisionStateHolder] = mapping(
+    "ds" -> decisionStateMapping
+  )(DecisionStateHolder.apply)(DecisionStateHolder.unapply)
 
   val emptyState = decisionStateMapping.unbind(DecisionState.empty)
 }

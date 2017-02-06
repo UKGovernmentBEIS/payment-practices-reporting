@@ -19,8 +19,9 @@ package controllers
 
 import javax.inject.Inject
 
+import play.api.Logger
 import play.api.i18n.MessagesApi
-import play.api.mvc.{Action, Controller}
+import play.api.mvc.{Action, Controller, Request}
 import questionnaire._
 
 class QuestionnaireController @Inject()(implicit messages: MessagesApi) extends Controller with PageHelper {
@@ -32,48 +33,53 @@ class QuestionnaireController @Inject()(implicit messages: MessagesApi) extends 
   private val exemptReasonKey = "exempt_reason"
 
   def start = Action { implicit request =>
-    Ok(page(home, views.html.questionnaire.start()))
+    val cleanSate = request.session.data.filterNot(_._1.startsWith("ds."))
+    Ok(page(home, views.html.questionnaire.start())).withSession(cleanSate.toSeq: _*)
   }
 
-  def companyOrLLP = Action { implicit request =>
-    val state = decisionStateMapping.bind(request.flash.data).fold(_ => DecisionState.empty, s => s)
+  private def sessionState(implicit request: Request[_]): Map[String, String] =
+    request.session.data.filter(_._1.startsWith("ds."))
+
+  def nextQuestion = Action { implicit request =>
+    val state = stateHolderMapping.bind(sessionState).fold(_ => DecisionState.empty, s => s.decisionState)
+
+    Logger.debug(state.toString)
 
     Decider.calculateDecision(state) match {
-      case AskQuestion(key, q) => ???
-      case Exempt(reason) => ???
-      case Required => ???
+      case aq@AskQuestion(key, q) => Ok(page(home, pages.question(key, q)))
+      case Exempt(Some(reason)) => Redirect(routeTo.exempt()).addingToSession((exemptReasonKey, reason))
+      case Exempt(None) => Redirect(routeTo.exempt()).removingFromSession(exemptReasonKey)
+      case Required => Redirect(routeTo.required())
     }
-
-    Ok(page(home, pages.companyOrLLC()))
   }
 
-  def postCompanyOrLLP = Action(parse.urlFormEncoded) { implicit request =>
-    val redirectTo = request.body.get("company").flatMap(_.headOption) match {
-      case Some("true") => routeTo.whichFinancialYear()
-      case Some("false") => routeTo.exempt()
-      case _ => routeTo.companyOrLLP()
-    }
-
-    val state = decisionStateMapping.unbind(DecisionState.empty.copy(isCompanyOrLLP = Some(YesNo.Yes)))
-    Redirect(redirectTo).removingFromSession(exemptReasonKey).addingToSession(state.toSeq: _*)
+  private def stateValues(input: Map[String, Seq[String]]): Map[String, String] = input.map { case (k, v) =>
+    (k, v.headOption)
+  }.collect {
+    case (k, Some(v)) if k.startsWith("ds.") => (k, v)
   }
 
-  def whichFinancialYear = Action(Ok(page(home, pages.whichFinancialYear())))
+  def postAnswer = Action(parse.urlFormEncoded) { implicit request =>
+    val priorState = sessionState
+    val formState = stateValues(request.body)
+    val combinedState = priorState ++ formState
 
+    Logger.debug(priorState.toString)
+    Logger.debug(formState.toString)
+    Logger.debug(combinedState.toString)
 
-  def postWhichFinancialYear = Action(parse.urlFormEncoded) { implicit request =>
-    val redirectTo = request.body.get("year").flatMap(_.headOption) match {
-      case Some(name) if name == FinancialYear.First.entryName => routeTo.exempt()
-      case Some(name) if name == FinancialYear.Second.entryName => todo
-      case Some(name) if name == FinancialYear.ThirdOrLater.entryName => todo
-      case _ => routeTo.whichFinancialYear()
-    }
-
-    Redirect(redirectTo).addingToSession((exemptReasonKey, "reason.firstyear"))
+    stateHolderMapping.bind(combinedState).fold(
+      errs => Redirect(routeTo.nextQuestion()),
+      newState => Redirect(routeTo.nextQuestion()).addingToSession(stateHolderMapping.unbind(newState).toSeq: _*)
+    )
   }
 
   def exempt = Action { request =>
     val reason = request.session.get(exemptReasonKey)
     Ok(page(home, pages.exempt(reason)))
+  }
+
+  def required = Action { implicit request =>
+    Ok(page(home, pages.required()))
   }
 }

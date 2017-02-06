@@ -17,8 +17,16 @@
 
 package questionnaire
 
+import org.scalactic.TripleEquals._
+import play.api.Logger
+
 case class Thresholds(turnover: Option[YesNo], balanceSheet: Option[YesNo], employees: Option[YesNo]) {
-  def score: Int = Seq(turnover, balanceSheet, employees).count(_ == YesNo.Yes)
+  def score: Int = {
+    Logger.debug(s"checking score of $this")
+    val s = Seq(turnover, balanceSheet, employees).flatten.count(_ === YesNo.Yes)
+    Logger.debug(s"score is $s")
+    s
+  }
 
   def nextQuestion(questionGroup: ThresholdQuestions): Option[AskQuestion] = (turnover, balanceSheet, employees) match {
     case (None, _, _) => Some(AskQuestion("turnover", questionGroup.turnoverQuestion))

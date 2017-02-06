@@ -18,16 +18,32 @@
 package questionnaire
 
 object Questions {
-  val isCompanyOrLLPQuestion = YesNoQuestion("Is your business a company or Limited Liability Partnership incorporated in the UK?")
-  val financialYearQuestion = MultipleChoiceQuestion("")
-  val hasSubsidiariesQuestion = YesNoQuestion("")
+  val isCompanyOrLLPQuestion = YesNoQuestion("Is your business a company or Limited Liability Partnership incorporated in the UK?", None)
+  val financialYearQuestion = MultipleChoiceQuestion("Which financial year is your business currently in?", None,
+    Seq(Choice("First year", FinancialYear.First.entryName),
+      Choice("Second year", FinancialYear.Second.entryName),
+      Choice("Third year or later", FinancialYear.ThirdOrLater.entryName)
+    ))
 
-  val companyTurnoverQuestion = YesNoQuestion("")
-  val companyBalanceSheetQuestion = YesNoQuestion("")
-  val companyEmployeesQuestion = YesNoQuestion("")
+  val hasSubsidiariesQuestion = YesNoQuestion("Does your company have subsidiaries?", None)
+
+  val companyTurnoverQuestion = YesNoQuestion(
+    "Did your business have a turnover of more than £36 million on its last balance sheet date?",
+    Some("If your business is part of a group, your answers must be for your business on its own. Every business within the group will need to do this individually")
+  )
+
+  val companyBalanceSheetQuestion = YesNoQuestion(
+    "Did your business have a balance sheet total greater than £18 million at its last financial year end?",
+    Some("If your business is part of a group, your answers must be for your business on its own. Every business within the group will need to do this individually")
+  )
+  val companyEmployeesQuestion = YesNoQuestion(
+    "Did your business have an average of at least 250 employees during its last financial year?",
+    Some("If your business is part of a group, your answers must be for your business on its own. Every business within the group will need to do this individually")
+  )
+
   val companyQuestionGroup = ThresholdQuestions(companyTurnoverQuestion, companyBalanceSheetQuestion, companyEmployeesQuestion)
-  val subsidiaryTurnoverQuestion = YesNoQuestion("")
-  val subsidiaryBalanceSheetQuestion = YesNoQuestion("")
-  val subsidiaryEmployeesQuestion = YesNoQuestion("")
+  val subsidiaryTurnoverQuestion = YesNoQuestion("", None)
+  val subsidiaryBalanceSheetQuestion = YesNoQuestion("", None)
+  val subsidiaryEmployeesQuestion = YesNoQuestion("", None)
   val subsidiariesQuestionGroup = ThresholdQuestions(subsidiaryTurnoverQuestion, subsidiaryBalanceSheetQuestion, subsidiaryEmployeesQuestion)
 }

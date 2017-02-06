@@ -53,24 +53,24 @@ object Decider {
   def checkFinancialYear(state: DecisionState): Decision = state.financialYear match {
     case None => AskQuestion("financialYear", financialYearQuestion)
     case Some(First) => Exempt(Some("reason.firstyear"))
-    case _ => checkCompanyAnswers(state)
+    case _ => checkCompanyThresholds(state)
   }
 
-  def checkCompanyAnswers(state: DecisionState): Decision = state.companyThresholds.nextQuestion(companyQuestionGroup) match {
+  def checkCompanyThresholds(state: DecisionState): Decision = state.companyThresholds.nextQuestion(companyQuestionGroup) match {
+    case _ if state.companyThresholds.score >= 2 => checkIfSubsidiaries(state)
     case Some(AskQuestion(key, q)) => AskQuestion(s"companyThresholds.$key", q)
-    case None if state.companyThresholds.score >= 2 => checkIfSubsidiaries(state)
     case None => Exempt(Some("reason.company.notlargeenough"))
   }
 
   def checkIfSubsidiaries(state: DecisionState): Decision = state.subsidiaries match {
     case None => AskQuestion("subsidiaries", hasSubsidiariesQuestion)
     case Some(No) => Required
-    case Some(Yes) => checkSubsidiaryAnswers(state)
+    case Some(Yes) => checkSubsidiaryThresholds(state)
   }
 
-  def checkSubsidiaryAnswers(state: DecisionState): Decision = state.subsidiaryThresholds.nextQuestion(companyQuestionGroup) match {
+  def checkSubsidiaryThresholds(state: DecisionState): Decision = state.subsidiaryThresholds.nextQuestion(companyQuestionGroup) match {
+    case _ if state.subsidiaryThresholds.score >= 2 => Required
     case Some(AskQuestion(key, q)) => AskQuestion(s"subsidiaryThresholds.$key", q)
-    case None if state.companyThresholds.score >= 2 => Required
     case None => Exempt(Some("reason.group.notlargeenough"))
   }
 }

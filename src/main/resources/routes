@@ -1,20 +1,17 @@
-GET         /assets/*file                                            controllers.Assets.at(path="/public", file)
+GET         /assets/*file                                 controllers.Assets.at(path="/public", file)
 
-GET         /                                                        controllers.Default.redirect(to = controllers.routes.HomeController.index().url)
+GET         /                                             controllers.Default.redirect(to = controllers.routes.HomeController.index().url)
 
-GET         /wip                                                     controllers.Default.todo
+GET         /wip                                          controllers.Default.todo
 
-GET         /report-your-payment-practices                           controllers.HomeController.index()
+GET         /report-your-payment-practices                controllers.HomeController.index()
 
-GET         /check-if-you-need-to-report                             controllers.QuestionnaireController.start()
-GET         /check-if-you-need-to-report/exempt                      controllers.QuestionnaireController.exempt
+GET         /check-if-you-need-to-report                  controllers.QuestionnaireController.start()
+GET         /check-if-you-need-to-report/questions        controllers.QuestionnaireController.nextQuestion
+POST        /check-if-you-need-to-report/questions        controllers.QuestionnaireController.postAnswer
+GET         /check-if-you-need-to-report/exempt           controllers.QuestionnaireController.exempt
+GET         /check-if-you-need-to-report/required         controllers.QuestionnaireController.required
 
-GET         /check-if-you-need-to-report/company-or-llp              controllers.QuestionnaireController.companyOrLLP()
-POST        /check-if-you-need-to-report/company-or-llp              controllers.QuestionnaireController.postCompanyOrLLP()
-
-GET         /check-if-you-need-to-report/which-financial-year        controllers.QuestionnaireController.whichFinancialYear()
-POST        /check-if-you-need-to-report/which-financial-year        controllers.QuestionnaireController.postWhichFinancialYear()
-
-GET         /calculate-reporting-deadlines                           controllers.CalculatorController.show()
-POST        /calculate-reporting-deadlines                           controllers.CalculatorController.submit()
+GET         /calculate-reporting-deadlines                controllers.CalculatorController.show()
+POST        /calculate-reporting-deadlines                controllers.CalculatorController.submit()
 
