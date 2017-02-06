@@ -19,7 +19,6 @@ package controllers
 
 import javax.inject.Inject
 
-import play.api.Logger
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, Controller, Request}
 import questionnaire._
@@ -32,18 +31,18 @@ class QuestionnaireController @Inject()(decider: Decider)(implicit messages: Mes
 
   private val exemptReasonKey = "exempt_reason"
 
+  private val stateWrapperPrefix = "ds."
+
   def start = Action { implicit request =>
-    val cleanState = request.session.data.filterNot(_._1.startsWith("ds."))
+    val cleanState = request.session.data.filterNot(_._1.startsWith(stateWrapperPrefix))
     Ok(page(home, views.html.questionnaire.start())).withSession(cleanState.toSeq: _*)
   }
 
   private def sessionState(implicit request: Request[_]): Map[String, String] =
-    request.session.data.filter(_._1.startsWith("ds."))
+    request.session.data.filter(_._1.startsWith(stateWrapperPrefix))
 
   def nextQuestion = Action { implicit request =>
     val state = stateHolderMapping.bind(sessionState).fold(_ => DecisionState.empty, s => s.decisionState)
-
-    Logger.debug(state.toString)
 
     decider.calculateDecision(state) match {
       case aq@AskQuestion(key, q) => Ok(page(home, pages.question(key, q)))
@@ -56,7 +55,7 @@ class QuestionnaireController @Inject()(decider: Decider)(implicit messages: Mes
   private def stateValues(input: Map[String, Seq[String]]): Map[String, String] = input.map { case (k, v) =>
     (k, v.headOption)
   }.collect {
-    case (k, Some(v)) if k.startsWith("ds.") => (k, v)
+    case (k, Some(v)) if k.startsWith(stateWrapperPrefix) => (k, v)
   }
 
   def postAnswer = Action(parse.urlFormEncoded) { implicit request =>
@@ -64,22 +63,13 @@ class QuestionnaireController @Inject()(decider: Decider)(implicit messages: Mes
     val formState = stateValues(request.body)
     val combinedState = priorState ++ formState
 
-    Logger.debug(priorState.toString)
-    Logger.debug(formState.toString)
-    Logger.debug(combinedState.toString)
-
     stateHolderMapping.bind(combinedState).fold(
-      errs => Redirect(routeTo.nextQuestion()),
+      errs => Redirect(routeTo.nextQuestion()), // try again without modifying the session state
       newState => Redirect(routeTo.nextQuestion()).addingToSession(stateHolderMapping.unbind(newState).toSeq: _*)
     )
   }
 
-  def exempt = Action { request =>
-    val reason = request.session.get(exemptReasonKey)
-    Ok(page(home, pages.exempt(reason)))
-  }
+  def exempt = Action(request => Ok(page(home, pages.exempt(request.session.get(exemptReasonKey)))))
 
-  def required = Action { implicit request =>
-    Ok(page(home, pages.required()))
-  }
+  def required = Action(Ok(page(home, pages.required())))
 }
