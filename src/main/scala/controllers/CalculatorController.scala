@@ -19,16 +19,16 @@ package controllers
 
 import javax.inject.Inject
 
-import forms.DateRange
+import calculator.FinancialYear
 import play.api.data.Form
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, Controller}
 
 class CalculatorController @Inject()(implicit messages: MessagesApi) extends Controller with PageHelper {
 
-  val emptyForm = Form[DateRange](forms.Validations.dateRange)
+  val emptyForm = Form[FinancialYear](forms.Validations.financialPeriod)
 
-  def calculatorPage(form: Form[DateRange]) = page(home, views.html.calculator(form))
+  def calculatorPage(form: Form[FinancialYear]) = page(home, views.html.calculator.calculator(form))
 
   def show = Action(Ok(calculatorPage(emptyForm)))
 

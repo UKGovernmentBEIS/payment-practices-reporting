@@ -17,6 +17,7 @@
 
 package forms
 
+import calculator.FinancialYear
 import org.joda.time.LocalDate
 import play.api.data.Forms._
 import play.api.data.Mapping
@@ -50,4 +51,7 @@ object Validations {
     "endDate" -> dateFromFields
   )(DateRange.apply)(DateRange.unapply)
     .verifying("error.endafterstart", dr => dr.endDate.isAfter(dr.startDate))
+
+  val financialPeriod: Mapping[FinancialYear] =
+    dateRange.transform(dr => FinancialYear(dr), rp => rp.dates)
 }

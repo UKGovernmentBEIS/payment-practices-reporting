@@ -15,13 +15,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package config
+package calculator
 
-case class Config(logAssets: Option[Boolean], logRequests: Option[Boolean], printDBTables: Option[Boolean])
+import forms.DateRange
 
-object Config {
+case class ReportingPeriod(dateRange: DateRange) {
 
-  import pureconfig._
-
-  lazy val config: Config = loadConfig[Config].get
 }

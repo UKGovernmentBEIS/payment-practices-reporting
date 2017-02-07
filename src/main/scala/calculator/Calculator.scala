@@ -15,13 +15,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package config
+package calculator
 
-case class Config(logAssets: Option[Boolean], logRequests: Option[Boolean], printDBTables: Option[Boolean])
+import org.joda.time.LocalDate
 
-object Config {
 
-  import pureconfig._
+case class Calculator(financialYear: FinancialYear) {
+  private val cutoff = new LocalDate(2017, 4, 6)
 
-  lazy val config: Config = loadConfig[Config].get
+  def getReportingPeriods: Seq[ReportingPeriod] = {
+    val firstActiveYear = financialYear.firstYearOnOrAfter(cutoff)
+    firstActiveYear.reportingPeriods
+  }
+
+  val showsFuture :Boolean = financialYear.dates.startDate.isAfter(cutoff)
 }

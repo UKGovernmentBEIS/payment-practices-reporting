@@ -17,6 +17,19 @@
 
 package forms
 
-import org.joda.time.LocalDate
+import org.joda.time.{LocalDate, Months}
 
-case class DateRange(startDate: LocalDate, endDate: LocalDate)
+case class DateRange(startDate: LocalDate, endDate: LocalDate) {
+  def startsOnOrAfter(localDate: LocalDate): Boolean = !startDate.isBefore(localDate)
+
+  val monthsInRange: Int = Months.monthsBetween(startDate, endDate).getMonths + 1
+
+  def splitAt(months: Int): (DateRange, Option[DateRange]) = {
+    if (monthsInRange <= months) (this, None)
+    else {
+      val firstPeriod = DateRange(startDate, startDate.plusMonths(months).minusDays(1))
+      val remainder = DateRange(startDate.plusMonths(months), endDate)
+      (firstPeriod, Some(remainder))
+    }
+  }
+}
