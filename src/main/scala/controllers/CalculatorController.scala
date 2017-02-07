@@ -41,6 +41,4 @@ class CalculatorController @Inject()(implicit messages: MessagesApi) extends Con
       fy => Ok(page(home, views.html.calculator.answer(isGroup = false, Calculator(fy), df)))
     )
   }
-
-
 }

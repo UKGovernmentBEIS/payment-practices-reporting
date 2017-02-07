@@ -15,7 +15,7 @@
     </p>
     } else {
     <p>
-        You told us that your financial year runs from <span class="nowrap">@calculator.financialYear.dates.startDate</span> to <span class="nowrap">@calculator.financialYear.dates.endDate</span>. That year is covered by @(calculator.reportingPeriods.length match {case 1 => "a single reporting period" case n => n + " reporting periods"}):
+        You told us that your financial year runs from <span class="nowrap">@df.print(calculator.financialYear.dates.startDate)</span> to <span class="nowrap">@df.print(calculator.financialYear.dates.endDate)</span>. That year is covered by @(calculator.reportingPeriods.length match {case 1 => "a single reporting period" case n => n + " reporting periods"}):
     </p>
     }
     @for((x,i) <- calculator.reportingPeriods.zipWithIndex) {
@@ -34,12 +34,12 @@
         <strong>Each report must be signed off by a company director, or a designated member of a Limited Liability Partnership (LLP). They must be complete and accurate. If not, the business and every director or designated member may be liable to a fine.</strong>
     </div>
 
-    @if(!isGroup) {
-        <p>If your business is part of a group, other companies within the group may also need to report.</p>
-    }
     @if(isGroup){
         <p>You told us that your business is part of a group. Other companies within the group may also need to report.</p>
+    } else {
+        <p>If your business is part of a group, other companies within the group may also need to report.</p>
     }
+
 
     <h3 class="heading-medium underline">What you should report on</h3>
     @shared._coverageInformation()
