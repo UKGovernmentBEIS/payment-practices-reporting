@@ -27,9 +27,11 @@ import play.api.mvc.{Action, Controller}
 
 class CalculatorController @Inject()(implicit messages: MessagesApi) extends Controller with PageHelper {
 
-  val emptyForm = Form[FinancialYear](forms.Validations.financialPeriod)
+  import forms.Validations.financialPeriod
 
-  val df =  DateTimeFormat.forPattern("d MMMM YYYY")
+  val emptyForm = Form[FinancialYear](financialPeriod)
+
+  val df = DateTimeFormat.forPattern("d MMMM YYYY")
 
   def calculatorPage(form: Form[FinancialYear]) = page(home, views.html.calculator.calculator(form))
 
@@ -38,7 +40,15 @@ class CalculatorController @Inject()(implicit messages: MessagesApi) extends Con
   def submit = Action { implicit request =>
     emptyForm.bindFromRequest().fold(
       formWithErrs => Ok(calculatorPage(discardErrorsIfEmpty(formWithErrs))),
+      fy => Redirect(controllers.routes.CalculatorController.showAnswer()).flashing(financialPeriod.unbind(fy).toSeq: _*)
+    )
+  }
+
+  def showAnswer = Action { implicit request =>
+    financialPeriod.bind(request.flash.data).fold(
+      _ => Redirect(controllers.routes.CalculatorController.show()),
       fy => Ok(page(home, views.html.calculator.answer(isGroup = false, Calculator(fy), df)))
     )
+
   }
 }
