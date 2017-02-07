@@ -20,6 +20,7 @@ package controllers
 import javax.inject.Inject
 
 import calculator.{Calculator, FinancialYear}
+import org.joda.time.format.DateTimeFormat
 import play.api.data.Form
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, Controller}
@@ -28,6 +29,8 @@ class CalculatorController @Inject()(implicit messages: MessagesApi) extends Con
 
   val emptyForm = Form[FinancialYear](forms.Validations.financialPeriod)
 
+  val df =  DateTimeFormat.forPattern("d MMMM YYYY")
+
   def calculatorPage(form: Form[FinancialYear]) = page(home, views.html.calculator.calculator(form))
 
   def show = Action(Ok(calculatorPage(emptyForm)))
@@ -35,7 +38,7 @@ class CalculatorController @Inject()(implicit messages: MessagesApi) extends Con
   def submit = Action { implicit request =>
     emptyForm.bindFromRequest().fold(
       formWithErrs => Ok(calculatorPage(discardErrorsIfEmpty(formWithErrs))),
-      fy => Ok(page(home, views.html.calculator.answer(false, Calculator(fy))))
+      fy => Ok(page(home, views.html.calculator.answer(isGroup = false, Calculator(fy), df)))
     )
   }
 

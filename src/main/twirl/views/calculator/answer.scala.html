@@ -1,4 +1,4 @@
-@(isGroup:Boolean, calculator: _root_.calculator.Calculator)
+@(isGroup:Boolean, calculator: _root_.calculator.Calculator, df: org.joda.time.format.DateTimeFormatter)
 
 @import utils.Ordinals
 
@@ -8,7 +8,7 @@
     <h3 class="heading-medium underline">Your reporting periods and deadlines</h3>
     @if(calculator.isFuture) {
     <p>
-        You told us that your financial year runs from <span class="nowrap">@calculator.financialYear.dates.startDate</span> to <span class="nowrap">@calculator.financialYear.dates.endDate</span>. You do not have to report for that year, as it starts before the regulations come into force on 6 April 2017.
+        You told us that your financial year runs from <span class="nowrap">@df.print(calculator.financialYear.dates.startDate)</span> to <span class="nowrap">@df.print(calculator.financialYear.dates.endDate)</span>. You do not have to report for that year, as it starts before the regulations come into force on 6 April 2017.
     </p>
     <p>
         As long as you do not change your financial year end until then, @(calculator.reportingPeriods.length match{ case 1 => "this is your first reporting period" case n => "these are your next " + n + " reporting periods"}):
@@ -21,9 +21,9 @@
     @for((x,i) <- calculator.reportingPeriods.zipWithIndex) {
         <h3 class="bold-medium">Your @(Ordinals.forNumber(i+1)) report:</h3>
         <p>
-            <span class="bold-small"><span class="nowrap">@x.dateRange.startDate</span> to <span class="nowrap">@x.dateRange.endDate</span></span>
+            <span class="bold-small"><span class="nowrap">@df.print(x.dateRange.startDate)</span> to <span class="nowrap">@df.print(x.dateRange.endDate)</span></span>
             <br>
-            You must submit this report by <span class="bold-small nowrap">@x.filingDeadline</span>
+            You must submit this report by <span class="bold-small nowrap">@df.print(x.filingDeadline)</span>
         </p>
     }
 
