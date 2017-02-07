@@ -15,10 +15,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package calculator
+package utils
 
-import forms.DateRange
+object Ordinals {
+  private val wordOrdinals = Seq("zeroth", "first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth", "eleventh", "twelfth", "thirteenth")
 
-case class ReportingPeriod(dateRange: DateRange)  {
-  val filingDeadline = dateRange.endDate.plusDays(30)
+  @throws[IllegalArgumentException]
+  def forNumber(i: Int): String = {
+    if (i < 0) throw new IllegalArgumentException("number must be non-negative")
+    if (i < wordOrdinals.length && i >= 0) return wordOrdinals(i)
+    if (i % 10 == 1) i + "st"
+    else if (i % 10 == 2) i + "nd"
+    else if (i % 10 == 3) i + "rd"
+    else i + "th"
+  }
 }
+
+

@@ -19,7 +19,7 @@ package controllers
 
 import javax.inject.Inject
 
-import calculator.FinancialYear
+import calculator.{Calculator, FinancialYear}
 import play.api.data.Form
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, Controller}
@@ -35,7 +35,9 @@ class CalculatorController @Inject()(implicit messages: MessagesApi) extends Con
   def submit = Action { implicit request =>
     emptyForm.bindFromRequest().fold(
       formWithErrs => Ok(calculatorPage(discardErrorsIfEmpty(formWithErrs))),
-      _ => Redirect(controllers.routes.HomeController.index())
+      fy => Ok(page(home, views.html.calculator.answer(false, Calculator(fy))))
     )
   }
+
+
 }
