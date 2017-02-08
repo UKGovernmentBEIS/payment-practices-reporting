@@ -17,18 +17,28 @@
 
 package utils
 
+import eu.timepit.refined._
+import eu.timepit.refined.api.Refined
+import eu.timepit.refined.numeric.{Positive, _}
+
 object Ordinals {
+
+  type PosInt = Refined[Int, Positive]
+
   private val wordOrdinals = Seq("zeroth", "first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth", "eleventh", "twelfth", "thirteenth")
 
-  @throws[IllegalArgumentException]
-  def forNumber(i: Int): String = {
-    if (i < 0) throw new IllegalArgumentException("number must be non-negative")
-    if (i < wordOrdinals.length && i >= 0) return wordOrdinals(i)
-    if (i % 10 == 1) i + "st"
-    else if (i % 10 == 2) i + "nd"
-    else if (i % 10 == 3) i + "rd"
-    else i + "th"
+  def forNumber(n: PosInt): String = {
+    n match {
+      case _ if n.value < wordOrdinals.length => wordOrdinals(n.value)
+      case _ if n.value % 10 == 1 => s"${n.value}st"
+      case _ if n.value % 10 == 2 => s"${n.value}nd"
+      case _ if n.value % 10 == 3 => s"${n.value}rd"
+      case _ => s"${n.value}th"
+    }
   }
+
+  def forNumber(i: Int): Option[String] =
+    refineV[Positive](i).right.toOption.map(forNumber)
 }
 
 
