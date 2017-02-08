@@ -20,7 +20,7 @@ package controllers
 import javax.inject.Inject
 
 import play.api.i18n.MessagesApi
-import play.api.mvc.{Action, Controller, Request}
+import play.api.mvc.{Action, Controller}
 import questionnaire._
 
 class QuestionnaireController @Inject()(decider: Decider, summarizer: Summarizer)(implicit messages: MessagesApi) extends Controller with PageHelper {
@@ -31,19 +31,14 @@ class QuestionnaireController @Inject()(decider: Decider, summarizer: Summarizer
 
   private val exemptReasonKey = "exempt_reason"
 
-  val decisionStateKeys = keysFor(decisionStateMapping)
-
   def start = Action { implicit request =>
     Ok(page(home, views.html.questionnaire.start()))
-      .removingFromSession(decisionStateKeys: _*)
+      .removing(decisionStateMapping)
       .removingFromSession(exemptReasonKey)
   }
 
-  private def sessionState(implicit request: Request[_]): Map[String, String] =
-    request.session.data.filter { case (k, _) => decisionStateKeys.contains(k) }
-
   def nextQuestion = Action { implicit request =>
-    val state = decisionStateMapping.bind(sessionState).fold(_ => DecisionState.empty, s => s)
+    val state = decisionStateMapping.bindFromRequest.fold(_ => DecisionState.empty, s => s)
 
     decider.calculateDecision(state) match {
       case AskQuestion(key, q) => Ok(page(home, pages.question(key, q)))
@@ -53,18 +48,9 @@ class QuestionnaireController @Inject()(decider: Decider, summarizer: Summarizer
     }
   }
 
-  /**
-    * The url-encoded form values arrive in the form of a `Map[String, Seq[String]]`. For convenience,
-    * reduce this to a `Map[String, String]` (as we only expect one value per form key) and filter out
-    * keys that don't relate to the decision state to eliminate noise.
-    */
-  private def stateValues(input: Map[String, Seq[String]]): Map[String, String] =
-    input.map { case (k, v) => (k, v.headOption) }
-      .collect { case (k, Some(v)) if decisionStateKeys.contains(k) => (k, v) }
-
   def postAnswer = Action(parse.urlFormEncoded) { implicit request =>
-    val priorState = sessionState
-    val formState = stateValues(request.body)
+    val priorState = decisionStateMapping.sessionState
+    val formState = decisionStateMapping.stateValues(request.body)
     val combinedState = priorState ++ formState
 
     decisionStateMapping.bind(combinedState).fold(
@@ -76,7 +62,7 @@ class QuestionnaireController @Inject()(decider: Decider, summarizer: Summarizer
   def exempt = Action(request => Ok(page(home, pages.exempt(request.session.get(exemptReasonKey)))))
 
   def required = Action { implicit request =>
-    val state = decisionStateMapping.bind(sessionState).fold(_ => DecisionState.empty, s => s)
+    val state = decisionStateMapping.bindFromRequest.fold(_ => DecisionState.empty, s => s)
 
     val summary = summarizer.summarize(state)
     Ok(page(home, pages.required(state, summary)))
