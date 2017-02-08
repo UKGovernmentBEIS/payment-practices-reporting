@@ -22,18 +22,13 @@ import org.joda.time.LocalDate
 
 case class FinancialYear(dates: DateRange) {
 
-
   def startsOnOrAfter(cutoff: LocalDate): Boolean = dates.startsOnOrAfter(cutoff)
 
-  def nextYear: FinancialYear = {
-    val dr = DateRange(dates.endDate.plusDays(1), dates.endDate.plusYears(1))
-    FinancialYear(dr)
-  }
+  def nextYear: FinancialYear =
+    FinancialYear(DateRange(dates.endDate.plusDays(1), dates.endDate.plusYears(1)))
 
-  def firstYearOnOrAfter(cutoff: LocalDate): FinancialYear = {
-    if (startsOnOrAfter(cutoff)) this
-    else nextYear.firstYearOnOrAfter(cutoff)
-  }
+  def firstYearOnOrAfter(cutoff: LocalDate): FinancialYear =
+    if (startsOnOrAfter(cutoff)) this else nextYear.firstYearOnOrAfter(cutoff)
 
   /**
     * If the financial year is:
@@ -44,7 +39,7 @@ case class FinancialYear(dates: DateRange) {
   def reportingPeriods: Seq[ReportingPeriod] = dates.splitAt(6) match {
     case (first, None) => Seq(ReportingPeriod(first))
     // 9 months or less - single reporting period covering the whole financial year
-    case (first, Some(remainder)) if remainder.monthsInRange <= 3 => Seq(ReportingPeriod(this.dates))
+    case (_, Some(remainder)) if remainder.monthsInRange <= 3 => Seq(ReportingPeriod(this.dates))
     // 9 to 15 months
     case (first, Some(remainder)) if remainder.monthsInRange <= 9 => Seq(first, remainder).map(ReportingPeriod)
     // more than 15 months - make a period of first six months and recurse

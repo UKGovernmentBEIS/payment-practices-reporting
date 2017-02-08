@@ -19,16 +19,13 @@ package calculator
 
 import org.joda.time.LocalDate
 
-
 case class Calculator(financialYear: FinancialYear) {
   private val cutoff = new LocalDate(2017, 4, 6)
 
-  val isFuture:Boolean = !financialYear.startsOnOrAfter(cutoff)
+  val isFuture: Boolean = !financialYear.startsOnOrAfter(cutoff)
 
   def reportingPeriods: Seq[ReportingPeriod] = {
     val firstActiveYear = financialYear.firstYearOnOrAfter(cutoff)
     firstActiveYear.reportingPeriods
   }
-
-  val showsFuture :Boolean = financialYear.dates.startDate.isAfter(cutoff)
 }
