@@ -42,7 +42,7 @@ class CalculatorController @Inject()(implicit messages: MessagesApi) extends Con
 
   def submit = Action { implicit request =>
     emptyForm.bindFromRequest().fold(
-      formWithErrs => Ok(calculatorPage(discardErrorsIfEmpty(formWithErrs))),
+      formWithErrs => BadRequest(calculatorPage(discardErrorsIfEmpty(formWithErrs))),
       dr => Redirect(controllers.routes.CalculatorController.showAnswer())
         .addingToSession(financialYear.unbind(FinancialYear(dr)).toSeq: _*)
     )
