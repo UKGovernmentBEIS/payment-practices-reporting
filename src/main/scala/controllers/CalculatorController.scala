@@ -37,7 +37,7 @@ class CalculatorController @Inject()(implicit messages: MessagesApi) extends Con
   def calculatorPage(form: Form[DateRange]) = page(home, views.html.calculator.calculator(form))
 
   def show = Action { implicit request =>
-    Ok(calculatorPage(emptyForm)).removingFromSession(keysFor(financialYear): _*)
+    Ok(calculatorPage(emptyForm)).removing(financialYear)
   }
 
   def submit = Action { implicit request =>

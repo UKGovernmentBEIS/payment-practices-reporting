@@ -19,8 +19,6 @@ package questionnaire
 
 import javax.inject.Inject
 
-import play.api.i18n.MessagesApi
-
 
 case class DecisionState(
                           isCompanyOrLLP: Option[YesNo],
@@ -45,8 +43,8 @@ case object Required extends Decision
 class Decider @Inject()(questions: Questions){
 
   import FinancialYear._
-  import questions._
   import YesNo._
+  import questions._
 
   def calculateDecision(state: DecisionState): Decision = state.isCompanyOrLLP match {
     case None => AskQuestion("isCompanyOrLLP", isCompanyOrLLPQuestion)

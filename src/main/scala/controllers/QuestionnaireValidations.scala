@@ -17,7 +17,6 @@
 
 package controllers
 
-import org.scalactic.TripleEquals._
 import play.api.data.Forms.{mapping, optional}
 import play.api.data.{Forms, Mapping}
 import questionnaire.{DecisionState, FinancialYear, Thresholds, YesNo}

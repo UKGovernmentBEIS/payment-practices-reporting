@@ -19,7 +19,7 @@ package controllers
 
 import org.scalactic.TripleEquals._
 import play.api.data.{Form, Mapping}
-import play.api.mvc.Call
+import play.api.mvc.{Call, Request, Result}
 import play.twirl.api.Html
 
 import scala.collection.immutable
@@ -46,4 +46,11 @@ trait PageHelper {
   val todo = controllers.routes.Default.todo()
 
   def keysFor[T](mapping: Mapping[T]): Seq[String] = mapping.mappings.map(_.key).filterNot(_ === "")
+
+  implicit class ResultSyntax(result: Result)(implicit request: Request[_]) {
+    def removing[T](mapping: Mapping[T]) = {
+      result.removingFromSession(keysFor(mapping): _*)
+    }
+  }
+
 }
