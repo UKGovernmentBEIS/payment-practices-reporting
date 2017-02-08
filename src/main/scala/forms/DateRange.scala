@@ -17,18 +17,34 @@
 
 package forms
 
+
 import org.joda.time.{LocalDate, Months}
+import org.scalactic.TripleEquals._
 
 case class DateRange(startDate: LocalDate, endDate: LocalDate) {
   def startsOnOrAfter(localDate: LocalDate): Boolean = !startDate.isBefore(localDate)
 
   val monthsInRange: Int = Months.monthsBetween(startDate, endDate).getMonths + 1
 
+  /**
+    * Add the number of months to the date by the usual logic, but if the incoming date
+    * represents the last day of the month, then ensure the resulting date is adjusted to the
+    * last day of the month if needed. E.g. 28 Feb + 6 months would give 31 August, not 28th August.
+    */
+  def addMonthsWithStickyEnd(input: LocalDate, months: Int): LocalDate = {
+    if (input.getDayOfMonth === input.dayOfMonth().withMaximumValue().getDayOfMonth)
+      input.plusMonths(months).dayOfMonth().withMaximumValue()
+    else
+      input.plusMonths(months)
+  }
+
   def splitAt(months: Int): (DateRange, Option[DateRange]) = {
     if (monthsInRange <= months) (this, None)
     else {
-      val firstPeriod = DateRange(startDate, startDate.plusMonths(months).minusDays(1))
-      val remainder = DateRange(startDate.plusMonths(months), endDate)
+
+      val startOfNextPeriod = addMonthsWithStickyEnd(startDate, months)
+      val firstPeriod = DateRange(startDate, startOfNextPeriod.minusDays(1))
+      val remainder = DateRange(startOfNextPeriod, endDate)
       (firstPeriod, Some(remainder))
     }
   }
