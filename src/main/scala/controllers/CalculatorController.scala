@@ -20,6 +20,7 @@ package controllers
 import javax.inject.Inject
 
 import calculator.{Calculator, FinancialYear}
+import forms.DateRange
 import org.joda.time.format.DateTimeFormat
 import play.api.data.Form
 import play.api.i18n.MessagesApi
@@ -27,28 +28,30 @@ import play.api.mvc.{Action, Controller}
 
 class CalculatorController @Inject()(implicit messages: MessagesApi) extends Controller with PageHelper {
 
-  import forms.Validations.financialPeriod
+  import forms.Validations._
 
-  val emptyForm = Form[FinancialYear](financialPeriod)
+  val emptyForm = Form[DateRange](dateRange)
 
   val df = DateTimeFormat.forPattern("d MMMM YYYY")
 
-  def calculatorPage(form: Form[FinancialYear]) = page(home, views.html.calculator.calculator(form))
+  def calculatorPage(form: Form[DateRange]) = page(home, views.html.calculator.calculator(form))
 
-  def show = Action(Ok(calculatorPage(emptyForm)))
+  def show = Action { implicit request =>
+    Ok(calculatorPage(emptyForm)).removingFromSession(keysFor(financialYear): _*)
+  }
 
   def submit = Action { implicit request =>
     emptyForm.bindFromRequest().fold(
       formWithErrs => Ok(calculatorPage(discardErrorsIfEmpty(formWithErrs))),
-      fy => Redirect(controllers.routes.CalculatorController.showAnswer()).flashing(financialPeriod.unbind(fy).toSeq: _*)
+      dr => Redirect(controllers.routes.CalculatorController.showAnswer())
+        .addingToSession(financialYear.unbind(FinancialYear(dr)).toSeq: _*)
     )
   }
 
   def showAnswer = Action { implicit request =>
-    financialPeriod.bind(request.flash.data).fold(
+    financialYear.bind(request.session.data).fold(
       _ => Redirect(controllers.routes.CalculatorController.show()),
       fy => Ok(page(home, views.html.calculator.answer(isGroup = false, Calculator(fy), df)))
     )
-
   }
 }

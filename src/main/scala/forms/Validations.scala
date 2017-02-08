@@ -52,6 +52,7 @@ object Validations {
   )(DateRange.apply)(DateRange.unapply)
     .verifying("error.endafterstart", dr => dr.endDate.isAfter(dr.startDate))
 
-  val financialPeriod: Mapping[FinancialYear] =
-    dateRange.transform(dr => FinancialYear(dr), rp => rp.dates)
+  val financialYear: Mapping[FinancialYear] = mapping(
+    "fy" -> dateRange
+  )(FinancialYear.apply)(FinancialYear.unapply)
 }

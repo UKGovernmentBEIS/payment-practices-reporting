@@ -17,10 +17,10 @@
 
 package controllers
 
-import play.api.data.Form
+import org.scalactic.TripleEquals._
+import play.api.data.{Form, Mapping}
 import play.api.mvc.Call
 import play.twirl.api.Html
-import views.html.defaultpages.todo
 
 import scala.collection.immutable
 
@@ -41,7 +41,9 @@ trait PageHelper {
     * If all the fields are empty then don't report any errors
     */
   def discardErrorsIfEmpty[T](form: Form[T]): Form[T] =
-    if (form.data.exists(_._2 != "")) form else form.discardingErrors
+    if (form.data.exists(_._2 !== "")) form else form.discardingErrors
 
   val todo = controllers.routes.Default.todo()
+
+  def keysFor[T](mapping: Mapping[T]): Seq[String] = mapping.mappings.map(_.key).filterNot(_ === "")
 }

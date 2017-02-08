@@ -31,6 +31,8 @@ class QuestionnaireController @Inject()(decider: Decider, summarizer: Summarizer
 
   private val exemptReasonKey = "exempt_reason"
 
+  val decisionStateKeys = keysFor(decisionStateMapping)
+
   def start = Action { implicit request =>
     Ok(page(home, views.html.questionnaire.start()))
       .removingFromSession(decisionStateKeys: _*)
