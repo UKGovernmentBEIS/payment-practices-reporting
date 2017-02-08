@@ -20,6 +20,7 @@ package slicks.modules
 import javax.inject.Inject
 
 import com.github.tminglei.slickpg.{ExPostgresDriver, PgDateSupportJoda, PgPlayJsonSupport}
+import config.Config
 import play.api.Logger
 import play.api.db.slick.DatabaseConfigProvider
 
@@ -34,9 +35,11 @@ class DB @Inject()(override val dbConfigProvider: DatabaseConfigProvider)
 
   override def pgjson: String = "jsonb"
 
-  println("# --- !Ups")
-  schema.createStatements.foreach(s=> println(s"$s;"))
-  println
-  println("# --- !Downs")
-  schema.dropStatements.foreach(s=>println(s"$s;"))
+  if (Config.config.printDBTables.getOrElse(false)) {
+    println("# --- !Ups")
+    schema.createStatements.foreach(s => println(s"$s;"))
+    println
+    println("# --- !Downs")
+    schema.dropStatements.foreach(s => println(s"$s;"))
+  }
 }

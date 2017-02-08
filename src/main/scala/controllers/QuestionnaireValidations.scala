@@ -43,9 +43,4 @@ object QuestionnaireValidations {
 
 
   val emptyState = decisionStateMapping.unbind(DecisionState.empty)
-
-  /**
-    * A list of all the keys that are used to build the DecisionState
-    */
-  val decisionStateKeys = decisionStateMapping.mappings.map(_.key).filterNot(_ === "")
 }

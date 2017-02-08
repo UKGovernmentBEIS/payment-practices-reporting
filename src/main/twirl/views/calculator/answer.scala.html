@@ -1,0 +1,128 @@
+@(isGroup:Boolean, calculator: _root_.calculator.Calculator, df: org.joda.time.format.DateTimeFormatter)
+
+@import utils.Ordinals
+
+<div class="scannable-wrapper">
+    <h1 class="heading-xlarge">Find out how to report</h1>
+
+    <h3 class="heading-medium underline">Your reporting periods and deadlines</h3>
+    @if(calculator.isFuture) {
+    <p>
+        You told us that your financial year runs from <span class="nowrap">@df.print(calculator.financialYear.dates.startDate)</span> to <span class="nowrap">@df.print(calculator.financialYear.dates.endDate)</span>. You do not have to report for that year, as it starts before the regulations come into force on 6 April 2017.
+    </p>
+    <p>
+        As long as you do not change your financial year end until then, @(calculator.reportingPeriods.length match{ case 1 => "this is your first reporting period" case n => "these are your next " + n + " reporting periods"}):
+    </p>
+    } else {
+    <p>
+        You told us that your financial year runs from <span class="nowrap">@df.print(calculator.financialYear.dates.startDate)</span> to <span class="nowrap">@df.print(calculator.financialYear.dates.endDate)</span>. That year is covered by @(calculator.reportingPeriods.length match {case 1 => "a single reporting period" case n => n + " reporting periods"}):
+    </p>
+    }
+    @for((x,i) <- calculator.reportingPeriods.zipWithIndex) {
+        <h3 class="bold-medium">Your @(Ordinals.forNumber(i+1)) report:</h3>
+        <p>
+            <span class="bold-small"><span class="nowrap">@df.print(x.dateRange.startDate)</span> to <span class="nowrap">@df.print(x.dateRange.endDate)</span></span>
+            <br>
+            You must submit this report by <span class="bold-small nowrap">@df.print(x.filingDeadline)</span>
+        </p>
+    }
+
+    <div class="notice">
+        <i class="icon icon-important">
+            <span class="visually-hidden">Warning</span>
+        </i>
+        <strong>Each report must be signed off by a company director, or a designated member of a Limited Liability Partnership (LLP). They must be complete and accurate. If not, the business and every director or designated member may be liable to a fine.</strong>
+    </div>
+
+    @if(isGroup){
+        <p>You told us that your business is part of a group. Other companies within the group may also need to report.</p>
+    } else {
+        <p>If your business is part of a group, other companies within the group may also need to report.</p>
+    }
+
+
+    <h3 class="heading-medium underline">What you should report on</h3>
+    @shared._coverageInformation()
+
+    <h3 class="heading-medium underline">What you need to report</h3>
+
+    <h4 class="heading-small">Start and end date of reporting period</h4>
+    <ul class="list list-bullet">
+        <li>These are shown above, under <em>Your reporting periods and deadlines</em></li>
+    </ul>
+
+    <h4 class="heading-small">Average time to pay in days</h4>
+    <ul class="list list-bullet">
+        <li>Out of all the payments you made in the reporting period, the average time it took to pay. Only include payments that you have made during the reporting period.</li>
+    </ul>
+
+    <h4 class="heading-small">Percentage of invoices not paid within agreed terms</h4>
+    <ul class="list list-bullet">
+        <li>This relates to the number of invoices, not their value. Count all invoices that were due during the reporting period, including unpaid or disputed ones.</li>
+    </ul>
+
+    <h4 class="heading-small">Percentage of invoices paid</h4>
+    <ul class="list list-bullet">
+        <li>Within 30 days</li>
+        <li>In 31 to 60 days</li>
+        <li>In more than 60 days</li>
+    </ul>
+    <p>Only include payments that you have made during the reporting period.</p>
+
+    <h4 class="heading-small">Standard Payment Terms</h4>
+    <ul class="list list-bullet">
+        <li>This must include your standard contractual payment period in days and a description of your standard payment terms. If you have different terms for different types of supplier, you should explain them. Most companies write a couple of paragraphs here.</li>
+    </ul>
+
+    <h4 class="heading-small">Your maximum contractual payment period</h4>
+    <ul class="list list-bullet">
+        <li>This is the longest payment period agreed with a supplier for a contract signed in this reporting period. You can just put the number of days, or you can add an explanation.</li>
+    </ul>
+
+    <h4 class="heading-small">Changes to standard terms</h4>
+    <ul class="list list-bullet">
+        <li>If you changed your standard terms, this should include details of exactly what has changed: be sure to include the ‘before’ and ‘after’ situation. You must also state whether you consulted and notified suppliers about any changes. Most companies write a couple of paragraphs here.</li>
+    </ul>
+
+    <h4 class="heading-small">Your dispute resolution process</h4>
+    <ul class="list list-bullet">
+        <li>Describe how you respond to complaints from suppliers, and how you resolve payment disputes. Most companies write a couple of paragraphs here.</li>
+    </ul>
+
+    <h4 class="heading-small">Does your business offer e-invoicing?</h4>
+    <ul class="list list-bullet">
+        <li>This is where suppliers can electronically submit invoices and track invoices. It’s not just allowing suppliers to email you an invoice.</li>
+        <li>Select ‘yes’ or ‘no’.</li>
+    </ul>
+
+    <h4 class="heading-small">Does your business offer supply chain finance options?</h4>
+    <ul class="list list-bullet">
+        <li>This is a system where a supplier's invoice can be paid by a third-party company, who you then pay at a later date.</li>
+        <li>Select ‘yes’ or ‘no’.</li>
+    </ul>
+
+    <h4 class="heading-small">Does your business have a policy of deducting sums from payments as a charge for remaining on a supplier list?</h4>
+    <ul class="list list-bullet">
+        <li>Select ‘yes’ or ‘no’.</li>
+    </ul>
+
+    <h4 class="heading-small">In this reporting period, has your business deducted sums from payments as a charge for remaining on a supplier list?</h4>
+    <ul class="list list-bullet">
+        <li>You must answer this even if you answered ‘no’ to the above question.</li>
+        <li>Select ‘yes’ or ‘no’.</li>
+    </ul>
+
+
+    <h4 class="heading-small">Is your business a signatory to a code of practice for payment?</h4>
+    <ul class="list list-bullet">
+        <li>An example is the Prompt Payment Code</li>
+        <li>Select ‘yes’ or ‘no’.</li>
+    </ul>
+
+
+    <h3 class="heading-medium underline">Before you start</h3>
+
+    <p>
+        The person publishing the report needs to have a <a href="https://beta.companieshouse.gov.uk/" rel="external">Companies House</a> authentication code to publish reports for your company. This is the same code you’d use to file your annual accounts online. It can take several weeks to receive a new authentication code.
+    </p>
+</div>
