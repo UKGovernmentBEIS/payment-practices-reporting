@@ -44,7 +44,8 @@ libraryDependencies ++= Seq(
   "eu.timepit" %% "refined" % "0.6.1",
   "org.scalactic" %% "scalactic" % "3.0.1",
 
-  "org.scalatest" %% "scalatest" % "3.0.1" % Test)
+  "org.scalatest" %% "scalatest" % "3.0.1" % Test,
+  "org.scalacheck" %% "scalacheck" % "1.13.4" % Test)
 
 libraryDependencies ++= slickpgDependencies
 

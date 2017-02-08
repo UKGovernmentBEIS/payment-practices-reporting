@@ -42,7 +42,9 @@ case class FinancialYear(dates: DateRange) {
     case (_, Some(remainder)) if remainder.monthsInRange <= 3 => Seq(ReportingPeriod(this.dates))
     // 9 to 15 months
     case (first, Some(remainder)) if remainder.monthsInRange <= 9 => Seq(first, remainder).map(ReportingPeriod)
-    // more than 15 months - make a period of first six months and recurse
-    case (first, Some(remainder)) => ReportingPeriod(first) +: FinancialYear(remainder).reportingPeriods
+    // more than 15 months - make two periods of six months and a remainder period
+    case (first, Some(remainder)) => remainder.splitAt(6) match {
+      case (second, rem2) => Seq(ReportingPeriod(first), ReportingPeriod(second)) ++ rem2.map(ReportingPeriod)
+    }
   }
 }
