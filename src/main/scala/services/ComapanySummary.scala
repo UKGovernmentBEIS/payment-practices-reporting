@@ -15,13 +15,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package filters
+package services
 
-import javax.inject.Inject
+import forms.report.CompaniesHouseId
 
-import play.api.http.DefaultHttpFilters
 
-class Filters @Inject()(
-                         log: LoggingFilter,
-                         rest: RestErrorFilter
-                       ) extends DefaultHttpFilters(log, rest)
+case class CompanySummary(Name: String, companiesHouseIdentifier: CompaniesHouseId)
+
+case class CompanySummaryWithAddress(name: String, companiesHouseIdentifier: CompaniesHouseId, AddressLine: String)

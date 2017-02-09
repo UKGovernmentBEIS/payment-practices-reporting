@@ -15,13 +15,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package filters
+package controllers
 
 import javax.inject.Inject
 
-import play.api.http.DefaultHttpFilters
+import play.api.mvc.{Action, Controller}
+import services.CompaniesHouseAPI
 
-class Filters @Inject()(
-                         log: LoggingFilter,
-                         rest: RestErrorFilter
-                       ) extends DefaultHttpFilters(log, rest)
+import scala.concurrent.ExecutionContext
+
+class SearchController @Inject()(companiesHouseAPI: CompaniesHouseAPI)(implicit ec: ExecutionContext)
+  extends Controller
+    with PageHelper {
+
+  def doSearch(query: String, page: Option[Int], itemsPerPage: Option[Int]) = Action.async {
+    companiesHouseAPI.searchCompanies(query, page.getOrElse(1), itemsPerPage.getOrElse(20)).map { results =>
+      Ok(results.toString)
+    }
+  }
+
+
+}

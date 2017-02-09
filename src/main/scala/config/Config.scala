@@ -17,7 +17,13 @@
 
 package config
 
-case class Config(logAssets: Option[Boolean], logRequests: Option[Boolean], printDBTables: Option[Boolean])
+case class CompaniesHouseConfig(apiKey: String)
+
+case class Config(
+                   companiesHouse: CompaniesHouseConfig,
+                   logAssets: Option[Boolean],
+                   logRequests: Option[Boolean],
+                   printDBTables: Option[Boolean])
 
 object Config {
 

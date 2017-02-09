@@ -15,13 +15,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package filters
+package services
 
-import javax.inject.Inject
+case class PagedResults[T](results: Seq[T], pageSize: Int, pageNumber: Int, totalResults: Int)
 
-import play.api.http.DefaultHttpFilters
-
-class Filters @Inject()(
-                         log: LoggingFilter,
-                         rest: RestErrorFilter
-                       ) extends DefaultHttpFilters(log, rest)
+object PagedResults {
+  def empty[T] = PagedResults[T](Seq.empty[T], 0, 0, 0)
+}
