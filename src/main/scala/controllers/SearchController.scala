@@ -19,20 +19,26 @@ package controllers
 
 import javax.inject.Inject
 
+import models.CompaniesHouseId
 import play.api.mvc.{Action, Controller}
 import services.CompaniesHouseAPI
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class SearchController @Inject()(companiesHouseAPI: CompaniesHouseAPI)(implicit ec: ExecutionContext)
   extends Controller
     with PageHelper {
 
-  def doSearch(query: String, page: Option[Int], itemsPerPage: Option[Int]) = Action.async {
-    companiesHouseAPI.searchCompanies(query, page.getOrElse(1), itemsPerPage.getOrElse(20)).map { results =>
-      Ok(results.toString)
+  def search(query: Option[String], pageNumber: Option[Int], itemsPerPage: Option[Int]) = Action.async {
+    query match {
+      case Some(q) => companiesHouseAPI.searchCompanies(q, pageNumber.getOrElse(1), itemsPerPage.getOrElse(25)).map { results =>
+        Ok(page(home, views.html.search.search(intentToFile = false, q, Some(results))))
+      }
+      case None => Future.successful(Ok(page(home, views.html.search.search(intentToFile = false, "", None))))
     }
   }
+
+  def company(companiesHouseId: CompaniesHouseId, page: Option[Int]) = Action { implicit request => ??? }
 
 
 }

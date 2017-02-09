@@ -1,0 +1,58 @@
+@(intentToFile: scala.Boolean, searchTerm: String, resultsO: Option[services.ResultsPage])
+
+@companyLink(company: models.CompaniesHouseId) = @{
+    if(intentToFile) routes.Default.todo() //routes.FileReport.startForCompany(result.CompaniesHouseIdentifier)
+    else routes.SearchController.company(company, None)
+}
+
+
+<h1 class="heading-xlarge">
+@if(intentToFile) {
+    Publish a report
+} else {
+    Search for a report
+}
+</h1>
+
+<p class="lede">Enter company number or business name</p>
+@shared._search(intentToFile, searchTerm)
+
+@resultsO.map { results =>
+    @if(results.items.isEmpty && searchTerm != "") {
+        <div class="scannable-wrapper">
+            <p class="bold-medium">We didn’t find any businesses with that company number or name.</p>
+            <p>Please try searching again using different search terms.</p>
+        </div>
+    }
+
+
+    @if(results.items.nonEmpty) {
+        <ul class="searchresults">
+        @for(result <- results.items) {
+            @views.html.shared._companySummary(result, 0, companyLink(result.company_number))
+        }
+        </ul>
+        @if(results.canPage) {
+            <div class="paging">
+                @if(results.canGoBack) {
+                    <a class="page" href="@routes.SearchController.search(Some(searchTerm), Some(results.page_number - 1), None)">Previous</a>
+                }
+
+                @for(i <- Math.max(0, results.page_number - 5) to Math.max(10, results.page_number + 5)) {
+                    @if(i == results.page_number) {
+                        <span class="page thispage" >@i</span>
+                    }
+                    @if(i != results.page_number && results.canGo(i)) {
+                        <a class="page" href="@routes.SearchController.search(Some(searchTerm), Some(i), None)">@i</a>
+                    }
+                }
+                @if(results.canGoNext) {
+                    <a class="page" href="@routes.SearchController.search(Some(searchTerm), Some(results.page_number + 1), None)">Next</a>
+                }
+            </div>
+        }
+        <p>
+            @results.total_results @(results.total_results match { case 1 => "match"; case n => "matches"}) found
+        </p>
+    }
+}

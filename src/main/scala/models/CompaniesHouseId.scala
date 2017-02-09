@@ -15,11 +15,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package services
+package models
 
-import models.CompaniesHouseId
-
-
-case class CompanySummary(Name: String, companiesHouseIdentifier: CompaniesHouseId)
-
-case class CompanySummaryWithAddress(name: String, companiesHouseIdentifier: CompaniesHouseId, AddressLine: String)
+case class CompaniesHouseId(id: String)

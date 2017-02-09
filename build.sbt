@@ -53,7 +53,8 @@ libraryDependencies ++= slickpgDependencies
 PlayKeys.devSettings := Seq("play.server.http.port" -> "9000")
 
 routesImport ++= Seq(
-  "com.wellfactored.playbindings.ValueClassUrlBinders._"
+  "com.wellfactored.playbindings.ValueClassUrlBinders._",
+  "models._"
 )
 
 javaOptions := Seq(

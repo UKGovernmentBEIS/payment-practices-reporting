@@ -23,7 +23,7 @@ import javax.inject.Inject
 import com.google.inject.ImplementedBy
 import com.wellfactored.playbindings.ValueClassReads
 import config.Config
-import forms.report.CompaniesHouseId
+import models.CompaniesHouseId
 import play.api.libs.json.{Json, Reads}
 import play.api.libs.ws.WSClient
 
@@ -36,8 +36,21 @@ case class ResultsPage(
                         start_index: Int,
                         items_per_page: Int,
                         total_results: Int,
-                        items: Seq[ResultItem]
-                      )
+                        items: List[ResultItem]
+                      ) {
+
+  val pageCount = (total_results / items_per_page.toDouble).ceil
+
+  private def isValidRange(pageNumber: Int) = pageNumber <= pageCount && pageNumber >= 1
+
+  def canPage: Boolean = canGoBack || canGoNext
+
+  def canGoBack: Boolean = canGo(page_number - 1)
+
+  def canGoNext: Boolean = canGo(page_number + 1)
+
+  def canGo(pageNumber: Int): Boolean = isValidRange(pageNumber)
+}
 
 @ImplementedBy(classOf[CompaniesHouseAPIImpl])
 trait CompaniesHouseAPI {
@@ -49,12 +62,13 @@ class CompaniesHouseAPIImpl @Inject()(val ws: WSClient)(implicit val ec: Executi
     with CompaniesHouseAPI
     with ValueClassReads {
 
-  implicit val resultItemReads:Reads[ResultItem]= Json.reads[ResultItem]
-  implicit val resultsPageReads:Reads[ResultsPage]= Json.reads[ResultsPage]
+  implicit val resultItemReads: Reads[ResultItem] = Json.reads[ResultItem]
+  implicit val resultsPageReads: Reads[ResultsPage] = Json.reads[ResultsPage]
 
   override def searchCompanies(search: String, page: Int, itemsPerPage: Int): Future[ResultsPage] = {
     val s = views.html.helper.urlEncode(search)
-    val url = s"https://api.companieshouse.gov.uk/search/companies?q=$s&items_per_page=$itemsPerPage&start_index=$page"
+    val startIndex = (page - 1) * itemsPerPage
+    val url = s"https://api.companieshouse.gov.uk/search/companies?q=$s&items_per_page=$itemsPerPage&start_index=$startIndex"
     val basicAuth = "Basic " + new String(Base64.getEncoder.encode(Config.config.companiesHouse.apiKey.getBytes))
 
     get[ResultsPage](url, basicAuth)
