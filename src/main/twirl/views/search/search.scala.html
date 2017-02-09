@@ -1,4 +1,4 @@
-@(intentToFile: scala.Boolean, searchTerm: String, resultsO: Option[services.ResultsPage])
+@(intentToFile: scala.Boolean, searchTerm: String, resultsO: Option[services.ResultsPage], countMap:Map[CompaniesHouseId, Int])
 
 @companyLink(company: models.CompaniesHouseId) = @{
     if(intentToFile) routes.Default.todo() //routes.FileReport.startForCompany(result.CompaniesHouseIdentifier)
@@ -29,7 +29,7 @@
     @if(results.items.nonEmpty) {
         <ul class="searchresults">
         @for(result <- results.items) {
-            @views.html.shared._companySummary(result, 0, companyLink(result.company_number))
+            @views.html.shared._companySummary(result, countMap.getOrElse(result.company_number, 0), companyLink(result.company_number))
         }
         </ul>
         @if(results.canPage) {

@@ -22,19 +22,27 @@ import javax.inject.Inject
 import models.CompaniesHouseId
 import play.api.mvc.{Action, Controller}
 import services.CompaniesHouseAPI
+import slicks.modules.ReportRepo
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class SearchController @Inject()(companiesHouseAPI: CompaniesHouseAPI)(implicit ec: ExecutionContext)
+class SearchController @Inject()(companiesHouseAPI: CompaniesHouseAPI, reports: ReportRepo)(implicit ec: ExecutionContext)
   extends Controller
     with PageHelper {
 
   def search(query: Option[String], pageNumber: Option[Int], itemsPerPage: Option[Int]) = Action.async {
     query match {
-      case Some(q) => companiesHouseAPI.searchCompanies(q, pageNumber.getOrElse(1), itemsPerPage.getOrElse(25)).map { results =>
-        Ok(page(home, views.html.search.search(intentToFile = false, q, Some(results))))
+      case Some(q) => companiesHouseAPI.searchCompanies(q, pageNumber.getOrElse(1), itemsPerPage.getOrElse(25)).flatMap { results =>
+        val counts = results.items.map { report =>
+          reports.byCompanyNumber(report.company_number).map(rs=> (report.company_number, rs.length))
+        }
+
+        Future.sequence(counts).map {counts =>
+          val countMap = Map(counts:_*)
+          Ok(page(home, views.html.search.search(intentToFile = false, q, Some(results), countMap)))
+        }
       }
-      case None => Future.successful(Ok(page(home, views.html.search.search(intentToFile = false, "", None))))
+      case None => Future.successful(Ok(page(home, views.html.search.search(intentToFile = false, "", None, Map.empty))))
     }
   }
 

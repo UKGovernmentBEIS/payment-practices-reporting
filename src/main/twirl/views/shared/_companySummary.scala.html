@@ -2,10 +2,10 @@
 <li class="searchresult">
     <h2 class="heading-medium">
         <a href=@link>@result.title</a>
-        (@reportCount @(reportCount match {case 1 => "report" case n => "reports"}))
+        (@reportCount @(if(reportCount == 1) "report" else "reports"))
     </h2>
     <p>
-        Company number: @result.company_number
+        Company number: @result.company_number.id
     </p>
     <p>
         @result.address_snippet
