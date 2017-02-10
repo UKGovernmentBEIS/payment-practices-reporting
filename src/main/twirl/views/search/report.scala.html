@@ -1,0 +1,108 @@
+@import org.joda.time.format.DateTimeFormatter
+@(model: db.ReportRow, company: services.CompanyDetail, df: DateTimeFormatter)
+<div class="breadcrumbs">
+    <ol>
+        <li><a href="@routes.HomeController.index()">@shared._name()</a></li>
+        <li><a href="@routes.SearchController.search(None, None, None)">Search for reports</a></li>
+        <li><a href="@routes.SearchController.company(company.company_number, None)">@company.company_name reports</a></li>
+    </ol>
+</div>
+<div class="scannable-wrapper">
+    <h1 class="heading-xlarge">
+        @company.company_name:
+        <span class="nowrap">@df.print(model.startDate)</span> to <span class="nowrap">@df.print(model.endDate)</span>
+        <hr>
+    </h1>
+
+    <p class="small-aside">Company number: @company.company_number.id</p>
+    <p>This information is as reported by the business, and is in their own words.</p>
+    <h3 class="heading-medium">Summary</h3>
+    <p>Average time taken to pay invoices: <span class="datum">@model.averageDaysToPay days</span></p>
+    <p>Invoices not paid within agreed terms: <span class="datum">@model.percentInvoicesPaidBeyondAgreedTerms%</span></p>
+    <p>
+        Invoices paid
+    </p>
+    <ul class="list list-bullet">
+        <li>within 30 days: <span class="datum">@model.percentInvoicesWithin30Days%</span></li>
+        <li>between 31 and 60 days: <span class="datum">@model.percentInvoicesWithin60Days%</span></li>
+        <li>later than 60 days: <span class="datum">@model.percentInvoicesBeyond60Days%</span></li>
+    </ul>
+
+    <h3 class="heading-medium">Payment terms</h3>
+    <h4 class="heading-small">Standard payment terms</h4>
+    <p>
+        @shared._multiline(model.paymentTerms)
+    </p>
+    <h4 class="heading-small">Maximum contractual period</h4>
+    <p>
+        @shared._multiline(model.maximumContractPeriod)
+    </p>
+    <h4 class="heading-small">Were there any changes to the payment terms in the reporting period?</h4>
+    <p>
+        @model.paymentTermsChangedComment.map { text =>
+            <strong>Yes </strong>&ndash; @shared._multiline(text)
+        }.getOrElse {
+            <strong>No</strong>
+        }
+    </p>
+    @if(model.paymentTermsChangedComment.isDefined) {
+        <h4 class="heading-small">Were suppliers notified or consulted about these changes?</h4>
+        <p>
+            @model.paymentTermsChangedNotifiedComment.map { text =>
+                <strong>Yes </strong>&ndash; shared._multiline(model.PaymentTermsChangedNotifiedComment)
+            }.getOrElse {
+                <strong>No</strong>
+            }
+        </p>
+    }
+    <h4 class="heading-small">Any other information about standard payment terms</h4>
+    <p>
+        @model.paymentTermsComment.map(text => shared._multiline(text)).getOrElse(<em>N/A</em>)
+    </p>
+    <h3 class="heading-medium">What is the business's dispute resolution policy?</h3>
+    <p>
+        @shared._multiline(model.disputeResolution)
+    </p>
+
+    <h3 class="heading-medium">Other payment information</h3>
+    <h4 class="heading-small">
+        Is this business a member of a code of practice for payment?
+        <span class="form-hint">For example, signatories to The Prompt Payment Code must commit to paying 95% of their invoices within 60 days.</span>
+    </h4>
+    <p>
+        @model.paymentCodes.map { text =>
+            <strong>Yes </strong>&ndash; @shared._multiline(text)
+        }.getOrElse {
+            <strong>No</strong>
+        }
+    </p>
+    <h4 class="heading-small">
+        Does this business offer e-invoicing?
+        <span class="form-hint">This is where a business allows suppliers to electronically submit and track the progress of their invoices.
+</span>
+    </h4>
+    <p>
+        @(if(model.offerEInvoicing)  "No" else "Yes")
+    </p>
+
+    <h4 class="heading-small">
+        Does this business offer supply chain finance?
+        <span class="form-hint">This is where a supplier's invoice can be paid quickly by a third-party financing company, who the business pays at a later date.</span>
+    </h4>
+    <p>
+        @(if(model.offerSupplyChainFinance)  "No" else "Yes")
+    </p>
+    <h4 class="heading-small">
+        Do this business' terms allow it to charge suppliers to remain on a supplier list?
+        <span class="form-hint">This is sometimes known as 'pay to play'.</span>
+    </h4>
+    <p>
+        @(if(model.retentionChargesInPolicy ) "No" else "Yes")
+    </p>
+    <h4 class="heading-small">
+        Did the business actually do this during this reporting period?
+    </h4>
+    <p>
+        @(if(model.retentionChargesInPast) "No" else "Yes")
+    </p>
+</div>

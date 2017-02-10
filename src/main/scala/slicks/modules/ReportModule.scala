@@ -96,6 +96,8 @@ trait ReportModule extends DBBinding {
 
 @ImplementedBy(classOf[ReportTable])
 trait ReportRepo {
+  def find(id: ReportId): Future[Option[ReportRow]]
+
   def byCompanyNumber(companiesHouseId: CompaniesHouseId): Future[Seq[ReportRow]]
 }
 
@@ -107,6 +109,8 @@ class ReportTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(implic
     with PgDateSupportJoda {
 
   import api._
+
+  def find(id: ReportId): Future[Option[ReportRow]] = db.run(reportTable.filter(_.id === id).result.headOption)
 
   def byCompanyNumber(companiesHouseId: CompaniesHouseId): Future[Seq[ReportRow]] = db.run {
     reportTable.filter(_.companyId === companiesHouseId.id).result

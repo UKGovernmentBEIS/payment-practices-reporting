@@ -68,7 +68,15 @@ class SearchController @Inject()(companiesHouseAPI: CompaniesHouseAPI, reports: 
     }
   }
 
-  def view(reportId: ReportId) = Action { implicit request => ??? }
+  def view(reportId: ReportId) = Action.async { implicit request =>
+    val f = for {
+      report <- OptionT(reports.find(reportId))
+      company <- OptionT(companiesHouseAPI.find(CompaniesHouseId(report.companyId)))
+    } yield Ok(page(home, views.html.search.report(report, company, df)))
 
-
+    f.value.map {
+      case Some(ok) => ok
+      case None => NotFound
+    }
+  }
 }
