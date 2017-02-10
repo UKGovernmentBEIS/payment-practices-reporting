@@ -17,11 +17,18 @@
 
 package slicks.modules
 
+import javax.inject.Inject
+
 import com.github.tminglei.slickpg.PgDateSupportJoda
+import com.google.inject.ImplementedBy
 import com.wellfactored.slickgen.IdType
-import db.{CompanyId, ReportId, ReportRow}
+import db.ReportRow
+import models.{CompaniesHouseId, ReportId}
 import org.joda.time.LocalDate
+import play.api.db.slick.DatabaseConfigProvider
 import slicks.DBBinding
+
+import scala.concurrent.{ExecutionContext, Future}
 
 trait ReportModule extends DBBinding {
   self: CompanyModule with PgDateSupportJoda =>
@@ -35,9 +42,9 @@ trait ReportModule extends DBBinding {
   class ReportTable(tag: Tag) extends Table[ReportRow](tag, "report") {
     def id = column[ReportId]("id", O.Length(IdType.length), O.PrimaryKey, O.AutoInc)
 
-    def companyId = column[CompanyId]("company_id", O.Length(IdType.length))
+    def companyId = column[String]("company_id", O.Length(IdType.length))
 
-    def companyIdFK = foreignKey("report_company_fk", companyId, companyTable)(_.id, onDelete = ForeignKeyAction.Cascade)
+    def companyIdFK = foreignKey("report_company_fk", companyId, companyTable)(_.companiesHouseIdentifier, onDelete = ForeignKeyAction.Cascade)
 
     def companyIdIndex = index("report_company_idx", companyId)
 
@@ -85,4 +92,23 @@ trait ReportModule extends DBBinding {
   lazy val reportTable = TableQuery[ReportTable]
 
   override def schema = super.schema ++ reportTable.schema
+}
+
+@ImplementedBy(classOf[ReportTable])
+trait ReportRepo {
+  def byCompanyNumber(companiesHouseId: CompaniesHouseId): Future[Seq[ReportRow]]
+}
+
+class ReportTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(implicit ec: ExecutionContext)
+  extends DBBinding
+    with ReportRepo
+    with ReportModule
+    with CompanyModule
+    with PgDateSupportJoda {
+
+  import api._
+
+  def byCompanyNumber(companiesHouseId: CompaniesHouseId): Future[Seq[ReportRow]] = db.run {
+    reportTable.filter(_.companyId === companiesHouseId.id).result
+  }
 }

@@ -14,3 +14,6 @@ GET         /calculate-reporting-deadlines                  controllers.Calculat
 POST        /calculate-reporting-deadlines                  controllers.CalculatorController.submit()
 GET         /calculate-reporting-deadlines/deadlines        controllers.CalculatorController.showAnswer()
 
+GET         /search-payment-practice-reports                controllers.SearchController.search(q:Option[String], page:Option[Int], items_per_page:Option[Int])
+GET         /search-payment-practice-reports/company        controllers.SearchController.company(company:CompaniesHouseId, page:Option[Int])
+GET         /search-payment-practice-reports/report         controllers.SearchController.view(reportId: ReportId)

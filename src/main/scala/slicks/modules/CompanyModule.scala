@@ -17,7 +17,7 @@
 
 package slicks.modules
 
-import com.wellfactored.slickgen.IdType
+import com.google.inject.ImplementedBy
 import db.{CompanyId, CompanyRow}
 import slicks.DBBinding
 
@@ -30,15 +30,11 @@ trait CompanyModule extends DBBinding {
   type CompanyQuery = Query[CompanyTable, CompanyRow, Seq]
 
   class CompanyTable(tag: Tag) extends Table[CompanyRow](tag, "company") {
-    def id = column[CompanyId]("id", O.Length(IdType.length), O.PrimaryKey, O.AutoInc)
-
-    def companiesHouseIdentifier = column[String]("companies_house_identifier", O.Length(255))
-
-    def companiesHouseIdentifierUniqueIdx = index("coho_id_unique_idx", companiesHouseIdentifier, unique = true)
+    def companiesHouseIdentifier = column[String]("companies_house_identifier",O.PrimaryKey, O.Length(255))
 
     def name = column[String]("name", O.Length(255))
 
-    def * = (id, companiesHouseIdentifier, name) <> (CompanyRow.tupled, CompanyRow.unapply)
+    def * = (companiesHouseIdentifier, name) <> (CompanyRow.tupled, CompanyRow.unapply)
   }
 
   lazy val companyTable = TableQuery[CompanyTable]

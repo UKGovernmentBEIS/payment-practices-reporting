@@ -15,13 +15,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package filters
+package models
 
-import javax.inject.Inject
-
-import play.api.http.DefaultHttpFilters
-
-class Filters @Inject()(
-                         log: LoggingFilter,
-                         rest: RestErrorFilter
-                       ) extends DefaultHttpFilters(log, rest)
+case class ReportId(id: Long) extends AnyVal

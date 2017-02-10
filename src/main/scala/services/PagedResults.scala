@@ -15,13 +15,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package filters
+package services
 
-import javax.inject.Inject
+case class PagedResults[T](items: Seq[T], pageSize: Int, pageNumber: Int, totalResults: Int) {
+  val pageCount = (totalResults / pageSize.toDouble).ceil
 
-import play.api.http.DefaultHttpFilters
+  private def isValidRange(pageNumber: Int) = pageNumber <= pageCount && pageNumber >= 1
 
-class Filters @Inject()(
-                         log: LoggingFilter,
-                         rest: RestErrorFilter
-                       ) extends DefaultHttpFilters(log, rest)
+  def canPage: Boolean = canGoBack || canGoNext
+
+  def canGoBack: Boolean = canGo(pageNumber - 1)
+
+  def canGoNext: Boolean = canGo(pageNumber + 1)
+
+  def canGo(n: Int): Boolean = isValidRange(n)
+}
+
+object PagedResults {
+  def empty[T] = PagedResults[T](Seq.empty[T], 0, 0, 0)
+
+  def page[T](items: Seq[T], pageNumber: Int, pageSize: Int = 25): PagedResults[T] = {
+    PagedResults(items.drop((pageNumber - 1) * pageSize).take(pageSize), pageSize, pageNumber, items.length)
+  }
+}

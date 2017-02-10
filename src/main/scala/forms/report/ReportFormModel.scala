@@ -18,8 +18,9 @@
 package forms.report
 
 import forms.DateRange
+import models.CompaniesHouseId
 
-case class CompaniesHouseId(id: String)
+
 
 
 case class PercentageSplit(

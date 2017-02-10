@@ -1,0 +1,12 @@
+@import org.joda.time.format.DateTimeFormatter
+@(report: db.ReportRow, companiesHouseIdentifier: String, df: DateTimeFormatter)
+<li class="searchresult">
+    <h2 class="heading-medium">
+        <a href="@routes.SearchController.view(report.id)">
+            <span class="nowrap">@df.print(report.startDate)</span> to <span class="nowrap">@df.print(report.endDate)</span>
+        </a>
+    </h2>
+    <p>
+        Published: @report.filingDate
+    </p>
+</li>

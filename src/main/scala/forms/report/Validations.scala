@@ -19,6 +19,7 @@ package forms.report
 
 import javax.inject.Inject
 
+import models.CompaniesHouseId
 import org.joda.time.LocalDate
 import play.api.data.Forms._
 import play.api.data.Mapping
