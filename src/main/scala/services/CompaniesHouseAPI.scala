@@ -29,24 +29,22 @@ import play.api.libs.ws.WSClient
 
 import scala.concurrent.{ExecutionContext, Future}
 
-case class ResultItem(company_number: CompaniesHouseId, title: String, address_snippet: String)
+case class CompanySummary(company_number: CompaniesHouseId, title: String, address_snippet: String)
+case class CompanyDetail(company_number: CompaniesHouseId, company_name: String)
 
 case class ResultsPage(
                         page_number: Int,
                         start_index: Int,
                         items_per_page: Int,
                         total_results: Int,
-                        items: List[ResultItem]
-                      ) {
-
-
-}
+                        items: List[CompanySummary]
+                      )
 
 @ImplementedBy(classOf[CompaniesHouseAPIImpl])
 trait CompaniesHouseAPI {
-  def searchCompanies(search: String, page: Int, itemsPerPage: Int): Future[PagedResults[ResultItem]]
+  def searchCompanies(search: String, page: Int, itemsPerPage: Int): Future[PagedResults[CompanySummary]]
 
-  def find(companiesHouseId: CompaniesHouseId):Future[Option[ResultItem]]
+  def find(companiesHouseId: CompaniesHouseId):Future[Option[CompanyDetail]]
 }
 
 class CompaniesHouseAPIImpl @Inject()(val ws: WSClient)(implicit val ec: ExecutionContext)
@@ -54,10 +52,11 @@ class CompaniesHouseAPIImpl @Inject()(val ws: WSClient)(implicit val ec: Executi
     with CompaniesHouseAPI
     with ValueClassReads {
 
-  implicit val resultItemReads: Reads[ResultItem] = Json.reads[ResultItem]
+  implicit val companySummaryReads: Reads[CompanySummary] = Json.reads[CompanySummary]
+  implicit val companyDetailReads: Reads[CompanyDetail] = Json.reads[CompanyDetail]
   implicit val resultsPageReads: Reads[ResultsPage] = Json.reads[ResultsPage]
 
-  override def searchCompanies(search: String, page: Int, itemsPerPage: Int): Future[PagedResults[ResultItem]] = {
+  override def searchCompanies(search: String, page: Int, itemsPerPage: Int): Future[PagedResults[CompanySummary]] = {
     val s = views.html.helper.urlEncode(search)
     val startIndex = (page - 1) * itemsPerPage
     val url = s"https://api.companieshouse.gov.uk/search/companies?q=$s&items_per_page=$itemsPerPage&start_index=$startIndex"
@@ -68,11 +67,11 @@ class CompaniesHouseAPIImpl @Inject()(val ws: WSClient)(implicit val ec: Executi
     }
   }
 
-  override def find(companiesHouseId: CompaniesHouseId):Future[Option[ResultItem]] = {
+  override def find(companiesHouseId: CompaniesHouseId):Future[Option[CompanyDetail]] = {
     val id = views.html.helper.urlEncode(companiesHouseId.id)
     val url = s"https://api.companieshouse.gov.uk/company/$id"
     val basicAuth = "Basic " + new String(Base64.getEncoder.encode(Config.config.companiesHouse.apiKey.getBytes))
 
-    getOpt[ResultItem](url, basicAuth)
+    getOpt[CompanyDetail](url, basicAuth)
   }
 }

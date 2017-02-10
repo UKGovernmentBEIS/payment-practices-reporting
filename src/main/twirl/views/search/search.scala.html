@@ -1,8 +1,8 @@
-@import services.{PagedResults, ResultItem}
+@import services.{PagedResults, CompanySummary}
 @(
         intentToFile: scala.Boolean,
         searchTerm: String,
-        resultsO: Option[PagedResults[ResultItem]],
+        resultsO: Option[PagedResults[CompanySummary]],
         counts:Map[CompaniesHouseId, Int],
         pageLink: Int => Call
 )

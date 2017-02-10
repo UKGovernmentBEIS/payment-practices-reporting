@@ -1,8 +1,9 @@
-@import services.{ResultItem, PagedResults}
-@(item: ResultItem, reports: PagedResults[db.ReportRow], pageLink: Int => Call)
+@import services.{CompanyDetail, PagedResults}
+@import org.joda.time.format.DateTimeFormatter
+@(item: CompanyDetail, reports: PagedResults[db.ReportRow], pageLink: Int => Call, df:DateTimeFormatter)
 
 <h1 class="heading-xlarge">
-    @item.title reports
+    @item.company_name reports
     <hr>
 </h1>
 
@@ -27,7 +28,7 @@
 
     <ul class="searchresults">
         @for(report <- reports.items) {
-            @shared._reportSummary(report, item.company_number.id)
+            @shared._reportSummary(report, item.company_number.id, df)
         }
     </ul>
         @shared._pageLinks(reports, pageLink)

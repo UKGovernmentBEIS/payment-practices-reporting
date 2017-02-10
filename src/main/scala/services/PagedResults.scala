@@ -35,6 +35,6 @@ object PagedResults {
   def empty[T] = PagedResults[T](Seq.empty[T], 0, 0, 0)
 
   def page[T](items: Seq[T], pageNumber: Int, pageSize: Int = 25): PagedResults[T] = {
-    PagedResults(items.take((pageNumber - 1) * pageSize), pageSize, pageNumber, items.length)
+    PagedResults(items.drop((pageNumber - 1) * pageSize).take(pageSize), pageSize, pageNumber, items.length)
   }
 }

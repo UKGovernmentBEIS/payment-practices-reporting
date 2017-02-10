@@ -22,6 +22,7 @@ import javax.inject.Inject
 import cats.data.OptionT
 import cats.instances.future._
 import models.{CompaniesHouseId, ReportId}
+import org.joda.time.format.DateTimeFormat
 import play.api.mvc.{Action, Controller}
 import services.{CompaniesHouseAPI, PagedResults}
 import slicks.modules.ReportRepo
@@ -31,6 +32,8 @@ import scala.concurrent.{ExecutionContext, Future}
 class SearchController @Inject()(companiesHouseAPI: CompaniesHouseAPI, reports: ReportRepo)(implicit ec: ExecutionContext)
   extends Controller
     with PageHelper {
+
+  val df = DateTimeFormat.forPattern("d MMMM YYYY")
 
   def search(query: Option[String], pageNumber: Option[Int], itemsPerPage: Option[Int]) = Action.async {
     val pageLink = { i: Int => routes.SearchController.search(query, Some(i), itemsPerPage) }
@@ -53,10 +56,10 @@ class SearchController @Inject()(companiesHouseAPI: CompaniesHouseAPI, reports: 
   def company(companiesHouseId: CompaniesHouseId, pageNumber: Option[Int]) = Action.async { implicit request =>
     val pageLink = { i: Int => routes.SearchController.company(companiesHouseId, Some(i)) }
     val result = for {
-      item <- OptionT(companiesHouseAPI.find(companiesHouseId))
+      co <- OptionT(companiesHouseAPI.find(companiesHouseId))
       rs <- OptionT.liftF(reports.byCompanyNumber(companiesHouseId).map(PagedResults.page(_, pageNumber.getOrElse(1))))
     } yield {
-      Ok(page(home, views.html.search.company(item, rs, pageLink)))
+      Ok(page(home, views.html.search.company(co, rs, pageLink, df)))
     }
 
     result.value.map {
