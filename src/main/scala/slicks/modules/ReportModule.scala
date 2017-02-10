@@ -22,8 +22,8 @@ import javax.inject.Inject
 import com.github.tminglei.slickpg.PgDateSupportJoda
 import com.google.inject.ImplementedBy
 import com.wellfactored.slickgen.IdType
-import db.{ReportId, ReportRow}
-import models.CompaniesHouseId
+import db.ReportRow
+import models.{CompaniesHouseId, ReportId}
 import org.joda.time.LocalDate
 import play.api.db.slick.DatabaseConfigProvider
 import slicks.DBBinding

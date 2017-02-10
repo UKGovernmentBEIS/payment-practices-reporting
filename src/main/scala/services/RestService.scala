@@ -31,8 +31,8 @@ trait RestService {
 
   implicit def ec: ExecutionContext
 
-  def getOpt[A: Reads](url: String): Future[Option[A]] = {
-    val request: WSRequest = ws.url(url)
+  def getOpt[A: Reads](url: String, auth:String): Future[Option[A]] = {
+    val request: WSRequest = ws.url(url).withHeaders(("Authorization", auth))
     request.get.map { response =>
       response.status match {
         case 200 => response.json.validate[A] match {

@@ -15,26 +15,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package services
+package models
 
-case class PagedResults[T](items: Seq[T], pageSize: Int, pageNumber: Int, totalResults: Int) {
-  val pageCount = (totalResults / pageSize.toDouble).ceil
-
-  private def isValidRange(pageNumber: Int) = pageNumber <= pageCount && pageNumber >= 1
-
-  def canPage: Boolean = canGoBack || canGoNext
-
-  def canGoBack: Boolean = canGo(pageNumber - 1)
-
-  def canGoNext: Boolean = canGo(pageNumber + 1)
-
-  def canGo(n: Int): Boolean = isValidRange(n)
-}
-
-object PagedResults {
-  def empty[T] = PagedResults[T](Seq.empty[T], 0, 0, 0)
-
-  def page[T](items: Seq[T], pageNumber: Int, pageSize: Int = 25): PagedResults[T] = {
-    PagedResults(items.take((pageNumber - 1) * pageSize), pageSize, pageNumber, items.length)
-  }
-}
+case class ReportId(id: Long) extends AnyVal

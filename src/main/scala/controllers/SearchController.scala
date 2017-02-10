@@ -19,9 +19,11 @@ package controllers
 
 import javax.inject.Inject
 
-import models.CompaniesHouseId
+import cats.data.OptionT
+import cats.instances.future._
+import models.{CompaniesHouseId, ReportId}
 import play.api.mvc.{Action, Controller}
-import services.CompaniesHouseAPI
+import services.{CompaniesHouseAPI, PagedResults}
 import slicks.modules.ReportRepo
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -31,22 +33,39 @@ class SearchController @Inject()(companiesHouseAPI: CompaniesHouseAPI, reports: 
     with PageHelper {
 
   def search(query: Option[String], pageNumber: Option[Int], itemsPerPage: Option[Int]) = Action.async {
+    val pageLink = { i: Int => routes.SearchController.search(query, Some(i), itemsPerPage) }
+
     query match {
       case Some(q) => companiesHouseAPI.searchCompanies(q, pageNumber.getOrElse(1), itemsPerPage.getOrElse(25)).flatMap { results =>
         val counts = results.items.map { report =>
-          reports.byCompanyNumber(report.company_number).map(rs=> (report.company_number, rs.length))
+          reports.byCompanyNumber(report.company_number).map(rs => (report.company_number, rs.length))
         }
 
-        Future.sequence(counts).map {counts =>
-          val countMap = Map(counts:_*)
-          Ok(page(home, views.html.search.search(intentToFile = false, q, Some(results), countMap)))
+        Future.sequence(counts).map { counts =>
+          val countMap = Map(counts: _*)
+          Ok(page(home, views.html.search.search(intentToFile = false, q, Some(results), countMap, pageLink)))
         }
       }
-      case None => Future.successful(Ok(page(home, views.html.search.search(intentToFile = false, "", None, Map.empty))))
+      case None => Future.successful(Ok(page(home, views.html.search.search(intentToFile = false, "", None, Map.empty, pageLink))))
     }
   }
 
-  def company(companiesHouseId: CompaniesHouseId, page: Option[Int]) = Action { implicit request => ??? }
+  def company(companiesHouseId: CompaniesHouseId, pageNumber: Option[Int]) = Action.async { implicit request =>
+    val pageLink = { i: Int => routes.SearchController.company(companiesHouseId, Some(i)) }
+    val result = for {
+      item <- OptionT(companiesHouseAPI.find(companiesHouseId))
+      rs <- OptionT.liftF(reports.byCompanyNumber(companiesHouseId).map(PagedResults.page(_, pageNumber.getOrElse(1))))
+    } yield {
+      Ok(page(home, views.html.search.company(item, rs, pageLink)))
+    }
+
+    result.value.map {
+      case Some(r) => r
+      case None => NotFound
+    }
+  }
+
+  def view(reportId: ReportId) = Action { implicit request => ??? }
 
 
 }

@@ -17,9 +17,8 @@
 
 package db
 
+import models.ReportId
 import org.joda.time.LocalDate
-
-case class ReportId(id: Long) extends AnyVal
 
 case class ReportRow(
                       id: ReportId,

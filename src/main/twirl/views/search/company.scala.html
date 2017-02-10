@@ -1,0 +1,49 @@
+@import services.{ResultItem, PagedResults}
+@(item: ResultItem, reports: PagedResults[db.ReportRow], pageLink: Int => Call)
+
+<h1 class="heading-xlarge">
+    @item.title reports
+    <hr>
+</h1>
+
+@if(reports.items.isEmpty) {
+<div class="scannable-wrapper">
+    <h3 class="heading-medium">This business has not published any reports</h3>
+    <p>
+        This may be because:
+    </p>
+    <ul class="list list-bullet">
+        <li>it's not large enough to have to report</li>
+        <li>it is large enough, but it's not yet required to publish its first report, as companies have different reporting dates</li>
+    </ul>
+    <h3 class="heading-medium">Do you work for this business?</h3>
+    <ul class="list">
+        <li>Your business may need to <a href="@routes.QuestionnaireController.start()">publish reports on its payment practices</a>.</li>
+    </ul>
+</div>
+} else {
+<div class="grid-row">
+    <div class="column-two-thirds">
+
+    <ul class="searchresults">
+        @for(report <- reports.items) {
+            @shared._reportSummary(report, item.company_number.id)
+        }
+    </ul>
+        @shared._pageLinks(reports, pageLink)
+        <p>
+            @reports.items.length @(if(reports.items.length == 1) "report" else "reports") found
+        </p>
+
+    </div>
+    <div class="column-one-third">
+        <div class="separator"></div>
+        <h3 class="heading-sidebar">Do you work for this business?</h3>
+        <ul class="list">
+            <li><a href="@routes.QuestionnaireController.start()">Get prepared</a>: find out if, when and how your business needs to publish reports</li>
+            <li><a href="@routes.SearchController.search(None, None, None)">Publish a report</a>: once your report data is fully prepared</li>
+        </ul>
+    </div>
+}
+
+</div>

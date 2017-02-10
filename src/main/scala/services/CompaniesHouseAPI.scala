@@ -39,22 +39,14 @@ case class ResultsPage(
                         items: List[ResultItem]
                       ) {
 
-  val pageCount = (total_results / items_per_page.toDouble).ceil
 
-  private def isValidRange(pageNumber: Int) = pageNumber <= pageCount && pageNumber >= 1
-
-  def canPage: Boolean = canGoBack || canGoNext
-
-  def canGoBack: Boolean = canGo(page_number - 1)
-
-  def canGoNext: Boolean = canGo(page_number + 1)
-
-  def canGo(pageNumber: Int): Boolean = isValidRange(pageNumber)
 }
 
 @ImplementedBy(classOf[CompaniesHouseAPIImpl])
 trait CompaniesHouseAPI {
-  def searchCompanies(search: String, page: Int, itemsPerPage: Int): Future[ResultsPage]
+  def searchCompanies(search: String, page: Int, itemsPerPage: Int): Future[PagedResults[ResultItem]]
+
+  def find(companiesHouseId: CompaniesHouseId):Future[Option[ResultItem]]
 }
 
 class CompaniesHouseAPIImpl @Inject()(val ws: WSClient)(implicit val ec: ExecutionContext)
@@ -65,12 +57,22 @@ class CompaniesHouseAPIImpl @Inject()(val ws: WSClient)(implicit val ec: Executi
   implicit val resultItemReads: Reads[ResultItem] = Json.reads[ResultItem]
   implicit val resultsPageReads: Reads[ResultsPage] = Json.reads[ResultsPage]
 
-  override def searchCompanies(search: String, page: Int, itemsPerPage: Int): Future[ResultsPage] = {
+  override def searchCompanies(search: String, page: Int, itemsPerPage: Int): Future[PagedResults[ResultItem]] = {
     val s = views.html.helper.urlEncode(search)
     val startIndex = (page - 1) * itemsPerPage
     val url = s"https://api.companieshouse.gov.uk/search/companies?q=$s&items_per_page=$itemsPerPage&start_index=$startIndex"
     val basicAuth = "Basic " + new String(Base64.getEncoder.encode(Config.config.companiesHouse.apiKey.getBytes))
 
-    get[ResultsPage](url, basicAuth)
+    get[ResultsPage](url, basicAuth).map { resultsPage =>
+      PagedResults(resultsPage.items, resultsPage.items_per_page, resultsPage.page_number, resultsPage.total_results)
+    }
+  }
+
+  override def find(companiesHouseId: CompaniesHouseId):Future[Option[ResultItem]] = {
+    val id = views.html.helper.urlEncode(companiesHouseId.id)
+    val url = s"https://api.companieshouse.gov.uk/company/$id"
+    val basicAuth = "Basic " + new String(Base64.getEncoder.encode(Config.config.companiesHouse.apiKey.getBytes))
+
+    getOpt[ResultItem](url, basicAuth)
   }
 }

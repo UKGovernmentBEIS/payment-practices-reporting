@@ -1,0 +1,11 @@
+@(report: db.ReportRow, companiesHouseIdentifier: String)
+<li class="searchresult">
+    <h2 class="heading-medium">
+        <a href="@routes.SearchController.view(report.id)">
+            <span class="nowrap">@report.startDate</span> to <span class="nowrap">@report.endDate</span>
+        </a>
+    </h2>
+    <p>
+        Published: @report.filingDate
+    </p>
+</li>
