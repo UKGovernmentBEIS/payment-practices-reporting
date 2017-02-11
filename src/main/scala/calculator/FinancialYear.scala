@@ -36,15 +36,21 @@ case class FinancialYear(dates: DateRange) {
     * 9 months and a day up to 15 months - split into 6-month period and a remainder period
     * 15 months and a day or more - split into 2 6-month periods and a remainder period
     */
-  def reportingPeriods: Seq[ReportingPeriod] = dates.splitAt(6) match {
-    case (first, None) => Seq(ReportingPeriod(first))
-    // 9 months or less - single reporting period covering the whole financial year
-    case (_, Some(remainder)) if remainder.monthsInRange <= 3 => Seq(ReportingPeriod(this.dates))
-    // 9 to 15 months
-    case (first, Some(remainder)) if remainder.monthsInRange <= 9 => Seq(first, remainder).map(ReportingPeriod)
-    // more than 15 months - make two periods of six months and a remainder period
-    case (first, Some(remainder)) => remainder.splitAt(6) match {
-      case (second, rem2) => Seq(ReportingPeriod(first), ReportingPeriod(second)) ++ rem2.map(ReportingPeriod)
+  def reportingPeriods: Seq[ReportingPeriod] = {
+    val ranges: Seq[DateRange] = dates.monthsInRange match {
+      case n if n <= 9 => Seq(dates)
+
+      case n if n <= 15 =>
+        val second = DateRange(dates.addMonthsWithStickyEnd(dates.startDate, 6), dates.endDate)
+        val first = DateRange(dates.startDate, second.startDate.minusDays(1))
+        Seq(first, second)
+
+      case _ =>
+        val third = DateRange(dates.startDate.plusYears(1), dates.endDate)
+        val second = DateRange(dates.addMonthsWithStickyEnd(dates.startDate, 6), third.startDate.minusDays(1))
+        val first = DateRange(dates.startDate, second.startDate.minusDays(1))
+        Seq(first, second, third)
     }
+    ranges.map(ReportingPeriod)
   }
 }

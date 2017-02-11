@@ -19,6 +19,6 @@ package calculator
 
 import forms.DateRange
 
-case class ReportingPeriod(dateRange: DateRange)  {
+case class ReportingPeriod(dateRange: DateRange) {
   val filingDeadline = dateRange.endDate.plusDays(30)
 }
