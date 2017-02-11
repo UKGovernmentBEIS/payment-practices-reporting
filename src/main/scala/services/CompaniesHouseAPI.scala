@@ -24,6 +24,7 @@ import com.google.inject.ImplementedBy
 import com.wellfactored.playbindings.ValueClassReads
 import config.Config
 import models.CompaniesHouseId
+import play.api.Logger
 import play.api.libs.json.{Json, Reads}
 import play.api.libs.ws.WSClient
 
@@ -62,7 +63,11 @@ class CompaniesHouseAPIImpl @Inject()(val ws: WSClient)(implicit val ec: Executi
     val url = s"https://api.companieshouse.gov.uk/search/companies?q=$s&items_per_page=$itemsPerPage&start_index=$startIndex"
     val basicAuth = "Basic " + new String(Base64.getEncoder.encode(Config.config.companiesHouse.apiKey.getBytes))
 
+    val start = System.currentTimeMillis()
+
     get[ResultsPage](url, basicAuth).map { resultsPage =>
+      val t = System.currentTimeMillis() - start
+      Logger.debug(s"Companies house search took ${t}ms")
       PagedResults(resultsPage.items, resultsPage.items_per_page, resultsPage.page_number, resultsPage.total_results)
     }
   }
