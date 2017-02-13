@@ -26,8 +26,14 @@ object ReportCSV {
 
   case class CSVString(s: String)
 
+  val charsThatNeedQuoting = Seq(',', '\n', '\r')
+  val charsThatNeedDoubling = Seq('"')
+
+  def quote(s: String): String = s""""$s""""
+
   def escape(s: String): String = s match {
-    case _ if s.contains(",") || s.contains("\"") || s.contains("\n") => s""""$s""""
+    case _ if charsThatNeedDoubling.exists(s.contains(_)) => quote(charsThatNeedDoubling.foldLeft(s) { case (t, c) => t.replace(s"$c", s"$c$c") })
+    case _ if charsThatNeedQuoting.exists(s.contains(_)) => quote(s)
     case _ => s
   }
 
