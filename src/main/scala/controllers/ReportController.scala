@@ -19,27 +19,20 @@ package controllers
 
 import javax.inject.Inject
 
-import cats.data.OptionT
-import cats.instances.future._
-import models.{CompaniesHouseId, ReportId}
-import org.joda.time.format.DateTimeFormat
+import models.CompaniesHouseId
 import play.api.mvc.{Action, Controller}
-import services.{CompaniesHouseAPI, PagedResults}
+import services.CompaniesHouseAPI
 import slicks.modules.ReportRepo
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class SearchController @Inject()(companiesHouseAPI: CompaniesHouseAPI, reports: ReportRepo)(implicit ec: ExecutionContext)
-  extends Controller
-    with PageHelper {
-
-  val df = DateTimeFormat.forPattern("d MMMM YYYY")
+class ReportController @Inject()(companiesHouseAPI: CompaniesHouseAPI, reports: ReportRepo)(implicit ec: ExecutionContext) extends Controller with PageHelper {
 
   def search(query: Option[String], pageNumber: Option[Int], itemsPerPage: Option[Int]) = Action.async {
-    val searchLink = routes.SearchController.search(None, None, None)
-    val pageLink = { i: Int => routes.SearchController.search(query, Some(i), itemsPerPage) }
-    val companyLink = { id: CompaniesHouseId => routes.SearchController.company(id, pageNumber) }
-    val header = h1("Search for a report")
+    val searchLink = routes.ReportController.search(None, None, None)
+    val pageLink = { i: Int => routes.ReportController.search(query, Some(i), itemsPerPage) }
+    val companyLink = { id: CompaniesHouseId => routes.Default.todo() }
+    val header = h1("Publish a report")
 
     query match {
       case Some(q) => companiesHouseAPI.searchCompanies(q, pageNumber.getOrElse(1), itemsPerPage.getOrElse(25)).flatMap { results =>
@@ -56,30 +49,8 @@ class SearchController @Inject()(companiesHouseAPI: CompaniesHouseAPI, reports: 
     }
   }
 
-  def company(companiesHouseId: CompaniesHouseId, pageNumber: Option[Int]) = Action.async { implicit request =>
-    val pageLink = { i: Int => routes.SearchController.company(companiesHouseId, Some(i)) }
-    val result = for {
-      co <- OptionT(companiesHouseAPI.find(companiesHouseId))
-      rs <- OptionT.liftF(reports.byCompanyNumber(companiesHouseId).map(PagedResults.page(_, pageNumber.getOrElse(1))))
-    } yield {
-      Ok(page(home, views.html.search.company(co, rs, pageLink, df)))
-    }
-
-    result.value.map {
-      case Some(r) => r
-      case None => NotFound
-    }
+  def start(companiesHouseId: CompaniesHouseId) = Action { request =>
+    ???
   }
 
-  def view(reportId: ReportId) = Action.async { implicit request =>
-    val f = for {
-      report <- OptionT(reports.find(reportId))
-      company <- OptionT(companiesHouseAPI.find(CompaniesHouseId(report.companyId)))
-    } yield Ok(page(home, views.html.search.report(report, company, df)))
-
-    f.value.map {
-      case Some(ok) => ok
-      case None => NotFound
-    }
-  }
 }

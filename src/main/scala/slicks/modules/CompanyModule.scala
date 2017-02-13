@@ -17,15 +17,13 @@
 
 package slicks.modules
 
-import com.google.inject.ImplementedBy
-import db.{CompanyId, CompanyRow}
+import db.CompanyRow
 import slicks.DBBinding
 
 trait CompanyModule extends DBBinding {
 
   import api._
 
-  implicit def CompanyIdMapper: BaseColumnType[CompanyId] = MappedColumnType.base[CompanyId, Long](_.id, CompanyId)
 
   type CompanyQuery = Query[CompanyTable, CompanyRow, Seq]
 

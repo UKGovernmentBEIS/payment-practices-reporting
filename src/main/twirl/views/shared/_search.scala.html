@@ -1,6 +1,6 @@
-@(intentToFile: Boolean, value: String)
+@(value: String, searchLink:Call)
 <div class="search-bar-active">
-    <form method="GET" action="@routes.SearchController.search(None, None, None)" class="searchfield">
+    <form method="GET" action=@searchLink class="searchfield">
         <label class="hidden" for="site-search-text">Enter company number or business name</label>
         <input autocomplete="off" name="q" id="site-search-text" title="Search" value="@value" placeholder="Start here..." autofocus="autofocus" class="js-search-focus" type="search">
         <button type="submit" id="search-submit" class="search-submit" aria-label="Search">Search</button>

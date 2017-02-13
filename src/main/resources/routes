@@ -20,3 +20,5 @@ GET         /search-payment-practice-reports/report         controllers.SearchCo
 
 GET         /download-payment-practice-data                 controllers.DownloadController.show
 GET         /download-payment-practice-data/export          controllers.DownloadController.export
+
+GET         /report-payment-practices                controllers.ReportController.search(q:Option[String], page:Option[Int], items_per_page:Option[Int])

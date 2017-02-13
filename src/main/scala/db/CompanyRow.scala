@@ -17,8 +17,6 @@
 
 package db
 
-case class CompanyId(id: Long)
-
 case class CompanyRow(
                        companiesHouseIdentifier: String,
                        name: String

@@ -1,28 +1,15 @@
-@import services.{PagedResults, CompanySummary}
+@import services.{CompanySummary, PagedResults}
 @(
-        intentToFile: scala.Boolean,
         searchTerm: String,
         resultsO: Option[PagedResults[CompanySummary]],
-        counts:Map[CompaniesHouseId, Int],
+        counts: Map[CompaniesHouseId, Int],
+        searchLink: Call,
+        companyLink: models.CompaniesHouseId => Call,
         pageLink: Int => Call
 )
 
-@companyLink(company: models.CompaniesHouseId) = @{
-    if(intentToFile) routes.Default.todo() //routes.FileReport.startForCompany(result.CompaniesHouseIdentifier)
-    else routes.SearchController.company(company, None)
-}
-
-
-<h1 class="heading-xlarge">
-@if(intentToFile) {
-    Publish a report
-} else {
-    Search for a report
-}
-</h1>
-
 <p class="lede">Enter company number or business name</p>
-@shared._search(intentToFile, searchTerm)
+@shared._search(searchTerm, searchLink)
 
 @resultsO.map { results =>
     @if(results.items.isEmpty && searchTerm != "") {
