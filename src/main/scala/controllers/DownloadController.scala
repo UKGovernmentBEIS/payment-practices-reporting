@@ -17,14 +17,34 @@
 
 package controllers
 
-import play.api.mvc.{Action, Controller}
+import javax.inject.Inject
 
-class DownloadController extends Controller with PageHelper {
+import akka.NotUsed
+import akka.stream.scaladsl.{Concat, Source}
+import akka.util.ByteString
+import org.joda.time.LocalDate
+import play.api.http.HttpEntity
+import play.api.mvc.{Action, Controller, ResponseHeader, Result}
+import slicks.modules.{CompanyReport, ReportRepo}
+
+class DownloadController @Inject()(reportRepo: ReportRepo) extends Controller with PageHelper {
 
   def show = Action {
     Ok(page(home, views.html.download.accessData()))
   }
 
-  def export = Action { request => ??? }
+  def export = Action { request =>
+    val disposition = ("Content-Disposition", "attachment;filename=payment-practices.csv")
 
+    val publisher = reportRepo.list(LocalDate.now().minusMonths(24))
+
+    val headerSource = Source.single(ReportCSV.columns.map(_._1).mkString(","))
+    val rowSource = Source.fromPublisher(publisher).map(toCsv)
+    val csvSource = Source.combine[String, String](headerSource, rowSource)(_ => Concat()).map(ByteString(_))
+
+    val entity = HttpEntity.Streamed(csvSource, None, Some("text/csv"))
+    Result(ResponseHeader(OK, Map()), entity).withHeaders(disposition)
+  }
+
+  def toCsv(row: CompanyReport): String = "\n" + ReportCSV.columns.map(_._2(row).s).mkString(",")
 }
