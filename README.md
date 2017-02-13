@@ -14,3 +14,12 @@ provided is an API key. You can provide this key to the application by setting t
 
 Similarly, for production, inject the api key value into the environment with that
 env variable.
+
+### Database
+In production the database configuration can be injected using the environment variables
+`JDBC_DATABASE_URL`, `JDBC_DATABASE_USER` and `JDBC_DATABASE_PASSWORD`. On Heroku, using
+the PostgreSQL add-on, these variables are set for you.
+ 
+In development the database details are defaulted to use a local PostgreSQL server
+running on the default port (5432) with a database name of `ppr`, a user `ppruser` and
+a password of `password`.
