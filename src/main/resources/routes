@@ -17,3 +17,6 @@ GET         /calculate-reporting-deadlines/deadlines        controllers.Calculat
 GET         /search-payment-practice-reports                controllers.SearchController.search(q:Option[String], page:Option[Int], items_per_page:Option[Int])
 GET         /search-payment-practice-reports/company        controllers.SearchController.company(company:CompaniesHouseId, page:Option[Int])
 GET         /search-payment-practice-reports/report         controllers.SearchController.view(reportId: ReportId)
+
+GET         /download-payment-practice-data                 controllers.DownloadController.show
+GET         /download-payment-practice-data/export          controllers.DownloadController.export

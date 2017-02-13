@@ -25,7 +25,9 @@ import com.wellfactored.slickgen.IdType
 import db.ReportRow
 import models.{CompaniesHouseId, ReportId}
 import org.joda.time.LocalDate
+import org.reactivestreams.Publisher
 import play.api.db.slick.DatabaseConfigProvider
+import slick.backend.DatabasePublisher
 import slicks.DBBinding
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -94,11 +96,15 @@ trait ReportModule extends DBBinding {
   override def schema = super.schema ++ reportTable.schema
 }
 
+case class CompanyReport(name:String, report:ReportRow)
+
 @ImplementedBy(classOf[ReportTable])
 trait ReportRepo {
   def find(id: ReportId): Future[Option[ReportRow]]
 
   def byCompanyNumber(companiesHouseId: CompaniesHouseId): Future[Seq[ReportRow]]
+
+  def list(cutoffDate: LocalDate, maxRows: Int = 100000): Publisher[CompanyReport]
 }
 
 class ReportTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(implicit ec: ExecutionContext)
@@ -114,5 +120,21 @@ class ReportTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(implic
 
   def byCompanyNumber(companiesHouseId: CompaniesHouseId): Future[Seq[ReportRow]] = db.run {
     reportTable.filter(_.companyId === companiesHouseId.id).result
+  }
+
+  /**
+    * Code to adjust fetchSize on Postgres driver taken from:
+    * https://engineering.sequra.es/2016/02/database-streaming-on-play-with-slick-from-publisher-to-chunked-result/
+    */
+  def list(cutoffDate: LocalDate, maxRows: Int = 100000): Publisher[CompanyReport] = {
+    val disableAutocommit = SimpleDBIO(_.connection.setAutoCommit(false))
+    val query = for {
+      report <- reportTable.filter(_.filingDate >= cutoffDate).take(maxRows)
+      company <- companyTable.filter(_.companiesHouseIdentifier === report.companyId).map(_.name)
+    } yield (company, report)
+
+    val action = query.result.withStatementParameters(fetchSize = 10000)
+
+    db.stream(disableAutocommit andThen action).mapResult(p => CompanyReport(p._1, p._2))
   }
 }
