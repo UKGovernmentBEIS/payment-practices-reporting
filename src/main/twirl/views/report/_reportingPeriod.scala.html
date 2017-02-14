@@ -1,0 +1,8 @@
+@(form: Form[forms.report.ReportFormModel])(implicit messages: MessagesApi)
+
+@import shared._dateField
+
+<h2 class="heading-large">Reporting period</h2>
+
+@_dateField(form, "startDate")
+@_dateField(form, "endDate")
