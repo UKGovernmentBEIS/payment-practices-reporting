@@ -1,0 +1,24 @@
+@(form: Form[_], fieldName: String)(implicit messages: MessagesApi)
+
+@errorClass(field: Field) = @{
+    if(field.hasErrors) "error" else ""
+}
+
+@errorMessage(field: Field) = @{
+    field.error.map(_.message)
+}
+
+<fieldset class="form-group inline @errorClass(form(fieldName))">
+    <label class="form-label">
+        <span class="bold-medium">@messages(s"field.$fieldName.label")</span>
+        <span class="error-message">@errorMessage(form(fieldName))</span>
+    </label>
+    <label class="block-label" for="@fieldName-yes">
+        <input id="@fieldName-yes" name="@fieldName" type="radio" value="true" @{if (form(fieldName).value.contains("true")) "checked='checked'"}>
+        Yes
+    </label>
+    <label class="block-label" for="@fieldName-no">
+        <input id="@fieldName-no" name="@fieldName" type="radio" value="false" @{if (form(fieldName).value.contains("false")) "checked='checked'"}>
+        No
+    </label>
+</fieldset>

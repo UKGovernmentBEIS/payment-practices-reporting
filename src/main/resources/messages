@@ -58,3 +58,23 @@ field.paymentHistory.percentageSplit.percentWithin60Days.hint=
 
 field.paymentHistory.percentageSplit.percentBeyond60Days.label=C) Percentage of invoices paid later than 60 days
 field.paymentHistory.percentageSplit.percentBeyond60Days.hint=
+
+field.paymentTerms.terms.label=Describe your standard payment terms, including your standard payment period
+field.paymentTerms.terms.hint=
+
+field.paymentTerms.maximumContractPeriod.label=Enter your maximum contractual payment period
+field.paymentTerms.maximumContractPeriod.hint=For qualifying contracts only.
+
+field.paymentTerms.paymentTermsChanged.label=Were there any changes to your standard payment terms in the reporting period?
+field.paymentTerms.paymentTermsChanged.hint=
+
+field.paymentTerms.paymentTermsChangedComment.label=If so, explain what the changes were
+field.paymentTerms.paymentTermsChangedComment.hint=
+
+field.paymentTerms.paymentTermsNotified.label=If there were changes, did you consult or notify suppliers before you made these changes?
+field.paymentTerms.paymentTermsNotified.hint=
+field.paymentTerms.paymentTermsNotifiedComment.label=If so, explain how you did this
+field.paymentTerms.paymentTermsNotifiedComment.hint=
+
+field.paymentTerms.paymentTermsComment.label=Optional: any further information about your payment terms
+field.paymentTerms.paymentTermsComment.hint=
