@@ -1,0 +1,80 @@
+
+@import org.joda.time.format.DateTimeFormatter
+@import org.joda.time.LocalDate
+@(form: Form[forms.report.ReportFormModel], companyId: CompaniesHouseId, date: LocalDate, df:DateTimeFormatter)(implicit messages: MessagesApi)
+@import shared._dateField
+@import shared._numberField
+
+@errorMessage(fieldName: String) = @{
+    form(fieldName).error.map(msg => messages(msg.message))
+}
+@errorClass(fieldName: String) = @{
+    if(form(fieldName).hasErrors) "error" else ""
+}
+
+<div class="notice">
+    <i class="icon icon-important">
+        <span class="visually-hidden">Warning</span>
+    </i>
+    <strong><a href="@routes.QuestionnaireController.start()">You should prepare</a> before filling in this form.</strong>
+</div>
+
+@shared._coverageInformation()
+
+@if(form.hasErrors) {
+    <div class="error-summary" role="group" aria-labelledby="error-summary-heading" tabindex="-1">
+        <h1 class="heading-medium error-summary-heading" id="error-summary-heading">
+            The form contains invalid entries
+        </h1>
+
+        <p>
+            Please correct the errors shown below.
+        </p>
+    </div>
+}
+
+<div class="scannable-wrapper">
+<form action="@routes.ReportController.reviewFiling(companyId)" method="POST" id="file-report">
+    <input type="hidden" id="TargetCompanyCompaniesHouseIdentifier" name="TargetCompanyCompaniesHouseIdentifier" value="@companyId.id">
+
+    <p class="small-aside">
+        Companies House number: @companyId.id
+        <br>
+        Date of submission: @df.print(date)
+    </p>
+
+    <h2 class="heading-large">Reporting period</h2>
+
+    @_dateField(form, "startDate")
+    @_dateField(form, "endDate")
+
+    <h2 class="heading-large">Payment statistics</h2>
+    <p>Round up or down to the nearest whole number</p>
+
+    @_numberField(form, "paymentHistory.averageDaysToPay", Some("days"))
+    @_numberField(form, "paymentHistory.percentPaidBeyondAgreedTerms", Some("%"))
+
+
+    <div class="form-group @errorClass("paymentHistory.percentageSplit")" style="margin-bottom:15px;">
+        <label class="form-label">
+            <span class="bold-medium">Split of invoices paid in the reporting period</span>
+            <span class="form-hint">Figures A, B and C should add up to 100%</span>
+            <span class="error-message">@errorMessage("paymentHistory.percentageSplit")</span>
+        </label>
+
+        @_numberField(form, "paymentHistory.percentageSplit.percentWithin30Days", Some("%"))
+        @_numberField(form, "paymentHistory.percentageSplit.percentWithin60Days", Some("%"))
+        @_numberField(form, "paymentHistory.percentageSplit.percentBeyond60Days", Some("%"))
+    </div>
+
+
+
+    <input type="submit" class="button" value="Continue">
+</form>
+</div>
+
+<script type="text/javascript" src='@routes.Assets.at("javascripts/file.js")'></script>
+<script type="text/javascript">
+    gradualDisclosure();
+    validationPlumbing();
+</script>

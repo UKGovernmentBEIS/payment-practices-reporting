@@ -19,16 +19,24 @@ package controllers
 
 import javax.inject.Inject
 
+import forms.report.{ReportFormModel, Validations}
 import models.CompaniesHouseId
+import org.joda.time.LocalDate
+import org.joda.time.format.DateTimeFormat
 import play.api.data.Forms._
 import play.api.data._
+import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, Controller}
 import services.CompaniesHouseAPI
 import slicks.modules.ReportRepo
+import utils.TimeSource
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class ReportController @Inject()(companiesHouseAPI: CompaniesHouseAPI, reports: ReportRepo)(implicit ec: ExecutionContext) extends Controller with PageHelper {
+class ReportController @Inject()(companiesHouseAPI: CompaniesHouseAPI, reports: ReportRepo, timeSource: TimeSource)(implicit ec: ExecutionContext, messages: MessagesApi) extends Controller with PageHelper {
+
+  val emptyReport: Form[ReportFormModel] = Form(new Validations(timeSource).reportFormModel)
+  val df = DateTimeFormat.forPattern("d MMMM YYYY")
 
   def search(query: Option[String], pageNumber: Option[Int], itemsPerPage: Option[Int]) = Action.async {
     val searchLink = routes.ReportController.search(None, None, None)
@@ -55,12 +63,14 @@ class ReportController @Inject()(companiesHouseAPI: CompaniesHouseAPI, reports: 
     Ok(page(home, views.html.report.signInInterstitial(companiesHouseId)))
   }
 
-  val form = Form(mapping("account" -> boolean)(identity)(b => Some(b)))
+  val hasAccountChoice = Form(mapping("account" -> boolean)(identity)(b => Some(b)))
 
   def login(companiesHouseId: CompaniesHouseId) = Action { implicit request =>
-    val next = form.bindFromRequest().fold(
+    val next = hasAccountChoice.bindFromRequest().fold(
       errs => routes.ReportController.start(companiesHouseId),
-      hasAccount => if (hasAccount) routes.Default.todo() else routes.ReportController.code(companiesHouseId)
+      hasAccount =>
+        if (hasAccount) routes.CoHoOAuthMockController.login(companiesHouseId)
+        else routes.ReportController.code(companiesHouseId)
     )
 
     Redirect(next)
@@ -74,5 +84,17 @@ class ReportController @Inject()(companiesHouseAPI: CompaniesHouseAPI, reports: 
   }
 
   def codeOptions(companiesHouseId: CompaniesHouseId) = Action { request => ??? }
+
+  def file(companiesHouseId: CompaniesHouseId) = Action.async { implicit request =>
+    request.session.get("company_id") match {
+      case Some(id) if id == companiesHouseId.id => companiesHouseAPI.find(companiesHouseId).map {
+        case Some(co) =>  Ok(page(h1("Publish a report for company.name"), views.html.report.file(emptyReport, companiesHouseId, LocalDate.now(), df)))
+        case None => BadRequest(s"Unknown company id ${companiesHouseId.id}")
+      }
+      case _ => Future.successful(Redirect(controllers.routes.ReportController.start(companiesHouseId)))
+    }
+  }
+
+  def reviewFiling(companiesHouseId: CompaniesHouseId) = Action { implicit request => ??? }
 
 }

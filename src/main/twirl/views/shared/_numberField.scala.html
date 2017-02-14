@@ -1,0 +1,18 @@
+@(form: Form[_], fieldName: String, unitText: Option[String] = None)(implicit messages: MessagesApi)
+
+@errorClass(field: Field) = @{
+    if(field.hasErrors) "error" else ""
+}
+@errorMessage(field: Field) = @{
+    field.error.map(_.message)
+}
+
+<fieldset class='form-group @errorClass(form(fieldName))'>
+    <label class="form-label" for=@fieldName>
+        <span class="bold-medium">@messages(s"field.$fieldName.label")</span>
+        <span class="form-hint">@messages(s"field.$fieldName.hint")</span>
+        <span class="error-message">@errorMessage(form(fieldName))</span>
+    </label>
+    <input class="form-control form-control-number-wide" type="text" id="@fieldName" name="@fieldName" value="@form(fieldName).value">
+    @unitText.map { text => <span class="number-unit">@text</span> }
+</fieldset>

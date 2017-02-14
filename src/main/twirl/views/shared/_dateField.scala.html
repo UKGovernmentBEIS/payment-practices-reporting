@@ -1,0 +1,17 @@
+@(form: Form[_], fieldName: String)(implicit messages: MessagesApi)
+@import shared._dateinput
+
+@errorClass(field:Field) = @{
+    if (field.hasErrors) "error" else ""
+}
+@errorMessage(field:Field) = @{
+    field.error.map(_.message)
+}
+
+<fieldset class='form-group @errorClass(form(fieldName))'>
+    <label class="form-label">
+        <span class="bold-medium">@messages(s"field.$fieldName.label")</span>
+        <span class="error-message">@errorMessage(form(fieldName))</span>
+    </label>
+    @_dateinput("fieldName", form(s"$fieldName.day").value, form(s"$fieldName.month").value, form(s"$fieldName.year").value)
+</fieldset>

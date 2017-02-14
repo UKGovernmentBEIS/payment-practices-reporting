@@ -22,7 +22,15 @@ GET         /download-payment-practice-data                          controllers
 GET         /download-payment-practice-data/export                   controllers.DownloadController.export
 
 GET         /report-payment-practices                                controllers.ReportController.search(q:Option[String], page:Option[Int], items_per_page:Option[Int])
-GET         /report-payment-practices/company/:id/file               controllers.ReportController.start(id:CompaniesHouseId)
+GET         /report-payment-practices/company/:id/start              controllers.ReportController.start(id:CompaniesHouseId)
 POST        /report-payment-practices/company/:id/login              controllers.ReportController.login(id:CompaniesHouseId)
 GET         /report-payment-practices/company/:id/code               controllers.ReportController.code(id:CompaniesHouseId)
 POST        /report-payment-practices/company/:id/codeOptions        controllers.ReportController.codeOptions(id:CompaniesHouseId)
+GET         /report-payment-practices/company/:id/file               controllers.ReportController.file(id:CompaniesHouseId)
+POST        /report-payment-practices/company/:id/file               controllers.ReportController.reviewFiling(id:CompaniesHouseId)
+
+GET         /report-payment-practices/coho/login/:id                 controllers.CoHoOAuthMockController.login(id:CompaniesHouseId)
+POST        /report-payment-practices/coho/login/:id                 controllers.CoHoOAuthMockController.postLogin(id:CompaniesHouseId)
+
+GET         /report-payment-practices/coho/code/:id                  controllers.CoHoOAuthMockController.authCode(id:CompaniesHouseId)
+POST        /report-payment-practices/coho/code/:id                  controllers.CoHoOAuthMockController.postAuthCode(id:CompaniesHouseId)

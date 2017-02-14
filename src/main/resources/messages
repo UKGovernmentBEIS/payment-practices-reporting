@@ -40,3 +40,21 @@ summary.company.employees.y3=had an average of at least 250 employees during bot
 summary.subsidiaries.turnover=had an total turnover of at least £36 million net or £43.2 million gross
 summary.subsidiaries.balance=had a combined balance sheet total of £18 million net or £21.6 million gross
 summary.subsidiaries.employees=had a combined workforce of at least 250
+
+field.startDate.label=Start date of reporting period
+field.endDate.label=End date of reporting period
+
+field.paymentHistory.averageDaysToPay.label=Average time to pay in days
+field.paymentHistory.averageDaysToPay.hint=Out all of the payments you have made in the reporting period, the average time it took to pay.
+
+field.paymentHistory.percentPaidBeyondAgreedTerms.label=Percentage of invoices not paid within agreed terms
+field.paymentHistory.percentPaidBeyondAgreedTerms.hint=The percentage of invoices you failed to pay under the terms of your supplier contracts. This relates to the number of invoices, not their value.
+
+field.paymentHistory.percentageSplit.percentWithin30Days.label=A) Percentage of invoices paid within 30 days
+field.paymentHistory.percentageSplit.percentWithin30Days.hint=
+
+field.paymentHistory.percentageSplit.percentWithin60Days.label=B) Percentage of invoices paid between 31 and 60 days
+field.paymentHistory.percentageSplit.percentWithin60Days.hint=
+
+field.paymentHistory.percentageSplit.percentBeyond60Days.label=C) Percentage of invoices paid later than 60 days
+field.paymentHistory.percentageSplit.percentBeyond60Days.hint=

@@ -42,8 +42,8 @@ class Validations @Inject()(timeSource: TimeSource) {
   private def sumTo100(ps: PercentageSplit): Boolean = (100 - ps.total).abs <= 2
 
   val paymentHistory: Mapping[PaymentHistory] = mapping(
-    "averageTimeToPay" -> number,
-    "percentPaidWithinAgreedTerms" -> bigDecimal,
+    "averageDaysToPay" -> number,
+    "percentPaidBeyondAgreedTerms" -> bigDecimal,
     "percentageSplit" -> percentageSplit
   )(PaymentHistory.apply)(PaymentHistory.unapply)
 
