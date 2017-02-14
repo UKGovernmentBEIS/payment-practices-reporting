@@ -78,3 +78,24 @@ field.paymentTerms.paymentTermsNotifiedComment.hint=
 
 field.paymentTerms.paymentTermsComment.label=Optional: any further information about your payment terms
 field.paymentTerms.paymentTermsComment.hint=
+
+field.disputeResolution.label=Describe your dispute resolution process
+field.disputeResolution.hint=How do you handle complaints and queries from your suppliers about payments under qualifying contracts?
+
+field.offerEInvoicing.label=Does your business offer E-invoicing?
+field.offerEInvoicing.hint=Do you allow suppliers to electronically submit invoices?
+
+field.offerSupplyChainFinancing.label=Does your business offer supply chain finance options?
+field.offerSupplyChainFinancing.hint=This is where a supplier’s invoice can be paid quickly by a third-party company, who you then pay at a later date.
+
+field.retentionChargesInPolicy.label=Does your business have a policy of deducting sums from payments as a charge for remaining on a supplier list?
+field.retentionChargesInPolicy.hint=
+
+field.retentionChargesInPast.label=In this reporting period, has your business deducted sums from payments as a charge for remaining on a supplier list?
+field.retentionChargesInPast.hint=
+
+field.hasPaymentCodes.label=Is your business a signatory to a code of practice for payment?
+field.hasPaymentCodes.hint=
+
+field.paymentCodes.label=If so, enter the name of the code of practice
+field.paymentCodes.hint=

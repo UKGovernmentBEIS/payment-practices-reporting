@@ -1,0 +1,6 @@
+@(form: Form[forms.report.ReportFormModel])(implicit messages: MessagesApi)
+
+@import shared._textBox
+
+<h2 class="heading-large">Dispute resolution policy</h2>
+@_textBox(form, "disputeResolution")

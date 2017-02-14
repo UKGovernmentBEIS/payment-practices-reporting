@@ -1,0 +1,16 @@
+@(form: Form[forms.report.ReportFormModel])(implicit messages: MessagesApi)
+
+<h2 class="heading-large">Other payment information</h2>
+
+@import shared.{_yesNoField, _textField}
+
+@_yesNoField(form, "offerEInvoicing")
+@_yesNoField(form, "offerSupplyChainFinancing")
+@_yesNoField(form, "retentionChargesInPolicy")
+@_yesNoField(form, "retentionChargesInPast")
+
+@_yesNoField(form, "hasPaymentCodes")
+
+<div class="panel" id="show-if-payment-codes">
+    @_textField(form, "paymentCodes")
+</div>
