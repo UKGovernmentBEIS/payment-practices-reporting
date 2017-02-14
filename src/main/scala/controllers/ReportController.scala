@@ -20,6 +20,8 @@ package controllers
 import javax.inject.Inject
 
 import models.CompaniesHouseId
+import play.api.data.Forms._
+import play.api.data._
 import play.api.mvc.{Action, Controller}
 import services.CompaniesHouseAPI
 import slicks.modules.ReportRepo
@@ -31,7 +33,7 @@ class ReportController @Inject()(companiesHouseAPI: CompaniesHouseAPI, reports: 
   def search(query: Option[String], pageNumber: Option[Int], itemsPerPage: Option[Int]) = Action.async {
     val searchLink = routes.ReportController.search(None, None, None)
     val pageLink = { i: Int => routes.ReportController.search(query, Some(i), itemsPerPage) }
-    val companyLink = { id: CompaniesHouseId => routes.Default.todo() }
+    val companyLink = { id: CompaniesHouseId => routes.ReportController.start(id) }
     val header = h1("Publish a report")
 
     query match {
@@ -50,7 +52,27 @@ class ReportController @Inject()(companiesHouseAPI: CompaniesHouseAPI, reports: 
   }
 
   def start(companiesHouseId: CompaniesHouseId) = Action { request =>
-    ???
+    Ok(page(home, views.html.report.signInInterstitial(companiesHouseId)))
   }
+
+  val form = Form(mapping("account" -> boolean)(identity)(b => Some(b)))
+
+  def login(companiesHouseId: CompaniesHouseId) = Action { implicit request =>
+    val next = form.bindFromRequest().fold(
+      errs => routes.ReportController.start(companiesHouseId),
+      hasAccount => if (hasAccount) routes.Default.todo() else routes.ReportController.code(companiesHouseId)
+    )
+
+    Redirect(next)
+  }
+
+  def code(companiesHouseId: CompaniesHouseId) = Action.async { request =>
+    companiesHouseAPI.find(companiesHouseId).map {
+      case Some(co) => Ok(page(home, views.html.report.companiesHouseOptions(co.company_name, companiesHouseId)))
+      case None => BadRequest(s"Unknown company id ${companiesHouseId.id}")
+    }
+  }
+
+  def codeOptions(companiesHouseId: CompaniesHouseId) = Action { request => ??? }
 
 }
