@@ -97,17 +97,19 @@ class ReportController @Inject()(companiesHouseAPI: CompaniesHouseAPI, reports: 
     }
   }
 
-  def postForm(companiesHouseId: CompaniesHouseId) = Action { implicit request =>
-    emptyReport.bindFromRequest().fold(
-      errs => BadRequest(page(h1("Publish a report for company.name"), views.html.report.file(errs, companiesHouseId, LocalDate.now(), df))),
-      report => {
-        Ok(page(home, views.html.report.review(emptyReview, report, companiesHouseId, "<company name>", df, reportValidations.reportFormModel)))
-      }
-    )
+  def postForm(companiesHouseId: CompaniesHouseId) = Action.async { implicit request =>
+    companiesHouseAPI.find(companiesHouseId).map {
+      case Some(co) =>
+        emptyReport.bindFromRequest().fold(
+          errs => BadRequest(page(h1("Publish a report for company.name"), views.html.report.file(errs, companiesHouseId, LocalDate.now(), df))),
+          report => Ok(page(home, views.html.report.review(emptyReview, report, companiesHouseId, co.company_name, df, reportValidations.reportFormModel)))
+
+        )
+      case None => NotFound
+    }
   }
 
   def postReview(companiesHouseId: CompaniesHouseId) = Action(parse.urlFormEncoded) { implicit request =>
-    println(request.body)
     // Re-capture the values for the report itself. In theory these values should always be valid
     // (as we only send the user to the review page if they are) but if somehow they aren't then
     // send them back to the report form.
