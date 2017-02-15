@@ -81,8 +81,7 @@ class Validations @Inject()(timeSource: TimeSource) {
   )(ReportFormModel.apply)(ReportFormModel.unapply)
 
   val reportReviewModel = mapping(
-    "report" -> reportFormModel,
     "confirmed" -> boolean,
-    "confirmedBy" -> nonEmptyText
+    "confirmedBy" -> optional(nonEmptyText)
   )(ReportReviewModel.apply)(ReportReviewModel.unapply)
 }

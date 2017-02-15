@@ -17,7 +17,7 @@
 
 package views.html.helpers
 
-import forms.report.{ConditionalText, ReportFormModel, ReportReviewModel}
+import forms.report.{ConditionalText, ReportFormModel}
 import org.joda.time.LocalDate
 import org.joda.time.format.DateTimeFormat
 import play.twirl.api.{Html, HtmlFormat}
@@ -55,22 +55,22 @@ object ReviewPageData extends HtmlHelpers {
     * The review page can be reconfigured by changing this list of tables or by changing
     * the content of the various groups.
     */
-  def groups(companyName: String, r: ReportReviewModel): Seq[TableDescriptor] = Seq(
-    "check-answers" -> group1(companyName, r),
-    "check-answers check-answers-essay" -> group2(r.report),
-    "check-answers" -> group3(r.report)
+  def groups(companyName: String, report: ReportFormModel): Seq[TableDescriptor] = Seq(
+    "check-answers" -> group1(companyName, report),
+    "check-answers check-answers-essay" -> group2(report),
+    "check-answers" -> group3(report)
   )
 
-  def group1(companyName: String, r: ReportReviewModel): Seq[RowDescriptor] =
-    topLevelInfo(companyName, r) ++ reportingDateRows(r.report) ++ paymentHistoryRows(r.report)
+  def group1(companyName: String, report: ReportFormModel): Seq[RowDescriptor] =
+    topLevelInfo(companyName, report) ++ reportingDateRows(report) ++ paymentHistoryRows(report)
 
   def group2(r: ReportFormModel) = paymentTermsRows(r)
 
   def group3(r: ReportFormModel) = otherInfoRows(r)
 
-  def topLevelInfo(companyName: String, r: ReportReviewModel): Seq[(String, Html)] = Seq(
+  def topLevelInfo(companyName: String, report: ReportFormModel): Seq[(String, Html)] = Seq(
     ("Company", companyName),
-    ("Filing date", r.report.filingDate)
+    ("Filing date", report.filingDate)
   )
 
   def reportingDateRows(r: ReportFormModel): Seq[(String, Html)] = Seq(

@@ -27,7 +27,8 @@ POST        /report-payment-practices/company/:id/login              controllers
 GET         /report-payment-practices/company/:id/code               controllers.ReportController.code(id:CompaniesHouseId)
 POST        /report-payment-practices/company/:id/codeOptions        controllers.ReportController.codeOptions(id:CompaniesHouseId)
 GET         /report-payment-practices/company/:id/file               controllers.ReportController.file(id:CompaniesHouseId)
-POST        /report-payment-practices/company/:id/file               controllers.ReportController.reviewFiling(id:CompaniesHouseId)
+POST        /report-payment-practices/company/:id/file               controllers.ReportController.postForm(id:CompaniesHouseId)
+POST        /report-payment-practices/company/:id/review             controllers.ReportController.postReview(id:CompaniesHouseId)
 
 GET         /report-payment-practices/coho/login/:id                 controllers.CoHoOAuthMockController.login(id:CompaniesHouseId)
 POST        /report-payment-practices/coho/login/:id                 controllers.CoHoOAuthMockController.postLogin(id:CompaniesHouseId)

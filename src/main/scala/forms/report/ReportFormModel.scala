@@ -60,8 +60,7 @@ case class ReportFormModel(
                           )
 
 case class ReportReviewModel(
-                              report: ReportFormModel,
                               confirmed: Boolean,
-                              confirmedBy: String
+                              confirmedBy: Option[String]
                             )
 

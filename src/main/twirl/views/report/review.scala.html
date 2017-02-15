@@ -1,4 +1,4 @@
-@(review: forms.report.ReportReviewModel, companyName: String, df: org.joda.time.format.DateTimeFormatter, mapping: Mapping[forms.report.ReportFormModel])
+@(review: Form[forms.report.ReportReviewModel], report: forms.report.ReportFormModel, id:CompaniesHouseId, companyName: String, df: org.joda.time.format.DateTimeFormatter, mapping: Mapping[forms.report.ReportFormModel])
 
     @import helpers.ReviewPageData
 
@@ -8,16 +8,19 @@
     <strong>If your report is incorrect or misleading, you could face a fine.</strong>
 </div>
 
-@if(!review.confirmed) {
+@if(!review("confirmed").value.contains("true")) {
     <div class="error-summary" role="group" aria-labelledby="error-summary-heading" tabindex="-1">
         <h1 class="heading-medium error-summary-heading" id="error-summary-heading">
             You need to confirm this report before publishing it
         </h1>
         <p>Please confirm this report by ticking the checkbox below.</p>
     </div>
+    @review.errors.map { e =>
+      @e
+    }
 }
 
-@for((cssClass, rows) <- ReviewPageData.groups(companyName, review)) {
+@for((cssClass, rows) <- ReviewPageData.groups(companyName, report)) {
     <table class="@cssClass">
     @for((name, value) <- rows) {
         <tr>
@@ -28,11 +31,11 @@
     </table>
 }
 
-<form action="" method="POST" style="float: left;
+<form action="@routes.ReportController.postReview(id)" method="POST" style="float: left;
     margin-right: 2em;">
 
-    @for((k, v) <- mapping.unbind(review.report)) {
-        <input type="hidden" name='@(s"report.$k")' value="@HtmlFormat.escape(v)">
+    @for((k, v) <- mapping.unbind(report)) {
+        <input type="hidden" name='@k' value="@HtmlFormat.escape(v)">
     }
 
     <div class="scannable-wrapper">
@@ -41,9 +44,8 @@
 
             <span class="error-message">You must tick the checkbox to proceed.</span>
 
-            <input type="hidden" name="confirmed" value="0">
             <label class="block-label" for="confirmed">
-                <input type="checkbox" name="confirmed" id="confirmed" value="1">
+                <input type="checkbox" name="confirmed" id="confirmed" value="true">
                 I confirm that the information provided in this report is accurate and has been approved by a director of my company or a designated member of my limited liability partnership.
             </label>
         </fieldset>
