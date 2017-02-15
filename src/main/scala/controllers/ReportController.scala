@@ -98,6 +98,7 @@ class ReportController @Inject()(companiesHouseAPI: CompaniesHouseAPI, reports: 
   def reviewFiling(companiesHouseId: CompaniesHouseId) = Action { implicit request =>
     emptyReport.bindFromRequest().fold(
       errs => {
+        println(errs)
         BadRequest(page(h1("Publish a report for company.name"), views.html.report.file(errs, companiesHouseId, LocalDate.now(), df)))
       },
       _=> ???

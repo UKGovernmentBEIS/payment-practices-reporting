@@ -6,13 +6,12 @@
 @_textBox(form, "paymentTerms.terms")
 @_textBox(form, "paymentTerms.maximumContractPeriod")
 
-@_yesNoField(form, "paymentTerms.paymentTermsChanged")
-
+@_yesNoField(form, "paymentTerms.paymentTermsChanged.yesNo")
 
 <div class="panel" id="show-if-payment-changes">
-    @_textBox(form, "paymentTerms.paymentTermsChangedComment")
-    @_yesNoField(form, "paymentTerms.paymentTermsNotified")
-    @_textBox(form, "paymentTerms.paymentTermsNotifiedComment")
+    @_textBox(form, "paymentTerms.paymentTermsChanged")
+    @_yesNoField(form, "paymentTerms.paymentTermsNotified.yesNo")
+    @_textBox(form, "paymentTerms.paymentTermsNotified")
 </div>
 
 

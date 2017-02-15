@@ -20,7 +20,7 @@ package forms.report
 import forms.DateRange
 import models.CompaniesHouseId
 
-
+case class ConditionalText(yesNo: Boolean, text: Option[String])
 
 
 case class PercentageSplit(
@@ -41,10 +41,8 @@ case class PaymentHistory(
 case class PaymentTerms(
                          terms: String,
                          maximumContractPeriod: String,
-                         paymentTermsChanged: Boolean,
-                         paymentTermsChangedComment: Option[String],
-                         paymentTermsChangedNotified: Boolean,
-                         paymentTermsChangedNotifiedComment: Option[String],
+                         paymentTermsChanged: ConditionalText,
+                         paymentTermsChangedNotified: ConditionalText,
                          paymentTermsComment: Option[String]
                        )
 
@@ -53,8 +51,7 @@ case class ReportFormModel(
                             paymentHistory: PaymentHistory,
                             paymentTerms: PaymentTerms,
                             disputeResolution: String,
-                            hasPaymentCodes: Boolean,
-                            paymentCodes: Option[String],
+                            hasPaymentCodes: ConditionalText,
                             offerEInvoicing: Boolean,
                             offerSupplyChainFinancing: Boolean,
                             retentionChargesInPolicy: Boolean,

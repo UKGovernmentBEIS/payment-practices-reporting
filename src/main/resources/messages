@@ -65,16 +65,16 @@ field.paymentTerms.terms.hint=
 field.paymentTerms.maximumContractPeriod.label=Enter your maximum contractual payment period
 field.paymentTerms.maximumContractPeriod.hint=For qualifying contracts only.
 
-field.paymentTerms.paymentTermsChanged.label=Were there any changes to your standard payment terms in the reporting period?
+field.paymentTerms.paymentTermsChanged.yesNo.label=Were there any changes to your standard payment terms in the reporting period?
+field.paymentTerms.paymentTermsChanged.yesNo.hint=
+
+field.paymentTerms.paymentTermsChanged.label=If so, explain what the changes were
 field.paymentTerms.paymentTermsChanged.hint=
 
-field.paymentTerms.paymentTermsChangedComment.label=If so, explain what the changes were
-field.paymentTerms.paymentTermsChangedComment.hint=
-
-field.paymentTerms.paymentTermsNotified.label=If there were changes, did you consult or notify suppliers before you made these changes?
+field.paymentTerms.paymentTermsNotified.yesNo.label=If there were changes, did you consult or notify suppliers before you made these changes?
+field.paymentTerms.paymentTermsNotified.yesNo.hint=
+field.paymentTerms.paymentTermsNotified.label=If so, explain how you did this
 field.paymentTerms.paymentTermsNotified.hint=
-field.paymentTerms.paymentTermsNotifiedComment.label=If so, explain how you did this
-field.paymentTerms.paymentTermsNotifiedComment.hint=
 
 field.paymentTerms.paymentTermsComment.label=Optional: any further information about your payment terms
 field.paymentTerms.paymentTermsComment.hint=
@@ -94,8 +94,8 @@ field.retentionChargesInPolicy.hint=
 field.retentionChargesInPast.label=In this reporting period, has your business deducted sums from payments as a charge for remaining on a supplier list?
 field.retentionChargesInPast.hint=
 
-field.hasPaymentCodes.label=Is your business a signatory to a code of practice for payment?
-field.hasPaymentCodes.hint=
+field.paymentCodes.yesNo.label=Is your business a signatory to a code of practice for payment?
+field.paymentCodes.yesNo.hint=
 
 field.paymentCodes.label=If so, enter the name of the code of practice
 field.paymentCodes.hint=

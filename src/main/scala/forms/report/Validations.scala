@@ -23,14 +23,24 @@ import models.CompaniesHouseId
 import org.joda.time.LocalDate
 import play.api.data.Forms._
 import play.api.data.Mapping
+import play.api.data.validation.{Constraint, Invalid, ValidationError}
 import utils.TimeSource
 
 class Validations @Inject()(timeSource: TimeSource) {
+
   import forms.Validations._
+
+  def isBlank(s: String): Boolean = s.trim() == ""
 
   val companiesHouseId: Mapping[CompaniesHouseId] = nonEmptyText.transform(s => CompaniesHouseId(s), (c: CompaniesHouseId) => c.id)
 
   val percentage = number(min = 0, max = 100)
+
+  val conditionalText: Mapping[ConditionalText] = mapping(
+    "yesNo" -> yesNo,
+    "" -> optional(text)
+  )(ConditionalText.apply)(ConditionalText.unapply)
+    .verifying("error.required", ct => !ct.yesNo || (ct.yesNo && ct.text.isDefined && !ct.text.exists(isBlank)))
 
   val percentageSplit: Mapping[PercentageSplit] = mapping(
     "percentWithin30Days" -> percentage,
@@ -47,25 +57,14 @@ class Validations @Inject()(timeSource: TimeSource) {
     "percentageSplit" -> percentageSplit
   )(PaymentHistory.apply)(PaymentHistory.unapply)
 
+
   val paymentTerms: Mapping[PaymentTerms] = mapping(
     "terms" -> nonEmptyText,
     "maximumContractPeriod" -> nonEmptyText,
-    "paymentTermsChanged" -> yesNo,
-    "paymentTermsChangedComment" -> optional(nonEmptyText),
-    "paymentTermsNotified" -> yesNo,
-    "paymentTermsNotifiedComment" -> optional(nonEmptyText),
+    "paymentTermsChanged" -> conditionalText,
+    "paymentTermsNotified" -> conditionalText,
     "paymentTermsComment" -> optional(nonEmptyText)
   )(PaymentTerms.apply)(PaymentTerms.unapply)
-    .verifying("error.changedcomment.required", pt => pt.paymentTermsChanged && pt.paymentTermsChangedComment.isDefined)
-    .verifying("error.notifiedcomment.required", pt => pt.paymentTermsChanged && pt.paymentTermsChangedNotified && pt.paymentTermsChangedNotifiedComment.isDefined)
-
-  def validateTermsChanged(paymentTerms: PaymentTerms): Boolean = {
-    (paymentTerms.paymentTermsChanged, paymentTerms.paymentTermsChangedComment) match {
-      case (true, Some(_)) => true
-      case (false, None) => true
-      case _ => false
-    }
-  }
 
   private def now() = new LocalDate(timeSource.currentTimeMillis())
 
@@ -74,12 +73,10 @@ class Validations @Inject()(timeSource: TimeSource) {
     "paymentHistory" -> paymentHistory,
     "paymentTerms" -> paymentTerms,
     "disputeResolution" -> nonEmptyText,
-    "hasPaymentCodes" -> yesNo,
-    "paymentCodes" -> optional(nonEmptyText),
+    "paymentCodes" -> conditionalText,
     "offerEInvoicing" -> yesNo,
     "offerSupplyChainFinancing" -> yesNo,
     "retentionChargesInPolicy" -> yesNo,
     "retentionChargesInPast" -> yesNo
   )(ReportFormModel.apply)(ReportFormModel.unapply)
-    .verifying("error.paymentcodes.required", rf => rf.hasPaymentCodes && rf.paymentCodes.isDefined)
 }
