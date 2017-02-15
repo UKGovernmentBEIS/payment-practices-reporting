@@ -102,3 +102,7 @@ field.paymentCodes.hint=
 
 error.required=Please answer this question
 error.date=This date is invalid
+error.sumto100=Figures A, B and C do not add up to 100
+error.number=Please enter a whole number
+error.min=Please enter {0} or greater
+error.max=Please enter {0} or less

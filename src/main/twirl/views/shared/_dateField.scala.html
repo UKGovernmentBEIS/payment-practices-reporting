@@ -14,7 +14,7 @@
 }
 @errorMessage(field: Field) = @{
     if(subErrors.nonEmpty) messages("error.date")
-    else field.error.map(e => messages(e.message))
+    else field.error.map(e => messages(e.message, e.args:_*))
 }
 
 <fieldset class='form-group @errorClass(form(fieldName))'>

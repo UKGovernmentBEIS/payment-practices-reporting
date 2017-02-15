@@ -20,6 +20,9 @@
         <p>
             Please correct the errors shown below.
         </p>
+        @form.errors.map { e =>
+            @e<br/>
+        }
     </div>
 }
 

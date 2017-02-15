@@ -33,7 +33,7 @@ case class PercentageSplit(
 
 case class PaymentHistory(
                            averageTimeToPay: Int,
-                           percentPaidWithinAgreedTerms: BigDecimal,
+                           percentPaidWithinAgreedTerms: Int,
                            percentageSplit: PercentageSplit
                          )
 

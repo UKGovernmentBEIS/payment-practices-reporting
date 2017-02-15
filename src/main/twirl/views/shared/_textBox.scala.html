@@ -5,7 +5,7 @@
 }
 
 @errorMessage(field: Field) = @{
-    field.error.map(e=> messages(e.message))
+    field.error.map(e=> messages(e.message, e.args:_*))
 }
 
 <fieldset class="form-group @errorClass(form(fieldName))">

@@ -23,7 +23,6 @@ import models.CompaniesHouseId
 import org.joda.time.LocalDate
 import play.api.data.Forms._
 import play.api.data.Mapping
-import play.api.data.validation.{Constraint, Invalid, ValidationError}
 import utils.TimeSource
 
 class Validations @Inject()(timeSource: TimeSource) {
@@ -52,8 +51,8 @@ class Validations @Inject()(timeSource: TimeSource) {
   private def sumTo100(ps: PercentageSplit): Boolean = (100 - ps.total).abs <= 2
 
   val paymentHistory: Mapping[PaymentHistory] = mapping(
-    "averageDaysToPay" -> number,
-    "percentPaidBeyondAgreedTerms" -> bigDecimal,
+    "averageDaysToPay" -> number(min = 0),
+    "percentPaidBeyondAgreedTerms" -> percentage,
     "percentageSplit" -> percentageSplit
   )(PaymentHistory.apply)(PaymentHistory.unapply)
 
