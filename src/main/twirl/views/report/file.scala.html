@@ -1,6 +1,6 @@
 @import org.joda.time.LocalDate
 @import org.joda.time.format.DateTimeFormatter
-@(form: Form[forms.report.ReportFormModel], companyId: CompaniesHouseId, date: LocalDate, df: DateTimeFormatter)(implicit messages: MessagesApi)
+@(form: Form[forms.report.ReportFormModel], companyId: CompaniesHouseId, filingDate: LocalDate, df: DateTimeFormatter)(implicit messages: MessagesApi)
 
 <div class="notice">
     <i class="icon icon-important">
@@ -32,8 +32,10 @@
         <p class="small-aside">
             Companies House number: @companyId.id
             <br>
-            Date of submission: @df.print(date)
+            Date of submission: @df.print(filingDate)
         </p>
+
+        <input type="hidden" name="filingDate" value='@filingDate' />
 
         @_reportingPeriod(form)
         @_paymentStatistics(form)

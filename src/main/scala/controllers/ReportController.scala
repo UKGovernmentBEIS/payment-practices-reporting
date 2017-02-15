@@ -19,7 +19,7 @@ package controllers
 
 import javax.inject.Inject
 
-import forms.report.{ReportFormModel, Validations}
+import forms.report.{ReportFormModel, ReportReviewModel, Validations}
 import models.CompaniesHouseId
 import org.joda.time.LocalDate
 import org.joda.time.format.DateTimeFormat
@@ -101,7 +101,7 @@ class ReportController @Inject()(companiesHouseAPI: CompaniesHouseAPI, reports: 
         println(errs)
         BadRequest(page(h1("Publish a report for company.name"), views.html.report.file(errs, companiesHouseId, LocalDate.now(), df)))
       },
-      _=> ???
+      report=> Ok(page(home, views.html.report.review(ReportReviewModel(report, false, ""), "<company name>", df)))
     )
   }
 

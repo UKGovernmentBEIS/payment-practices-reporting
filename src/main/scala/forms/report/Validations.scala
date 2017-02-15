@@ -68,6 +68,7 @@ class Validations @Inject()(timeSource: TimeSource) {
   private def now() = new LocalDate(timeSource.currentTimeMillis())
 
   val reportFormModel = mapping(
+    "filingDate" -> jodaLocalDate,
     "reportDates" -> dateRange.verifying("error.beforenow", dr => dr.startDate.isBefore(now())),
     "paymentHistory" -> paymentHistory,
     "paymentTerms" -> paymentTerms,
@@ -78,4 +79,10 @@ class Validations @Inject()(timeSource: TimeSource) {
     "retentionChargesInPolicy" -> yesNo,
     "retentionChargesInPast" -> yesNo
   )(ReportFormModel.apply)(ReportFormModel.unapply)
+
+  val reportReviewModel = mapping(
+    "report" -> reportFormModel,
+    "confirmed" -> boolean,
+    "confirmedBy" -> nonEmptyText
+  )(ReportReviewModel.apply)(ReportReviewModel.unapply)
 }

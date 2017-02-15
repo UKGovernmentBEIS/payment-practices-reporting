@@ -18,7 +18,7 @@
 package forms.report
 
 import forms.DateRange
-import models.CompaniesHouseId
+import org.joda.time.LocalDate
 
 case class ConditionalText(yesNo: Boolean, text: Option[String])
 
@@ -33,7 +33,7 @@ case class PercentageSplit(
 
 case class PaymentHistory(
                            averageTimeToPay: Int,
-                           percentPaidWithinAgreedTerms: Int,
+                           percentPaidLaterThanAgreedTerms: Int,
                            percentageSplit: PercentageSplit
                          )
 
@@ -47,6 +47,7 @@ case class PaymentTerms(
                        )
 
 case class ReportFormModel(
+                            filingDate: LocalDate,
                             reportDates: DateRange,
                             paymentHistory: PaymentHistory,
                             paymentTerms: PaymentTerms,
@@ -57,4 +58,10 @@ case class ReportFormModel(
                             retentionChargesInPolicy: Boolean,
                             retentionChargesInPast: Boolean
                           )
+
+case class ReportReviewModel(
+                              report: ReportFormModel,
+                              confirmed: Boolean,
+                              confirmedBy: String
+                            )
 

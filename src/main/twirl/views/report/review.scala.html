@@ -1,0 +1,59 @@
+@(review: forms.report.ReportReviewModel, companyName: String, df: org.joda.time.format.DateTimeFormatter)
+
+    @import helpers.ReviewTables
+
+<h1 class="heading-xlarge">Check your report before publishing</h1>
+<div class="notice">
+    <i class="icon icon-important">
+        <span class="visually-hidden">Warning</span>
+    </i>
+    <strong>If your report is incorrect or misleading, you could face a fine.</strong>
+</div>
+
+@if(!review.confirmed) {
+    <div class="error-summary" role="group" aria-labelledby="error-summary-heading" tabindex="-1">
+        <h1 class="heading-medium error-summary-heading" id="error-summary-heading">
+            You need to confirm this report before publishing it
+        </h1>
+
+        <p>
+            Please confirm this report by ticking the checkbox below.
+        </p>
+    </div>
+}
+
+<table class="check-answers">
+    <tr>
+        <td class="key-column"> Company </td>
+        <td> @companyName </td>
+    </tr>
+    <tr>
+        <td class="key-column"> Filing date </td>
+        <td>@df.print(review.report.filingDate)</td>
+    </tr>
+
+    @for((name, value) <- (ReviewTables.reportingDateRows ++ ReviewTables.paymentHistoryRows)) {
+        <tr>
+            <td class="key-column"> @name</td>
+            <td>@value(review.report)</td>
+        </tr>
+    }
+</table>
+
+<table class="check-answers check-answers-essay">
+@for((name, value) <- (ReviewTables.paymentTermsRows)) {
+    <tr>
+        <td class="key-column"> @name</td>
+        <td>@value(review.report)</td>
+    </tr>
+}
+</table>
+
+<table class="check-answers">
+@for((name, value) <- (ReviewTables.otherInfoRows)) {
+    <tr>
+        <td class="key-column"> @name</td>
+        <td>@value(review.report)</td>
+    </tr>
+}
+</table>
