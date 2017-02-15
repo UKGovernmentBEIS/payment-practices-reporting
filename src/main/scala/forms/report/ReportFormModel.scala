@@ -49,7 +49,6 @@ case class PaymentTerms(
                        )
 
 case class ReportFormModel(
-                            companiesHouseId: CompaniesHouseId,
                             reportDates: DateRange,
                             paymentHistory: PaymentHistory,
                             paymentTerms: PaymentTerms,

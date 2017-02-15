@@ -5,7 +5,7 @@
 }
 
 @errorMessage(field: Field) = @{
-    field.error.map(_.message)
+    field.error.map(e=> messages(e.message))
 }
 
 

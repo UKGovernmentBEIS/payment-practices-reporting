@@ -20,14 +20,15 @@
         <p>
             Please correct the errors shown below.
         </p>
+        @form.errors.map { e =>
+            @e<br/>
+        }
     </div>
 }
 
 <div class="scannable-wrapper">
 
     <form action="@routes.ReportController.reviewFiling(companyId)" method="POST" id="file-report">
-        <input type="hidden" id="TargetCompanyCompaniesHouseIdentifier" name="TargetCompanyCompaniesHouseIdentifier" value="@companyId.id">
-
         <p class="small-aside">
             Companies House number: @companyId.id
             <br>

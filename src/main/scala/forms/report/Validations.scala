@@ -50,9 +50,9 @@ class Validations @Inject()(timeSource: TimeSource) {
   val paymentTerms: Mapping[PaymentTerms] = mapping(
     "terms" -> nonEmptyText,
     "maximumContractPeriod" -> nonEmptyText,
-    "paymentTermsChanged" -> boolean,
+    "paymentTermsChanged" -> yesNo,
     "paymentTermsChangedComment" -> optional(nonEmptyText),
-    "paymentTermsNotified" -> boolean,
+    "paymentTermsNotified" -> yesNo,
     "paymentTermsNotifiedComment" -> optional(nonEmptyText),
     "paymentTermsComment" -> optional(nonEmptyText)
   )(PaymentTerms.apply)(PaymentTerms.unapply)
@@ -70,17 +70,16 @@ class Validations @Inject()(timeSource: TimeSource) {
   private def now() = new LocalDate(timeSource.currentTimeMillis())
 
   val reportFormModel = mapping(
-    "companiesHouseId" -> companiesHouseId,
     "reportDates" -> dateRange.verifying("error.beforenow", dr => dr.startDate.isBefore(now())),
     "paymentHistory" -> paymentHistory,
     "paymentTerms" -> paymentTerms,
     "disputeResolution" -> nonEmptyText,
-    "hasPaymentCodes" -> boolean,
+    "hasPaymentCodes" -> yesNo,
     "paymentCodes" -> optional(nonEmptyText),
-    "offerEInvoicing" -> boolean,
-    "offerSupplyChainFinancing" -> boolean,
-    "retentionChargesInPolicy" -> boolean,
-    "retentionChargesInPast" -> boolean
+    "offerEInvoicing" -> yesNo,
+    "offerSupplyChainFinancing" -> yesNo,
+    "retentionChargesInPolicy" -> yesNo,
+    "retentionChargesInPast" -> yesNo
   )(ReportFormModel.apply)(ReportFormModel.unapply)
     .verifying("error.paymentcodes.required", rf => rf.hasPaymentCodes && rf.paymentCodes.isDefined)
 }

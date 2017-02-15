@@ -5,7 +5,7 @@
 }
 
 @errorMessage(field: Field) = @{
-    field.error.map(_.message)
+    field.error.map(e=> messages(e.message))
 }
 
 <fieldset class="form-group inline @errorClass(form(fieldName))">
@@ -14,11 +14,11 @@
         <span class="error-message">@errorMessage(form(fieldName))</span>
     </label>
     <label class="block-label" for="@fieldName-yes">
-        <input id="@fieldName-yes" name="@fieldName" type="radio" value="true" @{if (form(fieldName).value.contains("true")) "checked='checked'"}>
+        <input id="@fieldName-yes" name="@fieldName" type="radio" value="yes" @{if (form(fieldName).value.contains("yes")) "checked='checked'"}>
         Yes
     </label>
     <label class="block-label" for="@fieldName-no">
-        <input id="@fieldName-no" name="@fieldName" type="radio" value="false" @{if (form(fieldName).value.contains("false")) "checked='checked'"}>
+        <input id="@fieldName-no" name="@fieldName" type="radio" value="no" @{if (form(fieldName).value.contains("no")) "checked='checked'"}>
         No
     </label>
 </fieldset>

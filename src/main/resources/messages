@@ -41,8 +41,8 @@ summary.subsidiaries.turnover=had an total turnover of at least £36 million net
 summary.subsidiaries.balance=had a combined balance sheet total of £18 million net or £21.6 million gross
 summary.subsidiaries.employees=had a combined workforce of at least 250
 
-field.startDate.label=Start date of reporting period
-field.endDate.label=End date of reporting period
+field.reportDates.startDate.label=Start date of reporting period
+field.reportDates.endDate.label=End date of reporting period
 
 field.paymentHistory.averageDaysToPay.label=Average time to pay in days
 field.paymentHistory.averageDaysToPay.hint=Out all of the payments you have made in the reporting period, the average time it took to pay.
@@ -99,3 +99,6 @@ field.hasPaymentCodes.hint=
 
 field.paymentCodes.label=If so, enter the name of the code of practice
 field.paymentCodes.hint=
+
+error.required=Please answer this question
+error.date=This date is invalid

@@ -1,8 +1,17 @@
 @(form: Form[forms.report.ReportFormModel])(implicit messages: MessagesApi)
 
 @import shared._dateField
+@error = @{
+    form.error("reportDates")
+}
+@errorClass = @{
+    if(error.isDefined) "error" else ""
+}
 
 <h2 class="heading-large">Reporting period</h2>
 
-@_dateField(form, "startDate")
-@_dateField(form, "endDate")
+<div class="form-group @errorClass">
+    @error.map { e => <span class="error-message">@messages(e.message)</span> }
+    @_dateField(form, "reportDates.startDate")
+    @_dateField(form, "reportDates.endDate")
+</div>
