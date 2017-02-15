@@ -1,12 +1,10 @@
-@(review: forms.report.ReportReviewModel, companyName: String, df: org.joda.time.format.DateTimeFormatter)
+@(review: forms.report.ReportReviewModel, companyName: String, df: org.joda.time.format.DateTimeFormatter, mapping: Mapping[forms.report.ReportFormModel])
 
-    @import helpers.ReviewTables
+    @import helpers.ReviewPageData
 
 <h1 class="heading-xlarge">Check your report before publishing</h1>
 <div class="notice">
-    <i class="icon icon-important">
-        <span class="visually-hidden">Warning</span>
-    </i>
+    <i class="icon icon-important"><span class="visually-hidden">Warning</span></i>
     <strong>If your report is incorrect or misleading, you could face a fine.</strong>
 </div>
 
@@ -15,45 +13,41 @@
         <h1 class="heading-medium error-summary-heading" id="error-summary-heading">
             You need to confirm this report before publishing it
         </h1>
-
-        <p>
-            Please confirm this report by ticking the checkbox below.
-        </p>
+        <p>Please confirm this report by ticking the checkbox below.</p>
     </div>
 }
 
-<table class="check-answers">
-    <tr>
-        <td class="key-column"> Company </td>
-        <td> @companyName </td>
-    </tr>
-    <tr>
-        <td class="key-column"> Filing date </td>
-        <td>@df.print(review.report.filingDate)</td>
-    </tr>
-
-    @for((name, value) <- (ReviewTables.reportingDateRows ++ ReviewTables.paymentHistoryRows)) {
+@for((cssClass, rows) <- ReviewPageData.groups(companyName, review)) {
+    <table class="@cssClass">
+    @for((name, value) <- rows) {
         <tr>
             <td class="key-column"> @name</td>
-            <td>@value(review.report)</td>
+            <td>@value</td>
         </tr>
     }
-</table>
-
-<table class="check-answers check-answers-essay">
-@for((name, value) <- (ReviewTables.paymentTermsRows)) {
-    <tr>
-        <td class="key-column"> @name</td>
-        <td>@value(review.report)</td>
-    </tr>
+    </table>
 }
-</table>
 
-<table class="check-answers">
-@for((name, value) <- (ReviewTables.otherInfoRows)) {
-    <tr>
-        <td class="key-column"> @name</td>
-        <td>@value(review.report)</td>
-    </tr>
-}
-</table>
+<form action="" method="POST" style="float: left;
+    margin-right: 2em;">
+
+    @for((k, v) <- mapping.unbind(review.report)) {
+        <input type="hidden" name='@(s"report.$k")' value="@HtmlFormat.escape(v)">
+    }
+
+    <div class="scannable-wrapper">
+        <fieldset class='confirmation form-group'>
+            <h3 class="bold-medium">Confirm this statement then publish your report</h3>
+
+            <span class="error-message">You must tick the checkbox to proceed.</span>
+
+            <input type="hidden" name="confirmed" value="0">
+            <label class="block-label" for="confirmed">
+                <input type="checkbox" name="confirmed" id="confirmed" value="1">
+                I confirm that the information provided in this report is accurate and has been approved by a director of my company or a designated member of my limited liability partnership.
+            </label>
+        </fieldset>
+        <input type="submit" class="button" value="Publish your report">
+        <input type="submit" name="revise" class="button button-secondary" value="Revise">
+    </div>
+</form>

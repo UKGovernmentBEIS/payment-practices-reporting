@@ -1,0 +1,250 @@
+@(form: Form[forms.report.ReportFormModel], company: db.CompanyRow, date: UiDate, confirmedError: scala.Boolean)
+
+<h1 class="heading-xlarge">Check your report before publishing</h1>
+<div class="notice">
+    <i class="icon icon-important">
+        <span class="visually-hidden">Warning</span>
+    </i>
+    <strong>If your report is incorrect or misleading, you could face a fine.</strong>
+</div>
+@if(confirmedError == true) {
+<div class="error-summary" role="group" aria-labelledby="error-summary-heading" tabindex="-1">
+    <h1 class="heading-medium error-summary-heading" id="error-summary-heading">
+        You need to confirm this report before publishing it
+    </h1>
+
+    <p>
+        Please confirm this report by ticking the checkbox below.
+    </p>
+</div>
+}
+<table class="check-answers">
+    <tr>
+        <td class="key-column">
+            Company
+        </td>
+        <td>
+            @company.name
+        </td>
+    </tr>
+    <tr>
+        <td class="key-column">
+            Filing date
+        </td>
+        <td>
+            @date.ToDateString()
+        </td>
+    </tr>
+    <tr>
+        <td class="key-column">
+            Start date
+        </td>
+        <td>
+            @model.get().getStartDateString()
+        </td>
+    </tr>
+    <tr>
+        <td class="key-column">
+            End date
+        </td>
+        <td>
+            @model.get().getEndDateString()
+        </td>
+    </tr>
+    <tr>
+        <td  class="key-column">
+            Average number of days until payment
+        </td>
+        <td>
+            @model.get().getAverageTimeToPayAsDecimal()
+        </td>
+    </tr>
+    <tr>
+        <td  class="key-column">
+            Percentage of invoices paid later than agreed terms
+        </td>
+        <td>
+            @model.get().getPercentInvoicesPaidBeyondAgreedTermsAsDecimal()%
+        </td>
+    </tr>
+    <tr>
+        <td  class="key-column">
+            Percentage of invoices paid within 30 days
+        </td>
+        <td>
+            @model.get().getPercentInvoicesWithin30DaysAsDecimal()%
+        </td>
+    </tr>
+    <tr>
+        <td  class="key-column">
+            Percentage of invoices paid within 31 to 60 days
+        </td>
+        <td>
+            @model.get().getPercentInvoicesWithin60DaysAsDecimal()%
+        </td>
+    </tr>
+    <tr>
+        <td  class="key-column">
+            Percentage of invoices paid later than 60 days
+        </td>
+        <td>
+            @model.get().getPercentInvoicesBeyond60DaysAsDecimal()%
+        </td>
+    </tr>
+</table>
+<table class="check-answers check-answers-essay">
+    <tr>
+        <td  class="key-column">
+            Payment terms
+        </td>
+        <td>
+            @shared._multiline(model.get().getPaymentTerms())
+        </td>
+    </tr>
+    <tr>
+        <td  class="key-column">
+            Maximum contract period
+        </td>
+        <td>
+            @shared._multiline(model.get().getMaximumContractPeriod())
+        </td>
+    </tr>
+    <tr>
+        <td  class="key-column">
+            Payment terms have changed
+        </td>
+        <td>
+            @if(model.get().isPaymentTermsChanged() != null && model.get().isPaymentTermsChanged()) {
+                <strong>Yes </strong>&ndash; @shared._multiline(model.get().getPaymentTermsChangedComment())
+            } else {
+                <strong>No</strong>
+            }
+        </td>
+    </tr>
+    @if(model.get().isPaymentTermsChanged()) {
+        <tr>
+            <td  class="key-column">
+                Suppliers notified of changes
+            </td>
+            <td>
+                @if(model.get().isPaymentTermsChangedNotified() != null && model.get().isPaymentTermsChangedNotified()) {
+                    <strong>Yes </strong>&ndash; @shared._multiline(model.get().getPaymentTermsChangedNotifiedComment())
+                } else {
+                    <strong>No</strong>
+                }
+            </td>
+        </tr>
+    }
+    <tr>
+        <td  class="key-column">
+            Further remarks on payment terms
+        </td>
+        <td>
+            @shared._multiline(model.get().getPaymentTermsComment())
+        </td>
+    </tr>
+    <tr>
+        <td  class="key-column">
+            Dispute resolution
+        </td>
+        <td>
+            @shared._multiline(model.get().getDisputeResolution())
+        </td>
+    </tr>
+</table>
+<table class="check-answers">
+    <tr>
+        <td  class="key-column">
+            Offer E-Invoicing
+        </td>
+        <td>
+            @{if (model.get().isOfferEInvoicing() != null) if (model.get().isOfferEInvoicing()) "Yes" else "No"}
+        </td>
+    </tr>
+    <tr>
+        <td  class="key-column">
+            Offer supply chain finance
+        </td>
+        <td>
+            @{if (model.get().isOfferSupplyChainFinance() != null) if (model.get().isOfferSupplyChainFinance()) "Yes" else "No"}
+        </td>
+    </tr>
+    <tr>
+        <td  class="key-column">
+            Retention charges covered in policy
+        </td>
+        <td>
+            @{if (model.get().isRetentionChargesInPolicy() != null) if (model.get().isRetentionChargesInPolicy()) "Yes" else "No"}
+        </td>
+    </tr>
+    <tr>
+        <td  class="key-column">
+            Retention charges made in the past
+        </td>
+        <td>
+            @{if (model.get().isRetentionChargesInPast() != null) if (model.get().isRetentionChargesInPast()) "Yes" else "No"}
+        </td>
+    </tr>
+    <tr>
+        <td  class="key-column">
+            Payment code participation
+        </td>
+        <td>
+            @if(model.get().isHasPaymentCodes() != null && model.get().isHasPaymentCodes()) {
+                <strong>Yes </strong>&ndash; @shared._multiline(model.get().getPaymentCodes())
+            } else {
+                <strong>None</strong>
+            }
+        </td>
+    </tr>
+
+</table>
+
+<form action="@routes.FileReport.submitFiling()" method="POST" style="float:left; margin-right:2em;">
+    <input type="hidden" name="TargetCompanyCompaniesHouseIdentifier" value="@company.CompaniesHouseIdentifier">
+    <input type="hidden" name="AverageTimeToPay" value="@model.get().getAverageTimeToPayAsDecimal()">
+    <input type="hidden" name="PercentInvoicesPaidBeyondAgreedTerms" value="@model.get().getPercentInvoicesPaidBeyondAgreedTermsAsDecimal()">
+    <input type="hidden" name="PercentInvoicesWithin30Days" value="@model.get().getPercentInvoicesWithin30DaysAsDecimal()">
+    <input type="hidden" name="PercentInvoicesWithin60Days" value="@model.get().getPercentInvoicesWithin60DaysAsDecimal()">
+    <input type="hidden" name="PercentInvoicesBeyond60Days" value="@model.get().getPercentInvoicesBeyond60DaysAsDecimal()">
+
+    <input type="hidden" name="StartDate_year" value="@model.get().getStartDate_year()">
+    <input type="hidden" name="StartDate_month" value="@model.get().getStartDate_month()">
+    <input type="hidden" name="StartDate_day" value="@model.get().getStartDate_day()">
+
+    <input type="hidden" name="EndDate_year" value="@model.get().getEndDate_year()">
+    <input type="hidden" name="EndDate_month" value="@model.get().getEndDate_month()">
+    <input type="hidden" name="EndDate_day" value="@model.get().getEndDate_day()">
+
+    <input type="hidden" name="PaymentTerms" value="@model.get().getPaymentTerms()">
+    <input type="hidden" name="MaximumContractPeriod" value="@model.get().getMaximumContractPeriod()">
+    <input type="hidden" name="PaymentTermsChanged" value="@model.get().isPaymentTermsChanged()">
+    <input type="hidden" name="PaymentTermsChangedComment" value="@model.get().getPaymentTermsChangedComment()">
+    <input type="hidden" name="PaymentTermsChangedNotified" value="@model.get().isPaymentTermsChangedNotified()">
+    <input type="hidden" name="PaymentTermsChangedNotifiedComment" value="@model.get().getPaymentTermsChangedNotifiedComment()">
+    <input type="hidden" name="PaymentTermsComment" value="@model.get().getPaymentTermsComment()">
+
+    <input type="hidden" name="DisputeResolution" value="@model.get().getDisputeResolution()">
+    <input type="hidden" name="OfferEInvoicing" value="@model.get().isOfferEInvoicing()">
+    <input type="hidden" name="OfferSupplyChainFinance" value="@model.get().isOfferSupplyChainFinance()">
+    <input type="hidden" name="RetentionChargesInPolicy" value="@model.get().isRetentionChargesInPolicy()">
+    <input type="hidden" name="RetentionChargesInPast" value="@model.get().isRetentionChargesInPast()">
+    <input type="hidden" name="HasPaymentCodes" value="@model.get().isHasPaymentCodes()">
+    <input type="hidden" name="PaymentCodes" value="@model.get().getPaymentCodes()">
+
+    <div class="scannable-wrapper">
+    <fieldset class='confirmation form-group @(confirmedError match { case true => "error" case _ => ""})'>
+        <h3 class="bold-medium">Confirm this statement then publish your report</h3>
+        @if(confirmedError == true) {
+            <span class="error-message">You must tick the checkbox to proceed.</span>
+        }
+        <input type="hidden" name="confirmed" value="0">
+        <label class="block-label" for="confirmed">
+            <input type="checkbox" name="confirmed" id="confirmed" value="1">
+            I confirm that the information provided in this report is accurate and has been approved by a director of my company or a designated member of my limited liability partnership.
+        </label>
+    </fieldset>
+    <input type="submit" class="button" value="Publish your report">
+    <input type="submit" name="revise" class="button button-secondary" value="Revise">
+    </div>
+</form>

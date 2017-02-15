@@ -101,7 +101,10 @@ class ReportController @Inject()(companiesHouseAPI: CompaniesHouseAPI, reports: 
         println(errs)
         BadRequest(page(h1("Publish a report for company.name"), views.html.report.file(errs, companiesHouseId, LocalDate.now(), df)))
       },
-      report=> Ok(page(home, views.html.report.review(ReportReviewModel(report, false, ""), "<company name>", df)))
+      report=> {
+        println(report)
+        Ok(page(home, views.html.report.review(ReportReviewModel(report, false, ""), "<company name>", df, new Validations(timeSource).reportFormModel)))
+      }
     )
   }
 
