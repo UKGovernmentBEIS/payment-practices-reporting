@@ -61,6 +61,7 @@ case class ReportFormModel(
 
 case class ReportReviewModel(
                               confirmed: Boolean,
-                              confirmedBy: Option[String]
+                              confirmedBy: Option[String],
+                              revise: Boolean
                             )
 

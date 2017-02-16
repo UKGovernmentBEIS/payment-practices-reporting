@@ -19,6 +19,7 @@ package controllers
 
 import javax.inject.Inject
 
+import actions.{CompanyAction, CompanyRequest}
 import forms.report.{ReportFormModel, ReportReviewModel, Validations}
 import models.CompaniesHouseId
 import org.joda.time.LocalDate
@@ -33,7 +34,14 @@ import utils.TimeSource
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class ReportController @Inject()(companiesHouseAPI: CompaniesHouseAPI, reports: ReportRepo, timeSource: TimeSource)(implicit ec: ExecutionContext, messages: MessagesApi) extends Controller with PageHelper {
+class ReportController @Inject()(
+                                  companiesHouseAPI: CompaniesHouseAPI,
+                                  reports: ReportRepo,
+                                  timeSource: TimeSource,
+                                  CompanyAction: CompanyAction
+                                )(implicit ec: ExecutionContext, messages: MessagesApi) extends Controller with PageHelper {
+
+  import views.html.{report => pages}
 
   private val reportValidations = new Validations(timeSource)
   val emptyReport: Form[ReportFormModel] = Form(reportValidations.reportFormModel)
@@ -62,7 +70,7 @@ class ReportController @Inject()(companiesHouseAPI: CompaniesHouseAPI, reports: 
   }
 
   def start(companiesHouseId: CompaniesHouseId) = Action { request =>
-    Ok(page(home, views.html.report.signInInterstitial(companiesHouseId)))
+    Ok(page(home, pages.signInInterstitial(companiesHouseId)))
   }
 
   val hasAccountChoice = Form(mapping("account" -> boolean)(identity)(b => Some(b)))
@@ -80,50 +88,45 @@ class ReportController @Inject()(companiesHouseAPI: CompaniesHouseAPI, reports: 
 
   def code(companiesHouseId: CompaniesHouseId) = Action.async { request =>
     companiesHouseAPI.find(companiesHouseId).map {
-      case Some(co) => Ok(page(home, views.html.report.companiesHouseOptions(co.company_name, companiesHouseId)))
+      case Some(co) => Ok(page(home, pages.companiesHouseOptions(co.company_name, companiesHouseId)))
       case None => BadRequest(s"Unknown company id ${companiesHouseId.id}")
     }
   }
 
   def codeOptions(companiesHouseId: CompaniesHouseId) = Action { request => ??? }
 
-  def file(companiesHouseId: CompaniesHouseId) = Action.async { implicit request =>
-    request.session.get("company_id") match {
-      case Some(id) if id == companiesHouseId.id => companiesHouseAPI.find(companiesHouseId).map {
-        case Some(co) => Ok(page(home, h1("Publish a report for company.name"), views.html.report.file(emptyReport, companiesHouseId, LocalDate.now(), df)))
-        case None => BadRequest(s"Unknown company id ${companiesHouseId.id}")
-      }
-      case _ => Future.successful(Redirect(controllers.routes.ReportController.start(companiesHouseId)))
-    }
+  def header(implicit request: CompanyRequest[_]) = h1(s"Publish a report for ${request.companyName}")
+
+  def file(companiesHouseId: CompaniesHouseId) = CompanyAction(companiesHouseId) { implicit request =>
+    Ok(page(home, header, pages.file(emptyReport, companiesHouseId, LocalDate.now(), df)))
   }
 
-  def postForm(companiesHouseId: CompaniesHouseId) = Action.async { implicit request =>
-    companiesHouseAPI.find(companiesHouseId).map {
-      case Some(co) =>
-        emptyReport.bindFromRequest().fold(
-          errs => BadRequest(page(h1("Publish a report for company.name"), views.html.report.file(errs, companiesHouseId, LocalDate.now(), df))),
-          report => Ok(page(home, views.html.report.review(emptyReview, report, companiesHouseId, co.company_name, df, reportValidations.reportFormModel)))
-
-        )
-      case None => NotFound
-    }
+  def postForm(companiesHouseId: CompaniesHouseId) = CompanyAction(companiesHouseId) { implicit request =>
+    emptyReport.bindFromRequest().fold(
+      errs => BadRequest(page(home, header, pages.file(errs, companiesHouseId, LocalDate.now(), df))),
+      report => Ok(page(home, pages.review(emptyReview, report, companiesHouseId, request.companyName, df, reportValidations.reportFormModel)))
+    )
   }
 
-  def postReview(companiesHouseId: CompaniesHouseId) = Action(parse.urlFormEncoded) { implicit request =>
+  def postReview(companiesHouseId: CompaniesHouseId) = CompanyAction(companiesHouseId)(parse.urlFormEncoded) { implicit request =>
+    println(request.body)
     // Re-capture the values for the report itself. In theory these values should always be valid
     // (as we only send the user to the review page if they are) but if somehow they aren't then
     // send them back to the report form.
     emptyReport.bindFromRequest().fold(
-      errs => BadRequest(page(home, h1("Publish a report for company.name"), views.html.report.file(errs, companiesHouseId, LocalDate.now(), df))),
-      report => {
-        if (request.body.get("revise").isDefined) Ok(page(home, h1("Publish a report for company.name"), views.html.report.file(emptyReport.fill(report), companiesHouseId, LocalDate.now(), df)))
-        else emptyReview.bindFromRequest().fold(
-          errs => BadRequest(page(home, views.html.report.review(errs, report, companiesHouseId, "<company name>", df, reportValidations.reportFormModel))),
-          confirmation =>
-            if (confirmation.confirmed) ???
-            else BadRequest(page(home, views.html.report.review(emptyReview.fill(confirmation), report, companiesHouseId, "<company name>", df, reportValidations.reportFormModel)))
-        )
-      }
+      errs => BadRequest(page(home, header, pages.file(errs, companiesHouseId, LocalDate.now(), df))),
+      report => emptyReview.bindFromRequest().fold(
+        errs => {
+          println(errs)
+          BadRequest(page(home, pages.review(errs, report, companiesHouseId, request.companyName, df, reportValidations.reportFormModel)))
+        },
+        confirmation => {
+          println(confirmation)
+          if (confirmation.revise) Ok(page(home, header, pages.file(emptyReport.fill(report), companiesHouseId, LocalDate.now(), df)))
+          else if (confirmation.confirmed) ???
+          else BadRequest(page(home, pages.review(emptyReview.fill(confirmation), report, companiesHouseId, request.companyName, df, reportValidations.reportFormModel)))
+        }
+      )
     )
   }
 

@@ -80,8 +80,13 @@ class Validations @Inject()(timeSource: TimeSource) {
     "retentionChargesInPast" -> yesNo
   )(ReportFormModel.apply)(ReportFormModel.unapply)
 
+  val revise: Mapping[Boolean] = mapping(
+    "" -> optional(text)
+  )(_.contains("Revise"))(b => Some(if (b) Some("Revise") else Some("")))
+
   val reportReviewModel = mapping(
     "confirmed" -> boolean,
-    "confirmedBy" -> optional(nonEmptyText)
+    "confirmedBy" -> optional(nonEmptyText),
+    "revise" -> revise
   )(ReportReviewModel.apply)(ReportReviewModel.unapply)
 }
