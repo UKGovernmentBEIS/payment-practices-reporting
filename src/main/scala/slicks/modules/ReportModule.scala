@@ -23,6 +23,7 @@ import com.github.tminglei.slickpg.PgDateSupportJoda
 import com.google.inject.ImplementedBy
 import com.wellfactored.slickgen.IdType
 import db.{PaymentHistoryRow, ReportRow}
+import forms.report.ReportFormModel
 import models.{CompaniesHouseId, PaymentHistoryId, ReportId}
 import org.joda.time.LocalDate
 import org.reactivestreams.Publisher
@@ -89,6 +90,8 @@ trait ReportModule extends DBBinding {
 
     def paymentCodes = column[Option[String]]("payment_codes", O.Length(255))
 
+    def confirmedBy = column[String]("confirmed_by", O.Length(255))
+
     def * = (
       id,
       companyId,
@@ -107,7 +110,8 @@ trait ReportModule extends DBBinding {
       offerSupplyChainFinance,
       retentionChargesInPolicy,
       retentionChargesInPast,
-      paymentCodes
+      paymentCodes,
+      confirmedBy
     ) <> (ReportRow.tupled, ReportRow.unapply)
   }
 
@@ -116,7 +120,7 @@ trait ReportModule extends DBBinding {
   type PaymentHistoryQuery = Query[PaymentHistoryTable, PaymentHistoryRow, Seq]
 
   class PaymentHistoryTable(tag: Tag) extends Table[PaymentHistoryRow](tag, "payment_history") {
-    def id = column[PaymentHistoryId]("id", O.Length(IdType.length), O.PrimaryKey)
+    def id = column[PaymentHistoryId]("id", O.Length(IdType.length), O.PrimaryKey, O.AutoInc)
 
     def reportId = column[ReportId]("report_id", O.Length(IdType.length))
 
@@ -146,57 +150,5 @@ trait ReportModule extends DBBinding {
 
 case class CompanyReport(name: String, report: ReportRow, paymentHistory: PaymentHistoryRow)
 
-@ImplementedBy(classOf[ReportTable])
-trait ReportRepo {
-  def find(id: ReportId): Future[Option[ReportRow]]
 
-  def reportFor(id: ReportId): Future[Option[CompanyReport]]
 
-  def byCompanyNumber(companiesHouseId: CompaniesHouseId): Future[Seq[ReportRow]]
-
-  def list(cutoffDate: LocalDate, maxRows: Int = 100000): Publisher[CompanyReport]
-}
-
-class ReportTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(implicit ec: ExecutionContext)
-  extends DBBinding
-    with ReportRepo
-    with ReportModule
-    with CompanyModule
-    with PgDateSupportJoda {
-
-  import api._
-
-  def find(id: ReportId): Future[Option[ReportRow]] = db.run(reportTable.filter(_.id === id).result.headOption)
-
-  def byCompanyNumber(companiesHouseId: CompaniesHouseId): Future[Seq[ReportRow]] = db.run {
-    reportTable.filter(_.companyId === companiesHouseId.id).result
-  }
-
-  def reportFor(id: ReportId): Future[Option[CompanyReport]] = db.run {
-    val query = for {
-      report <- reportTable.filter(_.id === id)
-      paymentHistory <- paymentHistoryTable.filter(_.reportId === report.id)
-      company <- companyTable.filter(_.companiesHouseIdentifier === report.companyId).map(_.name)
-    } yield (company, report, paymentHistory)
-
-    query.result.map(_.map(CompanyReport.tupled).headOption)
-  }
-
-  /**
-    * Code to adjust fetchSize on Postgres driver taken from:
-    * https://engineering.sequra.es/2016/02/database-streaming-on-play-with-slick-from-publisher-to-chunked-result/
-    */
-  def list(cutoffDate: LocalDate, maxRows: Int = 100000): Publisher[CompanyReport] = {
-    val disableAutocommit = SimpleDBIO(_.connection.setAutoCommit(false))
-
-    val query = for {
-      report <- reportTable.filter(_.filingDate >= cutoffDate).take(maxRows)
-      paymentHistory <- paymentHistoryTable.filter(_.reportId === report.id)
-      company <- companyTable.filter(_.companiesHouseIdentifier === report.companyId).map(_.name)
-    } yield (company, report, paymentHistory)
-
-    val action = query.result.withStatementParameters(fetchSize = 10000)
-
-    db.stream(disableAutocommit andThen action).mapResult(CompanyReport.tupled)
-  }
-}

@@ -106,6 +106,9 @@ field.paymentCodes.yesNo.hint=
 field.paymentCodes.label=If so, enter the name of the code of practice
 field.paymentCodes.hint=
 
+field.confirmedBy.label=Enter the name of the director who approved this report
+field.confirmedBy.hint=
+
 error.required=Please answer this question
 error.date=This date is invalid
 error.sumto100=Figures A, B and C do not add up to 100

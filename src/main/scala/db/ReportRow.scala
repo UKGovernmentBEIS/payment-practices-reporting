@@ -38,7 +38,8 @@ case class ReportRow(
                       offerSupplyChainFinance: Boolean,
                       retentionChargesInPolicy: Boolean,
                       retentionChargesInPast: Boolean,
-                      paymentCodes: Option[String]
+                      paymentCodes: Option[String],
+                      confirmedBy: String
                     )
 
 case class PaymentHistoryRow(

@@ -21,7 +21,7 @@ import javax.inject.Inject
 
 import actions.{CompanyAction, CompanyRequest}
 import forms.report.{ReportFormModel, ReportReviewModel, Validations}
-import models.CompaniesHouseId
+import models.{CompaniesHouseId, ReportId}
 import org.joda.time.LocalDate
 import org.joda.time.format.DateTimeFormat
 import play.api.data.Forms._
@@ -109,26 +109,25 @@ class ReportController @Inject()(
   }
 
   def postReview(companiesHouseId: CompaniesHouseId) = CompanyAction(companiesHouseId).async(parse.urlFormEncoded) { implicit request =>
+    val revise = request.body.get("revise").headOption.contains("Revise")
     // Re-capture the values for the report itself. In theory these values should always be valid
     // (as we only send the user to the review page if they are) but if somehow they aren't then
     // send the user back to the report form to fix them.
     emptyReport.bindFromRequest().fold(
       errs => Future.successful(BadRequest(page(home, header, pages.file(errs, companiesHouseId, LocalDate.now(), df)))),
-      report => checkConfirmation(companiesHouseId, report)
+      report =>
+        if (revise) Future.successful(Ok(page(home, header, pages.file(emptyReport.fill(report), companiesHouseId, LocalDate.now(), df))))
+        else checkConfirmation(companiesHouseId, report)
     )
   }
 
   private def checkConfirmation(companiesHouseId: CompaniesHouseId, report: ReportFormModel)(implicit request: CompanyRequest[_]): Future[Result] = {
     emptyReview.bindFromRequest().fold(
       errs => Future.successful(BadRequest(page(home, pages.review(errs, report, companiesHouseId, request.companyName, df, reportValidations.reportFormModel)))),
-      confirmation => (confirmation.revise, confirmation.confirmed) match {
-        case (true, _) => Future.successful(Ok(page(home, header, pages.file(emptyReport.fill(report), companiesHouseId, LocalDate.now(), df))))
-        case (false, false) => Future.successful(BadRequest(page(home, pages.review(emptyReview.fill(confirmation), report, companiesHouseId, request.companyName, df, reportValidations.reportFormModel))))
-        case _ => saveReport(report).map { _ => ??? }
-      }
+      confirmation =>
+        if (confirmation.confirmed) reports.save(confirmation.confirmedBy, companiesHouseId, request.companyName, report).map { reportId => Ok(s"report id is $reportId") }
+        else Future.successful(BadRequest(page(home, pages.review(emptyReview.fill(confirmation), report, companiesHouseId, request.companyName, df, reportValidations.reportFormModel))))
     )
   }
-
-  private def saveReport(report: ReportFormModel): Future[Unit] = ???
 
 }

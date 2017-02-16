@@ -19,7 +19,6 @@ package forms.report
 
 import forms.DateRange
 import org.joda.time.LocalDate
-import shapeless.{Witness => W}
 
 object ReportConstants {
   val wordLength = 7
@@ -71,7 +70,6 @@ case class ReportFormModel(
 
 case class ReportReviewModel(
                               confirmed: Boolean,
-                              confirmedBy: Option[String],
-                              revise: Boolean
+                              confirmedBy: String
                             )
 
