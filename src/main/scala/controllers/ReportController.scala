@@ -120,11 +120,10 @@ class ReportController @Inject()(
           println(errs)
           BadRequest(page(home, pages.review(errs, report, companiesHouseId, request.companyName, df, reportValidations.reportFormModel)))
         },
-        confirmation => {
-          println(confirmation)
-          if (confirmation.revise) Ok(page(home, header, pages.file(emptyReport.fill(report), companiesHouseId, LocalDate.now(), df)))
-          else if (confirmation.confirmed) ???
-          else BadRequest(page(home, pages.review(emptyReview.fill(confirmation), report, companiesHouseId, request.companyName, df, reportValidations.reportFormModel)))
+        confirmation => (confirmation.revise, confirmation.confirmed) match {
+          case (true, _) => Ok(page(home, header, pages.file(emptyReport.fill(report), companiesHouseId, LocalDate.now(), df)))
+          case (false, false) => BadRequest(page(home, pages.review(emptyReview.fill(confirmation), report, companiesHouseId, request.companyName, df, reportValidations.reportFormModel)))
+          case _ => ???
         }
       )
     )
