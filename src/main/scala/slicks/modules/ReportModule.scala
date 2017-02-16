@@ -120,6 +120,8 @@ trait ReportModule extends DBBinding {
 
     def reportId = column[ReportId]("report_id", O.Length(IdType.length))
 
+    def onePerReportIndex = index("one_payment_history_row_per_report", reportId, unique = true)
+
     def reportIdFK = foreignKey("paymenthistory_report_fk", reportId, reportTable)(_.id, onDelete = ForeignKeyAction.Cascade)
 
     def reportIdIndex = index("paymenthistory_report_idx", reportId)
