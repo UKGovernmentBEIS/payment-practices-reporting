@@ -27,7 +27,6 @@ import models.{CompaniesHouseId, ReportId}
 import org.joda.time.LocalDate
 import org.reactivestreams.Publisher
 import play.api.db.slick.DatabaseConfigProvider
-import slick.backend.DatabasePublisher
 import slicks.DBBinding
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -54,19 +53,21 @@ trait ReportModule extends DBBinding {
 
     def averageDaysToPay = column[Int]("average_days_to_pay")
 
-    def percentInvoicesPaidBeyondAgreedTerms = column[BigDecimal]("percent_invoices_paid_beyond_agreed_terms", O.SqlType("decimal(9, 2)"))
+    def percentInvoicesPaidBeyondAgreedTerms = column[Int]("percent_invoices_paid_beyond_agreed_terms")
 
-    def percentInvoicesWithin30Days = column[BigDecimal]("percent_invoices_within_30_days", O.SqlType("decimal(9, 2)"))
+    def percentInvoicesWithin30Days = column[Int]("percent_invoices_within_30_days")
 
-    def percentInvoicesWithin60Days = column[BigDecimal]("percent_invoices_within_60_days", O.SqlType("decimal(9, 2)"))
+    def percentInvoicesWithin60Days = column[Int]("percent_invoices_within_60_days")
 
-    def percentInvoicesBeyond60Days = column[BigDecimal]("percent_invoices_beyond_60_days", O.SqlType("decimal(9, 2)"))
+    def percentInvoicesBeyond60Days = column[Int]("percent_invoices_beyond_60_days")
 
     def startDate = column[LocalDate]("start_date")
 
     def endDate = column[LocalDate]("end_date")
 
     def paymentTerms = column[String]("payment_terms", O.Length(255))
+
+    def paymentPeriod = column[Int]("payment_period")
 
     def maximumContractPeriod = column[String]("maximum_contract_period", O.Length(255))
 
@@ -88,7 +89,7 @@ trait ReportModule extends DBBinding {
 
     def paymentCodes = column[Option[String]]("payment_codes", O.Length(255))
 
-    def * = (id, companyId, filingDate, averageDaysToPay, percentInvoicesPaidBeyondAgreedTerms, percentInvoicesWithin30Days, percentInvoicesWithin60Days, percentInvoicesBeyond60Days, startDate, endDate, paymentTerms, maximumContractPeriod, paymentTermsChangedComment, paymentTermsChangedNotifiedComment, paymentTermsComment, disputeResolution, offerEInvoicing, offerSupplyChainFinance, retentionChargesInPolicy, retentionChargesInPast, paymentCodes) <> (ReportRow.tupled, ReportRow.unapply)
+    def * = (id, companyId, filingDate, averageDaysToPay, percentInvoicesPaidBeyondAgreedTerms, percentInvoicesWithin30Days, percentInvoicesWithin60Days, percentInvoicesBeyond60Days, startDate, endDate, paymentTerms, paymentPeriod, maximumContractPeriod, paymentTermsChangedComment, paymentTermsChangedNotifiedComment, paymentTermsComment, disputeResolution, offerEInvoicing, offerSupplyChainFinance, retentionChargesInPolicy, retentionChargesInPast, paymentCodes) <> (ReportRow.tupled, ReportRow.unapply)
   }
 
   lazy val reportTable = TableQuery[ReportTable]
@@ -96,7 +97,7 @@ trait ReportModule extends DBBinding {
   override def schema = super.schema ++ reportTable.schema
 }
 
-case class CompanyReport(name:String, report:ReportRow)
+case class CompanyReport(name: String, report: ReportRow)
 
 @ImplementedBy(classOf[ReportTable])
 trait ReportRepo {
