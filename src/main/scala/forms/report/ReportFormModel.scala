@@ -43,7 +43,8 @@ case class PaymentTerms(
                          maximumContractPeriod: String,
                          paymentTermsChanged: ConditionalText,
                          paymentTermsChangedNotified: ConditionalText,
-                         paymentTermsComment: Option[String]
+                         paymentTermsComment: Option[String],
+                         paymentPeriod: Int
                        )
 
 case class ReportFormModel(

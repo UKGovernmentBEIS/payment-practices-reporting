@@ -62,7 +62,8 @@ class Validations @Inject()(timeSource: TimeSource) {
     "maximumContractPeriod" -> nonEmptyText,
     "paymentTermsChanged" -> conditionalText,
     "paymentTermsNotified" -> conditionalText,
-    "paymentTermsComment" -> optional(nonEmptyText)
+    "paymentTermsComment" -> optional(nonEmptyText),
+    "paymentPeriod" -> number(min = 0)
   )(PaymentTerms.apply)(PaymentTerms.unapply)
 
   private def now() = new LocalDate(timeSource.currentTimeMillis())
