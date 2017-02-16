@@ -79,7 +79,7 @@ object ReviewPageData extends HtmlHelpers {
   )
 
   def paymentHistoryRows(r: ReportFormModel): Seq[(String, Html)] = Seq(
-    ("Average number of days until payment", r.paymentHistory.averageTimeToPay),
+    ("Average number of days until payment", r.paymentHistory.averageDaysToPay),
     ("Percentage of invoices paid later than agreed terms", r.paymentHistory.percentPaidLaterThanAgreedTerms),
     ("Percentage of invoices paid within 30 days", r.paymentHistory.percentageSplit.percentWithin30Days),
     ("Percentage of invoices paid within 31 to 60 days", r.paymentHistory.percentageSplit.percentWithin60Days),
@@ -88,7 +88,8 @@ object ReviewPageData extends HtmlHelpers {
 
   def paymentTermsRows(r: ReportFormModel): Seq[(String, Html)] = Seq(
     ("Payment terms", r.paymentTerms.terms),
-    ("Maximum contract period", breakLines(r.paymentTerms.maximumContractPeriod)),
+    ("Maximum contract period", r.paymentTerms.maximumContractPeriod),
+    ("Maximum contract period comment", r.paymentTerms.maximumContractPeriodComment.map(breakLines)),
     ("Payment terms have changed", conditionalText(r.paymentTerms.paymentTermsChanged)),
     ("Suppliers notified of changes", conditionalText(r.paymentTerms.paymentTermsChangedNotified)),
     ("Further remarks on payment terms", r.paymentTerms.paymentTermsComment.map(breakLines)),

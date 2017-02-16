@@ -1,6 +1,13 @@
-@(review: Form[forms.report.ReportReviewModel], report: forms.report.ReportFormModel, id:CompaniesHouseId, companyName: String, df: org.joda.time.format.DateTimeFormatter, mapping: Mapping[forms.report.ReportFormModel])
+@(
+        review: Form[forms.report.ReportReviewModel],
+        report: forms.report.ReportFormModel,
+        id:CompaniesHouseId,
+        companyName: String,
+        df: org.joda.time.format.DateTimeFormatter,
+        mapping: Mapping[forms.report.ReportFormModel])(implicit messagesApi: MessagesApi)
 
     @import helpers.ReviewPageData
+@import shared._textField
 
 <h1 class="heading-xlarge">Check your report before publishing</h1>
 <div class="notice">
@@ -48,10 +55,7 @@
                 <input type="checkbox" name="confirmed" id="confirmed" value="true">
                 I confirm that the information provided in this report is accurate and has been approved by a director of my company or a designated member of my limited liability partnership.
             </label>
-            <label class="block" for="confirmedBy">
-                <input type="text" value="">
-                Name of director who has approved this report.
-            </label>
+            @_textField(review, "confirmedBy")
         </fieldset>
         <input type="submit" class="button" value="Publish your report">
         <input type="submit" name="revise" class="button button-secondary" value="Revise">

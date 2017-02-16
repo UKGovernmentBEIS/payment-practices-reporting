@@ -22,8 +22,8 @@ import javax.inject.Inject
 import com.github.tminglei.slickpg.PgDateSupportJoda
 import com.google.inject.ImplementedBy
 import com.wellfactored.slickgen.IdType
-import db.ReportRow
-import models.{CompaniesHouseId, ReportId}
+import db.{PaymentHistoryRow, ReportRow}
+import models.{CompaniesHouseId, PaymentHistoryId, ReportId}
 import org.joda.time.LocalDate
 import org.reactivestreams.Publisher
 import play.api.db.slick.DatabaseConfigProvider
@@ -34,9 +34,17 @@ import scala.concurrent.{ExecutionContext, Future}
 trait ReportModule extends DBBinding {
   self: CompanyModule with PgDateSupportJoda =>
 
+  val wordLength = 7
+  val longTerms = wordLength * 5000
+  val shortComment = wordLength * 500
+  val longComment = wordLength * 2000
+
   import api._
 
+  implicit def PaymentHistoryIdMapper: BaseColumnType[PaymentHistoryId] = MappedColumnType.base[PaymentHistoryId, Long](_.id, PaymentHistoryId)
+
   implicit def ReportIdMapper: BaseColumnType[ReportId] = MappedColumnType.base[ReportId, Long](_.id, ReportId)
+
 
   type ReportQuery = Query[ReportTable, ReportRow, Seq]
 
@@ -51,33 +59,25 @@ trait ReportModule extends DBBinding {
 
     def filingDate = column[LocalDate]("filing_date")
 
-    def averageDaysToPay = column[Int]("average_days_to_pay")
-
-    def percentInvoicesPaidBeyondAgreedTerms = column[Int]("percent_invoices_paid_beyond_agreed_terms")
-
-    def percentInvoicesWithin30Days = column[Int]("percent_invoices_within_30_days")
-
-    def percentInvoicesWithin60Days = column[Int]("percent_invoices_within_60_days")
-
-    def percentInvoicesBeyond60Days = column[Int]("percent_invoices_beyond_60_days")
-
     def startDate = column[LocalDate]("start_date")
 
     def endDate = column[LocalDate]("end_date")
 
-    def paymentTerms = column[String]("payment_terms", O.Length(255))
+    def paymentTerms = column[String]("payment_terms", O.Length(longTerms))
 
     def paymentPeriod = column[Int]("payment_period")
 
-    def maximumContractPeriod = column[String]("maximum_contract_period", O.Length(255))
+    def maximumContractPeriod = column[Int]("maximum_contract_period")
 
-    def paymentTermsChangedComment = column[Option[String]]("payment_terms_changed_comment", O.Length(255))
+    def maximumContractPeriodComment = column[Option[String]]("maximum_contract_period_comment", O.Length(shortComment))
 
-    def paymentTermsChangedNotifiedComment = column[Option[String]]("payment_terms_changed_notified_comment", O.Length(255))
+    def paymentTermsChangedComment = column[Option[String]]("payment_terms_changed_comment", O.Length(shortComment))
 
-    def paymentTermsComment = column[Option[String]]("payment_terms_comment", O.Length(255))
+    def paymentTermsChangedNotifiedComment = column[Option[String]]("payment_terms_changed_notified_comment", O.Length(shortComment))
 
-    def disputeResolution = column[String]("dispute_resolution", O.Length(255))
+    def paymentTermsComment = column[Option[String]]("payment_terms_comment", O.Length(longComment))
+
+    def disputeResolution = column[String]("dispute_resolution", O.Length(longTerms))
 
     def offerEInvoicing = column[Boolean]("offer_einvoicing")
 
@@ -89,19 +89,66 @@ trait ReportModule extends DBBinding {
 
     def paymentCodes = column[Option[String]]("payment_codes", O.Length(255))
 
-    def * = (id, companyId, filingDate, averageDaysToPay, percentInvoicesPaidBeyondAgreedTerms, percentInvoicesWithin30Days, percentInvoicesWithin60Days, percentInvoicesBeyond60Days, startDate, endDate, paymentTerms, paymentPeriod, maximumContractPeriod, paymentTermsChangedComment, paymentTermsChangedNotifiedComment, paymentTermsComment, disputeResolution, offerEInvoicing, offerSupplyChainFinance, retentionChargesInPolicy, retentionChargesInPast, paymentCodes) <> (ReportRow.tupled, ReportRow.unapply)
+    def * = (
+      id,
+      companyId,
+      filingDate,
+      startDate,
+      endDate,
+      paymentTerms,
+      paymentPeriod,
+      maximumContractPeriod,
+      maximumContractPeriodComment,
+      paymentTermsChangedComment,
+      paymentTermsChangedNotifiedComment,
+      paymentTermsComment,
+      disputeResolution,
+      offerEInvoicing,
+      offerSupplyChainFinance,
+      retentionChargesInPolicy,
+      retentionChargesInPast,
+      paymentCodes
+    ) <> (ReportRow.tupled, ReportRow.unapply)
   }
 
   lazy val reportTable = TableQuery[ReportTable]
 
-  override def schema = super.schema ++ reportTable.schema
+  type PaymentHistoryQuery = Query[PaymentHistoryTable, PaymentHistoryRow, Seq]
+
+  class PaymentHistoryTable(tag: Tag) extends Table[PaymentHistoryRow](tag, "payment_history") {
+    def id = column[PaymentHistoryId]("id", O.Length(IdType.length), O.PrimaryKey)
+
+    def reportId = column[ReportId]("report_id", O.Length(IdType.length))
+
+    def reportIdFK = foreignKey("paymenthistory_report_fk", reportId, reportTable)(_.id, onDelete = ForeignKeyAction.Cascade)
+
+    def reportIdIndex = index("paymenthistory_report_idx", reportId)
+
+    def averageDaysToPay = column[Int]("average_days_to_pay")
+
+    def percentPaidLaterThanAgreedTerms = column[Int]("percent_paid_later_than_agreed_terms")
+
+    def percentInvoicesWithin30Days = column[Int]("percent_invoices_within30days")
+
+    def percentInvoicesWithin60Days = column[Int]("percent_invoices_within60days")
+
+    def percentInvoicesBeyond60Days = column[Int]("percent_invoices_beyond60days")
+
+    def * = (id, reportId, averageDaysToPay, percentPaidLaterThanAgreedTerms, percentInvoicesWithin30Days, percentInvoicesWithin60Days, percentInvoicesBeyond60Days) <> (PaymentHistoryRow.tupled, PaymentHistoryRow.unapply)
+  }
+
+  lazy val paymentHistoryTable = TableQuery[PaymentHistoryTable]
+
+  override def schema = super.schema ++ reportTable.schema ++ paymentHistoryTable.schema
 }
 
-case class CompanyReport(name: String, report: ReportRow)
+case class CompanyReport(name: String, report: ReportRow, paymentHistory: PaymentHistoryRow)
 
 @ImplementedBy(classOf[ReportTable])
 trait ReportRepo {
   def find(id: ReportId): Future[Option[ReportRow]]
+
+  def reportFor(id: ReportId): Future[Option[CompanyReport]]
 
   def byCompanyNumber(companiesHouseId: CompaniesHouseId): Future[Seq[ReportRow]]
 
@@ -123,19 +170,31 @@ class ReportTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(implic
     reportTable.filter(_.companyId === companiesHouseId.id).result
   }
 
+  def reportFor(id: ReportId): Future[Option[CompanyReport]] = db.run {
+    val query = for {
+      report <- reportTable.filter(_.id === id)
+      paymentHistory <- paymentHistoryTable.filter(_.reportId === report.id)
+      company <- companyTable.filter(_.companiesHouseIdentifier === report.companyId).map(_.name)
+    } yield (company, report, paymentHistory)
+
+    query.result.map(_.map(CompanyReport.tupled).headOption)
+  }
+
   /**
     * Code to adjust fetchSize on Postgres driver taken from:
     * https://engineering.sequra.es/2016/02/database-streaming-on-play-with-slick-from-publisher-to-chunked-result/
     */
   def list(cutoffDate: LocalDate, maxRows: Int = 100000): Publisher[CompanyReport] = {
     val disableAutocommit = SimpleDBIO(_.connection.setAutoCommit(false))
+
     val query = for {
       report <- reportTable.filter(_.filingDate >= cutoffDate).take(maxRows)
+      paymentHistory <- paymentHistoryTable.filter(_.reportId === report.id)
       company <- companyTable.filter(_.companiesHouseIdentifier === report.companyId).map(_.name)
-    } yield (company, report)
+    } yield (company, report, paymentHistory)
 
     val action = query.result.withStatementParameters(fetchSize = 10000)
 
-    db.stream(disableAutocommit andThen action).mapResult(p => CompanyReport(p._1, p._2))
+    db.stream(disableAutocommit andThen action).mapResult(CompanyReport.tupled)
   }
 }

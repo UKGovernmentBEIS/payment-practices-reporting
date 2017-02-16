@@ -62,11 +62,14 @@ field.paymentHistory.percentageSplit.percentBeyond60Days.hint=
 field.paymentTerms.terms.label=Describe your standard payment terms
 field.paymentTerms.terms.hint=
 
-field.paymentTerms.paymentPeriod.label=What is your standard payment period?
+field.paymentTerms.paymentPeriod.label=Enter your standard payment period
 field.paymentTerms.paymentPeriod.hint=
 
 field.paymentTerms.maximumContractPeriod.label=Enter your maximum contractual payment period
 field.paymentTerms.maximumContractPeriod.hint=For qualifying contracts only.
+
+field.paymentTerms.maximumContractPeriodComment.label=Optional: any further information about your maximum contractual payment period
+field.paymentTerms.maximumContractPeriodComment.hint=
 
 field.paymentTerms.paymentTermsChanged.yesNo.label=Were there any changes to your standard payment terms in the reporting period?
 field.paymentTerms.paymentTermsChanged.yesNo.hint=

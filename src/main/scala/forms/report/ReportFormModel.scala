@@ -19,9 +19,17 @@ package forms.report
 
 import forms.DateRange
 import org.joda.time.LocalDate
+import shapeless.{Witness => W}
+
+object ReportConstants {
+  val wordLength = 7
+  val longTerms = wordLength * 5000
+  val shortComment = wordLength * 500
+  val longComment = wordLength * 2000
+}
+
 
 case class ConditionalText(yesNo: Boolean, text: Option[String])
-
 
 case class PercentageSplit(
                             percentWithin30Days: Int,
@@ -32,7 +40,7 @@ case class PercentageSplit(
 }
 
 case class PaymentHistory(
-                           averageTimeToPay: Int,
+                           averageDaysToPay: Int,
                            percentPaidLaterThanAgreedTerms: Int,
                            percentageSplit: PercentageSplit
                          )
@@ -40,11 +48,12 @@ case class PaymentHistory(
 
 case class PaymentTerms(
                          terms: String,
-                         maximumContractPeriod: String,
+                         paymentPeriod: Int,
+                         maximumContractPeriod: Int,
+                         maximumContractPeriodComment: Option[String],
                          paymentTermsChanged: ConditionalText,
                          paymentTermsChangedNotified: ConditionalText,
-                         paymentTermsComment: Option[String],
-                         paymentPeriod: Int
+                         paymentTermsComment: Option[String]
                        )
 
 case class ReportFormModel(

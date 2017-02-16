@@ -59,11 +59,12 @@ class Validations @Inject()(timeSource: TimeSource) {
 
   val paymentTerms: Mapping[PaymentTerms] = mapping(
     "terms" -> nonEmptyText,
-    "maximumContractPeriod" -> nonEmptyText,
+    "paymentPeriod" -> number(min = 0),
+    "maximumContractPeriod" -> number(min=0),
+    "maximumContractPeriodComment" -> optional(nonEmptyText),
     "paymentTermsChanged" -> conditionalText,
     "paymentTermsNotified" -> conditionalText,
-    "paymentTermsComment" -> optional(nonEmptyText),
-    "paymentPeriod" -> number(min = 0)
+    "paymentTermsComment" -> optional(nonEmptyText)
   )(PaymentTerms.apply)(PaymentTerms.unapply)
 
   private def now() = new LocalDate(timeSource.currentTimeMillis())

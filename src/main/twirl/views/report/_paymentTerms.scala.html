@@ -6,7 +6,8 @@
 @_textBox(form, "paymentTerms.terms")
 @_numberField(form, "paymentTerms.paymentPeriod", Some("days"))
 
-@_textBox(form, "paymentTerms.maximumContractPeriod")
+@_numberField(form, "paymentTerms.maximumContractPeriod", Some("days"))
+@_textBox(form, "paymentTerms.maximumContractPeriodComment")
 
 @_yesNoField(form, "paymentTerms.paymentTermsChanged.yesNo")
 
