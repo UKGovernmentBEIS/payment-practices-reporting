@@ -1,14 +1,5 @@
 @(form: Form[_], fieldName: String)(implicit messages: MessagesApi)
 
-@errorClass(field: Field) = @{
-    if(field.hasErrors) "error" else ""
-}
-
-@errorMessage(field: Field) = @{
-    field.error.map(e=> messages(e.message, e.args:_*))
-}
-
-
 <fieldset class="form-group @errorClass(form(fieldName))">
     <label class="form-label" for="@fieldName">
         <span class="bold-medium">@messages(s"field.$fieldName.label")</span>
