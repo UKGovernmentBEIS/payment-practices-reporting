@@ -69,7 +69,14 @@ class ReportController @Inject()(
     }
   }
 
-  def start(companiesHouseId: CompaniesHouseId) = Action { request =>
+  def start(companiesHouseId: CompaniesHouseId) = Action.async { request =>
+    companiesHouseAPI.find(companiesHouseId).map {
+      case Some(co) => Ok(page(home, pages.start(co.company_name, co.company_number)))
+      case None => NotFound(s"Could not find a company with id ${companiesHouseId.id}")
+    }
+  }
+
+  def preLogin(companiesHouseId: CompaniesHouseId) = Action { request =>
     Ok(page(home, pages.signInInterstitial(companiesHouseId)))
   }
 
@@ -93,7 +100,34 @@ class ReportController @Inject()(
     }
   }
 
-  def codeOptions(companiesHouseId: CompaniesHouseId) = Action { request => ??? }
+  def colleague(companiesHouseId: CompaniesHouseId) = Action.async { implicit request =>
+    companiesHouseAPI.find(companiesHouseId).map {
+      case Some(co) => Ok(page(home, pages.askColleague(co.company_name, companiesHouseId)))
+      case None => BadRequest(s"Unknown company id ${companiesHouseId.id}")
+    }
+  }
+
+  def register(companiesHouseId: CompaniesHouseId) = Action.async { implicit request =>
+    companiesHouseAPI.find(companiesHouseId).map {
+      case Some(co) => Ok(page(home, pages.requestAccessCode(co.company_name, companiesHouseId)))
+      case None => BadRequest(s"Unknown company id ${companiesHouseId.id}")
+    }
+  }
+
+  def codeOptions(companiesHouseId: CompaniesHouseId) = Action { implicit request =>
+    import CodeOption._
+
+    val codeOption: Mapping[CodeOption] = Forms.of[CodeOption]
+    val form = Form(mapping("nextstep" -> codeOption)(identity)(o => Some(o)))
+
+    form.bindFromRequest().fold(
+      errs => BadRequest(s"Invalid option"),
+      {
+        case Colleague => Redirect(routes.ReportController.colleague(companiesHouseId))
+        case Register => Redirect(routes.ReportController.register(companiesHouseId))
+      }
+    )
+  }
 
   def header(implicit request: CompanyRequest[_]) = h1(s"Publish a report for ${request.companyName}")
 
@@ -109,7 +143,7 @@ class ReportController @Inject()(
   }
 
   def postReview(companiesHouseId: CompaniesHouseId) = CompanyAction(companiesHouseId).async(parse.urlFormEncoded) { implicit request =>
-    val revise = request.body.get("revise").headOption.contains("Revise")
+    val revise = request.body.get("revise").flatMap(_.headOption).contains("Revise")
     // Re-capture the values for the report itself. In theory these values should always be valid
     // (as we only send the user to the review page if they are) but if somehow they aren't then
     // send the user back to the report form to fix them.
@@ -132,7 +166,7 @@ class ReportController @Inject()(
     )
   }
 
-  def showConfirmation(reportId:ReportId) = Action {
+  def showConfirmation(reportId: ReportId) = Action {
     Ok(page(home, pages.filingSuccess(reportId, "<unknown>")))
   }
 

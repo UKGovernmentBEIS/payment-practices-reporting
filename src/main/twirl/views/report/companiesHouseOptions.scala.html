@@ -1,20 +1,22 @@
 @(name: String, id: models.CompaniesHouseId)
 
+@import controllers.CodeOption.{Colleague, Register}
+
 <div class="scannable-wrapper">
     <h1 class="heading-xlarge">Publish a report for @name</h1>
     <p class="lede">If you don’t have a Companies House authentication code, you have two options.</p>
     <h3 class="heading-medium">Select an option</h3>
     <form action="@routes.ReportController.codeOptions(id)" method="POST">
         <fieldset class="form-group">
-            <label class="block-label" for="nextstep_0">
-                <input type="radio" name="nextstep" id="nextstep_0" value="0">
+            <label class="block-label" for="nextstep_colleague">
+                <input type="radio" name="nextstep" id="nextstep_colleague" value="@Colleague.entryName">
                 <span class="bold-small">Get a colleague who has an authentication code to publish the report</span>
                 <br>
                 <span>This kind of account is normally used to file Annual Reports with Companies House.</span>
             </label>
 
-            <label class="block-label" for="nextstep_1">
-                <input type="radio" name="nextstep" id="nextstep_1" value="1">
+            <label class="block-label" for="nextstep_register">
+                <input type="radio" name="nextstep" id="nextstep_register" value="@Register.entryName">
                 <span class="bold-small">Request a new authentication code with Companies House</span>
                 <br>
                 <span>The code will be sent to your company’s registered office by post, so allow plenty of time for delivery.</span>
