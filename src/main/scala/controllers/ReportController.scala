@@ -125,9 +125,15 @@ class ReportController @Inject()(
     emptyReview.bindFromRequest().fold(
       errs => Future.successful(BadRequest(page(home, pages.review(errs, report, companiesHouseId, request.companyName, df, reportValidations.reportFormModel)))),
       confirmation =>
-        if (confirmation.confirmed) reports.save(confirmation.confirmedBy, companiesHouseId, request.companyName, report).map { reportId => Ok(s"report id is $reportId") }
+        if (confirmation.confirmed) reports.save(confirmation.confirmedBy, companiesHouseId, request.companyName, report).map { reportId =>
+          Redirect(controllers.routes.ReportController.showConfirmation(reportId))
+        }
         else Future.successful(BadRequest(page(home, pages.review(emptyReview.fill(confirmation), report, companiesHouseId, request.companyName, df, reportValidations.reportFormModel))))
     )
+  }
+
+  def showConfirmation(reportId:ReportId) = Action {
+    Ok(page(home, pages.filingSuccess(reportId, "<unknown>")))
   }
 
 }

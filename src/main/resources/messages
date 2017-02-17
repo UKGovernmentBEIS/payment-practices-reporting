@@ -1,6 +1,6 @@
 error.endafterstart=The end date must be later than the start date
 
-reason.firstyear=Your business doesn't have to report in its first year of operations. You should check at the beginning of your second financial year to see if you have to report.
+reason.firstyear=Your business doesn''t have to report in its first year of operations. You should check at the beginning of your second financial year to see if you have to report.
 reason.company.notlargeenough=Your business isn’t large enough to have to report. You should check at the beginning of every financial year to see if this has changed.
 reason.group.notlargeenough=Your group isn’t large enough to have to report. You should check at the beginning of every financial year to see if this has changed.
 
@@ -21,7 +21,7 @@ question.company.turnover.y3=Did your business have a turnover of more than £36
 question.company.balance.y3=Did your business have a balance sheet total greater than £18 million at its last 2 financial year ends?
 question.company.employees.y3=Did your business have an average of at least 250 employees during its last 2 financial years?
 
-hint.subsidiaries='Net' here means after any set-offs and other adjustments to exclude group transactions. 'Gross' means without those set-offs and adjustments.
+hint.subsidiaries=''Net'' here means after any set-offs and other adjustments to exclude group transactions. ''Gross'' means without those set-offs and adjustments.
 question.subsidiaries.turnover.y2=Did you and your subsidiaries have an total turnover of at least £36 million net or £43.2 million gross on the last balance sheet date?
 question.subsidiaries.balance.y2=Did you and your subsidiaries have a combined balance sheet total of £18 million net or £21.6 million gross on the last balance sheet date?
 question.subsidiaries.employees.y2=Did the you and your subsidiaries have a combined workforce of at least 250 on the last balance sheet date?

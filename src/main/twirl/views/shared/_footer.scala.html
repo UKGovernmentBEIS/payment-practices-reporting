@@ -5,7 +5,7 @@
                 Read reports
             </h3>
             <ul class="list">
-                <li><a href="">Search for a report</a></li>
+                <li><a href="@controllers.routes.SearchController.search(None, None, None)">Search for a report</a></li>
             </ul>
         </div>
         <div class="column-half">
@@ -14,9 +14,9 @@
             </h3>
 
             <ul class="list">
-                <li><a href="">Find out if your business needs to publish reports</a></li>
-                <li><a href="">Determine your reporting deadlines</a></li>
-                <li><a href="">Publish a report</a></li>
+                <li><a href="@controllers.routes.QuestionnaireController.start()">Find out if your business needs to publish reports</a></li>
+                <li><a href="@controllers.routes.CalculatorController.start()">Determine your reporting deadlines</a></li>
+                <li><a href="@controllers.routes.ReportController.search(None, None, None)">Publish a report</a></li>
             </ul>
         </div>
     </div>
