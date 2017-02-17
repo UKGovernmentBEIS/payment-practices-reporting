@@ -18,10 +18,17 @@
 package forms.report
 
 import forms.DateRange
-import models.CompaniesHouseId
+import org.joda.time.LocalDate
+
+object ReportConstants {
+  val wordLength = 7
+  val longTerms = wordLength * 5000
+  val shortComment = wordLength * 500
+  val longComment = wordLength * 2000
+}
 
 
-
+case class ConditionalText(yesNo: Boolean, text: Option[String])
 
 case class PercentageSplit(
                             percentWithin30Days: Int,
@@ -32,33 +39,37 @@ case class PercentageSplit(
 }
 
 case class PaymentHistory(
-                           averageTimeToPay: Int,
-                           percentPaidWithinAgreedTerms: BigDecimal,
+                           averageDaysToPay: Int,
+                           percentPaidLaterThanAgreedTerms: Int,
                            percentageSplit: PercentageSplit
                          )
 
 
 case class PaymentTerms(
                          terms: String,
-                         maximumContractPeriod: String,
-                         paymentTermsChanged: Boolean,
-                         paymentTermsChangedComment: Option[String],
-                         paymentTermsChangedNotified: Boolean,
-                         paymentTermsChangedNotifiedComment: Option[String],
+                         paymentPeriod: Int,
+                         maximumContractPeriod: Int,
+                         maximumContractPeriodComment: Option[String],
+                         paymentTermsChanged: ConditionalText,
+                         paymentTermsChangedNotified: ConditionalText,
                          paymentTermsComment: Option[String]
                        )
 
 case class ReportFormModel(
-                            companiesHouseId: CompaniesHouseId,
+                            filingDate: LocalDate,
                             reportDates: DateRange,
                             paymentHistory: PaymentHistory,
                             paymentTerms: PaymentTerms,
                             disputeResolution: String,
-                            hasPaymentCodes: Boolean,
-                            paymentCodes: Option[String],
+                            hasPaymentCodes: ConditionalText,
                             offerEInvoicing: Boolean,
                             offerSupplyChainFinancing: Boolean,
                             retentionChargesInPolicy: Boolean,
                             retentionChargesInPast: Boolean
                           )
+
+case class ReportReviewModel(
+                              confirmed: Boolean,
+                              confirmedBy: String
+                            )
 

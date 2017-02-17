@@ -17,25 +17,24 @@
 
 package slicks.modules
 
-import db.CompanyRow
-import slicks.DBBinding
+import com.google.inject.ImplementedBy
+import db.ReportRow
+import forms.report.ReportFormModel
+import models.{CompaniesHouseId, ReportId}
+import org.joda.time.LocalDate
+import org.reactivestreams.Publisher
 
-trait CompanyModule extends DBBinding {
+import scala.concurrent.Future
 
-  import api._
+@ImplementedBy(classOf[ReportTable])
+trait ReportRepo {
+  def find(id: ReportId): Future[Option[ReportRow]]
 
+  def reportFor(id: ReportId): Future[Option[CompanyReport]]
 
-  type CompanyQuery = Query[CompanyTable, CompanyRow, Seq]
+  def byCompanyNumber(companiesHouseId: CompaniesHouseId): Future[Seq[ReportRow]]
 
-  class CompanyTable(tag: Tag) extends Table[CompanyRow](tag, "company") {
-    def companiesHouseIdentifier = column[String]("companies_house_identifier",O.PrimaryKey, O.Length(255))
+  def list(cutoffDate: LocalDate, maxRows: Int = 100000): Publisher[CompanyReport]
 
-    def name = column[String]("name", O.Length(255))
-
-    def * = (companiesHouseIdentifier, name) <> (CompanyRow.tupled, CompanyRow.unapply)
-  }
-
-  lazy val companyTable = TableQuery[CompanyTable]
-
-  override def schema = super.schema ++ companyTable.schema
+  def save(confirmedBy: String, companiesHouseId: CompaniesHouseId, companyName: String, reportFormModel: ReportFormModel): Future[ReportId]
 }

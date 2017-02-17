@@ -15,9 +15,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package db
+package views.html
 
-case class CompanyRow(
-                       companiesHouseIdentifier: String,
-                       name: String
-                     )
+import play.api.data.Field
+import play.api.i18n.MessagesApi
+
+object FieldHelpers {
+  def errorMessage(field: Field)(implicit messages: MessagesApi) =
+    field.error.map(e => messages(e.message, e.args: _*))
+
+  def errorClass(field: Field) = if (field.hasErrors) "error" else ""
+
+}

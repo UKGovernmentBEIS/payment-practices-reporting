@@ -1,6 +1,6 @@
 error.endafterstart=The end date must be later than the start date
 
-reason.firstyear=Your business doesn't have to report in its first year of operations. You should check at the beginning of your second financial year to see if you have to report.
+reason.firstyear=Your business doesn''t have to report in its first year of operations. You should check at the beginning of your second financial year to see if you have to report.
 reason.company.notlargeenough=Your business isn’t large enough to have to report. You should check at the beginning of every financial year to see if this has changed.
 reason.group.notlargeenough=Your group isn’t large enough to have to report. You should check at the beginning of every financial year to see if this has changed.
 
@@ -21,7 +21,7 @@ question.company.turnover.y3=Did your business have a turnover of more than £36
 question.company.balance.y3=Did your business have a balance sheet total greater than £18 million at its last 2 financial year ends?
 question.company.employees.y3=Did your business have an average of at least 250 employees during its last 2 financial years?
 
-hint.subsidiaries='Net' here means after any set-offs and other adjustments to exclude group transactions. 'Gross' means without those set-offs and adjustments.
+hint.subsidiaries=''Net'' here means after any set-offs and other adjustments to exclude group transactions. ''Gross'' means without those set-offs and adjustments.
 question.subsidiaries.turnover.y2=Did you and your subsidiaries have an total turnover of at least £36 million net or £43.2 million gross on the last balance sheet date?
 question.subsidiaries.balance.y2=Did you and your subsidiaries have a combined balance sheet total of £18 million net or £21.6 million gross on the last balance sheet date?
 question.subsidiaries.employees.y2=Did the you and your subsidiaries have a combined workforce of at least 250 on the last balance sheet date?
@@ -40,3 +40,78 @@ summary.company.employees.y3=had an average of at least 250 employees during bot
 summary.subsidiaries.turnover=had an total turnover of at least £36 million net or £43.2 million gross
 summary.subsidiaries.balance=had a combined balance sheet total of £18 million net or £21.6 million gross
 summary.subsidiaries.employees=had a combined workforce of at least 250
+
+field.reportDates.startDate.label=Start date of reporting period
+field.reportDates.endDate.label=End date of reporting period
+
+field.paymentHistory.averageDaysToPay.label=Average time to pay in days
+field.paymentHistory.averageDaysToPay.hint=Out all of the payments you have made in the reporting period, the average time it took to pay.
+
+field.paymentHistory.percentPaidBeyondAgreedTerms.label=Percentage of invoices not paid within agreed terms
+field.paymentHistory.percentPaidBeyondAgreedTerms.hint=The percentage of invoices you failed to pay under the terms of your supplier contracts. This relates to the number of invoices, not their value.
+
+field.paymentHistory.percentageSplit.percentWithin30Days.label=A) Percentage of invoices paid within 30 days
+field.paymentHistory.percentageSplit.percentWithin30Days.hint=
+
+field.paymentHistory.percentageSplit.percentWithin60Days.label=B) Percentage of invoices paid between 31 and 60 days
+field.paymentHistory.percentageSplit.percentWithin60Days.hint=
+
+field.paymentHistory.percentageSplit.percentBeyond60Days.label=C) Percentage of invoices paid later than 60 days
+field.paymentHistory.percentageSplit.percentBeyond60Days.hint=
+
+field.paymentTerms.terms.label=Describe your standard payment terms
+field.paymentTerms.terms.hint=
+
+field.paymentTerms.paymentPeriod.label=Enter your standard payment period
+field.paymentTerms.paymentPeriod.hint=
+
+field.paymentTerms.maximumContractPeriod.label=Enter your maximum contractual payment period
+field.paymentTerms.maximumContractPeriod.hint=For qualifying contracts only.
+
+field.paymentTerms.maximumContractPeriodComment.label=Optional: any further information about your maximum contractual payment period
+field.paymentTerms.maximumContractPeriodComment.hint=
+
+field.paymentTerms.paymentTermsChanged.yesNo.label=Were there any changes to your standard payment terms in the reporting period?
+field.paymentTerms.paymentTermsChanged.yesNo.hint=
+
+field.paymentTerms.paymentTermsChanged.label=If so, explain what the changes were
+field.paymentTerms.paymentTermsChanged.hint=
+
+field.paymentTerms.paymentTermsNotified.yesNo.label=If there were changes, did you consult or notify suppliers before you made these changes?
+field.paymentTerms.paymentTermsNotified.yesNo.hint=
+field.paymentTerms.paymentTermsNotified.label=If so, explain how you did this
+field.paymentTerms.paymentTermsNotified.hint=
+
+field.paymentTerms.paymentTermsComment.label=Optional: any further information about your payment terms
+field.paymentTerms.paymentTermsComment.hint=
+
+field.disputeResolution.label=Describe your dispute resolution process
+field.disputeResolution.hint=How do you handle complaints and queries from your suppliers about payments under qualifying contracts?
+
+field.offerEInvoicing.label=Does your business offer E-invoicing?
+field.offerEInvoicing.hint=Do you allow suppliers to electronically submit invoices?
+
+field.offerSupplyChainFinancing.label=Does your business offer supply chain finance options?
+field.offerSupplyChainFinancing.hint=This is where a supplier’s invoice can be paid quickly by a third-party company, who you then pay at a later date.
+
+field.retentionChargesInPolicy.label=Does your business have a policy of deducting sums from payments as a charge for remaining on a supplier list?
+field.retentionChargesInPolicy.hint=
+
+field.retentionChargesInPast.label=In this reporting period, has your business deducted sums from payments as a charge for remaining on a supplier list?
+field.retentionChargesInPast.hint=
+
+field.paymentCodes.yesNo.label=Is your business a signatory to a code of practice for payment?
+field.paymentCodes.yesNo.hint=
+
+field.paymentCodes.label=If so, enter the name of the code of practice
+field.paymentCodes.hint=
+
+field.confirmedBy.label=Enter the name of the director who approved this report
+field.confirmedBy.hint=
+
+error.required=Please answer this question
+error.date=This date is invalid
+error.sumto100=Figures A, B and C do not add up to 100
+error.number=Please enter a whole number
+error.min=Please enter {0} or greater
+error.max=Please enter {0} or less

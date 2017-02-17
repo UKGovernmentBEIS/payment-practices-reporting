@@ -1,0 +1,22 @@
+@(companyName:String, companyId:CompaniesHouseId)
+
+<div class="scannable-wrapper">
+    <h1 class="heading-xlarge">Publish a report for @companyName</h1>
+    <p class="bold-medium">Company number: @companyId.id</p>
+    <div class="notice">
+        <i class="icon icon-important">
+            <span class="visually-hidden">Warning</span>
+        </i>
+        <strong>
+            You could be fined if you publish a false or misleading report.
+        </strong>
+    </div>
+    <a href="@routes.ReportController.preLogin(companyId)" class="button button-start">File a payment report</a>
+
+    <h2 class="heading-medium">Before you start</h2>
+	<p>You need to:</p>
+    <ul class="list list-bullet">
+        <li>have an online <a rel="exteral" href="https://beta.companieshouse.gov.uk/signin">account with Companies House</a> and an authentication code to publish reports for your business</li>
+        <li><a href="@routes.QuestionnaireController.start()">prepare your report data</a> in advance</li>
+    </ul>
+</div>

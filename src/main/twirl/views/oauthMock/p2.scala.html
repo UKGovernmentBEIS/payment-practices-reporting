@@ -1,0 +1,222 @@
+@(chn: CompaniesHouseId, name: String)
+<!DOCTYPE html>
+<!--[if lt IE 9]><html class="lte-ie8" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--><html lang="en"><!--<![endif]-->
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+    <title>Company authentication</title>
+
+    <meta name="description" content="Free company information from Companies House including registered office address, filing history, accounts, annual return, officers, charges, business activity">
+
+    <script>
+      (function(){if(navigator.userAgent.match(/IEMobile\/10\.0/)){var d=document,c="appendChild",a=d.createElement("style");a[c](d.createTextNode("@@-ms-viewport{width:auto!important}"));d.getElementsByTagName("head")[0][c](a);}})();
+   </script>
+
+    <!--[if gt IE 8]><!--><link href="//d2mhakq30m5twn.cloudfront.net/style/assets-digital-cabinet-office-gov-uk-static/govuk-template.css" media="screen" rel="stylesheet" type="text/css"><!--<![endif]-->
+    <!--[if IE 6]><link href="//d2mhakq30m5twn.cloudfront.net/style/assets-digital-cabinet-office-gov-uk-static/govuk-template-ie6.css" media="screen" rel="stylesheet" type="text/css" /><![endif]-->
+    <!--[if IE 7]><link href="//d2mhakq30m5twn.cloudfront.net/style/assets-digital-cabinet-office-gov-uk-static/govuk-template-ie7.css" media="screen" rel="stylesheet" type="text/css" /><![endif]-->
+    <!--[if IE 8]><link href="//d2mhakq30m5twn.cloudfront.net/style/assets-digital-cabinet-office-gov-uk-static/govuk-template-ie8.css" media="screen" rel="stylesheet" type="text/css" /><![endif]-->
+
+    <link href="//d2mhakq30m5twn.cloudfront.net/style/assets-digital-cabinet-office-gov-uk-static/govuk-template-print.css" media="print" rel="stylesheet" type="text/css">
+
+    <!--[if IE 8]>
+    <script type="text/javascript">
+         (function(){if(window.opera){return;}
+         setTimeout(function(){var a=document,g,b={families:(g=
+         ["nta"]),urls:["https://assets.digital.cabinet-office.gov.uk/static/fonts-ie8-a7369d48db4c172b4371ab9def59c5c9.css"]},
+         c="https://assets.digital.cabinet-office.gov.uk/static/vendor/goog/webfont-debug-96870cf9f159ed811fd43c39bdf4656b.js",d="script",
+         e=a.createElement(d),f=a.getElementsByTagName(d)[0],h=g.length;WebFontConfig
+         ={custom:b},e.src=c,f.parentNode.insertBefore(e,f);for(;h=h-1;a.documentElement
+         .className+=' wf-'+g[h].replace(/\s/g,'').toLowerCase()+'-n4-loading');},0)
+      })()
+  </script>
+    <![endif]-->
+
+    <!--[if gte IE 9]><!-->
+    <!--link href="https://assets.digital.cabinet-office.gov.uk/static/fonts-607c54f71c7c1f98257595cedaa13a34.css" media="all" rel="stylesheet" type="text/css" -->
+    <!--<![endif]-->
+
+    <!--[if lt IE 9]>
+    <script src="//d2mhakq30m5twn.cloudfront.net/script/vendor/assets-digital-cabinet-office-gov-uk-static/ie.js" type="text/javascript"></script>
+    <![endif]-->
+
+    <link rel="shortcut icon" href="//d2mhakq30m5twn.cloudfront.net/images/favicon.ico" type="image/x-icon">
+
+    <!-- For third-generation iPad with high-resolution Retina display: --><link rel="apple-touch-icon-precomposed" sizes="144x144" href="//d2mhakq30m5twn.cloudfront.net/images/apple-touch-icon-144x144.png">
+    <!-- For iPhone with high-resolution Retina display: --><link rel="apple-touch-icon-precomposed" sizes="114x114" href="//d2mhakq30m5twn.cloudfront.net/images/apple-touch-icon-114x114.png">
+    <!-- For first- and second-generation iPad: --><link rel="apple-touch-icon-precomposed" sizes="72x72" href="//d2mhakq30m5twn.cloudfront.net/images/apple-touch-icon-72x72.png">
+    <!-- For non-Retina iPhone, iPod Touch, and Android 2.1+ devices: --><link rel="apple-touch-icon-precomposed" href="//d2mhakq30m5twn.cloudfront.net/images/apple-touch-icon-57x57.png">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta property="og:image" content="//d2mhakq30m5twn.cloudfront.net/images/opengraph-image.jpg">
+
+    <!--[if gt IE 8]><!--><link href="//d2mhakq30m5twn.cloudfront.net/style/assets-digital-cabinet-office-gov-uk-static/application.css" media="screen" rel="stylesheet" type="text/css"><!--<![endif]-->
+    <!--[if IE 6]><link href="//d2mhakq30m5twn.cloudfront.net/style/assets-digital-cabinet-office-gov-uk-static/application-ie6.css" media="screen" rel="stylesheet" type="text/css" /><![endif]-->
+    <!--[if IE 7]><link href="//d2mhakq30m5twn.cloudfront.net/style/assets-digital-cabinet-office-gov-uk-static/application-ie7.css" media="screen" rel="stylesheet" type="text/css" /><![endif]-->
+    <!--[if IE 8]><link href="//d2mhakq30m5twn.cloudfront.net/style/assets-digital-cabinet-office-gov-uk-static/application-ie8.css" media="screen" rel="stylesheet" type="text/css" /><![endif]-->
+
+    <link href="//d2mhakq30m5twn.cloudfront.net/style/assets-digital-cabinet-office-gov-uk-static/print.css" media="print" rel="stylesheet" type="text/css">
+
+    <!--[if gt IE 8]><!--><link href="//d2mhakq30m5twn.cloudfront.net/style/assets-digital-cabinet-office-gov-uk-static/frontend-application.css" media="screen" rel="stylesheet" type="text/css"><!--<![endif]-->
+    <link rel="canonical" href="/">
+
+    <!--[if IE 6]><link href="//d2mhakq30m5twn.cloudfront.net/style/assets-digital-cabinet-office-gov-uk-static/frontend-application-ie6.css" media="screen" rel="stylesheet" type="text/css" /><![endif]--><!--[if IE 7]><link href="//d2mhakq30m5twn.cloudfront.net/style/assets-digital-cabinet-office-gov-uk-static/frontend-application-ie7.css" media="screen" rel="stylesheet" type="text/css" /><![endif]--><!--[if IE 8]><link href="//d2mhakq30m5twn.cloudfront.net/style/assets-digital-cabinet-office-gov-uk-static/frontend-application-ie8.css" media="screen" rel="stylesheet" type="text/css" /><![endif]-->
+
+    <!-- Companies House Styles and Scripts -->
+
+    <!--[if gt IE 8]><!--><link href="//d2mhakq30m5twn.cloudfront.net/style/application.css" media="screen" rel="stylesheet" type="text/css"><!--<![endif]-->
+    <!--[if IE 6]><link href="//d2mhakq30m5twn.cloudfront.net/style/application-ie6.css" media="screen" rel="stylesheet" type="text/css"><![endif]-->
+    <!--[if IE 7]><link href="//d2mhakq30m5twn.cloudfront.net/style/application-ie7.css" media="screen" rel="stylesheet" type="text/css"><![endif]-->
+    <!--[if IE 8]><link href="//d2mhakq30m5twn.cloudfront.net/style/application-ie8.css" media="screen" rel="stylesheet" type="text/css"><![endif]-->
+
+    <link href="//d2mhakq30m5twn.cloudfront.net/style/print.css" media="print" rel="stylesheet" type="text/css">
+
+    <!-- End of Companies House Styles and Scripts -->
+
+</head>
+
+<body>
+<script>
+    document.body.className += ' js-enabled';
+  </script>
+<div class="entire-wrapper">
+
+    <div id="skiplink-container">
+        <div>
+            <a href="#content" class="skiplink">Skip to main content</a>
+        </div>
+    </div>
+
+    <!-- // CH.GOV.UK HEADER -->
+    <header role="banner" id="global-header">
+        <div class="header-wrapper">
+            <div class="header-global">
+                <div class="header-logo">
+                    <a href="https://beta.companieshouse.gov.uk" title="Go to the Companies House homepage"  onClick="javascript:_paq.push(['trackEvent', 'AccountCHLogo', 'Homepage']);" id="logo" class="content">
+                        Companies House
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!--end header-->
+
+    <main id="page-container" class="" role="main">
+
+        <div class="phase-banner">
+            <p>
+                <strong class="phase-tag">BETA</strong>
+                <span>This is a trial service &mdash; your <a href="https://response.questback.com/companieshouse/chpbeta/" target="_blank" onclick="javascript:_paq.push(['trackEvent', 'AccountBeta', 'Feedback']);">feedback</a> will help us to improve it.</span>
+            </p>
+        </div>
+
+
+        <header class="text">
+            <h1 class="heading-xlarge" id="page-header">
+                Company authentication
+            </h1>
+        </header>
+        <p class="text">To file company information you will need an authentication code.</p>
+        <p class="text">Authenticating for<br />
+            <span class="heading-medium" id="company_details">@name (@chn.id)</span>
+        </p>
+        <!-- TODO add enctype support -->
+        <form name="authorise"
+
+              class="form "
+              action="@routes.CoHoOAuthMockController.postAuthCode(chn)"
+
+              method="POST" enctype="multipart/form-data">
+
+            <div class="form-group">
+                <label for="auth_code" class="form-label form-label-bold" id="auth_code-label">
+                    Authentication code
+                </label>
+                <input type="password" autocomplete="off" name="auth_code" id="auth_code" value=""
+
+                       maxlength="6"
+                       class="form-control medium"    />
+            </div>
+            <div class="form-group">
+                <input type="submit" id="submit" name="submit" value="Authenticate" class="button"/>
+
+            </div>
+            <input type="hidden" name="request" id="request" value="eyJ0eXAiOiJKV0UiLCJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..eOek9GXAKYHweOo43XBRNA.LZ90YaD3xiYLb8C0wWasyQBjFQeasydruy-GG215hd58PyxgfSDkve72P-1rQzmVho6Hn-AukJtwX9VUhWr41UNXBcxL7glAVZ5sHNriHIpBSp861q205hKhWNfgh6tLSc9VOy4B1SZBiAaqxDKBNb1fkncjlL_RAyNJEy77dbbnLjQNaIgkpJt_PJ_hZkwaTmimaNjxIO5DymfYX_lvYXLJG_Ea0DZdoE1DZcWjQIZVyxylpYzG0av73hmEfspWztpFuZMQPLplQoXnQ6zeCkwrgrZQerTlHvJPcW4RY4l0gjPyZVTx00fznkFUwdWdQOJmB4NSsJyGLo3mBxvFptsL75HZmBEln6HwziFqcVWyzTO-VBeHKZ0_oQeEKLIpgGoJxKRPLZj5S7pL6D-r6Zxxsm6xaEqki2VNbB8Q9bySGPDdwIkWPDjt1zoG2O-5JeQ8C6g6nFRyhgC6ys0IY2ry6QRkodYZ6clN6J6JkGcR6WxotrLPoSvGqsT0CWBped5Ce8_hSucLY_v3Maczdo2X4KKe68VjoBp9kFct36c4e2Ds48JpAhllvR6pBCcI.3FT37nIK9GMygerx6B-YdJP0Z8KGSnKdtkPRKsKqaQA" >
+        </form>
+        <p class="text"><a id="auth_code_request" href="/company/10203299/authcode/request?request=eyJ0eXAiOiJKV0UiLCJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..eOek9GXAKYHweOo43XBRNA.LZ90YaD3xiYLb8C0wWasyQBjFQeasydruy-GG215hd58PyxgfSDkve72P-1rQzmVho6Hn-AukJtwX9VUhWr41UNXBcxL7glAVZ5sHNriHIpBSp861q205hKhWNfgh6tLSc9VOy4B1SZBiAaqxDKBNb1fkncjlL_RAyNJEy77dbbnLjQNaIgkpJt_PJ_hZkwaTmimaNjxIO5DymfYX_lvYXLJG_Ea0DZdoE1DZcWjQIZVyxylpYzG0av73hmEfspWztpFuZMQPLplQoXnQ6zeCkwrgrZQerTlHvJPcW4RY4l0gjPyZVTx00fznkFUwdWdQOJmB4NSsJyGLo3mBxvFptsL75HZmBEln6HwziFqcVWyzTO-VBeHKZ0_oQeEKLIpgGoJxKRPLZj5S7pL6D-r6Zxxsm6xaEqki2VNbB8Q9bySGPDdwIkWPDjt1zoG2O-5JeQ8C6g6nFRyhgC6ys0IY2ry6QRkodYZ6clN6J6JkGcR6WxotrLPoSvGqsT0CWBped5Ce8_hSucLY_v3Maczdo2X4KKe68VjoBp9kFct36c4e2Ds48JpAhllvR6pBCcI.3FT37nIK9GMygerx6B-YdJP0Z8KGSnKdtkPRKsKqaQA">Request an authentication code</a></p>
+        <!--end content-->
+    </main>
+    <!--end main-->
+    <div class="push"></div>
+
+</div> <!-- end of entire-wrapper -->
+<footer class="group js-footer" id="footer" role="contentinfo">
+
+    <nav>
+        <div>
+            <ul>
+                <li><a href="http://resources.companieshouse.gov.uk/legal/termsAndConditions.shtml" target="_blank">Policies</a></li>
+                <li><a href="https://beta.companieshouse.gov.uk/help/cookies">Cookies</a></li>
+                <li><a href="https://beta.companieshouse.gov.uk/help/contact-us">Contact us</a></li>
+                <li><a href="https://developer.companieshouse.gov.uk/" target="_blank">Developers</a></li>
+            </ul>
+
+        </div>
+    </nav>
+</footer>
+<!--end footer-->
+
+<div id="global-app-error" class="app-error hidden"></div>
+
+<!-- Companies House Scripts -->
+<!-- Global config of Require.js -->
+<script>var global = global || {}; global.CDN_ROOT = '//d2mhakq30m5twn.cloudfront.net'</script>
+<script src='//d2mhakq30m5twn.cloudfront.net/script/vendor/require.js'></script>
+<script type="text/javascript">
+    require(['//d2mhakq30m5twn.cloudfront.net/script/require-global-config.js'], function () {
+        console.log('Loaded require-global-config.js');
+        // Specific to this 'action'
+        require(['//d2mhakq30m5twn.cloudfront.net/script/app/account_default.js'], function () {
+            console.debug('Required account_default.js.');
+        });
+    });
+    </script>
+
+<!-- Piwik -->
+<script type="text/javascript">
+  var _paq = _paq || [];
+
+  var path = document.location.pathname;
+
+  if ( path.match(/company\/[A-Z0-9]{8}/) || path.match(/transactions\/\d{6}-\d{6}-\d{6}/) ){
+    path = path.replace(/company\/[A-Z0-9]{8}/,"company/_number");
+    path = path.replace(/transactions\/\d{6}-\d{6}-\d{6}/,"transactions/_id");
+
+    if ( !document.location.origin ) {
+      document.location.origin = document.location.protocol + '//' + document.location.hostname + ( document.location.port ? ':' + document.location.port : '' );
+    }
+
+    var newUrl = document.location.origin + path;
+
+    _paq.push(['setCustomUrl', newUrl]);
+  }
+
+  _paq.push(['trackPageView']);
+  _paq.push(['enableLinkTracking']);
+  (function() {
+    var u="https://piwik.companieshouse.gov.uk/";
+    _paq.push(['setTrackerUrl', u+'piwik.php']);
+    _paq.push(['setSiteId', 3]);
+    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0]; g.type='text/javascript';
+    g.defer=true; g.async=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
+  })();
+</script>
+<noscript><p><img src="https://piwik.companieshouse.gov.uk/piwik.php?idsite=3" style="border:0;" alt="" /></p></noscript>
+<!-- End Piwik Code -->
+
+
+<!-- End of Companies House Scripts -->
+
+</body>
+</html>

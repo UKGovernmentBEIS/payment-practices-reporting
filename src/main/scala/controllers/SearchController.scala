@@ -36,20 +36,23 @@ class SearchController @Inject()(companiesHouseAPI: CompaniesHouseAPI, reports: 
   val df = DateTimeFormat.forPattern("d MMMM YYYY")
 
   def search(query: Option[String], pageNumber: Option[Int], itemsPerPage: Option[Int]) = Action.async {
+    val searchLink = routes.SearchController.search(None, None, None)
     val pageLink = { i: Int => routes.SearchController.search(query, Some(i), itemsPerPage) }
+    val companyLink = { id: CompaniesHouseId => routes.SearchController.company(id, pageNumber) }
+    val header = h1("Search for a report")
 
     query match {
       case Some(q) => companiesHouseAPI.searchCompanies(q, pageNumber.getOrElse(1), itemsPerPage.getOrElse(25)).flatMap { results =>
-        val counts = results.items.map { report =>
+        val countsF = results.items.map { report =>
           reports.byCompanyNumber(report.company_number).map(rs => (report.company_number, rs.length))
         }
 
-        Future.sequence(counts).map { counts =>
+        Future.sequence(countsF).map { counts =>
           val countMap = Map(counts: _*)
-          Ok(page(home, views.html.search.search(intentToFile = false, q, Some(results), countMap, pageLink)))
+          Ok(page(home, header, views.html.search.search(q, Some(results), countMap, searchLink, companyLink, pageLink)))
         }
       }
-      case None => Future.successful(Ok(page(home, views.html.search.search(intentToFile = false, "", None, Map.empty, pageLink))))
+      case None => Future.successful(Ok(page(home, header, views.html.search.search("", None, Map.empty, searchLink, companyLink, pageLink))))
     }
   }
 
@@ -70,8 +73,8 @@ class SearchController @Inject()(companiesHouseAPI: CompaniesHouseAPI, reports: 
 
   def view(reportId: ReportId) = Action.async { implicit request =>
     val f = for {
-      report <- OptionT(reports.find(reportId))
-      company <- OptionT(companiesHouseAPI.find(CompaniesHouseId(report.companyId)))
+      report <- OptionT(reports.reportFor(reportId))
+      company <- OptionT(companiesHouseAPI.find(CompaniesHouseId(report.report.companyId)))
     } yield Ok(page(home, views.html.search.report(report, company, df)))
 
     f.value.map {

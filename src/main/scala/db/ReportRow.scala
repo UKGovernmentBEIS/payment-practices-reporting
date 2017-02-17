@@ -17,22 +17,19 @@
 
 package db
 
-import models.ReportId
+import models.{PaymentHistoryId, ReportId}
 import org.joda.time.LocalDate
 
 case class ReportRow(
                       id: ReportId,
                       companyId: String,
                       filingDate: LocalDate,
-                      averageDaysToPay: Int,
-                      percentInvoicesPaidBeyondAgreedTerms: BigDecimal,
-                      percentInvoicesWithin30Days: BigDecimal,
-                      percentInvoicesWithin60Days: BigDecimal,
-                      percentInvoicesBeyond60Days: BigDecimal,
                       startDate: LocalDate,
                       endDate: LocalDate,
                       paymentTerms: String,
-                      maximumContractPeriod: String,
+                      paymentPeriod: Int,
+                      maximumContractPeriod: Int,
+                      maximumContractPeriodComment: Option[String],
                       paymentTermsChangedComment: Option[String],
                       paymentTermsChangedNotifiedComment: Option[String],
                       paymentTermsComment: Option[String],
@@ -41,5 +38,16 @@ case class ReportRow(
                       offerSupplyChainFinance: Boolean,
                       retentionChargesInPolicy: Boolean,
                       retentionChargesInPast: Boolean,
-                      paymentCodes: Option[String]
+                      paymentCodes: Option[String],
+                      confirmedBy: String
                     )
+
+case class PaymentHistoryRow(
+                              id: PaymentHistoryId,
+                              reportId: ReportId,
+                              averageDaysToPay: Int,
+                              percentPaidLaterThanAgreedTerms: Int,
+                              percentInvoicesWithin30Days: Int,
+                              percentInvoicesWithin60Days: Int,
+                              percentInvoicesBeyond60Days: Int
+                            )

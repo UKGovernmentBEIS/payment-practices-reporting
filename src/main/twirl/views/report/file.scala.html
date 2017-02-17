@@ -1,0 +1,54 @@
+@import org.joda.time.LocalDate
+@import org.joda.time.format.DateTimeFormatter
+@(form: Form[forms.report.ReportFormModel], companyId: CompaniesHouseId, filingDate: LocalDate, df: DateTimeFormatter)(implicit messages: MessagesApi)
+
+<div class="notice">
+    <i class="icon icon-important">
+        <span class="visually-hidden">Warning</span>
+    </i>
+    <strong><a href="@routes.QuestionnaireController.start()">You should prepare</a> before filling in this form.</strong>
+</div>
+
+@shared._coverageInformation()
+
+@if(form.hasErrors) {
+    <div class="error-summary" role="group" aria-labelledby="error-summary-heading" tabindex="-1">
+        <h1 class="heading-medium error-summary-heading" id="error-summary-heading">
+            The form contains invalid entries
+        </h1>
+
+        <p>
+            Please correct the errors shown below.
+        </p>
+        @form.errors.map { e =>
+            @e<br/>
+        }
+    </div>
+}
+
+<div class="scannable-wrapper">
+
+    <form action="@routes.ReportController.postForm(companyId)" method="POST" id="file-report">
+        <p class="small-aside">
+            Companies House number: @companyId.id
+            <br>
+            Date of submission: @df.print(filingDate)
+        </p>
+
+        <input type="hidden" name="filingDate" value='@filingDate' />
+
+        @_reportingPeriod(form)
+        @_paymentStatistics(form)
+        @_paymentTerms(form)
+        @_disputeResolution(form)
+        @_otherPaymentInfo(form)
+
+        <input type="submit" class="button" value="Continue">
+    </form>
+</div>
+
+<script type="text/javascript" src='@routes.Assets.at("javascripts/file.js")'></script>
+<script type="text/javascript">
+        gradualDisclosure();
+        validationPlumbing();
+</script>

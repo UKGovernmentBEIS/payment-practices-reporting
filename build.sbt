@@ -57,6 +57,8 @@ routesImport ++= Seq(
   "models._"
 )
 
+TwirlKeys.templateImports += "views.html.FieldHelpers._"
+
 javaOptions := Seq(
   "-Dconfig.file=src/main/resources/development.application.conf",
   "-Dlogger.file=src/main/resources/development.logger.xml"

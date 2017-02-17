@@ -1,0 +1,20 @@
+@(form: Form[forms.report.ReportFormModel])(implicit messages: MessagesApi)
+
+@import shared.{_textBox, _yesNoField, _numberField, _textField}
+
+<h2 class="heading-large">Payment terms</h2>
+@_textBox(form, "paymentTerms.terms")
+@_numberField(form, "paymentTerms.paymentPeriod", Some("days"))
+
+@_numberField(form, "paymentTerms.maximumContractPeriod", Some("days"))
+@_textBox(form, "paymentTerms.maximumContractPeriodComment")
+
+@_yesNoField(form, "paymentTerms.paymentTermsChanged.yesNo")
+
+<div class="panel" id="show-if-payment-changes">
+    @_textBox(form, "paymentTerms.paymentTermsChanged")
+    @_yesNoField(form, "paymentTerms.paymentTermsNotified.yesNo")
+    @_textBox(form, "paymentTerms.paymentTermsNotified")
+</div>
+
+@_textBox(form, "paymentTerms.paymentTermsComment")

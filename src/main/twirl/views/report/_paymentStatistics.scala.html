@@ -1,0 +1,28 @@
+@(form: Form[forms.report.ReportFormModel])(implicit messages: MessagesApi)
+
+@import shared._numberField
+
+@errorMessage(fieldName: String) = @{
+    form(fieldName).error.map(msg => messages(msg.message))
+}
+@errorClass(fieldName: String) = @{
+    if(form(fieldName).hasErrors) "error" else ""
+}
+
+<h2 class="heading-large">Payment statistics</h2>
+<p>Round up or down to the nearest whole number</p>
+
+@_numberField(form, "paymentHistory.averageDaysToPay", Some("days"))
+@_numberField(form, "paymentHistory.percentPaidBeyondAgreedTerms", Some("%"))
+
+<div class="form-group @errorClass("paymentHistory.percentageSplit")" style="margin-bottom:15px;">
+    <label class="form-label">
+        <span class="bold-medium">Split of invoices paid in the reporting period</span>
+        <span class="form-hint">Figures A, B and C should add up to 100%</span>
+        <span class="error-message">@errorMessage("paymentHistory.percentageSplit")</span>
+    </label>
+
+    @_numberField(form, "paymentHistory.percentageSplit.percentWithin30Days", Some("%"))
+    @_numberField(form, "paymentHistory.percentageSplit.percentWithin60Days", Some("%"))
+    @_numberField(form, "paymentHistory.percentageSplit.percentBeyond60Days", Some("%"))
+</div>

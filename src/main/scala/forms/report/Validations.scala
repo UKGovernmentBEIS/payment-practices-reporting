@@ -26,11 +26,20 @@ import play.api.data.Mapping
 import utils.TimeSource
 
 class Validations @Inject()(timeSource: TimeSource) {
+
   import forms.Validations._
+
+  def isBlank(s: String): Boolean = s.trim() == ""
 
   val companiesHouseId: Mapping[CompaniesHouseId] = nonEmptyText.transform(s => CompaniesHouseId(s), (c: CompaniesHouseId) => c.id)
 
   val percentage = number(min = 0, max = 100)
+
+  val conditionalText: Mapping[ConditionalText] = mapping(
+    "yesNo" -> yesNo,
+    "" -> optional(text)
+  )(ConditionalText.apply)(ConditionalText.unapply)
+    .verifying("error.required", ct => !ct.yesNo || (ct.yesNo && ct.text.isDefined && !ct.text.exists(isBlank)))
 
   val percentageSplit: Mapping[PercentageSplit] = mapping(
     "percentWithin30Days" -> percentage,
@@ -42,45 +51,43 @@ class Validations @Inject()(timeSource: TimeSource) {
   private def sumTo100(ps: PercentageSplit): Boolean = (100 - ps.total).abs <= 2
 
   val paymentHistory: Mapping[PaymentHistory] = mapping(
-    "averageTimeToPay" -> number,
-    "percentPaidWithinAgreedTerms" -> bigDecimal,
+    "averageDaysToPay" -> number(min = 0),
+    "percentPaidBeyondAgreedTerms" -> percentage,
     "percentageSplit" -> percentageSplit
   )(PaymentHistory.apply)(PaymentHistory.unapply)
 
+
   val paymentTerms: Mapping[PaymentTerms] = mapping(
     "terms" -> nonEmptyText,
-    "maximumContractPeriod" -> nonEmptyText,
-    "paymentTermsChanged" -> boolean,
-    "paymentTermsChangedComment" -> optional(nonEmptyText),
-    "paymentTermsNotified" -> boolean,
-    "paymentTermsNotifiedComment" -> optional(nonEmptyText),
+    "paymentPeriod" -> number(min = 0),
+    "maximumContractPeriod" -> number(min=0),
+    "maximumContractPeriodComment" -> optional(nonEmptyText),
+    "paymentTermsChanged" -> conditionalText,
+    "paymentTermsNotified" -> conditionalText,
     "paymentTermsComment" -> optional(nonEmptyText)
   )(PaymentTerms.apply)(PaymentTerms.unapply)
-    .verifying("error.changedcomment.required", pt => pt.paymentTermsChanged && pt.paymentTermsChangedComment.isDefined)
-    .verifying("error.notifiedcomment.required", pt => pt.paymentTermsChanged && pt.paymentTermsChangedNotified && pt.paymentTermsChangedNotifiedComment.isDefined)
-
-  def validateTermsChanged(paymentTerms: PaymentTerms): Boolean = {
-    (paymentTerms.paymentTermsChanged, paymentTerms.paymentTermsChangedComment) match {
-      case (true, Some(_)) => true
-      case (false, None) => true
-      case _ => false
-    }
-  }
 
   private def now() = new LocalDate(timeSource.currentTimeMillis())
 
   val reportFormModel = mapping(
-    "companiesHouseId" -> companiesHouseId,
+    "filingDate" -> jodaLocalDate,
     "reportDates" -> dateRange.verifying("error.beforenow", dr => dr.startDate.isBefore(now())),
     "paymentHistory" -> paymentHistory,
     "paymentTerms" -> paymentTerms,
     "disputeResolution" -> nonEmptyText,
-    "hasPaymentCodes" -> boolean,
-    "paymentCodes" -> optional(nonEmptyText),
-    "offerEInvoicing" -> boolean,
-    "offerSupplyChainFinancing" -> boolean,
-    "retentionChargesInPolicy" -> boolean,
-    "retentionChargesInPast" -> boolean
+    "paymentCodes" -> conditionalText,
+    "offerEInvoicing" -> yesNo,
+    "offerSupplyChainFinancing" -> yesNo,
+    "retentionChargesInPolicy" -> yesNo,
+    "retentionChargesInPast" -> yesNo
   )(ReportFormModel.apply)(ReportFormModel.unapply)
-    .verifying("error.paymentcodes.required", rf => rf.hasPaymentCodes && rf.paymentCodes.isDefined)
+
+  val revise: Mapping[Boolean] = mapping(
+    "" -> optional(text)
+  )(_.contains("Revise"))(b => Some(if (b) Some("Revise") else Some("")))
+
+  val reportReviewModel = mapping(
+    "confirmed" -> boolean,
+    "confirmedBy" -> nonEmptyText
+  )(ReportReviewModel.apply)(ReportReviewModel.unapply)
 }
