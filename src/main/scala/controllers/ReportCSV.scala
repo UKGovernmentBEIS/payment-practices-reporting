@@ -19,6 +19,7 @@ package controllers
 
 import org.joda.time.LocalDate
 import slicks.modules.CompanyReport
+import utils.YesNo
 
 import scala.language.implicitConversions
 
@@ -47,6 +48,8 @@ object ReportCSV {
 
   implicit def booleanToCSVString(b: Boolean): CSVString = CSVString(b.toString)
 
+  implicit def yesNoToCSVString(yn: YesNo): CSVString = yn.toBoolean
+
   implicit def optionToCSVString(o: Option[String]): CSVString = o.map(stringToCSVString).getOrElse(CSVString(""))
 
   def columns = Seq[(String, CompanyReport => CSVString)](
@@ -55,11 +58,11 @@ object ReportCSV {
     ("Filing date", _.report.filingDate),
     ("Company", _.name),
     ("Company number", _.report.companyId),
-//    ("Average time to pay", _.report.averageDaysToPay),
-//    ("% Invoices paid late", _.report.percentInvoicesPaidBeyondAgreedTerms),
-//    ("% Invoices paid within 30 days", _.report.percentInvoicesWithin30Days),
-//    ("% Invoices paid within 60 days", _.report.percentInvoicesWithin60Days),
-//    ("% Invoices paid later than 60 days", _.report.percentInvoicesBeyond60Days),
+    //    ("Average time to pay", _.report.averageDaysToPay),
+    //    ("% Invoices paid late", _.report.percentInvoicesPaidBeyondAgreedTerms),
+    //    ("% Invoices paid within 30 days", _.report.percentInvoicesWithin30Days),
+    //    ("% Invoices paid within 60 days", _.report.percentInvoicesWithin60Days),
+    //    ("% Invoices paid later than 60 days", _.report.percentInvoicesBeyond60Days),
     ("E-Invoicing offered", _.report.offerEInvoicing),
     ("Supply-chain financing offered", _.report.offerSupplyChainFinance),
     ("Policy covers charges for remaining on supplier list", _.report.retentionChargesInPolicy),

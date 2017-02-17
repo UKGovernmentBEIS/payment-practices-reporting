@@ -21,6 +21,8 @@ import forms.report.{ConditionalText, ReportFormModel}
 import org.joda.time.LocalDate
 import org.joda.time.format.DateTimeFormat
 import play.twirl.api.{Html, HtmlFormat}
+import utils.YesNo
+import utils.YesNo.{No, Yes}
 
 import scala.language.implicitConversions
 
@@ -110,13 +112,14 @@ object ReviewPageData extends HtmlHelpers {
   * Various converters to reduce boilerplate in the table and row descriptors
   */
 trait HtmlHelpers {
-  def yesNo(b: Boolean): String = if (b) "Yes" else "No"
+  def yesNo(yn: YesNo): String = yn.entryName.capitalize
 
   def breakLines(s: String): Html = Html(HtmlFormat.escape(s).toString.replace("\n", "<br />"))
 
-  def conditionalText(ct: ConditionalText): Html =
-    if (ct.yesNo) Html(s"<strong>Yes </strong>&ndash; ${breakLines(ct.text.getOrElse(""))}")
-    else Html("<strong>No</strong>")
+  def conditionalText(ct: ConditionalText): Html = ct.yesNo match {
+    case Yes => Html(s"<strong>Yes </strong>&ndash; ${breakLines(ct.text.getOrElse(""))}")
+    case No => Html("<strong>No</strong>")
+  }
 
   implicit def stringToHtml(s: String): Html = HtmlFormat.escape(s)
 
@@ -124,7 +127,7 @@ trait HtmlHelpers {
 
   implicit def dateToHtml(d: LocalDate): Html = Html(d.toString)
 
-  implicit def yesNoToHtml(b: Boolean): Html = Html(yesNo(b))
+  implicit def yesNoToHtml(yn: YesNo): Html = Html(yesNo(yn))
 
   implicit def optionToHtml(o: Option[String]): Html = Html(o.getOrElse(""))
 

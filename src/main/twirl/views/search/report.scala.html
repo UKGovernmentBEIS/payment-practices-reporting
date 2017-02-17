@@ -77,7 +77,7 @@
 </span>
     </h4>
     <p>
-        @(if(companyReport.report.offerEInvoicing)  "No" else "Yes")
+        @companyReport.report.offerEInvoicing.entryName.capitalize
     </p>
 
     <h4 class="heading-small">
@@ -85,19 +85,19 @@
         <span class="form-hint">This is where a supplier's invoice can be paid quickly by a third-party financing company, who the business pays at a later date.</span>
     </h4>
     <p>
-        @(if(companyReport.report.offerSupplyChainFinance)  "No" else "Yes")
+        @companyReport.report.offerSupplyChainFinance.entryName.capitalize
     </p>
     <h4 class="heading-small">
         Do this business' terms allow it to charge suppliers to remain on a supplier list?
         <span class="form-hint">This is sometimes known as 'pay to play'.</span>
     </h4>
     <p>
-        @(if(companyReport.report.retentionChargesInPolicy ) "No" else "Yes")
+        @companyReport.report.retentionChargesInPolicy.entryName.capitalize
     </p>
     <h4 class="heading-small">
         Did the business actually do this during this reporting period?
     </h4>
     <p>
-        @(if(companyReport.report.retentionChargesInPast) "No" else "Yes")
+        @companyReport.report.retentionChargesInPast.entryName.capitalize
     </p>
 </div>

@@ -20,8 +20,8 @@ package forms
 import calculator.FinancialYear
 import org.joda.time.LocalDate
 import play.api.data.Forms._
-import play.api.data.format.Formatter
-import play.api.data.{FormError, Forms, Mapping}
+import play.api.data.{Forms, Mapping}
+import utils.YesNo
 
 import scala.util.Try
 
@@ -57,19 +57,5 @@ object Validations {
     "fy" -> dateRange
   )(FinancialYear.apply)(FinancialYear.unapply)
 
-  private val yesNoFormat: Formatter[Boolean] = new Formatter[Boolean] {
-    override val format = Some(("format.boolean", Nil))
-
-    def bind(key: String, data: Map[String, String]) = {
-      Right(data.get(key)).right.flatMap {
-        case Some("yes") => Right(true)
-        case Some("no") => Right(false)
-        case _ => Left(Seq(FormError(key, "error.required", Nil)))
-      }
-    }
-
-    def unbind(key: String, value: Boolean) = Map(key -> (if (value) "yes" else "no"))
-  }
-
-  val yesNo = Forms.of(yesNoFormat)
+  val yesNo: Mapping[YesNo] = Forms.of(YesNo.formatter)
 }

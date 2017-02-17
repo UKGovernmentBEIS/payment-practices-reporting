@@ -19,6 +19,8 @@ package forms.report
 
 import forms.DateRange
 import org.joda.time.LocalDate
+import utils.YesNo
+import utils.YesNo.{No, Yes}
 
 object ReportConstants {
   val wordLength = 7
@@ -28,7 +30,13 @@ object ReportConstants {
 }
 
 
-case class ConditionalText(yesNo: Boolean, text: Option[String])
+case class ConditionalText(yesNo: YesNo, text: Option[String]) {
+  def normalize = this match {
+    case ConditionalText(No, _) => ConditionalText(No, None)
+    case ConditionalText(Yes, Some(t)) if t.trim() == "" => ConditionalText(Yes, None)
+    case _ => this
+  }
+}
 
 case class PercentageSplit(
                             percentWithin30Days: Int,
@@ -62,10 +70,10 @@ case class ReportFormModel(
                             paymentTerms: PaymentTerms,
                             disputeResolution: String,
                             hasPaymentCodes: ConditionalText,
-                            offerEInvoicing: Boolean,
-                            offerSupplyChainFinancing: Boolean,
-                            retentionChargesInPolicy: Boolean,
-                            retentionChargesInPast: Boolean
+                            offerEInvoicing: YesNo,
+                            offerSupplyChainFinancing: YesNo,
+                            retentionChargesInPolicy: YesNo,
+                            retentionChargesInPast: YesNo
                           )
 
 case class ReportReviewModel(

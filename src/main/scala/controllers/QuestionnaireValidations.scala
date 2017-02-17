@@ -19,7 +19,8 @@ package controllers
 
 import play.api.data.Forms.{mapping, optional}
 import play.api.data.{Forms, Mapping}
-import questionnaire.{DecisionState, FinancialYear, Thresholds, YesNo}
+import questionnaire.{DecisionState, FinancialYear, Thresholds}
+import utils.YesNo
 
 object QuestionnaireValidations {
   val yesNo: Mapping[YesNo] = Forms.of[YesNo]

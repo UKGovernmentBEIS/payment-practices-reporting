@@ -20,6 +20,7 @@ package controllers
 import javax.inject.Inject
 
 import actions.{CompanyAction, CompanyRequest}
+import forms.Validations
 import forms.report.{ReportFormModel, ReportReviewModel, Validations}
 import models.{CompaniesHouseId, ReportId}
 import org.joda.time.LocalDate
@@ -30,7 +31,7 @@ import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, Controller, Result}
 import services.CompaniesHouseAPI
 import slicks.modules.ReportRepo
-import utils.TimeSource
+import utils.{TimeSource, YesNo}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -80,13 +81,13 @@ class ReportController @Inject()(
     Ok(page(home, pages.signInInterstitial(companiesHouseId)))
   }
 
-  val hasAccountChoice = Form(mapping("account" -> boolean)(identity)(b => Some(b)))
-
   def login(companiesHouseId: CompaniesHouseId) = Action { implicit request =>
+    val hasAccountChoice = Form(mapping("account" -> Validations.yesNo)(identity)(b => Some(b)))
+
     val next = hasAccountChoice.bindFromRequest().fold(
-      errs => routes.ReportController.start(companiesHouseId),
+      errs => routes.ReportController.preLogin(companiesHouseId),
       hasAccount =>
-        if (hasAccount) routes.CoHoOAuthMockController.login(companiesHouseId)
+        if (hasAccount == YesNo.Yes) routes.CoHoOAuthMockController.login(companiesHouseId)
         else routes.ReportController.code(companiesHouseId)
     )
 
@@ -115,6 +116,7 @@ class ReportController @Inject()(
   }
 
   def codeOptions(companiesHouseId: CompaniesHouseId) = Action { implicit request =>
+    import ReportController.CodeOption
     import CodeOption._
 
     val codeOption: Mapping[CodeOption] = Forms.of[CodeOption]
@@ -135,7 +137,10 @@ class ReportController @Inject()(
     Ok(page(home, header, pages.file(emptyReport, companiesHouseId, LocalDate.now(), df)))
   }
 
-  def postForm(companiesHouseId: CompaniesHouseId) = CompanyAction(companiesHouseId) { implicit request =>
+  def postForm(companiesHouseId: CompaniesHouseId) = CompanyAction(companiesHouseId)(parse.urlFormEncoded) { implicit request =>
+    println(request.body.flatMap { case (k,v) =>
+        v.headOption.map(value => s""""$k" -> "$value"""")
+    }.mkString(","))
     emptyReport.bindFromRequest().fold(
       errs => BadRequest(page(home, header, pages.file(errs, companiesHouseId, LocalDate.now(), df))),
       report => Ok(page(home, pages.review(emptyReview, report, companiesHouseId, request.companyName, df, reportValidations.reportFormModel)))
@@ -170,4 +175,21 @@ class ReportController @Inject()(
     Ok(page(home, pages.filingSuccess(reportId, "<unknown>")))
   }
 
+}
+
+object ReportController {
+  import enumeratum.EnumEntry.Lowercase
+  import enumeratum._
+  import utils.EnumFormatter
+
+  sealed trait CodeOption extends EnumEntry with Lowercase
+
+  object CodeOption extends Enum[CodeOption] with EnumFormatter[CodeOption] {
+    override def values = findValues
+
+    case object Colleague extends CodeOption
+
+    case object Register extends CodeOption
+
+  }
 }

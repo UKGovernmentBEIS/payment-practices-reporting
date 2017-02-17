@@ -17,6 +17,8 @@
 
 package questionnaire
 
+import utils.YesNo
+
 case class Choice(label: String, value: String)
 
 sealed trait Question {

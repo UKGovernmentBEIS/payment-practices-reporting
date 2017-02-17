@@ -24,6 +24,7 @@ import org.joda.time.LocalDate
 import play.api.data.Forms._
 import play.api.data.Mapping
 import utils.TimeSource
+import utils.YesNo.Yes
 
 class Validations @Inject()(timeSource: TimeSource) {
 
@@ -39,7 +40,11 @@ class Validations @Inject()(timeSource: TimeSource) {
     "yesNo" -> yesNo,
     "" -> optional(text)
   )(ConditionalText.apply)(ConditionalText.unapply)
-    .verifying("error.required", ct => !ct.yesNo || (ct.yesNo && ct.text.isDefined && !ct.text.exists(isBlank)))
+    .transform(_.normalize, (ct: ConditionalText) => ct)
+    .verifying("error.required", _ match {
+      case ConditionalText(Yes, None) => false
+      case _ => true
+    })
 
   val percentageSplit: Mapping[PercentageSplit] = mapping(
     "percentWithin30Days" -> percentage,
@@ -60,7 +65,7 @@ class Validations @Inject()(timeSource: TimeSource) {
   val paymentTerms: Mapping[PaymentTerms] = mapping(
     "terms" -> nonEmptyText,
     "paymentPeriod" -> number(min = 0),
-    "maximumContractPeriod" -> number(min=0),
+    "maximumContractPeriod" -> number(min = 0),
     "maximumContractPeriodComment" -> optional(nonEmptyText),
     "paymentTermsChanged" -> conditionalText,
     "paymentTermsNotified" -> conditionalText,

@@ -18,6 +18,7 @@
 package questionnaire
 
 import org.scalactic.TripleEquals._
+import utils.YesNo
 
 case class Thresholds(turnover: Option[YesNo], balanceSheet: Option[YesNo], employees: Option[YesNo]) {
   def score: Int = Seq(turnover, balanceSheet, employees).flatten.count(_ === YesNo.Yes)

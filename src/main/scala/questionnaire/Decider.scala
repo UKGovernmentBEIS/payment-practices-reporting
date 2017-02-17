@@ -19,6 +19,7 @@ package questionnaire
 
 import javax.inject.Inject
 
+import utils.YesNo
 
 case class DecisionState(
                           isCompanyOrLLP: Option[YesNo],

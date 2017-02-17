@@ -17,20 +17,13 @@
 
 package slicks.modules
 
-import javax.inject.Inject
-
 import com.github.tminglei.slickpg.PgDateSupportJoda
-import com.google.inject.ImplementedBy
 import com.wellfactored.slickgen.IdType
 import db.{PaymentHistoryRow, ReportRow}
-import forms.report.ReportFormModel
-import models.{CompaniesHouseId, PaymentHistoryId, ReportId}
+import models.{PaymentHistoryId, ReportId}
 import org.joda.time.LocalDate
-import org.reactivestreams.Publisher
-import play.api.db.slick.DatabaseConfigProvider
 import slicks.DBBinding
-
-import scala.concurrent.{ExecutionContext, Future}
+import utils.YesNo
 
 trait ReportModule extends DBBinding {
   self: CompanyModule with PgDateSupportJoda =>
@@ -43,6 +36,8 @@ trait ReportModule extends DBBinding {
   import api._
 
   implicit def PaymentHistoryIdMapper: BaseColumnType[PaymentHistoryId] = MappedColumnType.base[PaymentHistoryId, Long](_.id, PaymentHistoryId)
+
+  implicit def YesNoMapper: BaseColumnType[YesNo] = MappedColumnType.base[YesNo, Boolean](_.toBoolean, YesNo.fromBoolean)
 
   implicit def ReportIdMapper: BaseColumnType[ReportId] = MappedColumnType.base[ReportId, Long](_.id, ReportId)
 
@@ -80,13 +75,13 @@ trait ReportModule extends DBBinding {
 
     def disputeResolution = column[String]("dispute_resolution", O.Length(longTerms))
 
-    def offerEInvoicing = column[Boolean]("offer_einvoicing")
+    def offerEInvoicing = column[YesNo]("offer_einvoicing")
 
-    def offerSupplyChainFinance = column[Boolean]("offer_supply_chain_finance")
+    def offerSupplyChainFinance = column[YesNo]("offer_supply_chain_finance")
 
-    def retentionChargesInPolicy = column[Boolean]("retention_charges_in_policy")
+    def retentionChargesInPolicy = column[YesNo]("retention_charges_in_policy")
 
-    def retentionChargesInPast = column[Boolean]("retention_charges_in_past")
+    def retentionChargesInPast = column[YesNo]("retention_charges_in_past")
 
     def paymentCodes = column[Option[String]]("payment_codes", O.Length(255))
 

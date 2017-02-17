@@ -15,31 +15,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package controllers
+package utils
 
-import enumeratum.EnumEntry.Lowercase
-import enumeratum._
+import enumeratum.{Enum, EnumEntry}
 import play.api.data.FormError
 import play.api.data.format.Formatter
 
-sealed trait CodeOption extends EnumEntry with Lowercase
+trait EnumFormatter[E <: EnumEntry] {
+  self: Enum[E] =>
 
-object CodeOption extends Enum[CodeOption] {
-  override def values = findValues
+  implicit val formatter: Formatter[E] = new Formatter[E] {
+    override def unbind(key: String, value: E): Map[String, String] = Map(key -> value.entryName)
 
-  case object Colleague extends CodeOption
-
-  case object Register extends CodeOption
-
-  implicit val codeOptionsFormatter: Formatter[CodeOption] = new Formatter[CodeOption] {
-    override def unbind(key: String, value: CodeOption): Map[String, String] = Map(key -> value.entryName)
-
-    override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], CodeOption] =
+    override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], E] =
       data.get(key) match {
         case None => Left(Seq(FormError(key, "no value found")))
-        case Some(s) => CodeOption.withNameOption(s) match {
+        case Some(s) => self.withNameOption(s) match {
           case Some(co) => Right(co)
-          case None => Left(Seq(FormError(key, "not a valid code option")))
+          case None => Left(Seq(FormError(key, "not a valid enumeration value")))
         }
       }
   }

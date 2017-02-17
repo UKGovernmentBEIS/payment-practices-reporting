@@ -15,21 +15,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+package utils
+
 import enumeratum.EnumEntry.Lowercase
 import enumeratum.{Enum, EnumEntry}
-import utils.EnumFormatter
 
-package object questionnaire {
-  sealed trait FinancialYear extends EnumEntry with Lowercase
+sealed trait YesNo extends EnumEntry with Lowercase {
+  def toBoolean: Boolean
+}
 
-  object FinancialYear extends Enum[FinancialYear] with EnumFormatter[FinancialYear] {
-    override def values = findValues
+object YesNo extends Enum[YesNo] with EnumFormatter[YesNo] {
+  override def values = findValues
 
-    case object First extends FinancialYear
+  def fromBoolean(b: Boolean): YesNo = if (b) Yes else No
 
-    case object Second extends FinancialYear
+  case object Yes extends YesNo {
+    override def toBoolean = true
+  }
 
-    case object ThirdOrLater extends FinancialYear
+  case object No extends YesNo {
+    override def toBoolean = false
   }
 
 }

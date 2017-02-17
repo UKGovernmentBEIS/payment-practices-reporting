@@ -19,6 +19,7 @@ package db
 
 import models.{PaymentHistoryId, ReportId}
 import org.joda.time.LocalDate
+import utils.YesNo
 
 case class ReportRow(
                       id: ReportId,
@@ -34,10 +35,10 @@ case class ReportRow(
                       paymentTermsChangedNotifiedComment: Option[String],
                       paymentTermsComment: Option[String],
                       disputeResolution: String,
-                      offerEInvoicing: Boolean,
-                      offerSupplyChainFinance: Boolean,
-                      retentionChargesInPolicy: Boolean,
-                      retentionChargesInPast: Boolean,
+                      offerEInvoicing: YesNo,
+                      offerSupplyChainFinance: YesNo,
+                      retentionChargesInPolicy: YesNo,
+                      retentionChargesInPast: YesNo,
                       paymentCodes: Option[String],
                       confirmedBy: String
                     )

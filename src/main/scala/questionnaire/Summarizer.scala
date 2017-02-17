@@ -20,6 +20,7 @@ package questionnaire
 import javax.inject.Inject
 
 import play.api.i18n.MessagesApi
+import utils.YesNo
 
 case class ThresholdSummary(turnover: Option[String], balance: Option[String], employees: Option[String])
 
