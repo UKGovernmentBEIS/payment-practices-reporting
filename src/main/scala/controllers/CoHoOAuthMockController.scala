@@ -19,7 +19,7 @@ package controllers
 
 import javax.inject.Inject
 
-import actions.CompanyAction
+import actions.CompanyAuthAction
 import models.CompaniesHouseId
 import play.api.mvc.{Action, Controller}
 import services.CompaniesHouseAPI
@@ -36,13 +36,13 @@ class CoHoOAuthMockController @Inject()(companiesHouseAPI: CompaniesHouseAPI)(im
 
   def authCode(companiesHouseId: CompaniesHouseId) = Action.async { implicit request =>
     companiesHouseAPI.find(companiesHouseId).map {
-      case Some(co) => Ok(views.html.oauthMock.p2(companiesHouseId, co.company_name)).addingToSession((CompanyAction.companyNameHeader, co.company_name))
+      case Some(co) => Ok(views.html.oauthMock.p2(companiesHouseId, co.company_name)).addingToSession((CompanyAuthAction.companyNameHeader, co.company_name))
       case None => BadRequest(s"Unknown company id ${companiesHouseId.id}")
     }
   }
 
   def postAuthCode(companiesHouseId: CompaniesHouseId) = Action { implicit request =>
-    Redirect(controllers.routes.ReportController.file(companiesHouseId)).addingToSession((CompanyAction.companyIdHeader, companiesHouseId.id))
+    Redirect(controllers.routes.ReportController.file(companiesHouseId)).addingToSession((CompanyAuthAction.companyIdHeader, companiesHouseId.id))
   }
 
 }

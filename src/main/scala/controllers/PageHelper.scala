@@ -17,7 +17,6 @@
 
 package controllers
 
-import controllers.QuestionnaireValidations.decisionStateMapping
 import org.scalactic.TripleEquals._
 import play.api.data.{Form, FormError, Mapping}
 import play.api.mvc.{Call, Request, Result}
@@ -28,12 +27,12 @@ import scala.collection.immutable
 case class Breadcrumb(href: Call, name: String)
 
 trait PageHelper {
-  def page(contents: Html*) = {
+  def page(contents: Html*): Html = {
     val content = new Html(immutable.Seq[Html](contents: _*))
     views.html.templates.govukTemplateDefaults.render("Payment practices reporting", content)
   }
 
-  def h1(text:String) = views.html.shared._h1(text)
+  def h1(text: String) = views.html.shared._h1(text)
 
   val homeBreadcrumb = Breadcrumb(routes.HomeController.index(), "Payment practices reporting")
   val home = breadcrumbs(homeBreadcrumb)

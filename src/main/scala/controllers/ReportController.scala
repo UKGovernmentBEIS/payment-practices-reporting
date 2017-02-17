@@ -19,7 +19,8 @@ package controllers
 
 import javax.inject.Inject
 
-import actions.{CompanyAction, CompanyRequest}
+import actions.{CompanyAuthAction, CompanyAuthRequest}
+import controllers.ReportController.CodeOption.{Colleague, Register}
 import forms.Validations
 import forms.report.{ReportFormModel, ReportReviewModel, Validations}
 import models.{CompaniesHouseId, ReportId}
@@ -29,7 +30,8 @@ import play.api.data.Forms._
 import play.api.data._
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, Controller, Result}
-import services.CompaniesHouseAPI
+import play.twirl.api.Html
+import services.{CompaniesHouseAPI, CompanyDetail}
 import slicks.modules.ReportRepo
 import utils.{TimeSource, YesNo}
 
@@ -39,7 +41,7 @@ class ReportController @Inject()(
                                   companiesHouseAPI: CompaniesHouseAPI,
                                   reports: ReportRepo,
                                   timeSource: TimeSource,
-                                  CompanyAction: CompanyAction
+                                  CompanyAction: CompanyAuthAction
                                 )(implicit ec: ExecutionContext, messages: MessagesApi) extends Controller with PageHelper {
 
   import views.html.{report => pages}
@@ -77,12 +79,10 @@ class ReportController @Inject()(
     }
   }
 
-  def preLogin(companiesHouseId: CompaniesHouseId) = Action { request =>
-    Ok(page(home, pages.signInInterstitial(companiesHouseId)))
-  }
+  def preLogin(companiesHouseId: CompaniesHouseId) = Action(Ok(page(home, pages.preLogin(companiesHouseId))))
 
   def login(companiesHouseId: CompaniesHouseId) = Action { implicit request =>
-    val hasAccountChoice = Form(mapping("account" -> Validations.yesNo)(identity)(b => Some(b)))
+    val hasAccountChoice = Form(single("account" -> Validations.yesNo))
 
     val next = hasAccountChoice.bindFromRequest().fold(
       errs => routes.ReportController.preLogin(companiesHouseId),
@@ -94,73 +94,67 @@ class ReportController @Inject()(
     Redirect(next)
   }
 
-  def code(companiesHouseId: CompaniesHouseId) = Action.async { request =>
+  def withCompany(companiesHouseId: CompaniesHouseId)(body: CompanyDetail => Html): Future[Result] = {
     companiesHouseAPI.find(companiesHouseId).map {
-      case Some(co) => Ok(page(home, pages.companiesHouseOptions(co.company_name, companiesHouseId)))
+      case Some(co) => Ok(body(co))
       case None => BadRequest(s"Unknown company id ${companiesHouseId.id}")
     }
   }
 
-  def colleague(companiesHouseId: CompaniesHouseId) = Action.async { implicit request =>
-    companiesHouseAPI.find(companiesHouseId).map {
-      case Some(co) => Ok(page(home, pages.askColleague(co.company_name, companiesHouseId)))
-      case None => BadRequest(s"Unknown company id ${companiesHouseId.id}")
-    }
+  def code(companiesHouseId: CompaniesHouseId) = Action.async {
+    withCompany(companiesHouseId)(co => page(home, pages.companiesHouseOptions(co.company_name, companiesHouseId)))
   }
 
-  def register(companiesHouseId: CompaniesHouseId) = Action.async { implicit request =>
-    companiesHouseAPI.find(companiesHouseId).map {
-      case Some(co) => Ok(page(home, pages.requestAccessCode(co.company_name, companiesHouseId)))
-      case None => BadRequest(s"Unknown company id ${companiesHouseId.id}")
-    }
+  def colleague(companiesHouseId: CompaniesHouseId) = Action.async {
+    withCompany(companiesHouseId)(co => page(home, pages.askColleague(co.company_name, companiesHouseId)))
+  }
+
+  def register(companiesHouseId: CompaniesHouseId) = Action.async {
+    withCompany(companiesHouseId)(co => page(home, pages.requestAccessCode(co.company_name, companiesHouseId)))
   }
 
   def codeOptions(companiesHouseId: CompaniesHouseId) = Action { implicit request =>
     import ReportController.CodeOption
-    import CodeOption._
 
-    val codeOption: Mapping[CodeOption] = Forms.of[CodeOption]
-    val form = Form(mapping("nextstep" -> codeOption)(identity)(o => Some(o)))
+    def resultFor(codeOption: CodeOption) = codeOption match {
+      case Colleague => Redirect(routes.ReportController.colleague(companiesHouseId))
+      case Register => Redirect(routes.ReportController.register(companiesHouseId))
+    }
 
-    form.bindFromRequest().fold(
-      errs => BadRequest(s"Invalid option"),
-      {
-        case Colleague => Redirect(routes.ReportController.colleague(companiesHouseId))
-        case Register => Redirect(routes.ReportController.register(companiesHouseId))
-      }
-    )
+    val form = Form(single("nextstep" -> Forms.of[CodeOption]))
+
+    form.bindFromRequest().fold(errs => BadRequest(s"Invalid option"), resultFor)
   }
 
-  def header(implicit request: CompanyRequest[_]) = h1(s"Publish a report for ${request.companyName}")
+  def reportPageHeader(implicit request: CompanyAuthRequest[_]) = h1(s"Publish a report for ${request.companyName}")
 
   def file(companiesHouseId: CompaniesHouseId) = CompanyAction(companiesHouseId) { implicit request =>
-    Ok(page(home, header, pages.file(emptyReport, companiesHouseId, LocalDate.now(), df)))
+    Ok(page(home, reportPageHeader, pages.file(emptyReport, companiesHouseId, LocalDate.now(), df)))
   }
 
   def postForm(companiesHouseId: CompaniesHouseId) = CompanyAction(companiesHouseId)(parse.urlFormEncoded) { implicit request =>
-    println(request.body.flatMap { case (k,v) =>
-        v.headOption.map(value => s""""$k" -> "$value"""")
-    }.mkString(","))
+    println(request.body.flatMap { case (k, v) => v.headOption.map(value => s""""$k" -> "$value"""") }.mkString(", "))
     emptyReport.bindFromRequest().fold(
-      errs => BadRequest(page(home, header, pages.file(errs, companiesHouseId, LocalDate.now(), df))),
+      errs => BadRequest(page(home, reportPageHeader, pages.file(errs, companiesHouseId, LocalDate.now(), df))),
       report => Ok(page(home, pages.review(emptyReview, report, companiesHouseId, request.companyName, df, reportValidations.reportFormModel)))
     )
   }
 
   def postReview(companiesHouseId: CompaniesHouseId) = CompanyAction(companiesHouseId).async(parse.urlFormEncoded) { implicit request =>
-    val revise = request.body.get("revise").flatMap(_.headOption).contains("Revise")
+    val revise = Form(single("revise" -> text)).bindFromRequest().value.contains("Revise")
+
     // Re-capture the values for the report itself. In theory these values should always be valid
     // (as we only send the user to the review page if they are) but if somehow they aren't then
     // send the user back to the report form to fix them.
     emptyReport.bindFromRequest().fold(
-      errs => Future.successful(BadRequest(page(home, header, pages.file(errs, companiesHouseId, LocalDate.now(), df)))),
+      errs => Future.successful(BadRequest(page(home, reportPageHeader, pages.file(errs, companiesHouseId, LocalDate.now(), df)))),
       report =>
-        if (revise) Future.successful(Ok(page(home, header, pages.file(emptyReport.fill(report), companiesHouseId, LocalDate.now(), df))))
+        if (revise) Future.successful(Ok(page(home, reportPageHeader, pages.file(emptyReport.fill(report), companiesHouseId, LocalDate.now(), df))))
         else checkConfirmation(companiesHouseId, report)
     )
   }
 
-  private def checkConfirmation(companiesHouseId: CompaniesHouseId, report: ReportFormModel)(implicit request: CompanyRequest[_]): Future[Result] = {
+  private def checkConfirmation(companiesHouseId: CompaniesHouseId, report: ReportFormModel)(implicit request: CompanyAuthRequest[_]): Future[Result] = {
     emptyReview.bindFromRequest().fold(
       errs => Future.successful(BadRequest(page(home, pages.review(errs, report, companiesHouseId, request.companyName, df, reportValidations.reportFormModel)))),
       confirmation =>
@@ -171,13 +165,11 @@ class ReportController @Inject()(
     )
   }
 
-  def showConfirmation(reportId: ReportId) = Action {
-    Ok(page(home, pages.filingSuccess(reportId, "<unknown>")))
-  }
-
+  def showConfirmation(reportId: ReportId) = Action(Ok(page(home, pages.filingSuccess(reportId, "<unknown>"))))
 }
 
 object ReportController {
+
   import enumeratum.EnumEntry.Lowercase
   import enumeratum._
   import utils.EnumFormatter
@@ -192,4 +184,5 @@ object ReportController {
     case object Register extends CodeOption
 
   }
+
 }

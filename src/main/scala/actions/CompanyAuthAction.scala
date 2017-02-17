@@ -25,29 +25,29 @@ import play.api.mvc._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-case class CompanyRequest[A](companiesHouseId: CompaniesHouseId, companyName: String, request: Request[A]) extends WrappedRequest[A](request)
+case class CompanyAuthRequest[A](companiesHouseId: CompaniesHouseId, companyName: String, request: Request[A]) extends WrappedRequest[A](request)
 
-object CompanyAction {
+object CompanyAuthAction {
   val companyIdHeader = "company_id"
   val companyNameHeader = "company_name"
 }
 
-class CompanyAction @Inject()(implicit ec: ExecutionContext) {
+class CompanyAuthAction @Inject()(implicit ec: ExecutionContext) {
 
-  import CompanyAction._
+  import CompanyAuthAction._
 
   implicit class SessionSyntax(result: Result)(implicit request: Request[_]) {
     def clearingSession = result.removingFromSession(companyIdHeader, companyNameHeader)
   }
 
-  def apply(expectedId: CompaniesHouseId): ActionBuilder[CompanyRequest] =
-    new ActionBuilder[CompanyRequest] {
-      override def invokeBlock[A](request: Request[A], next: (CompanyRequest[A]) => Future[Result]): Future[Result] = {
+  def apply(expectedId: CompaniesHouseId): ActionBuilder[CompanyAuthRequest] =
+    new ActionBuilder[CompanyAuthRequest] {
+      override def invokeBlock[A](request: Request[A], next: (CompanyAuthRequest[A]) => Future[Result]): Future[Result] = {
         implicit val r = request
         val companyRequest = for {
           coHoId <- request.session.get(companyIdHeader).map(CompaniesHouseId)
           name <- request.session.get(companyNameHeader)
-        } yield CompanyRequest(coHoId, name, request)
+        } yield CompanyAuthRequest(coHoId, name, request)
 
         companyRequest match {
           case Some(cr) if cr.companiesHouseId == expectedId => next(cr)
