@@ -2,13 +2,6 @@
 @import slicks.modules.CompanyReport
 @(companyReport: CompanyReport, company: services.CompanyDetail, df: DateTimeFormatter)
 
-<div class="breadcrumbs">
-    <ol>
-        <li><a href="@routes.HomeController.index()">@shared._name()</a></li>
-        <li><a href="@routes.SearchController.search(None, None, None)">Search for reports</a></li>
-        <li><a href="@routes.SearchController.company(company.company_number, None)">@company.company_name reports</a></li>
-    </ol>
-</div>
 <div class="scannable-wrapper">
     <h1 class="heading-xlarge">
         @company.company_name:

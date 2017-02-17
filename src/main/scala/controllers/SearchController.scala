@@ -62,7 +62,9 @@ class SearchController @Inject()(companiesHouseAPI: CompaniesHouseAPI, reports: 
       co <- OptionT(companiesHouseAPI.find(companiesHouseId))
       rs <- OptionT.liftF(reports.byCompanyNumber(companiesHouseId).map(PagedResults.page(_, pageNumber.getOrElse(1))))
     } yield {
-      Ok(page(home, views.html.search.company(co, rs, pageLink, df)))
+      val searchCrumb = Breadcrumb(routes.SearchController.search(None, None, None), "Search for reports")
+      val crumbs = breadcrumbs(homeBreadcrumb, searchCrumb)
+      Ok(page(crumbs, views.html.search.company(co, rs, pageLink, df)))
     }
 
     result.value.map {
@@ -75,7 +77,12 @@ class SearchController @Inject()(companiesHouseAPI: CompaniesHouseAPI, reports: 
     val f = for {
       report <- OptionT(reports.reportFor(reportId))
       company <- OptionT(companiesHouseAPI.find(CompaniesHouseId(report.report.companyId)))
-    } yield Ok(page(home, views.html.search.report(report, company, df)))
+    } yield {
+      val searchCrumb = Breadcrumb(routes.SearchController.search(None, None, None), "Search for reports")
+      val companyCrumb = Breadcrumb(routes.SearchController.company(company.company_number, None), s"${company.company_name} reports")
+      val crumbs = breadcrumbs(homeBreadcrumb, searchCrumb, companyCrumb)
+      Ok(page(crumbs, views.html.search.report(report, company, df)))
+    }
 
     f.value.map {
       case Some(ok) => ok
