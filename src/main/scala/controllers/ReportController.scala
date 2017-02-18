@@ -41,7 +41,7 @@ class ReportController @Inject()(
                                   companiesHouseAPI: CompaniesHouseAPI,
                                   reports: ReportRepo,
                                   timeSource: TimeSource,
-                                  CompanyAction: CompanyAuthAction
+                                  CompanyAuthAction: CompanyAuthAction
                                 )(implicit ec: ExecutionContext, messages: MessagesApi) extends Controller with PageHelper {
 
   import views.html.{report => pages}
@@ -128,11 +128,11 @@ class ReportController @Inject()(
 
   def reportPageHeader(implicit request: CompanyAuthRequest[_]) = h1(s"Publish a report for ${request.companyName}")
 
-  def file(companiesHouseId: CompaniesHouseId) = CompanyAction(companiesHouseId) { implicit request =>
+  def file(companiesHouseId: CompaniesHouseId) = CompanyAuthAction(companiesHouseId) { implicit request =>
     Ok(page(home, reportPageHeader, pages.file(emptyReport, companiesHouseId, LocalDate.now(), df)))
   }
 
-  def postForm(companiesHouseId: CompaniesHouseId) = CompanyAction(companiesHouseId)(parse.urlFormEncoded) { implicit request =>
+  def postForm(companiesHouseId: CompaniesHouseId) = CompanyAuthAction(companiesHouseId)(parse.urlFormEncoded) { implicit request =>
     //println(request.body.flatMap { case (k, v) => v.headOption.map(value => s""""$k" -> "$value"""") }.mkString(", "))
     emptyReport.bindFromRequest().fold(
       errs => BadRequest(page(home, reportPageHeader, pages.file(errs, companiesHouseId, LocalDate.now(), df))),
@@ -140,7 +140,7 @@ class ReportController @Inject()(
     )
   }
 
-  def postReview(companiesHouseId: CompaniesHouseId) = CompanyAction(companiesHouseId).async(parse.urlFormEncoded) { implicit request =>
+  def postReview(companiesHouseId: CompaniesHouseId) = CompanyAuthAction(companiesHouseId).async(parse.urlFormEncoded) { implicit request =>
     val revise = Form(single("revise" -> text)).bindFromRequest().value.contains("Revise")
 
     // Re-capture the values for the report itself. In theory these values should always be valid
