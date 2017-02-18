@@ -29,7 +29,7 @@ trait EnumFormatter[E <: EnumEntry] {
 
     override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], E] =
       data.get(key) match {
-        case None => Left(Seq(FormError(key, "no value found")))
+        case None => Left(Seq(FormError(key, "error.required")))
         case Some(s) => self.withNameOption(s) match {
           case Some(co) => Right(co)
           case None => Left(Seq(FormError(key, "not a valid enumeration value")))

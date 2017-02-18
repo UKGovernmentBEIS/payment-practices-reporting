@@ -15,12 +15,12 @@
     <strong>If your report is incorrect or misleading, you could face a fine.</strong>
 </div>
 
-@if(!review("confirmed").value.contains("true")) {
+@if(review.hasErrors) {
     <div class="error-summary" role="group" aria-labelledby="error-summary-heading" tabindex="-1">
         <h1 class="heading-medium error-summary-heading" id="error-summary-heading">
             You need to confirm this report before publishing it
         </h1>
-        <p>Please confirm this report by ticking the checkbox below.</p>
+        <p>Please confirm this report by ticking the checkbox below and providing the name of a director who has approved the report.</p>
     </div>
     @review.errors.map { e =>
       @e
@@ -38,9 +38,7 @@
     </table>
 }
 
-<form action="@routes.ReportController.postReview(id)" method="POST" style="float: left;
-    margin-right: 2em;">
-
+<form action="@routes.ReportController.postReview(id)" method="POST" style="float: left; margin-right: 2em;">
     @for((k, v) <- mapping.unbind(report)) {
         <input type="hidden" name='@k' value="@HtmlFormat.escape(v)">
     }

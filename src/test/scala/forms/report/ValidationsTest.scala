@@ -18,6 +18,7 @@
 package forms.report
 
 import org.scalatest.{EitherValues, Matchers, OptionValues, WordSpecLike}
+import play.api.data.{Form, FormError}
 import play.api.data.Forms._
 import utils.SystemTimeSource
 import utils.YesNo.{No, Yes}
@@ -30,23 +31,35 @@ class ValidationsTest extends WordSpecLike with Matchers with OptionValues with 
   "conditionalText" should {
     val m = single("test" -> conditionalText)
 
+    "require a yesNo answer" in {
+      val result = m.bind(Map())
+      val expectedErrors = List(FormError("test.yesNo", List("error.required")))
+      result.left.value shouldBe expectedErrors
+    }
+
     "result in a text of None when value is blank" in {
-      val result = m.bind(Map("test.yesNo" -> "no", "test" -> ""))
+      val result = m.bind(Map("test.yesNo" -> "no", "test.text" -> ""))
       result.right.value shouldBe ConditionalText(No, None)
     }
 
+    "result in a text of Non when text value is not provided" in {
+      val result = Form(m).bind(Map("test.yesNo" -> "no"))
+      result.value.value shouldBe ConditionalText(No, None)
+    }
+
     "result in a text of None when value is not blank but yesno is no" in {
-      val result = m.bind(Map("test.yesNo" -> "no", "test" -> "not blank"))
+      val result = m.bind(Map("test.yesNo" -> "no", "test.text" -> "not blank"))
       result.right.value shouldBe ConditionalText(No, None)
     }
 
     "require a non-blank text when yesno is yes" in {
-      val result = m.bind(Map("test.yesNo" -> "yes", "test" -> ""))
-      result shouldBe a[Left[_, _]]
+      val result = m.bind(Map("test.yesNo" -> "yes", "test.text" -> ""))
+      val expectedErrors = List(FormError("test.text", List("error.required")))
+      result.left.value shouldBe expectedErrors
     }
 
     "result in a valid value when yesno is yes and text is non-blank" in {
-      val result = m.bind(Map("test.yesNo" -> "yes", "test" -> "non-blank"))
+      val result = m.bind(Map("test.yesNo" -> "yes", "test.text" -> "non-blank"))
       result.right.value shouldBe ConditionalText(Yes, Some("non-blank"))
     }
   }

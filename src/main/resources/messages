@@ -73,14 +73,13 @@ field.paymentTerms.maximumContractPeriodComment.hint=
 
 field.paymentTerms.paymentTermsChanged.yesNo.label=Were there any changes to your standard payment terms in the reporting period?
 field.paymentTerms.paymentTermsChanged.yesNo.hint=
-
-field.paymentTerms.paymentTermsChanged.label=If so, explain what the changes were
-field.paymentTerms.paymentTermsChanged.hint=
+field.paymentTerms.paymentTermsChanged.text.label=If so, explain what the changes were
+field.paymentTerms.paymentTermsChanged.text.hint=
 
 field.paymentTerms.paymentTermsNotified.yesNo.label=If there were changes, did you consult or notify suppliers before you made these changes?
 field.paymentTerms.paymentTermsNotified.yesNo.hint=
-field.paymentTerms.paymentTermsNotified.label=If so, explain how you did this
-field.paymentTerms.paymentTermsNotified.hint=
+field.paymentTerms.paymentTermsNotified.text.label=If so, explain how you did this
+field.paymentTerms.paymentTermsNotified.text.hint=
 
 field.paymentTerms.paymentTermsComment.label=Optional: any further information about your payment terms
 field.paymentTerms.paymentTermsComment.hint=
@@ -102,9 +101,8 @@ field.retentionChargesInPast.hint=
 
 field.paymentCodes.yesNo.label=Is your business a signatory to a code of practice for payment?
 field.paymentCodes.yesNo.hint=
-
-field.paymentCodes.label=If so, enter the name of the code of practice
-field.paymentCodes.hint=
+field.paymentCodes.text.label=If so, enter the name of the code of practice
+field.paymentCodes.text.hint=
 
 field.confirmedBy.label=Enter the name of the director who approved this report
 field.confirmedBy.hint=
