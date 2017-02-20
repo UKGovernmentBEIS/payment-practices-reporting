@@ -84,8 +84,8 @@ field.paymentTerms.paymentTermsNotified.text.hint=
 field.paymentTerms.paymentTermsComment.label=Optional: any further information about your payment terms
 field.paymentTerms.paymentTermsComment.hint=
 
-field.disputeResolution.label=Describe your dispute resolution process
-field.disputeResolution.hint=How do you handle complaints and queries from your suppliers about payments under qualifying contracts?
+field.paymentTerms.disputeResolution.label=Describe your dispute resolution process
+field.paymentTerms.disputeResolution.hint=How do you handle complaints and queries from your suppliers about payments under qualifying contracts?
 
 field.offerEInvoicing.label=Does your business offer E-invoicing?
 field.offerEInvoicing.hint=Do you allow suppliers to electronically submit invoices?

@@ -19,13 +19,12 @@ package controllers
 
 import javax.inject.Inject
 
-import akka.NotUsed
 import akka.stream.scaladsl.{Concat, Source}
 import akka.util.ByteString
 import org.joda.time.LocalDate
 import play.api.http.HttpEntity
 import play.api.mvc.{Action, Controller, ResponseHeader, Result}
-import slicks.modules.{FiledReport, Report, ReportRepo}
+import slicks.modules.{FiledReport, ReportRepo}
 
 class DownloadController @Inject()(reportRepo: ReportRepo) extends Controller with PageHelper {
 

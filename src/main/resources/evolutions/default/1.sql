@@ -1,5 +1,5 @@
 # --- !Ups
-create table "report_header" ("id" BIGINT NOT NULL PRIMARY KEY,"company_name" VARCHAR(255) NOT NULL,"company_id" VARCHAR(255) NOT NULL,"created_at" date NOT NULL,"updated_at" date NOT NULL);
+create table "report_header" ("id" BIGSERIAL NOT NULL PRIMARY KEY,"company_name" VARCHAR(255) NOT NULL,"company_id" VARCHAR(255) NOT NULL,"created_at" date NOT NULL,"updated_at" date NOT NULL);
 create table "report_period" ("report_id" BIGINT NOT NULL,"start_date" date NOT NULL,"end_date" date NOT NULL);
 create unique index "reportperiod_report_idx" on "report_period" ("report_id");
 create table "payment_terms" ("report_id" BIGINT NOT NULL,"payment_terms" VARCHAR(255) NOT NULL,"payment_period" INTEGER NOT NULL,"maximum_contract_period" INTEGER NOT NULL,"maximum_contract_period_comment" VARCHAR(255),"payment_terms_changed_comment" VARCHAR(255),"payment_terms_changed_notified_comment" VARCHAR(255),"payment_terms_comment" VARCHAR(255),"dispute_resolution" VARCHAR(255) NOT NULL);

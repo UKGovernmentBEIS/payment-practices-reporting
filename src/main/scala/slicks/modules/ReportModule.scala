@@ -159,7 +159,7 @@ trait ReportModule extends DBBinding {
   type ReportHeaderQuery = Query[ReportHeaderTable, ReportHeaderRow, Seq]
 
   class ReportHeaderTable(tag: Tag) extends Table[ReportHeaderRow](tag, "report_header") {
-    def id = column[ReportId]("id", O.Length(IdType.length), O.PrimaryKey)
+    def id = column[ReportId]("id", O.Length(IdType.length), O.PrimaryKey, O.AutoInc)
 
     def companyName = column[String]("company_name", O.Length(255))
 

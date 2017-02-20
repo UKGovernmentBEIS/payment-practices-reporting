@@ -19,7 +19,7 @@ package slicks.modules
 
 import com.google.inject.ImplementedBy
 import db._
-import forms.report.ReportFormModel
+import forms.report.{ReportFormModel, ReportReviewModel}
 import models.{CompaniesHouseId, ReportId}
 import org.joda.time.LocalDate
 import org.reactivestreams.Publisher
@@ -43,7 +43,7 @@ case class Report(
     hist <- paymentHistory
     other <- otherInfo
     f <- filing
-  } yield (FiledReport(header, p, terms, hist, other, f))
+  } yield FiledReport(header, p, terms, hist, other, f)
 }
 
 case class FiledReport(
@@ -63,5 +63,5 @@ trait ReportRepo {
 
   def list(cutoffDate: LocalDate, maxRows: Int = 100000): Publisher[FiledReport]
 
-  def save(confirmedBy: String, companiesHouseId: CompaniesHouseId, companyName: String, reportFormModel: ReportFormModel): Future[ReportId]
+  def create(confirmedBy: String, companiesHouseId: CompaniesHouseId, companyName: String, reportFormModel: ReportFormModel, review:ReportReviewModel): Future[ReportId]
 }

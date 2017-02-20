@@ -157,11 +157,11 @@ class ReportController @Inject()(
   private def checkConfirmation(companiesHouseId: CompaniesHouseId, report: ReportFormModel)(implicit request: CompanyAuthRequest[_]): Future[Result] = {
     emptyReview.bindFromRequest().fold(
       errs => Future.successful(BadRequest(page(home, pages.review(errs, report, companiesHouseId, request.companyName, df, reportValidations.reportFormModel)))),
-      confirmation =>
-        if (confirmation.confirmed) reports.save(confirmation.confirmedBy, companiesHouseId, request.companyName, report).map { reportId =>
+      review =>
+        if (review.confirmed) reports.create(review.confirmedBy, companiesHouseId, request.companyName, report, review).map { reportId =>
           Redirect(controllers.routes.ReportController.showConfirmation(reportId))
         }
-        else Future.successful(BadRequest(page(home, pages.review(emptyReview.fill(confirmation), report, companiesHouseId, request.companyName, df, reportValidations.reportFormModel))))
+        else Future.successful(BadRequest(page(home, pages.review(emptyReview.fill(review), report, companiesHouseId, request.companyName, df, reportValidations.reportFormModel))))
     )
   }
 

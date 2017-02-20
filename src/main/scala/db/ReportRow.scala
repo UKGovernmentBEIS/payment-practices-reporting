@@ -17,7 +17,7 @@
 
 package db
 
-import models.{CompaniesHouseId, PaymentHistoryId, ReportId}
+import models.{CompaniesHouseId, ReportId}
 import org.joda.time.LocalDate
 import utils.YesNo
 

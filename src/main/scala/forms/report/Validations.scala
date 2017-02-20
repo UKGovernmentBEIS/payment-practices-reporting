@@ -86,7 +86,8 @@ class Validations @Inject()(timeSource: TimeSource) {
     "maximumContractPeriodComment" -> optional(nonEmptyText),
     "paymentTermsChanged" -> conditionalText,
     "paymentTermsNotified" -> conditionalText,
-    "paymentTermsComment" -> optional(nonEmptyText)
+    "paymentTermsComment" -> optional(nonEmptyText),
+    "disputeResolution" -> nonEmptyText
   )(PaymentTerms.apply)(PaymentTerms.unapply)
 
   private def now() = new LocalDate(timeSource.currentTimeMillis())
@@ -96,7 +97,6 @@ class Validations @Inject()(timeSource: TimeSource) {
     "reportDates" -> dateRange.verifying("error.beforenow", dr => dr.startDate.isBefore(now())),
     "paymentHistory" -> paymentHistory,
     "paymentTerms" -> paymentTerms,
-    "disputeResolution" -> nonEmptyText,
     "paymentCodes" -> conditionalText,
     "offerEInvoicing" -> yesNo,
     "offerSupplyChainFinancing" -> yesNo,

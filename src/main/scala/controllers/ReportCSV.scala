@@ -18,7 +18,7 @@
 package controllers
 
 import org.joda.time.LocalDate
-import slicks.modules.{FiledReport, Report}
+import slicks.modules.FiledReport
 import utils.YesNo
 
 import scala.language.implicitConversions
@@ -58,11 +58,11 @@ object ReportCSV {
     ("Filing date", _.filing.filingDate),
     ("Company", _.header.companyName),
     ("Company number", _.header.companyId.id),
-    //    ("Average time to pay", _.report.averageDaysToPay),
-    //    ("% Invoices paid late", _.report.percentInvoicesPaidBeyondAgreedTerms),
-    //    ("% Invoices paid within 30 days", _.report.percentInvoicesWithin30Days),
-    //    ("% Invoices paid within 60 days", _.report.percentInvoicesWithin60Days),
-    //    ("% Invoices paid later than 60 days", _.report.percentInvoicesBeyond60Days),
+    ("Average time to pay", _.paymentHistory.averageDaysToPay),
+    ("% Invoices paid late", _.paymentHistory.percentPaidLaterThanAgreedTerms),
+    ("% Invoices paid within 30 days", _.paymentHistory.percentInvoicesWithin30Days),
+    ("% Invoices paid within 60 days", _.paymentHistory.percentInvoicesWithin60Days),
+    ("% Invoices paid later than 60 days", _.paymentHistory.percentInvoicesBeyond60Days),
     ("E-Invoicing offered", _.otherInfo.offerEInvoicing),
     ("Supply-chain financing offered", _.otherInfo.offerSupplyChainFinance),
     ("Policy covers charges for remaining on supplier list", _.otherInfo.retentionChargesInPolicy),
