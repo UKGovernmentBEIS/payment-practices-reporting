@@ -95,7 +95,7 @@ object ReviewPageData extends HtmlHelpers {
     ("Payment terms have changed", conditionalText(r.paymentTerms.paymentTermsChanged)),
     ("Suppliers notified of changes", conditionalText(r.paymentTerms.paymentTermsChangedNotified)),
     ("Further remarks on payment terms", r.paymentTerms.paymentTermsComment.map(breakLines)),
-    ("Dispute resolution", breakLines(r.disputeResolution))
+    ("Dispute resolution", breakLines(r.paymentTerms.disputeResolution))
   )
 
   def otherInfoRows(r: ReportFormModel): Seq[(String, Html)] = Seq(

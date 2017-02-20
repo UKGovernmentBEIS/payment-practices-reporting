@@ -25,8 +25,7 @@ import play.api.Logger
 import play.api.db.slick.DatabaseConfigProvider
 
 class DB @Inject()(override val dbConfigProvider: DatabaseConfigProvider)
-  extends CompanyModule
-    with ReportModule
+  extends ReportModule
     with ExPostgresDriver
     with PgDateSupportJoda
     with PgPlayJsonSupport {

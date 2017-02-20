@@ -18,11 +18,14 @@
 package slicks.moduledefs
 
 import com.wellfactored.slickgen.{ModuleDefinition, ModuleSpec}
-import db.{PaymentHistoryRow, ReportRow}
+import db._
 
 object ReportModuleDef extends ModuleDefinition {
   override def spec = ModuleSpec("ReportModule")
-    .withTableFor[ReportRow]
+    .withTableFor[ReportHeaderRow]
+    .withTableFor[ReportPeriodRow]
+    .withTableFor[PaymentTermsRow]
     .withTableFor[PaymentHistoryRow]
-    .dependsOn(CompanyModuleDef)
+    .withTableFor[OtherInfoRow]
+    .withTableFor[FilingRow]
 }

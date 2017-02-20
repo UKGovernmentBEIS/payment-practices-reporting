@@ -17,34 +17,62 @@
 
 package db
 
-import models.{PaymentHistoryId, ReportId}
+import models.{CompaniesHouseId, ReportId}
 import org.joda.time.LocalDate
 import utils.YesNo
 
-case class ReportRow(
-                      id: ReportId,
-                      companyId: String,
+/**
+  * The master record for a report. Created when the user starts filling out the form.
+  * If the user does not complete the form within a limited time period then the report
+  * may be purged from the database.
+  */
+case class ReportHeaderRow(
+                            id: ReportId,
+                            companyName: String,
+                            companyId: CompaniesHouseId,
+                            createdAt: LocalDate,
+                            updatedAt: LocalDate
+                          )
+
+/**
+  * Created when the users reviews and confirms the report. Once a FilingRow record is
+  * created the report is considered to have been filed. Up until that point the form
+  * is un-filed and provisional.
+  */
+case class FilingRow(
+                      reportId: ReportId,
                       filingDate: LocalDate,
-                      startDate: LocalDate,
-                      endDate: LocalDate,
-                      paymentTerms: String,
-                      paymentPeriod: Int,
-                      maximumContractPeriod: Int,
-                      maximumContractPeriodComment: Option[String],
-                      paymentTermsChangedComment: Option[String],
-                      paymentTermsChangedNotifiedComment: Option[String],
-                      paymentTermsComment: Option[String],
-                      disputeResolution: String,
-                      offerEInvoicing: YesNo,
-                      offerSupplyChainFinance: YesNo,
-                      retentionChargesInPolicy: YesNo,
-                      retentionChargesInPast: YesNo,
-                      paymentCodes: Option[String],
-                      confirmedBy: String
+                      approvedBy: String
                     )
 
+case class ReportPeriodRow(
+                            reportId: ReportId,
+                            startDate: LocalDate,
+                            endDate: LocalDate
+                          )
+
+case class PaymentTermsRow(
+                            reportId: ReportId,
+                            paymentTerms: String,
+                            paymentPeriod: Int,
+                            maximumContractPeriod: Int,
+                            maximumContractPeriodComment: Option[String],
+                            paymentTermsChangedComment: Option[String],
+                            paymentTermsChangedNotifiedComment: Option[String],
+                            paymentTermsComment: Option[String],
+                            disputeResolution: String
+                          )
+
+case class OtherInfoRow(
+                         reportId: ReportId,
+                         offerEInvoicing: YesNo,
+                         offerSupplyChainFinance: YesNo,
+                         retentionChargesInPolicy: YesNo,
+                         retentionChargesInPast: YesNo,
+                         paymentCodes: Option[String]
+                       )
+
 case class PaymentHistoryRow(
-                              id: PaymentHistoryId,
                               reportId: ReportId,
                               averageDaysToPay: Int,
                               percentPaidLaterThanAgreedTerms: Int,

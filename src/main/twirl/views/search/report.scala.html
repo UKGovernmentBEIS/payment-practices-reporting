@@ -1,49 +1,49 @@
 @import org.joda.time.format.DateTimeFormatter
-@import slicks.modules.CompanyReport
-@(companyReport: CompanyReport, company: services.CompanyDetail, df: DateTimeFormatter)
+@import slicks.modules.FiledReport
+@(report: FiledReport, company: services.CompanyDetail, df: DateTimeFormatter)
 
 <div class="scannable-wrapper">
     <h1 class="heading-xlarge">
         @company.company_name:
-        <span class="nowrap">@df.print(companyReport.report.startDate)</span> to <span class="nowrap">@df.print(companyReport.report.endDate)</span>
+        <span class="nowrap">@df.print(report.period.startDate)</span> to <span class="nowrap">@df.print(report.period.endDate)</span>
         <hr>
     </h1>
 
     <p class="small-aside">Company number: @company.company_number.id</p>
     <p>This information is as reported by the business, and is in their own words.</p>
     <h3 class="heading-medium">Summary</h3>
-    <p>Average time taken to pay invoices: <span class="datum">@companyReport.paymentHistory.averageDaysToPay days</span></p>
-    <p>Invoices not paid within agreed terms: <span class="datum">@companyReport.paymentHistory.percentPaidLaterThanAgreedTerms%</span></p>
+    <p>Average time taken to pay invoices: <span class="datum">@report.paymentHistory.averageDaysToPay days</span></p>
+    <p>Invoices not paid within agreed terms: <span class="datum">@report.paymentHistory.percentPaidLaterThanAgreedTerms%</span></p>
     <p>
         Invoices paid
     </p>
     <ul class="list list-bullet">
-        <li>within 30 days: <span class="datum">@companyReport.paymentHistory.percentInvoicesWithin30Days%</span></li>
-        <li>between 31 and 60 days: <span class="datum">@companyReport.paymentHistory.percentInvoicesWithin60Days%</span></li>
-        <li>later than 60 days: <span class="datum">@companyReport.paymentHistory.percentInvoicesBeyond60Days%</span></li>
+        <li>within 30 days: <span class="datum">@report.paymentHistory.percentInvoicesWithin30Days%</span></li>
+        <li>between 31 and 60 days: <span class="datum">@report.paymentHistory.percentInvoicesWithin60Days%</span></li>
+        <li>later than 60 days: <span class="datum">@report.paymentHistory.percentInvoicesBeyond60Days%</span></li>
     </ul>
 
     <h3 class="heading-medium">Payment terms</h3>
     <h4 class="heading-small">Standard payment terms</h4>
     <p>
-        @shared._multiline(companyReport.report.paymentTerms)
+        @shared._multiline(report.paymentTerms.paymentTerms)
     </p>
     <h4 class="heading-small">Maximum contractual period</h4>
     <p>
-        @(companyReport.report.maximumContractPeriodComment.map(shared._multiline(_)))
+        @(report.paymentTerms.maximumContractPeriodComment.map(shared._multiline(_)))
     </p>
     <h4 class="heading-small">Were there any changes to the payment terms in the reporting period?</h4>
     <p>
-        @companyReport.report.paymentTermsChangedComment.map { text =>
+        @report.paymentTerms.paymentTermsChangedComment.map { text =>
             <strong>Yes </strong>&ndash; @shared._multiline(text)
         }.getOrElse {
             <strong>No</strong>
         }
     </p>
-    @if(companyReport.report.paymentTermsChangedComment.isDefined) {
+    @if(report.paymentTerms.paymentTermsChangedComment.isDefined) {
         <h4 class="heading-small">Were suppliers notified or consulted about these changes?</h4>
         <p>
-            @companyReport.report.paymentTermsChangedNotifiedComment.map { text =>
+            @report.paymentTerms.paymentTermsChangedNotifiedComment.map { text =>
                 <strong>Yes </strong>&ndash; shared._multiline(companyReport.report.PaymentTermsChangedNotifiedComment)
             }.getOrElse {
                 <strong>No</strong>
@@ -52,11 +52,11 @@
     }
     <h4 class="heading-small">Any other information about standard payment terms</h4>
     <p>
-        @companyReport.report.paymentTermsComment.map(text => shared._multiline(text)).getOrElse(<em>N/A</em>)
+        @report.paymentTerms.paymentTermsComment.map(text => shared._multiline(text)).getOrElse(<em>N/A</em>)
     </p>
     <h3 class="heading-medium">What is the business's dispute resolution policy?</h3>
     <p>
-        @shared._multiline(companyReport.report.disputeResolution)
+        @shared._multiline(report.paymentTerms.disputeResolution)
     </p>
 
     <h3 class="heading-medium">Other payment information</h3>
@@ -65,7 +65,7 @@
         <span class="form-hint">For example, signatories to The Prompt Payment Code must commit to paying 95% of their invoices within 60 days.</span>
     </h4>
     <p>
-        @companyReport.report.paymentCodes.map { text =>
+        @report.otherInfo.paymentCodes.map { text =>
             <strong>Yes </strong>&ndash; @shared._multiline(text)
         }.getOrElse {
             <strong>No</strong>
@@ -77,7 +77,7 @@
 </span>
     </h4>
     <p>
-        @companyReport.report.offerEInvoicing.entryName.capitalize
+        @report.otherInfo.offerEInvoicing.entryName.capitalize
     </p>
 
     <h4 class="heading-small">
@@ -85,19 +85,19 @@
         <span class="form-hint">This is where a supplier's invoice can be paid quickly by a third-party financing company, who the business pays at a later date.</span>
     </h4>
     <p>
-        @companyReport.report.offerSupplyChainFinance.entryName.capitalize
+        @report.otherInfo.offerSupplyChainFinance.entryName.capitalize
     </p>
     <h4 class="heading-small">
         Do this business' terms allow it to charge suppliers to remain on a supplier list?
         <span class="form-hint">This is sometimes known as 'pay to play'.</span>
     </h4>
     <p>
-        @companyReport.report.retentionChargesInPolicy.entryName.capitalize
+        @report.otherInfo.retentionChargesInPolicy.entryName.capitalize
     </p>
     <h4 class="heading-small">
         Did the business actually do this during this reporting period?
     </h4>
     <p>
-        @companyReport.report.retentionChargesInPast.entryName.capitalize
+        @report.otherInfo.retentionChargesInPast.entryName.capitalize
     </p>
 </div>
