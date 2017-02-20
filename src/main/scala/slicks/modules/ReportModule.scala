@@ -49,7 +49,7 @@ trait ReportModule extends DBBinding {
 
     def reportIdFK = foreignKey("filing_report_fk", reportId, reportHeaderTable)(_.id, onDelete = ForeignKeyAction.Cascade)
 
-    def reportIdIndex = index("filing_report_idx", reportId)
+    def reportIdIndex = index("filing_report_idx", reportId, unique = true)
 
     def filingDate = column[LocalDate]("filing_date")
 
@@ -67,7 +67,7 @@ trait ReportModule extends DBBinding {
 
     def reportIdFK = foreignKey("otherinfo_report_fk", reportId, reportHeaderTable)(_.id, onDelete = ForeignKeyAction.Cascade)
 
-    def reportIdIndex = index("otherinfo_report_idx", reportId)
+    def reportIdIndex = index("otherinfo_report_idx", reportId, unique = true)
 
     def offerEInvoicing = column[YesNo]("offer_einvoicing")
 
@@ -91,7 +91,7 @@ trait ReportModule extends DBBinding {
 
     def reportIdFK = foreignKey("paymenthistory_report_fk", reportId, reportHeaderTable)(_.id, onDelete = ForeignKeyAction.Cascade)
 
-    def reportIdIndex = index("paymenthistory_report_idx", reportId)
+    def reportIdIndex = index("paymenthistory_report_idx", reportId, unique = true)
 
     def averageDaysToPay = column[Int]("average_days_to_pay")
 
@@ -115,7 +115,7 @@ trait ReportModule extends DBBinding {
 
     def reportIdFK = foreignKey("paymentterms_report_fk", reportId, reportHeaderTable)(_.id, onDelete = ForeignKeyAction.Cascade)
 
-    def reportIdIndex = index("paymentterms_report_idx", reportId)
+    def reportIdIndex = index("paymentterms_report_idx", reportId, unique = true)
 
     def paymentTerms = column[String]("payment_terms", O.Length(255))
 
@@ -145,7 +145,7 @@ trait ReportModule extends DBBinding {
 
     def reportIdFK = foreignKey("reportperiod_report_fk", reportId, reportHeaderTable)(_.id, onDelete = ForeignKeyAction.Cascade)
 
-    def reportIdIndex = index("reportperiod_report_idx", reportId)
+    def reportIdIndex = index("reportperiod_report_idx", reportId, unique = true)
 
     def startDate = column[LocalDate]("start_date")
 
