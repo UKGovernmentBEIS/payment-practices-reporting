@@ -33,6 +33,7 @@ import scala.concurrent.{ExecutionContext, Future}
 case class CompanySummary(company_number: CompaniesHouseId, title: String, address_snippet: String)
 case class CompanyDetail(company_number: CompaniesHouseId, company_name: String)
 
+
 case class ResultsPage(
                         page_number: Int,
                         start_index: Int,
@@ -46,6 +47,12 @@ trait CompaniesHouseAPI {
   def searchCompanies(search: String, page: Int, itemsPerPage: Int): Future[PagedResults[CompanySummary]]
 
   def find(companiesHouseId: CompaniesHouseId):Future[Option[CompanyDetail]]
+
+  def verifyAuthCode(authCode: String, redirectUri: String, companiesHouseIdentifier: String): String
+
+  def isInScope(companiesHouseIdentifier: String, oAuthToken: String): Boolean
+
+  def getEmailAddress(token: String): Option[String]
 }
 
 class CompaniesHouseAPIImpl @Inject()(val ws: WSClient)(implicit val ec: ExecutionContext)
@@ -79,4 +86,10 @@ class CompaniesHouseAPIImpl @Inject()(val ws: WSClient)(implicit val ec: Executi
 
     getOpt[CompanyDetail](url, basicAuth)
   }
+
+  override def verifyAuthCode(authCode: String, redirectUri: String, companiesHouseIdentifier: String): String = ???
+
+  override def isInScope(companiesHouseIdentifier: String, oAuthToken: String): Boolean = ???
+
+  override def getEmailAddress(token: String): Option[String] = ???
 }
