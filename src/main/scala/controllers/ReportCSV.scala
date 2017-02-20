@@ -18,7 +18,7 @@
 package controllers
 
 import org.joda.time.LocalDate
-import slicks.modules.CompanyReport
+import slicks.modules.{FiledReport, Report}
 import utils.YesNo
 
 import scala.language.implicitConversions
@@ -52,29 +52,29 @@ object ReportCSV {
 
   implicit def optionToCSVString(o: Option[String]): CSVString = o.map(stringToCSVString).getOrElse(CSVString(""))
 
-  def columns = Seq[(String, CompanyReport => CSVString)](
-    ("Start date", _.report.startDate),
-    ("End date", _.report.endDate),
-    ("Filing date", _.report.filingDate),
-    ("Company", _.name),
-    ("Company number", _.report.companyId),
+  def columns = Seq[(String, FiledReport => CSVString)](
+    ("Start date", _.period.startDate),
+    ("End date", _.period.endDate),
+    ("Filing date", _.filing.filingDate),
+    ("Company", _.header.companyName),
+    ("Company number", _.header.companyId.id),
     //    ("Average time to pay", _.report.averageDaysToPay),
     //    ("% Invoices paid late", _.report.percentInvoicesPaidBeyondAgreedTerms),
     //    ("% Invoices paid within 30 days", _.report.percentInvoicesWithin30Days),
     //    ("% Invoices paid within 60 days", _.report.percentInvoicesWithin60Days),
     //    ("% Invoices paid later than 60 days", _.report.percentInvoicesBeyond60Days),
-    ("E-Invoicing offered", _.report.offerEInvoicing),
-    ("Supply-chain financing offered", _.report.offerSupplyChainFinance),
-    ("Policy covers charges for remaining on supplier list", _.report.retentionChargesInPolicy),
-    ("Charges have been made for remaining on supplier list", _.report.retentionChargesInPast),
-    ("Payment terms", _.report.paymentTermsComment),
-    ("Maximum Contract Length", _.report.maximumContractPeriod),
-    ("Payment terms have changed", _.report.paymentTermsChangedComment.isDefined),
-    ("Payment terms have changed: comments", _.report.paymentTermsChangedComment),
-    ("Suppliers notified of changes", _.report.paymentTermsChangedNotifiedComment.isDefined),
-    ("Suppliers notified of changes: comments", _.report.paymentTermsChangedNotifiedComment),
-    ("Further remarks on payment terms", _.report.paymentTermsComment),
-    ("Dispute resolution facilities", _.report.disputeResolution),
-    ("Participates in payment codes", _.report.paymentCodes.isDefined),
-    ("Payment codes", _.report.paymentCodes))
+    ("E-Invoicing offered", _.otherInfo.offerEInvoicing),
+    ("Supply-chain financing offered", _.otherInfo.offerSupplyChainFinance),
+    ("Policy covers charges for remaining on supplier list", _.otherInfo.retentionChargesInPolicy),
+    ("Charges have been made for remaining on supplier list", _.otherInfo.retentionChargesInPast),
+    ("Payment terms", _.paymentTerms.paymentTermsComment),
+    ("Maximum Contract Length", _.paymentTerms.maximumContractPeriod),
+    ("Payment terms have changed", _.paymentTerms.paymentTermsChangedComment.isDefined),
+    ("Payment terms have changed: comments", _.paymentTerms.paymentTermsChangedComment),
+    ("Suppliers notified of changes", _.paymentTerms.paymentTermsChangedNotifiedComment.isDefined),
+    ("Suppliers notified of changes: comments", _.paymentTerms.paymentTermsChangedNotifiedComment),
+    ("Further remarks on payment terms", _.paymentTerms.paymentTermsComment),
+    ("Dispute resolution facilities", _.paymentTerms.disputeResolution),
+    ("Participates in payment codes", _.otherInfo.paymentCodes.isDefined),
+    ("Payment codes", _.otherInfo.paymentCodes))
 }

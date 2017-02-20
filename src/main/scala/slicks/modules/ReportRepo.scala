@@ -18,7 +18,7 @@
 package slicks.modules
 
 import com.google.inject.ImplementedBy
-import db.ReportRow
+import db._
 import forms.report.ReportFormModel
 import models.{CompaniesHouseId, ReportId}
 import org.joda.time.LocalDate
@@ -26,15 +26,42 @@ import org.reactivestreams.Publisher
 
 import scala.concurrent.Future
 
+case class Report(
+                   header: ReportHeaderRow,
+                   period: Option[ReportPeriodRow],
+                   paymentTerms: Option[PaymentTermsRow],
+                   paymentHistory: Option[PaymentHistoryRow],
+                   otherInfo: Option[OtherInfoRow],
+                   filing: Option[FilingRow]) {
+  /**
+    * If this report has been completed and filed then return Some `FiledReport`
+    * otherwise None
+    */
+  def filed: Option[FiledReport] = for {
+    p <- period
+    terms <- paymentTerms
+    hist <- paymentHistory
+    other <- otherInfo
+    f <- filing
+  } yield (FiledReport(header, p, terms, hist, other, f))
+}
+
+case class FiledReport(
+                        header: ReportHeaderRow,
+                        period: ReportPeriodRow,
+                        paymentTerms: PaymentTermsRow,
+                        paymentHistory: PaymentHistoryRow,
+                        otherInfo: OtherInfoRow,
+                        filing: FilingRow
+                      )
+
 @ImplementedBy(classOf[ReportTable])
 trait ReportRepo {
-  def find(id: ReportId): Future[Option[ReportRow]]
+  def find(id: ReportId): Future[Option[Report]]
 
-  def reportFor(id: ReportId): Future[Option[CompanyReport]]
+  def byCompanyNumber(companiesHouseId: CompaniesHouseId): Future[Seq[Report]]
 
-  def byCompanyNumber(companiesHouseId: CompaniesHouseId): Future[Seq[ReportRow]]
-
-  def list(cutoffDate: LocalDate, maxRows: Int = 100000): Publisher[CompanyReport]
+  def list(cutoffDate: LocalDate, maxRows: Int = 100000): Publisher[FiledReport]
 
   def save(confirmedBy: String, companiesHouseId: CompaniesHouseId, companyName: String, reportFormModel: ReportFormModel): Future[ReportId]
 }

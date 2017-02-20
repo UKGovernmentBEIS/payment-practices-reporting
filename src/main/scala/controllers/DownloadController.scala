@@ -25,7 +25,7 @@ import akka.util.ByteString
 import org.joda.time.LocalDate
 import play.api.http.HttpEntity
 import play.api.mvc.{Action, Controller, ResponseHeader, Result}
-import slicks.modules.{CompanyReport, ReportRepo}
+import slicks.modules.{FiledReport, Report, ReportRepo}
 
 class DownloadController @Inject()(reportRepo: ReportRepo) extends Controller with PageHelper {
 
@@ -46,5 +46,5 @@ class DownloadController @Inject()(reportRepo: ReportRepo) extends Controller wi
     Result(ResponseHeader(OK, Map()), entity).withHeaders(disposition)
   }
 
-  def toCsv(row: CompanyReport): String = "\n" + ReportCSV.columns.map(_._2(row).s).mkString(",")
+  def toCsv(row: FiledReport): String = "\n" + ReportCSV.columns.map(_._2(row).s).mkString(",")
 }

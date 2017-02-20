@@ -20,9 +20,9 @@ package slicks.modules
 import javax.inject.Inject
 
 import com.github.tminglei.slickpg.PgDateSupportJoda
-import db.{CompanyRow, PaymentHistoryRow, ReportRow}
+import db._
 import forms.report.ReportFormModel
-import models.{CompaniesHouseId, PaymentHistoryId, ReportId}
+import models.{CompaniesHouseId, ReportId}
 import org.joda.time.LocalDate
 import org.reactivestreams.Publisher
 import play.api.db.slick.DatabaseConfigProvider
@@ -34,89 +34,58 @@ class ReportTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(implic
   extends DBBinding
     with ReportRepo
     with ReportModule
-    with CompanyModule
     with PgDateSupportJoda {
 
   import api._
 
-  def find(id: ReportId): Future[Option[ReportRow]] = db.run(reportTable.filter(_.id === id).result.headOption)
 
-  def byCompanyNumber(companiesHouseId: CompaniesHouseId): Future[Seq[ReportRow]] = db.run {
-    reportTable.filter(_.companyId === companiesHouseId.id).result
+  def find(id: ReportId): Future[Option[Report]] = db.run {
+    reportQuery.filter(_._1.id === id)
+      .result.headOption.map(_.map(Report.tupled))
   }
 
-  def reportFor(id: ReportId): Future[Option[CompanyReport]] = db.run {
-    val query = for {
-      report <- reportTable.filter(_.id === id)
-      paymentHistory <- paymentHistoryTable.filter(_.reportId === report.id)
-      company <- companyTable.filter(_.companiesHouseIdentifier === report.companyId).map(_.name)
-    } yield (company, report, paymentHistory)
+  private val reportQuery = {
+    reportHeaderTable
+      .joinLeft(reportPeriodTable).on(_.id === _.reportId)
+      .joinLeft(paymentTermsTable).on(_._1.id === _.reportId)
+      .joinLeft(paymentHistoryTable).on(_._1._1.id === _.reportId)
+      .joinLeft(otherInfoTable).on(_._1._1._1.id === _.reportId)
+      .joinLeft(filingTable).on(_._1._1._1._1.id === _.reportId)
+      .map {
+        case (((((header, period), terms), history), other), filing) => (header, period, terms, history, other, filing)
+      }
+  }
 
-    query.result.map(_.map(CompanyReport.tupled).headOption)
+  def byCompanyNumber(companiesHouseId: CompaniesHouseId): Future[Seq[Report]] = db.run {
+    reportQuery.filter(_._1.companyId === companiesHouseId)
+      .result.map(_.map(Report.tupled))
   }
 
   /**
     * Code to adjust fetchSize on Postgres driver taken from:
     * https://engineering.sequra.es/2016/02/database-streaming-on-play-with-slick-from-publisher-to-chunked-result/
     */
-  def list(cutoffDate: LocalDate, maxRows: Int = 100000): Publisher[CompanyReport] = {
+  def list(cutoffDate: LocalDate, maxRows: Int = 100000): Publisher[FiledReport] = {
     val disableAutocommit = SimpleDBIO(_.connection.setAutoCommit(false))
+    val action = reportQuery.result.withStatementParameters(fetchSize = 10000)
 
-    val query = for {
-      report <- reportTable.filter(_.filingDate >= cutoffDate).take(maxRows)
-      paymentHistory <- paymentHistoryTable.filter(_.reportId === report.id)
-      company <- companyTable.filter(_.companiesHouseIdentifier === report.companyId).map(_.name)
-    } yield (company, report, paymentHistory)
+    db.stream(disableAutocommit andThen action).mapResult(Report.tupled)
 
-    val action = query.result.withStatementParameters(fetchSize = 10000)
-
-    db.stream(disableAutocommit andThen action).mapResult(CompanyReport.tupled)
+    ???
   }
 
   override def save(confirmedBy: String, companiesHouseId: CompaniesHouseId, companyName: String, report: ReportFormModel): Future[ReportId] = db.run {
-    companyTable.filter(_.companiesHouseIdentifier === companiesHouseId.id).result.headOption.flatMap {
-      case None => companyTable.returning(companyTable.map(_.companiesHouseIdentifier)) += CompanyRow(companiesHouseId.id, companyName)
-      case Some(c) => DBIO.successful(c.companiesHouseIdentifier)
-    }.flatMap { cId =>
-      reportTable.returning(reportTable.map(_.id)) += buildReportRow(confirmedBy, cId, report)
-    }.flatMap { (reportId: ReportId) =>
-      (paymentHistoryTable += buildPaymentHistoryRow(report, reportId)).map(_ => reportId)
-    }.transactionally
+    ???
   }
 
   private def buildPaymentHistoryRow(report: ReportFormModel, reportId: ReportId) = {
     PaymentHistoryRow(
-      PaymentHistoryId(0),
       reportId,
       report.paymentHistory.averageDaysToPay,
       report.paymentHistory.percentPaidLaterThanAgreedTerms,
       report.paymentHistory.percentageSplit.percentWithin30Days,
       report.paymentHistory.percentageSplit.percentWithin60Days,
       report.paymentHistory.percentageSplit.percentBeyond60Days
-    )
-  }
-
-  private def buildReportRow(confirmedBy: String, cId: String, report: ReportFormModel) = {
-    ReportRow(
-      ReportId(0),
-      cId,
-      report.filingDate,
-      report.reportDates.startDate,
-      report.reportDates.endDate,
-      report.paymentTerms.terms,
-      report.paymentTerms.paymentPeriod,
-      report.paymentTerms.maximumContractPeriod,
-      report.paymentTerms.maximumContractPeriodComment,
-      report.paymentTerms.paymentTermsComment,
-      report.paymentTerms.paymentTermsChangedNotified.text,
-      report.paymentTerms.paymentTermsComment,
-      report.disputeResolution,
-      report.offerEInvoicing,
-      report.offerSupplyChainFinancing,
-      report.retentionChargesInPolicy,
-      report.retentionChargesInPast,
-      report.hasPaymentCodes.text,
-      confirmedBy
     )
   }
 }

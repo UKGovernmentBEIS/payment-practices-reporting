@@ -60,7 +60,7 @@ class SearchController @Inject()(companiesHouseAPI: CompaniesHouseAPI, reports: 
     val pageLink = { i: Int => routes.SearchController.company(companiesHouseId, Some(i)) }
     val result = for {
       co <- OptionT(companiesHouseAPI.find(companiesHouseId))
-      rs <- OptionT.liftF(reports.byCompanyNumber(companiesHouseId).map(PagedResults.page(_, pageNumber.getOrElse(1))))
+      rs <- OptionT.liftF(reports.byCompanyNumber(companiesHouseId).map(rs => PagedResults.page(rs.flatMap(_.filed), pageNumber.getOrElse(1))))
     } yield {
       val searchCrumb = Breadcrumb(routes.SearchController.search(None, None, None), "Search for reports")
       val crumbs = breadcrumbs(homeBreadcrumb, searchCrumb)
@@ -75,8 +75,8 @@ class SearchController @Inject()(companiesHouseAPI: CompaniesHouseAPI, reports: 
 
   def view(reportId: ReportId) = Action.async { implicit request =>
     val f = for {
-      report <- OptionT(reports.reportFor(reportId))
-      company <- OptionT(companiesHouseAPI.find(CompaniesHouseId(report.report.companyId)))
+      report <- OptionT(reports.find(reportId).map(_.flatMap(_.filed)))
+      company <- OptionT(companiesHouseAPI.find(report.header.companyId))
     } yield {
       val searchCrumb = Breadcrumb(routes.SearchController.search(None, None, None), "Search for reports")
       val companyCrumb = Breadcrumb(routes.SearchController.company(company.company_number, None), s"${company.company_name} reports")

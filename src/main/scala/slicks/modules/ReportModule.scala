@@ -19,14 +19,14 @@ package slicks.modules
 
 import com.github.tminglei.slickpg.PgDateSupportJoda
 import com.wellfactored.slickgen.IdType
-import db.{PaymentHistoryRow, ReportRow}
-import models.{PaymentHistoryId, ReportId}
+import db._
+import models.{CompaniesHouseId, ReportId}
 import org.joda.time.LocalDate
 import slicks.DBBinding
 import utils.YesNo
 
 trait ReportModule extends DBBinding {
-  self: CompanyModule with PgDateSupportJoda =>
+  self: PgDateSupportJoda =>
 
   val wordLength = 7
   val longTerms = wordLength * 5000
@@ -35,45 +35,39 @@ trait ReportModule extends DBBinding {
 
   import api._
 
-  implicit def PaymentHistoryIdMapper: BaseColumnType[PaymentHistoryId] = MappedColumnType.base[PaymentHistoryId, Long](_.id, PaymentHistoryId)
-
   implicit def YesNoMapper: BaseColumnType[YesNo] = MappedColumnType.base[YesNo, Boolean](_.toBoolean, YesNo.fromBoolean)
 
   implicit def ReportIdMapper: BaseColumnType[ReportId] = MappedColumnType.base[ReportId, Long](_.id, ReportId)
 
+  implicit def CompaniesHouseIdMapper: BaseColumnType[CompaniesHouseId] = MappedColumnType.base[CompaniesHouseId, String](_.id, CompaniesHouseId)
 
-  type ReportQuery = Query[ReportTable, ReportRow, Seq]
 
-  class ReportTable(tag: Tag) extends Table[ReportRow](tag, "report") {
-    def id = column[ReportId]("id", O.Length(IdType.length), O.PrimaryKey, O.AutoInc)
+  type FilingQuery = Query[FilingTable, FilingRow, Seq]
 
-    def companyId = column[String]("company_id", O.Length(IdType.length))
+  class FilingTable(tag: Tag) extends Table[FilingRow](tag, "filing") {
+    def reportId = column[ReportId]("report_id", O.Length(IdType.length))
 
-    def companyIdFK = foreignKey("report_company_fk", companyId, companyTable)(_.companiesHouseIdentifier, onDelete = ForeignKeyAction.Cascade)
+    def reportIdFK = foreignKey("filing_report_fk", reportId, reportHeaderTable)(_.id, onDelete = ForeignKeyAction.Cascade)
 
-    def companyIdIndex = index("report_company_idx", companyId)
+    def reportIdIndex = index("filing_report_idx", reportId)
 
     def filingDate = column[LocalDate]("filing_date")
 
-    def startDate = column[LocalDate]("start_date")
+    def approvedBy = column[String]("approved_by", O.Length(255))
 
-    def endDate = column[LocalDate]("end_date")
+    def * = (reportId, filingDate, approvedBy) <> (FilingRow.tupled, FilingRow.unapply)
+  }
 
-    def paymentTerms = column[String]("payment_terms", O.Length(longTerms))
+  lazy val filingTable = TableQuery[FilingTable]
 
-    def paymentPeriod = column[Int]("payment_period")
+  type OtherInfoQuery = Query[OtherInfoTable, OtherInfoRow, Seq]
 
-    def maximumContractPeriod = column[Int]("maximum_contract_period")
+  class OtherInfoTable(tag: Tag) extends Table[OtherInfoRow](tag, "other_info") {
+    def reportId = column[ReportId]("report_id", O.Length(IdType.length))
 
-    def maximumContractPeriodComment = column[Option[String]]("maximum_contract_period_comment", O.Length(shortComment))
+    def reportIdFK = foreignKey("otherinfo_report_fk", reportId, reportHeaderTable)(_.id, onDelete = ForeignKeyAction.Cascade)
 
-    def paymentTermsChangedComment = column[Option[String]]("payment_terms_changed_comment", O.Length(shortComment))
-
-    def paymentTermsChangedNotifiedComment = column[Option[String]]("payment_terms_changed_notified_comment", O.Length(shortComment))
-
-    def paymentTermsComment = column[Option[String]]("payment_terms_comment", O.Length(longComment))
-
-    def disputeResolution = column[String]("dispute_resolution", O.Length(longTerms))
+    def reportIdIndex = index("otherinfo_report_idx", reportId)
 
     def offerEInvoicing = column[YesNo]("offer_einvoicing")
 
@@ -85,43 +79,17 @@ trait ReportModule extends DBBinding {
 
     def paymentCodes = column[Option[String]]("payment_codes", O.Length(255))
 
-    def confirmedBy = column[String]("confirmed_by", O.Length(255))
-
-    def * = (
-      id,
-      companyId,
-      filingDate,
-      startDate,
-      endDate,
-      paymentTerms,
-      paymentPeriod,
-      maximumContractPeriod,
-      maximumContractPeriodComment,
-      paymentTermsChangedComment,
-      paymentTermsChangedNotifiedComment,
-      paymentTermsComment,
-      disputeResolution,
-      offerEInvoicing,
-      offerSupplyChainFinance,
-      retentionChargesInPolicy,
-      retentionChargesInPast,
-      paymentCodes,
-      confirmedBy
-    ) <> (ReportRow.tupled, ReportRow.unapply)
+    def * = (reportId, offerEInvoicing, offerSupplyChainFinance, retentionChargesInPolicy, retentionChargesInPast, paymentCodes) <> (OtherInfoRow.tupled, OtherInfoRow.unapply)
   }
 
-  lazy val reportTable = TableQuery[ReportTable]
+  lazy val otherInfoTable = TableQuery[OtherInfoTable]
 
   type PaymentHistoryQuery = Query[PaymentHistoryTable, PaymentHistoryRow, Seq]
 
   class PaymentHistoryTable(tag: Tag) extends Table[PaymentHistoryRow](tag, "payment_history") {
-    def id = column[PaymentHistoryId]("id", O.Length(IdType.length), O.PrimaryKey, O.AutoInc)
-
     def reportId = column[ReportId]("report_id", O.Length(IdType.length))
 
-    def onePerReportIndex = index("one_payment_history_row_per_report", reportId, unique = true)
-
-    def reportIdFK = foreignKey("paymenthistory_report_fk", reportId, reportTable)(_.id, onDelete = ForeignKeyAction.Cascade)
+    def reportIdFK = foreignKey("paymenthistory_report_fk", reportId, reportHeaderTable)(_.id, onDelete = ForeignKeyAction.Cascade)
 
     def reportIdIndex = index("paymenthistory_report_idx", reportId)
 
@@ -135,15 +103,87 @@ trait ReportModule extends DBBinding {
 
     def percentInvoicesBeyond60Days = column[Int]("percent_invoices_beyond60days")
 
-    def * = (id, reportId, averageDaysToPay, percentPaidLaterThanAgreedTerms, percentInvoicesWithin30Days, percentInvoicesWithin60Days, percentInvoicesBeyond60Days) <> (PaymentHistoryRow.tupled, PaymentHistoryRow.unapply)
+    def * = (reportId, averageDaysToPay, percentPaidLaterThanAgreedTerms, percentInvoicesWithin30Days, percentInvoicesWithin60Days, percentInvoicesBeyond60Days) <> (PaymentHistoryRow.tupled, PaymentHistoryRow.unapply)
   }
 
   lazy val paymentHistoryTable = TableQuery[PaymentHistoryTable]
 
-  override def schema = super.schema ++ reportTable.schema ++ paymentHistoryTable.schema
+  type PaymentTermsQuery = Query[PaymentTermsTable, PaymentTermsRow, Seq]
+
+  class PaymentTermsTable(tag: Tag) extends Table[PaymentTermsRow](tag, "payment_terms") {
+    def reportId = column[ReportId]("report_id", O.Length(IdType.length))
+
+    def reportIdFK = foreignKey("paymentterms_report_fk", reportId, reportHeaderTable)(_.id, onDelete = ForeignKeyAction.Cascade)
+
+    def reportIdIndex = index("paymentterms_report_idx", reportId)
+
+    def paymentTerms = column[String]("payment_terms", O.Length(255))
+
+    def paymentPeriod = column[Int]("payment_period")
+
+    def maximumContractPeriod = column[Int]("maximum_contract_period")
+
+    def maximumContractPeriodComment = column[Option[String]]("maximum_contract_period_comment", O.Length(255))
+
+    def paymentTermsChangedComment = column[Option[String]]("payment_terms_changed_comment", O.Length(255))
+
+    def paymentTermsChangedNotifiedComment = column[Option[String]]("payment_terms_changed_notified_comment", O.Length(255))
+
+    def paymentTermsComment = column[Option[String]]("payment_terms_comment", O.Length(255))
+
+    def disputeResolution = column[String]("dispute_resolution", O.Length(255))
+
+    def * = (reportId, paymentTerms, paymentPeriod, maximumContractPeriod, maximumContractPeriodComment, paymentTermsChangedComment, paymentTermsChangedNotifiedComment, paymentTermsComment, disputeResolution) <> (PaymentTermsRow.tupled, PaymentTermsRow.unapply)
+  }
+
+  lazy val paymentTermsTable = TableQuery[PaymentTermsTable]
+
+  type ReportPeriodQuery = Query[ReportPeriodTable, ReportPeriodRow, Seq]
+
+  class ReportPeriodTable(tag: Tag) extends Table[ReportPeriodRow](tag, "report_period") {
+    def reportId = column[ReportId]("report_id", O.Length(IdType.length))
+
+    def reportIdFK = foreignKey("reportperiod_report_fk", reportId, reportHeaderTable)(_.id, onDelete = ForeignKeyAction.Cascade)
+
+    def reportIdIndex = index("reportperiod_report_idx", reportId)
+
+    def startDate = column[LocalDate]("start_date")
+
+    def endDate = column[LocalDate]("end_date")
+
+    def * = (reportId, startDate, endDate) <> (ReportPeriodRow.tupled, ReportPeriodRow.unapply)
+  }
+
+  lazy val reportPeriodTable = TableQuery[ReportPeriodTable]
+
+  type ReportHeaderQuery = Query[ReportHeaderTable, ReportHeaderRow, Seq]
+
+  class ReportHeaderTable(tag: Tag) extends Table[ReportHeaderRow](tag, "report_header") {
+    def id = column[ReportId]("id", O.Length(IdType.length), O.PrimaryKey)
+
+    def companyName = column[String]("company_name", O.Length(255))
+
+    def companyId = column[CompaniesHouseId]("company_id", O.Length(255))
+
+    def createdAt = column[LocalDate]("created_at")
+
+    def updatedAt = column[LocalDate]("updated_at")
+
+    def * = (id, companyName, companyId, createdAt, updatedAt) <> (ReportHeaderRow.tupled, ReportHeaderRow.unapply)
+  }
+
+  lazy val reportHeaderTable = TableQuery[ReportHeaderTable]
+
+  override def schema =
+    super.schema ++
+      reportHeaderTable.schema ++
+      reportPeriodTable.schema ++
+      paymentTermsTable.schema ++
+      paymentHistoryTable.schema ++
+      otherInfoTable.schema ++
+      filingTable.schema
 }
 
-case class CompanyReport(name: String, report: ReportRow, paymentHistory: PaymentHistoryRow)
 
 
 
