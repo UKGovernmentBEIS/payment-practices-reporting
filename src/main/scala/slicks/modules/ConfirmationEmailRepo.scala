@@ -19,6 +19,7 @@ package slicks.modules
 
 import javax.inject.Inject
 
+import com.google.inject.ImplementedBy
 import db.ConfirmationEmailRow
 import models.ReportId
 import org.joda.time.LocalDateTime
@@ -26,12 +27,13 @@ import play.api.db.slick.DatabaseConfigProvider
 
 import scala.concurrent.{ExecutionContext, Future}
 
+@ImplementedBy(classOf[ConfirmationEmailTable])
 trait ConfirmationEmailRepo {
-  def findUnsentAndLock(): Future[Option[ConfirmationEmailRow]]
-
-  def updateEmailAddress(reportId: ReportId, email: String): Future[Unit]
+  def findUnconfirmedAndLock(): Future[Option[ConfirmationEmailRow]]
 
   def unlock(reportId: ReportId): Future[Unit]
+
+  def sentAt(reportId: ReportId, when: LocalDateTime): Future[Unit]
 }
 
 class ConfirmationEmailTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(implicit ec: ExecutionContext)
@@ -41,7 +43,7 @@ class ConfirmationEmailTable @Inject()(val dbConfigProvider: DatabaseConfigProvi
 
   import api._
 
-  override def findUnsentAndLock(): Future[Option[ConfirmationEmailRow]] = db.run {
+  override def findUnconfirmedAndLock(): Future[Option[ConfirmationEmailRow]] = db.run {
     val lockTimeout = LocalDateTime.now().minusSeconds(30)
 
     val row = confirmationEmailTable
@@ -55,27 +57,17 @@ class ConfirmationEmailTable @Inject()(val dbConfigProvider: DatabaseConfigProvi
           .filter(_.reportId === r.reportId)
           .map(_.lockedAt)
           .update(Some(LocalDateTime.now())).map(_ => Some(r))
-      case None => findUnattemptedAndLock()
+
+      case None => DBIO.successful(None)
     }.transactionally
   }
 
-  private def findUnattemptedAndLock(): DBIO[Option[ConfirmationEmailRow]] = {
-    val q = reportHeaderTable.joinLeft(confirmationEmailTable).filter(_._2.isEmpty).map(_._1)
-
-    q.result.headOption.map {
-      case Some(rh) =>
-        val row = ConfirmationEmailRow(rh.id, None, None, Some(LocalDateTime.now))
-        confirmationEmailTable += row
-        Some(row)
-      case None => None
-    }
-  }
 
   def unlock(reportId: ReportId): Future[Unit] = db.run {
     confirmationEmailTable.filter(_.reportId === reportId).map(_.lockedAt).update(None).map(_ => ())
   }
 
-  def updateEmailAddress(reportId: ReportId, emailAddress: String): Future[Unit] = db.run {
-    confirmationEmailTable.filter(_.reportId === reportId).map(_.emailAddress).update(Some(emailAddress)).map(_ => ())
+  override def sentAt(reportId: ReportId, when: LocalDateTime): Future[Unit] = db.run {
+    confirmationEmailTable.filter(_.reportId === reportId).map(_.sentAt).update(Some(when)).map(_ => ())
   }
 }

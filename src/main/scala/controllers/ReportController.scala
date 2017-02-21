@@ -160,7 +160,7 @@ class ReportController @Inject()(
       errs => Future.successful(BadRequest(page(home, pages.review(errs, report, companiesHouseId, request.companyName, df, reportValidations.reportFormModel)))),
       review => {
         if (review.confirmed)
-          createReport(companiesHouseId, report, request, review)
+          createReport(companiesHouseId, report, review)
             .map(rId => Redirect(controllers.routes.ReportController.showConfirmation(rId)))
         else
           Future.successful(BadRequest(page(home, pages.review(emptyReview.fill(review), report, companiesHouseId, request.companyName, df, reportValidations.reportFormModel))))
@@ -168,13 +168,16 @@ class ReportController @Inject()(
     )
   }
 
-  private def createReport(companiesHouseId: CompaniesHouseId, report: ReportFormModel, request: CompanyAuthRequest[_], review: ReportReviewModel): Future[ReportId] = {
+  val emailAddress = "doug.clinton@digital.beis.gov.uk"
+
+  private def createReport(companiesHouseId: CompaniesHouseId, report: ReportFormModel, review: ReportReviewModel)(implicit request: CompanyAuthRequest[_]): Future[ReportId] = {
+    val urlFunction: ReportId => String = (id: ReportId) => controllers.routes.SearchController.view(id).absoluteURL()
     for {
-      reportId <- reports.create(review.confirmedBy, companiesHouseId, request.companyName, report, review)
+      reportId <- reports.create(review.confirmedBy, companiesHouseId, request.companyName, report, review, emailAddress, urlFunction)
     } yield reportId
   }
 
-  def showConfirmation(reportId: ReportId) = Action(Ok(page(home, pages.filingSuccess(reportId, "<unknown>"))))
+  def showConfirmation(reportId: ReportId) = Action(Ok(page(home, pages.filingSuccess(reportId, emailAddress))))
 }
 
 object ReportController {

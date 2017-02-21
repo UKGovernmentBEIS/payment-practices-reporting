@@ -10,7 +10,7 @@ create table "other_info" ("report_id" BIGINT NOT NULL,"offer_einvoicing" BOOLEA
 create unique index "otherinfo_report_idx" on "other_info" ("report_id");
 create table "filing" ("report_id" BIGINT NOT NULL,"filing_date" date NOT NULL,"approved_by" VARCHAR(255) NOT NULL);
 create unique index "filing_report_idx" on "filing" ("report_id");
-create table "confirmation_email" ("report_id" BIGINT NOT NULL,"email_address" VARCHAR(255),"sent_at" timestamp,"locked_at" timestamp);
+create table "confirmation_email" ("report_id" BIGINT NOT NULL,"email_address" VARCHAR(255) NOT NULL,"report_url" VARCHAR(2048) NOT NULL,"sent_at" timestamp,"locked_at" timestamp);
 create unique index "confirmationemail_report_idx" on "confirmation_email" ("report_id");
 alter table "report_period" add constraint "reportperiod_report_fk" foreign key("report_id") references "report_header"("id") on update NO ACTION on delete CASCADE;
 alter table "payment_terms" add constraint "paymentterms_report_fk" foreign key("report_id") references "report_header"("id") on update NO ACTION on delete CASCADE;

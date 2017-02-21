@@ -22,7 +22,8 @@ import org.joda.time.LocalDateTime
 
 case class ConfirmationEmailRow(
                                  reportId: ReportId,
-                                 emailAddress: Option[String],
+                                 emailAddress: String,
+                                 url: String,
                                  sentAt: Option[LocalDateTime],
                                  lockedAt: Option[LocalDateTime]
                                )

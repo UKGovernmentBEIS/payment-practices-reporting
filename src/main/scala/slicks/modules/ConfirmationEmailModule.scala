@@ -39,13 +39,15 @@ trait ConfirmationEmailModule extends DBBinding {
     // Only one confirmation row per report
     def reportIdIndex = index("confirmationemail_report_idx", reportId, unique = true)
 
-    def emailAddress = column[Option[String]]("email_address", O.Length(255))
+    def emailAddress = column[String]("email_address", O.Length(255))
+
+    def reportUrl = column[String]("report_url", O.Length(2048))
 
     def sentAt = column[Option[LocalDateTime]]("sent_at")
 
     def lockedAt = column[Option[LocalDateTime]]("locked_at")
 
-    def * = (reportId, emailAddress, sentAt, lockedAt) <> (ConfirmationEmailRow.tupled, ConfirmationEmailRow.unapply)
+    def * = (reportId, emailAddress, reportUrl, sentAt, lockedAt) <> (ConfirmationEmailRow.tupled, ConfirmationEmailRow.unapply)
   }
 
   lazy val confirmationEmailTable = TableQuery[ConfirmationEmailTable]
