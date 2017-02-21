@@ -39,7 +39,7 @@ trait ConfirmationEmailModule extends DBBinding {
     // Only one confirmation row per report
     def reportIdIndex = index("confirmationemail_report_idx", reportId, unique = true)
 
-    def emailAddress = column[String]("email_address", O.Length(255))
+    def emailAddress = column[Option[String]]("email_address", O.Length(255))
 
     def sentAt = column[Option[LocalDateTime]]("sent_at")
 
