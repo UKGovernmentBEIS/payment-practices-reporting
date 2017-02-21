@@ -31,7 +31,7 @@ import play.api.data._
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, Controller, Result}
 import play.twirl.api.Html
-import services.{CompaniesHouseAPI, CompanyDetail}
+import services.{CompaniesHouseAPI, CompanyDetail, NotifyService}
 import slicks.modules.ReportRepo
 import utils.{TimeSource, YesNo}
 
@@ -39,6 +39,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class ReportController @Inject()(
                                   companiesHouseAPI: CompaniesHouseAPI,
+                                  notifyService: NotifyService,
                                   reports: ReportRepo,
                                   timeSource: TimeSource,
                                   CompanyAuthAction: CompanyAuthAction
@@ -157,12 +158,20 @@ class ReportController @Inject()(
   private def checkConfirmation(companiesHouseId: CompaniesHouseId, report: ReportFormModel)(implicit request: CompanyAuthRequest[_]): Future[Result] = {
     emptyReview.bindFromRequest().fold(
       errs => Future.successful(BadRequest(page(home, pages.review(errs, report, companiesHouseId, request.companyName, df, reportValidations.reportFormModel)))),
-      review =>
-        if (review.confirmed) reports.create(review.confirmedBy, companiesHouseId, request.companyName, report, review).map { reportId =>
-          Redirect(controllers.routes.ReportController.showConfirmation(reportId))
-        }
-        else Future.successful(BadRequest(page(home, pages.review(emptyReview.fill(review), report, companiesHouseId, request.companyName, df, reportValidations.reportFormModel))))
+      review => {
+        if (review.confirmed)
+          createReport(companiesHouseId, report, request, review)
+            .map(rId => Redirect(controllers.routes.ReportController.showConfirmation(rId)))
+        else
+          Future.successful(BadRequest(page(home, pages.review(emptyReview.fill(review), report, companiesHouseId, request.companyName, df, reportValidations.reportFormModel))))
+      }
     )
+  }
+
+  private def createReport(companiesHouseId: CompaniesHouseId, report: ReportFormModel, request: CompanyAuthRequest[_], review: ReportReviewModel): Future[ReportId] = {
+    for {
+      reportId <- reports.create(review.confirmedBy, companiesHouseId, request.companyName, report, review)
+    } yield reportId
   }
 
   def showConfirmation(reportId: ReportId) = Action(Ok(page(home, pages.filingSuccess(reportId, "<unknown>"))))

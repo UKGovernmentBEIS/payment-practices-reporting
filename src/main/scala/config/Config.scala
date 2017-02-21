@@ -19,8 +19,14 @@ package config
 
 case class CompaniesHouseConfig(apiKey: String)
 
+case class NotifyConfig(
+                         apiKey: String,
+                         templateId: String
+                       )
+
 case class Config(
                    companiesHouse: CompaniesHouseConfig,
+                   notifyService: NotifyConfig,
                    logAssets: Option[Boolean],
                    logRequests: Option[Boolean],
                    printDBTables: Option[Boolean])
