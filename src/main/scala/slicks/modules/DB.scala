@@ -26,6 +26,7 @@ import play.api.db.slick.DatabaseConfigProvider
 
 class DB @Inject()(override val dbConfigProvider: DatabaseConfigProvider)
   extends ReportModule
+    with ConfirmationEmailModule
     with ExPostgresDriver
     with PgDateSupportJoda
     with PgPlayJsonSupport {

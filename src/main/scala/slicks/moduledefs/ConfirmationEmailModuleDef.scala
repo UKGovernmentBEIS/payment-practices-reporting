@@ -15,9 +15,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package db
+package slicks.moduledefs
 
-case class CompanyRow(
-                       companiesHouseIdentifier: String,
-                       name: String
-                     )
+import com.wellfactored.slickgen.{ModuleDefinition, ModuleSpec}
+import db.ConfirmationEmailRow
+
+object ConfirmationEmailModuleDef extends ModuleDefinition {
+  override def spec: ModuleSpec = ModuleSpec("ConfirmationEmailModule")
+    .withTableFor[ConfirmationEmailRow]
+    .dependsOn(ReportModuleDef)
+}
