@@ -144,6 +144,8 @@ class ReportController @Inject()(
   def postReview(companiesHouseId: CompaniesHouseId) = CompanyAuthAction(companiesHouseId).async(parse.urlFormEncoded) { implicit request =>
     val revise = Form(single("revise" -> text)).bindFromRequest().value.contains("Revise")
 
+    companiesHouseAPI.isInScope(companiesHouseId, request.oAuthToken)
+
     // Re-capture the values for the report itself. In theory these values should always be valid
     // (as we only send the user to the review page if they are) but if somehow they aren't then
     // send the user back to the report form to fix them.

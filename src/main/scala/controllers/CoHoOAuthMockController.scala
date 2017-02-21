@@ -28,6 +28,8 @@ import scala.concurrent.ExecutionContext
 
 class CoHoOAuthMockController @Inject()(companiesHouseAPI: CompaniesHouseAPI)(implicit ec: ExecutionContext) extends Controller with PageHelper {
 
+  import CompanyAuthAction._
+
   def login(companiesHouseId: CompaniesHouseId) = Action {
     Ok(views.html.oauthMock.p1(companiesHouseId))
   }
@@ -35,14 +37,21 @@ class CoHoOAuthMockController @Inject()(companiesHouseAPI: CompaniesHouseAPI)(im
   def postLogin(companiesHouseId: CompaniesHouseId) = Action { request => Redirect(controllers.routes.CoHoOAuthMockController.authCode(companiesHouseId)) }
 
   def authCode(companiesHouseId: CompaniesHouseId) = Action.async { implicit request =>
+    import CompanyAuthAction._
     companiesHouseAPI.find(companiesHouseId).map {
-      case Some(co) => Ok(views.html.oauthMock.p2(companiesHouseId, co.company_name)).addingToSession((CompanyAuthAction.companyNameHeader, co.company_name))
+      case Some(co) =>
+        Ok(views.html.oauthMock.p2(companiesHouseId, co.company_name)).addingToSession(companyNameHeader -> co.company_name)
       case None => BadRequest(s"Unknown company id ${companiesHouseId.id}")
     }
   }
 
   def postAuthCode(companiesHouseId: CompaniesHouseId) = Action { implicit request =>
-    Redirect(controllers.routes.ReportController.file(companiesHouseId)).addingToSession((CompanyAuthAction.companyIdHeader, companiesHouseId.id))
+    Redirect(controllers.routes.ReportController.file(companiesHouseId)).addingToSession(
+      companyIdHeader -> companiesHouseId.id,
+      accessToken -> "abcdefg",
+      accessTokenExpiry -> (System.currentTimeMillis() + 4 * 60 * 1000).toString,
+      refreshToken -> "hijklmnop"
+    )
   }
 
 }
