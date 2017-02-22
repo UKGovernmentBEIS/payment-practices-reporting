@@ -27,14 +27,16 @@ import org.joda.time.format.DateTimeFormat
 import play.api.Logger
 import services.NotifyService
 import slicks.modules.{ConfirmationRepo, FiledReport, ReportRepo}
+import uk.gov.service.notify.NotificationClientException
 
-import scala.concurrent.Future
+import scala.concurrent.duration._
+import scala.language.postfixOps
 import scala.util.Success
 
 class ConfirmationActor @Inject()(reportRepo: ReportRepo, confirmationRepo: ConfirmationRepo, mailer: NotifyService) extends Actor {
   implicit val ec = context.dispatcher
 
-  val sleepTimeMS = 10000
+  context.system.scheduler.schedule(1 second, 10 seconds, self, 'poll)
 
   Logger.debug("Started ConfirmationActor")
 
@@ -42,40 +44,24 @@ class ConfirmationActor @Inject()(reportRepo: ReportRepo, confirmationRepo: Conf
 
   val df = DateTimeFormat.forPattern("d MMMM YYYY")
 
-  override def preStart(): Unit = self ! 'start
-
   def receive = {
-    case 'start => self ! 'poll
-
     case 'poll =>
       Logger.trace(s"polling for unconfirmed reports")
 
       confirmationRepo.findUnconfirmedAndLock().onComplete {
-        case Success(Some(row)) =>
-          Logger.debug(s"Found unsent confirmation row for ${row.reportId}")
-          reportRepo.findFiled(row.reportId).flatMap {
-            case Some(report) =>
-              Logger.debug(s"Sending email for ${row.reportId} to ${row.emailAddress}")
-              mailer.sendEmail(templateId, row.emailAddress, buildParams(row, report)).map { response =>
-                Logger.debug(s"Response is ${response.getBody}")
-                Logger.debug(s"Notification id is ${response.getNotificationId}")
-                confirmationRepo.sentAt(row.reportId, LocalDateTime.now)
-              }.recover {
-                case t => Logger.debug("Sending failed", t)
-              }
-
-            case None =>
-              Logger.error(s"Confirmation row for ${row.reportId} found, but no filed report was found!")
-              Future.successful(())
+        case Success(Some((confirmation, report))) =>
+          mailer.sendEmail(templateId, confirmation.emailAddress, buildParams(confirmation, report)).map { response =>
+            confirmationRepo.confirmationSent(report.header.id, LocalDateTime.now, response)
+          }.recover {
+            case nex: NotificationClientException =>
+              confirmationRepo.confirmationFailed(report.header.id, LocalDateTime.now, nex)
           }
+          // Send another poll message immediately in case there are more
+          // confirmations pending
           self ! 'poll
 
-        case _ =>
-          Thread.sleep(sleepTimeMS)
-          self ! 'poll
+        case _ => // no action
       }
-
-    case x => Logger.error(s"received $x")
   }
 
   private def buildParams(row: ConfirmationPendingRow, report: FiledReport) = {

@@ -20,48 +20,108 @@ package slicks.modules
 import javax.inject.Inject
 
 import com.google.inject.ImplementedBy
-import db.ConfirmationPendingRow
+import db.{ConfirmationFailedRow, ConfirmationPendingRow, ConfirmationSentRow}
 import models.ReportId
 import org.joda.time.LocalDateTime
 import play.api.db.slick.DatabaseConfigProvider
+import slick.dbio.Effect.Write
+import uk.gov.service.notify.{NotificationClientException, NotificationResponse}
+import utils._
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @ImplementedBy(classOf[ConfirmationTable])
 trait ConfirmationRepo {
-  def findUnconfirmedAndLock(): Future[Option[ConfirmationPendingRow]]
+  def findUnconfirmedAndLock(): Future[Option[(ConfirmationPendingRow, FiledReport)]]
 
-  def sentAt(reportId: ReportId, when: LocalDateTime): Future[Unit]
+  def confirmationSent(reportId: ReportId, when: LocalDateTime, response: NotificationResponse): Future[Unit]
+
+  def confirmationFailed(reportId: ReportId, when: LocalDateTime, ex: NotificationClientException): Future[Unit]
 }
 
 class ConfirmationTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(implicit ec: ExecutionContext)
   extends ConfirmationRepo
     with ConfirmationModule
-    with ReportModule {
+    with ReportModule
+    with ReportQueries {
 
   import api._
 
-  override def findUnconfirmedAndLock(): Future[Option[ConfirmationPendingRow]] = db.run {
+  override def findUnconfirmedAndLock(): Future[Option[(ConfirmationPendingRow, FiledReport)]] = db.run {
     val lockTimeout = LocalDateTime.now().minusSeconds(30)
 
-    val row = confirmationPendingTable
-      .filter(c => c.lockedAt.isEmpty || c.lockedAt < lockTimeout)
-      .result
-      .headOption
+    val q = for {
+      c <- confirmationPendingTable.filter(c => c.lockedAt.isEmpty || c.lockedAt < lockTimeout)
+      r <- filedReportQuery.filter(_._1.id === c.reportId)
+    } yield (c, r)
 
-    row.flatMap {
-      case Some(r) =>
-        confirmationPendingTable
-          .filter(_.reportId === r.reportId)
-          .map(_.lockedAt)
-          .update(Some(LocalDateTime.now())).map(_ => Some(r))
+    val action = q.result.headOption.map(_.map { case (c, r) => (c, FiledReport.tupled(r)) })
+
+    action.flatMap {
+      case Some((c, r)) =>
+        confirmationPendingTable.filter(_.reportId === c.reportId).map(_.lockedAt)
+          .update(Some(LocalDateTime.now())).map(_ => Some((c, r)))
 
       case None => DBIO.successful(None)
     }.transactionally
   }
 
+  override def confirmationSent(reportId: ReportId, when: LocalDateTime, response: NotificationResponse): Future[Unit] = {
+    disposeOfPending(reportId, when, disposeToSent(response))
+  }
 
-  override def sentAt(reportId: ReportId, when: LocalDateTime): Future[Unit] = db.run {
-    ???
+  override def confirmationFailed(reportId: ReportId, when: LocalDateTime, ex: NotificationClientException): Future[Unit] = {
+    val err = NotificationClientErrorProcessing.parseNotificationMessage(ex.getMessage) match {
+      case Some(err) => NotificationClientErrorProcessing.processError(err)
+      case None => PermanentFailure(0, s"Unable to parse error body: ${ex.getMessage}")
+    }
+
+    err match {
+      case f: PermanentFailure => failPermanently(reportId, when, f)
+      case f: TransientFailure => failTransiently(reportId, when, f)
+    }
+  }
+
+  private def pendingQ(reportId: Rep[ReportId]) = confirmationPendingTable.filter(_.reportId === reportId)
+
+  val pendingC = Compiled(pendingQ _)
+
+  type DisposalFunction = (ConfirmationPendingRow, LocalDateTime) => DBIOAction[Any, NoStream, Write]
+
+  private def disposeOfPending(reportId: ReportId, when: LocalDateTime, disposal: DisposalFunction): Future[Unit] = db.run {
+    pendingC(reportId).result.headOption.flatMap {
+      case Some(pending) => for {
+        _ <- disposal(pending, when)
+        _ <- pendingC(reportId).delete
+      } yield ()
+
+      case None => DBIO.successful(())
+    }.map(_ => ()).transactionally
+  }
+
+  private def disposeToFailed(f: PermanentFailure): DisposalFunction = { (pending, when) =>
+    val failedRow = ConfirmationFailedRow(pending.reportId, pending.emailAddress, f.statusCode, f.message, when)
+    confirmationFailedTable += failedRow
+  }
+
+  private def disposeToSent(response: NotificationResponse): DisposalFunction = { (pending, when) =>
+    val sentRow = ConfirmationSentRow(pending.reportId, pending.emailAddress, response.getBody, response.getNotificationId, when)
+    confirmationSentTable += sentRow
+  }
+
+  private def failPermanently(reportId: ReportId, when: LocalDateTime, f: PermanentFailure): Future[Unit] =
+    disposeOfPending(reportId, when, disposeToFailed(f))
+
+  private def failTransiently(reportId: ReportId, when: LocalDateTime, f: TransientFailure): Future[Unit] = db.run {
+    pendingC(reportId).result.headOption.flatMap {
+      case Some(pending) =>
+        val updatedRow = pending.copy(lastErrorState = Some(f.statusCode), lastErrorText = Some(f.message), retryCount = pending.retryCount + 1)
+        pendingC(reportId).update(updatedRow).map(_ => ())
+
+      case None => DBIO.successful(())
+    }.map(_ => ()).transactionally
   }
 }
+
+
+

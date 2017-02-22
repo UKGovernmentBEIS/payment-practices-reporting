@@ -93,7 +93,7 @@ class CompaniesHouseAPIImpl @Inject()(val ws: WSClient)(implicit val ec: Executi
 
   override def verifyAuthCode(authCode: String, redirectUri: String, companiesHouseIdentifier: String): String = ???
 
-  override def isInScope(companiesHouseIdentifier: CompaniesHouseId, oAuthToken: OAuthToken): Future[ResponseWithToken[Boolean]] = ???
+  override def isInScope(companiesHouseIdentifier: CompaniesHouseId, oAuthToken: OAuthToken): Future[ResponseWithToken[Boolean]] = Future.successful(ResponseWithToken(oAuthToken, true))
 
   case class Email(email: String)
 
