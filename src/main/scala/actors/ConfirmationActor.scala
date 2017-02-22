@@ -34,6 +34,8 @@ import scala.util.Success
 class ConfirmationActor @Inject()(reportRepo: ReportRepo, confirmationRepo: ConfirmationRepo, mailer: NotifyService) extends Actor {
   implicit val ec = context.dispatcher
 
+  val sleepTimeMS = 10000
+
   Logger.debug("Started ConfirmationActor")
 
   val templateId = Config.config.notifyService.templateId
@@ -68,7 +70,9 @@ class ConfirmationActor @Inject()(reportRepo: ReportRepo, confirmationRepo: Conf
           }
           self ! 'poll
 
-        case _ => Thread.sleep(10000); self ! 'poll
+        case _ =>
+          Thread.sleep(sleepTimeMS)
+          self ! 'poll
       }
 
     case x => Logger.error(s"received $x")
