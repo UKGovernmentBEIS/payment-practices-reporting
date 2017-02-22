@@ -34,14 +34,15 @@ class ReportTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(implic
   extends DBBinding
     with ReportRepo
     with ReportModule
-    with ConfirmationEmailModule
+    with ConfirmationModule
     with ReportQueries
     with PgDateSupportJoda
     with RowBuilders {
 
   import api._
 
-  def reportByIdQ(id: Rep[ReportId])= reportQuery.filter(_._1.id === id)
+  def reportByIdQ(id: Rep[ReportId]) = reportQuery.filter(_._1.id === id)
+
   val reportByIdC = Compiled(reportByIdQ _)
 
   def find(id: ReportId): Future[Option[Report]] = db.run {
@@ -93,7 +94,7 @@ class ReportTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(implic
         _ <- paymentHistoryTable += buildPaymentHistoryRow(report, reportId)
         _ <- otherInfoTable += buildOtherInfoRow(report, reportId)
         _ <- filingTable += buildFilingRow(review, reportId)
-        _ <- confirmationEmailTable += ConfirmationEmailRow(reportId, confirmationEmailAddress, reportUrl(reportId), None, None)
+        _ <- confirmationPendingTable += ConfirmationPendingRow(reportId, confirmationEmailAddress, reportUrl(reportId), 0, None, None, None)
       } yield reportId
     }.transactionally
   }

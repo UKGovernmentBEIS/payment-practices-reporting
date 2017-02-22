@@ -15,15 +15,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package db
+package slicks.moduledefs
 
-import models.ReportId
-import org.joda.time.LocalDateTime
+import com.wellfactored.slickgen.{ModuleDefinition, ModuleSpec}
+import db.{ConfirmationFailedRow, ConfirmationPendingRow, ConfirmationSentRow}
 
-case class ConfirmationEmailRow(
-                                 reportId: ReportId,
-                                 emailAddress: String,
-                                 url: String,
-                                 sentAt: Option[LocalDateTime],
-                                 lockedAt: Option[LocalDateTime]
-                               )
+object ConfirmationModuleDef extends ModuleDefinition {
+  override def spec: ModuleSpec = ModuleSpec("ConfirmationModule")
+    .withTableFor[ConfirmationPendingRow]
+    .withTableFor[ConfirmationSentRow]
+    .withTableFor[ConfirmationFailedRow]
+    .dependsOn(ReportModuleDef)
+}

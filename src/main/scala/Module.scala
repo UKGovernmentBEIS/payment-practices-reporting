@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import actors.ConfirmationEmailActor
+import actors.ConfirmationActor
 import com.google.inject.AbstractModule
 import config.Config
 import play.api.libs.concurrent.AkkaGuiceSupport
@@ -24,6 +24,6 @@ import slicks.modules.DB
 class Module extends AbstractModule with AkkaGuiceSupport {
   override def configure(): Unit = {
     if (Config.config.printDBTables.getOrElse(false)) bind(classOf[DB]).asEagerSingleton()
-    bindActor[ConfirmationEmailActor]("confirmation-email-actor")
+    bindActor[ConfirmationActor]("confirmation-actor")
   }
 }

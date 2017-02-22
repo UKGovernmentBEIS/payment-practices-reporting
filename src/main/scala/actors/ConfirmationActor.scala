@@ -21,20 +21,20 @@ import javax.inject.Inject
 
 import akka.actor.Actor
 import config.Config
-import db.ConfirmationEmailRow
+import db.ConfirmationPendingRow
 import org.joda.time.LocalDateTime
 import org.joda.time.format.DateTimeFormat
 import play.api.Logger
 import services.NotifyService
-import slicks.modules.{ConfirmationEmailRepo, FiledReport, ReportRepo}
+import slicks.modules.{ConfirmationRepo, FiledReport, ReportRepo}
 
 import scala.concurrent.Future
 import scala.util.Success
 
-class ConfirmationEmailActor @Inject()(reportRepo: ReportRepo, confirmationRepo: ConfirmationEmailRepo, mailer: NotifyService) extends Actor {
+class ConfirmationActor @Inject()(reportRepo: ReportRepo, confirmationRepo: ConfirmationRepo, mailer: NotifyService) extends Actor {
   implicit val ec = context.dispatcher
 
-  Logger.debug("Started ConfirmationEmailActor")
+  Logger.debug("Started ConfirmationActor")
 
   val templateId = Config.config.notifyService.templateId
 
@@ -74,7 +74,7 @@ class ConfirmationEmailActor @Inject()(reportRepo: ReportRepo, confirmationRepo:
     case x => Logger.error(s"received $x")
   }
 
-  private def buildParams(row: ConfirmationEmailRow, report: FiledReport) = {
+  private def buildParams(row: ConfirmationPendingRow, report: FiledReport) = {
     Map[String, String](
       "companyName" -> report.header.companyName,
       "companieshouseidentifier" -> report.header.companyId.id,

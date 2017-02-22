@@ -20,40 +20,38 @@ package slicks.modules
 import javax.inject.Inject
 
 import com.google.inject.ImplementedBy
-import db.ConfirmationEmailRow
+import db.ConfirmationPendingRow
 import models.ReportId
 import org.joda.time.LocalDateTime
 import play.api.db.slick.DatabaseConfigProvider
 
 import scala.concurrent.{ExecutionContext, Future}
 
-@ImplementedBy(classOf[ConfirmationEmailTable])
-trait ConfirmationEmailRepo {
-  def findUnconfirmedAndLock(): Future[Option[ConfirmationEmailRow]]
-
-  def unlock(reportId: ReportId): Future[Unit]
+@ImplementedBy(classOf[ConfirmationTable])
+trait ConfirmationRepo {
+  def findUnconfirmedAndLock(): Future[Option[ConfirmationPendingRow]]
 
   def sentAt(reportId: ReportId, when: LocalDateTime): Future[Unit]
 }
 
-class ConfirmationEmailTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(implicit ec: ExecutionContext)
-  extends ConfirmationEmailRepo
-    with ConfirmationEmailModule
+class ConfirmationTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(implicit ec: ExecutionContext)
+  extends ConfirmationRepo
+    with ConfirmationModule
     with ReportModule {
 
   import api._
 
-  override def findUnconfirmedAndLock(): Future[Option[ConfirmationEmailRow]] = db.run {
+  override def findUnconfirmedAndLock(): Future[Option[ConfirmationPendingRow]] = db.run {
     val lockTimeout = LocalDateTime.now().minusSeconds(30)
 
-    val row = confirmationEmailTable
-      .filter(c => c.sentAt.isEmpty && (c.lockedAt.isEmpty || c.lockedAt < lockTimeout))
+    val row = confirmationPendingTable
+      .filter(c => c.lockedAt.isEmpty || c.lockedAt < lockTimeout)
       .result
       .headOption
 
     row.flatMap {
       case Some(r) =>
-        confirmationEmailTable
+        confirmationPendingTable
           .filter(_.reportId === r.reportId)
           .map(_.lockedAt)
           .update(Some(LocalDateTime.now())).map(_ => Some(r))
@@ -63,11 +61,7 @@ class ConfirmationEmailTable @Inject()(val dbConfigProvider: DatabaseConfigProvi
   }
 
 
-  def unlock(reportId: ReportId): Future[Unit] = db.run {
-    confirmationEmailTable.filter(_.reportId === reportId).map(_.lockedAt).update(None).map(_ => ())
-  }
-
   override def sentAt(reportId: ReportId, when: LocalDateTime): Future[Unit] = db.run {
-    confirmationEmailTable.filter(_.reportId === reportId).map(_.sentAt).update(Some(when)).map(_ => ())
+    ???
   }
 }
