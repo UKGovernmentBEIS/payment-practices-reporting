@@ -71,8 +71,7 @@ object ReviewPageData extends HtmlHelpers {
   def group3(r: ReportFormModel) = otherInfoRows(r)
 
   def topLevelInfo(companyName: String, report: ReportFormModel): Seq[(String, Html)] = Seq(
-    ("Company", companyName),
-    ("Filing date", report.filingDate)
+    ("Company", companyName)
   )
 
   def reportingDateRows(r: ReportFormModel): Seq[(String, Html)] = Seq(
@@ -82,28 +81,28 @@ object ReviewPageData extends HtmlHelpers {
 
   def paymentHistoryRows(r: ReportFormModel): Seq[(String, Html)] = Seq(
     ("Average number of days until payment", r.paymentHistory.averageDaysToPay),
-    ("Percentage of invoices paid later than agreed terms", r.paymentHistory.percentPaidLaterThanAgreedTerms),
     ("Percentage of invoices paid within 30 days", r.paymentHistory.percentageSplit.percentWithin30Days),
     ("Percentage of invoices paid within 31 to 60 days", r.paymentHistory.percentageSplit.percentWithin60Days),
-    ("Percentage of invoices paid later than 60 days", r.paymentHistory.percentageSplit.percentBeyond60Days)
+    ("Percentage of invoices paid on or after day 61", r.paymentHistory.percentageSplit.percentBeyond60Days),
+    ("Percentage of invoices not paid within agreed terms", r.paymentHistory.percentPaidLaterThanAgreedTerms)
   )
 
   def paymentTermsRows(r: ReportFormModel): Seq[(String, Html)] = Seq(
     ("Payment terms", r.paymentTerms.terms),
-    ("Maximum contract period", r.paymentTerms.maximumContractPeriod),
-    ("Maximum contract period comment", r.paymentTerms.maximumContractPeriodComment.map(breakLines)),
-    ("Payment terms have changed", conditionalText(r.paymentTerms.paymentTermsChanged)),
-    ("Suppliers notified of changes", conditionalText(r.paymentTerms.paymentTermsChangedNotified)),
-    ("Further remarks on payment terms", r.paymentTerms.paymentTermsComment.map(breakLines)),
-    ("Dispute resolution", breakLines(r.paymentTerms.disputeResolution))
+    ("Maximum contract period in days", r.paymentTerms.maximumContractPeriod),
+    ("Maximum contract period: further information", r.paymentTerms.maximumContractPeriodComment.map(breakLines)),
+    ("Any changes to standard payment terms", conditionalText(r.paymentTerms.paymentTermsChanged)),
+    ("Did you consult or notify your suppliers about changes?", conditionalText(r.paymentTerms.paymentTermsChangedNotified)),
+    ("Further remarks about your payment terms", r.paymentTerms.paymentTermsComment.map(breakLines)),
+    ("Your dispute resolution process", breakLines(r.paymentTerms.disputeResolution))
   )
 
   def otherInfoRows(r: ReportFormModel): Seq[(String, Html)] = Seq(
-    ("Offer E-Invoicing", r.offerEInvoicing),
-    ("Offer supply chain finance", r.offerSupplyChainFinancing),
-    ("Retention charges covered in policy", r.retentionChargesInPolicy),
-    ("Retention charges made in the past", r.retentionChargesInPast),
-    ("Payment code participation", conditionalText(r.hasPaymentCodes))
+    ("Do you offer e-invoicing?", r.offerEInvoicing),
+    ("Do you offer offer supply chain finance?", r.offerSupplyChainFinancing),
+    ("Do you have a policy of deducting sums from payments as a charge for remaining on a supplier list?", r.retentionChargesInPolicy),
+    ("In this reporting period, have you deducted sums from payments as a charge for remaining on a supplier list?", r.retentionChargesInPast),
+    ("Are you a member of a code of practice for payment?", conditionalText(r.hasPaymentCodes))
   )
 
 }

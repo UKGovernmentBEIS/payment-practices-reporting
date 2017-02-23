@@ -65,7 +65,6 @@ case class PaymentTerms(
                        )
 
 case class ReportFormModel(
-                            filingDate: LocalDate,
                             reportDates: DateRange,
                             paymentHistory: PaymentHistory,
                             paymentTerms: PaymentTerms,

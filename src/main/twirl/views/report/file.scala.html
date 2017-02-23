@@ -2,6 +2,8 @@
 @import org.joda.time.format.DateTimeFormatter
 @(form: Form[forms.report.ReportFormModel], companyId: CompaniesHouseId, filingDate: LocalDate, df: DateTimeFormatter)(implicit messages: MessagesApi)
 
+<div class="scannable-wrapper">
+
 <div class="notice">
     <i class="icon icon-important">
         <span class="visually-hidden">Warning</span>
@@ -26,8 +28,6 @@
     </div>
 }
 
-<div class="scannable-wrapper">
-
     <form action="@routes.ReportController.postForm(companyId)" method="POST" id="file-report">
         <p class="small-aside">
             Companies House number: @companyId.id
@@ -45,10 +45,10 @@
 
         <input type="submit" class="button" value="Continue">
     </form>
-</div>
 
-<script type="text/javascript" src='@routes.Assets.at("javascripts/file.js")'></script>
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/file.js")'></script>
 <script type="text/javascript">
         gradualDisclosure();
         validationPlumbing();
 </script>
+</div>

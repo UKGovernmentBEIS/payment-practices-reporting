@@ -3,7 +3,7 @@
 @import controllers.ReportController.CodeOption.{Colleague, Register}
 
 <div class="scannable-wrapper">
-    <h1 class="heading-xlarge">Publish a report for @name</h1>
+    <h1 class="heading-xlarge">Publish a report for:<br> @name</h1>
     <p class="lede">If you don’t have a Companies House authentication code, you have two options.</p>
     <h3 class="heading-medium">Select an option</h3>
     <form action="@routes.ReportController.codeOptions(id)" method="POST">
