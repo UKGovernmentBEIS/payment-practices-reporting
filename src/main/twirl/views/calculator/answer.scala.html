@@ -11,11 +11,13 @@
         You told us that your financial year runs from <span class="nowrap">@df.print(calculator.financialYear.dates.startDate)</span> to <span class="nowrap">@df.print(calculator.financialYear.dates.endDate)</span>. You do not have to report for that year, as it starts before the regulations come into force on 6 April 2017.
     </p>
     <p>
-        As long as you do not change your financial year end until then, @(calculator.reportingPeriods.length match{ case 1 => "this is your first reporting period" case n => "these are your next " + n + " reporting periods"}):
+        As long as you do not change your financial year end until then
+        @(calculator.reportingPeriods.length match{ case 1 => "this is your first reporting period" case n => "these are your next " + n + " reporting periods"}):
     </p>
     } else {
     <p>
-        You told us that your financial year runs from <span class="nowrap">@df.print(calculator.financialYear.dates.startDate)</span> to <span class="nowrap">@df.print(calculator.financialYear.dates.endDate)</span>. That year is covered by @(calculator.reportingPeriods.length match {case 1 => "a single reporting period" case n => n + " reporting periods"}):
+        You told us that your financial year runs from <span class="nowrap">@df.print(calculator.financialYear.dates.startDate)</span> to <span class="nowrap">@df.print(calculator.financialYear.dates.endDate)</span>.
+            @(calculator.reportingPeriods.length match{ case 1 => "This is your reporting period" case n => "These are your reporting periods"}):
     </p>
     }
     @for((x,i) <- calculator.reportingPeriods.zipWithIndex) {

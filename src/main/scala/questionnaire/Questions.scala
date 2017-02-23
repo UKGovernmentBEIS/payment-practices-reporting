@@ -31,16 +31,17 @@ class Questions @Inject()(implicit messages: MessagesApi) {
 
   val hasSubsidiariesQuestion = YesNoQuestion(messages("question.hassubsidiaries"), None)
 
-  private val companyThresholdHint = Some(messages("hint.company"))
+  private val turnoverHint = Some(messages("hint.turnover"))
+  private val balanceHint = Some(messages("hint.balance"))
+  private val employeesHint = Some(messages("hint.employees"))
 
-  val companyTurnoverQuestionY2 = YesNoQuestion(messages("question.company.turnover.y2"), companyThresholdHint)
+  val companyTurnoverQuestionY2 = YesNoQuestion(messages("question.company.turnover.y2"), turnoverHint)
+  val companyBalanceSheetQuestionY2 = YesNoQuestion(messages("question.company.balance.y2"), balanceHint)
+  val companyEmployeesQuestionY2 = YesNoQuestion(messages("question.company.employees.y2"), employeesHint)
 
-  val companyBalanceSheetQuestionY2 = YesNoQuestion(messages("question.company.balance.y2"), companyThresholdHint)
-  val companyEmployeesQuestionY2 = YesNoQuestion(messages("question.company.employees.y2"), companyThresholdHint)
-  val companyTurnoverQuestionY3 = YesNoQuestion(messages("question.company.turnover.y3"), companyThresholdHint)
-
-  val companyBalanceSheetQuestionY3 = YesNoQuestion(messages("question.company.balance.y3"), companyThresholdHint)
-  val companyEmployeesQuestionY3 = YesNoQuestion(messages("question.company.employees.y3"), companyThresholdHint)
+  val companyTurnoverQuestionY3 = YesNoQuestion(messages("question.company.turnover.y3"), turnoverHint)
+  val companyBalanceSheetQuestionY3 = YesNoQuestion(messages("question.company.balance.y3"), balanceHint)
+  val companyEmployeesQuestionY3 = YesNoQuestion(messages("question.company.employees.y3"), employeesHint)
 
   val companyQuestionGroupY2 = ThresholdQuestions(companyTurnoverQuestionY2, companyBalanceSheetQuestionY2, companyEmployeesQuestionY2)
   val companyQuestionGroupY3 = ThresholdQuestions(companyTurnoverQuestionY3, companyBalanceSheetQuestionY3, companyEmployeesQuestionY3)
@@ -49,11 +50,11 @@ class Questions @Inject()(implicit messages: MessagesApi) {
 
   val subsidiaryTurnoverQuestionY2 = YesNoQuestion(messages("question.subsidiaries.turnover.y2"), subsidiariesThresholdHint)
   val subsidiaryBalanceSheetQuestionY2 = YesNoQuestion(messages("question.subsidiaries.balance.y2"), subsidiariesThresholdHint)
-  val subsidiaryEmployeesQuestionY2 = YesNoQuestion(messages("question.subsidiaries.employees.y2"), None)
+  val subsidiaryEmployeesQuestionY2 = YesNoQuestion(messages("question.subsidiaries.employees.y2"), employeesHint)
 
   val subsidiaryTurnoverQuestionY3 = YesNoQuestion(messages("question.subsidiaries.turnover.y3"), subsidiariesThresholdHint)
   val subsidiaryBalanceSheetQuestionY3 = YesNoQuestion(messages("question.subsidiaries.balance.y3"), subsidiariesThresholdHint)
-  val subsidiaryEmployeesQuestionY3 = YesNoQuestion(messages("question.subsidiaries.employees.y3"), None)
+  val subsidiaryEmployeesQuestionY3 = YesNoQuestion(messages("question.subsidiaries.employees.y3"), employeesHint)
 
   val subsidiariesQuestionGroupY2 = ThresholdQuestions(subsidiaryTurnoverQuestionY2, subsidiaryBalanceSheetQuestionY2, subsidiaryEmployeesQuestionY2)
   val subsidiariesQuestionGroupY3 = ThresholdQuestions(subsidiaryTurnoverQuestionY3, subsidiaryBalanceSheetQuestionY3, subsidiaryEmployeesQuestionY3)
