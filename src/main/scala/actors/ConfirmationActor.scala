@@ -20,58 +20,37 @@ package actors
 import javax.inject.Inject
 
 import akka.actor.Actor
-import config.Config
-import db.ConfirmationPendingRow
-import org.joda.time.LocalDateTime
-import org.joda.time.format.DateTimeFormat
-import play.api.Logger
-import services.NotifyService
-import slicks.modules.{ConfirmationRepo, FiledReport, ReportRepo}
-import uk.gov.service.notify.NotificationClientException
+import services.ConfirmationDeliveryService
 
 import scala.concurrent.duration._
 import scala.language.postfixOps
 import scala.util.Success
 
-class ConfirmationActor @Inject()(reportRepo: ReportRepo, confirmationRepo: ConfirmationRepo, mailer: NotifyService) extends Actor {
+/**
+  * This actor manages the sending of confirmation emails via the GDS Notify service.
+  *
+  * On startup it schedules a recurring event that sends a `'poll` message to itself.
+  *
+  * On receipt of a `'poll` message it calls the delivery service to attempt delivery
+  * of any pending confirmation.
+  *
+  * If delivery was attempted (regardless of the outcome) then the actor immediately sends
+  * itself another `'poll` message to see if there are any more confirmations to send.
+  *
+  * If no delivery was attempted it takes no action and waits for the next scheduled event.
+  *
+  */
+class ConfirmationActor @Inject()(deliveryService: ConfirmationDeliveryService) extends Actor {
   implicit val ec = context.dispatcher
 
   context.system.scheduler.schedule(1 second, 10 seconds, self, 'poll)
 
-  Logger.debug("Started ConfirmationActor")
-
-  val templateId = Config.config.notifyService.templateId
-
-  val df = DateTimeFormat.forPattern("d MMMM YYYY")
-
   def receive = {
-    case 'poll =>
-      Logger.trace(s"polling for unconfirmed reports")
-
-      confirmationRepo.findUnconfirmedAndLock().onComplete {
-        case Success(Some((confirmation, report))) =>
-          mailer.sendEmail(templateId, confirmation.emailAddress, buildParams(confirmation, report)).map { response =>
-            confirmationRepo.confirmationSent(report.header.id, LocalDateTime.now, response)
-          }.recover {
-            case nex: NotificationClientException =>
-              confirmationRepo.confirmationFailed(report.header.id, LocalDateTime.now, nex)
-          }
-          // Send another poll message immediately in case there are more
-          // confirmations pending
-          self ! 'poll
-
-        case _ => // no action
-      }
-  }
-
-  private def buildParams(row: ConfirmationPendingRow, report: FiledReport) = {
-    Map[String, String](
-      "companyName" -> report.header.companyName,
-      "companieshouseidentifier" -> report.header.companyId.id,
-      "startdate" -> df.print(report.period.startDate),
-      "enddate" -> df.print(report.period.endDate),
-      "reportid" -> row.reportId.id.toString,
-      "reporturl" -> row.url
-    )
+    case 'poll => deliveryService.attemptDelivery.onComplete {
+      // some delivery attempt was made. Immediately see if there are more pending
+      case Success(Some(_)) => self ! 'poll
+      case _ => // do nothing
+    }
   }
 }
+
