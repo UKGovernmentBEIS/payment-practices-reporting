@@ -24,14 +24,17 @@ import com.google.inject.ImplementedBy
 import com.wellfactored.playbindings.ValueClassReads
 import config.Config
 import models.CompaniesHouseId
+import org.joda.time.LocalDateTime
 import play.api.Logger
-import play.api.libs.json.{Json, Reads}
+import play.api.libs.json.{JsError, JsSuccess, Json, Reads}
 import play.api.libs.ws.WSClient
 
 import scala.concurrent.{ExecutionContext, Future}
 
 case class CompanySummary(company_number: CompaniesHouseId, title: String, address_snippet: String)
+
 case class CompanyDetail(company_number: CompaniesHouseId, company_name: String)
+
 
 case class ResultsPage(
                         page_number: Int,
@@ -41,11 +44,19 @@ case class ResultsPage(
                         items: List[CompanySummary]
                       )
 
+case class ResponseWithToken[T](oAuthToken: OAuthToken, value: T)
+
 @ImplementedBy(classOf[CompaniesHouseAPIImpl])
 trait CompaniesHouseAPI {
   def searchCompanies(search: String, page: Int, itemsPerPage: Int): Future[PagedResults[CompanySummary]]
 
-  def find(companiesHouseId: CompaniesHouseId):Future[Option[CompanyDetail]]
+  def find(companiesHouseId: CompaniesHouseId): Future[Option[CompanyDetail]]
+
+  def verifyAuthCode(authCode: String, redirectUri: String, companiesHouseIdentifier: String): String
+
+  def isInScope(companiesHouseIdentifier: CompaniesHouseId, oAuthToken: OAuthToken): Future[ResponseWithToken[Boolean]]
+
+  def getEmailAddress(oAuthToken: OAuthToken): Future[ResponseWithToken[Option[String]]]
 }
 
 class CompaniesHouseAPIImpl @Inject()(val ws: WSClient)(implicit val ec: ExecutionContext)
@@ -72,11 +83,57 @@ class CompaniesHouseAPIImpl @Inject()(val ws: WSClient)(implicit val ec: Executi
     }
   }
 
-  override def find(companiesHouseId: CompaniesHouseId):Future[Option[CompanyDetail]] = {
+  override def find(companiesHouseId: CompaniesHouseId): Future[Option[CompanyDetail]] = {
     val id = views.html.helper.urlEncode(companiesHouseId.id)
     val url = s"https://api.companieshouse.gov.uk/company/$id"
     val basicAuth = "Basic " + new String(Base64.getEncoder.encode(Config.config.companiesHouse.apiKey.getBytes))
 
     getOpt[CompanyDetail](url, basicAuth)
+  }
+
+  override def verifyAuthCode(authCode: String, redirectUri: String, companiesHouseIdentifier: String): String = ???
+
+  override def isInScope(companiesHouseIdentifier: CompaniesHouseId, oAuthToken: OAuthToken): Future[ResponseWithToken[Boolean]] = Future.successful(ResponseWithToken(oAuthToken, true))
+
+  case class Email(email: String)
+
+  implicit val emailReads = Json.reads[Email]
+
+  override def getEmailAddress(token: OAuthToken): Future[ResponseWithToken[Option[String]]] = {
+    withFreshAccessToken(token) { freshToken =>
+      val auth = s"Bearer ${freshToken.accessToken}"
+      val url = "https://account.companieshouse.gov.uk/user/profile"
+      getOpt[Email](url, auth).map(e => ResponseWithToken(freshToken, e.map(_.email)))
+    }
+  }
+
+  def withFreshAccessToken[T](oAuthToken: OAuthToken)(body: OAuthToken => Future[T]): Future[T] = {
+    val f = if (oAuthToken.isExpired) refreshToken(oAuthToken) else Future.successful(oAuthToken)
+    f.flatMap(body(_))
+  }
+
+  case class AccessTokenResponse(access_token: String, expires_in: Long, refresh_token: String)
+
+  implicit val atrReads = Json.reads[AccessTokenResponse]
+
+  def refreshToken(oAuthToken: OAuthToken): Future[OAuthToken] = {
+    val url = "https://account.companieshouse.gov.uk/oauth2/token"
+    val body = Map(
+      "client_id" -> "",
+      "client_secret" -> "",
+      "grant_type" -> "refresh_token",
+      "refresh_token" -> oAuthToken.refreshToken
+    ).map { case (k, v) => (k, Seq(v)) }
+
+    ws.url(url)
+      .withHeaders(("Content-Type", "application/x-www-form-urlencoded"), ("Charset", "utf-8"))
+      .post(body).map { response =>
+      response.status match {
+        case 200 => response.json.validate[AccessTokenResponse] match {
+          case JsSuccess(atr, _) => OAuthToken(atr.access_token, LocalDateTime.now().plusSeconds(atr.expires_in.toInt), atr.refresh_token)
+          case JsError(errs) => throw new Exception(errs.toString)
+        }
+      }
+    }
   }
 }

@@ -15,25 +15,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package config
+package services
 
-case class CompaniesHouseConfig(apiKey: String)
+import org.joda.time.LocalDateTime
 
-case class NotifyConfig(
-                         apiKey: String,
-                         templateId: String
-                       )
-
-case class Config(
-                   companiesHouse: CompaniesHouseConfig,
-                   notifyService: NotifyConfig,
-                   logAssets: Option[Boolean],
-                   logRequests: Option[Boolean],
-                   printDBTables: Option[Boolean])
-
-object Config {
-
-  import pureconfig._
-
-  lazy val config: Config = loadConfig[Config].get
+case class OAuthToken(accessToken: String, accessTokenExpiry: LocalDateTime, refreshToken: String) {
+  def isExpired = accessTokenExpiry.isAfter(LocalDateTime.now)
 }

@@ -59,9 +59,25 @@ case class FiledReport(
 trait ReportRepo {
   def find(id: ReportId): Future[Option[Report]]
 
+  def findFiled(id: ReportId): Future[Option[FiledReport]]
+
   def byCompanyNumber(companiesHouseId: CompaniesHouseId): Future[Seq[Report]]
 
   def list(cutoffDate: LocalDate, maxRows: Int = 100000): Publisher[FiledReport]
 
-  def create(confirmedBy: String, companiesHouseId: CompaniesHouseId, companyName: String, reportFormModel: ReportFormModel, review:ReportReviewModel): Future[ReportId]
+  /**
+    *
+    * @param reportUrl - because we won't know what the `reportId` is until the table row is created,
+    *                  and because we don't want to pass a Play request all the way down into this
+    *                  module, the `reportUrl` parameter is a function that accepts a `reportId` and
+    *                  generates the absolute url for it.
+    */
+  def create(
+              confirmedBy: String,
+              companiesHouseId: CompaniesHouseId,
+              companyName: String,
+              reportFormModel: ReportFormModel,
+              review: ReportReviewModel,
+              confirmationEmailAddress: String,
+              reportUrl: ReportId => String): Future[ReportId]
 }

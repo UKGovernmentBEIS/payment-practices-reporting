@@ -34,20 +34,31 @@ class ReportTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(implic
   extends DBBinding
     with ReportRepo
     with ReportModule
+    with ConfirmationModule
     with ReportQueries
     with PgDateSupportJoda
     with RowBuilders {
 
   import api._
 
-  def reportByIdQ(id: Rep[ReportId])= reportQuery.filter(_._1.id === id)
+  def reportByIdQ(id: Rep[ReportId]) = reportQuery.filter(_._1.id === id)
+
   val reportByIdC = Compiled(reportByIdQ _)
 
   def find(id: ReportId): Future[Option[Report]] = db.run {
     reportByIdC(id).result.headOption.map(_.map(Report.tupled))
   }
 
-  def reportByCoNoQ(cono: Rep[CompaniesHouseId])= reportQuery.filter(_._1.companyId === cono)
+  def filedReportByIdQ(id: Rep[ReportId]) = filedReportQuery.filter(_._1.id === id)
+
+  val filedReportByIdC = Compiled(filedReportByIdQ _)
+
+  def findFiled(id: ReportId): Future[Option[FiledReport]] = db.run {
+    filedReportByIdC(id).result.headOption.map(_.map(FiledReport.tupled))
+  }
+
+  def reportByCoNoQ(cono: Rep[CompaniesHouseId]) = reportQuery.filter(_._1.companyId === cono)
+
   val reportByCoNoC = Compiled(reportByCoNoQ _)
 
   def byCompanyNumber(companiesHouseId: CompaniesHouseId): Future[Seq[Report]] = db.run {
@@ -65,7 +76,15 @@ class ReportTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(implic
     db.stream(disableAutocommit andThen action).mapResult(FiledReport.tupled)
   }
 
-  override def create(confirmedBy: String, companiesHouseId: CompaniesHouseId, companyName: String, report: ReportFormModel, review: ReportReviewModel): Future[ReportId] = db.run {
+  override def create(
+                       confirmedBy: String,
+                       companiesHouseId: CompaniesHouseId,
+                       companyName: String,
+                       report: ReportFormModel,
+                       review: ReportReviewModel,
+                       confirmationEmailAddress: String,
+                       reportUrl: ReportId => String
+                     ): Future[ReportId] = db.run {
     val header = ReportHeaderRow(ReportId(0), companyName, companiesHouseId, new LocalDate(), new LocalDate())
 
     (reportHeaderTable.returning(reportHeaderTable.map(_.id)) += header).flatMap { reportId =>
@@ -75,6 +94,7 @@ class ReportTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(implic
         _ <- paymentHistoryTable += buildPaymentHistoryRow(report, reportId)
         _ <- otherInfoTable += buildOtherInfoRow(report, reportId)
         _ <- filingTable += buildFilingRow(review, reportId)
+        _ <- confirmationPendingTable += ConfirmationPendingRow(reportId, confirmationEmailAddress, reportUrl(reportId), 0, None, None, None)
       } yield reportId
     }.transactionally
   }

@@ -31,7 +31,7 @@ import play.api.data._
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, Controller, Result}
 import play.twirl.api.Html
-import services.{CompaniesHouseAPI, CompanyDetail}
+import services.{CompaniesHouseAPI, CompanyDetail, NotifyService}
 import slicks.modules.ReportRepo
 import utils.{TimeSource, YesNo}
 
@@ -39,6 +39,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class ReportController @Inject()(
                                   companiesHouseAPI: CompaniesHouseAPI,
+                                  notifyService: NotifyService,
                                   reports: ReportRepo,
                                   timeSource: TimeSource,
                                   CompanyAuthAction: CompanyAuthAction
@@ -143,6 +144,8 @@ class ReportController @Inject()(
   def postReview(companiesHouseId: CompaniesHouseId) = CompanyAuthAction(companiesHouseId).async(parse.urlFormEncoded) { implicit request =>
     val revise = Form(single("revise" -> text)).bindFromRequest().value.contains("Revise")
 
+    companiesHouseAPI.isInScope(companiesHouseId, request.oAuthToken)
+
     // Re-capture the values for the report itself. In theory these values should always be valid
     // (as we only send the user to the review page if they are) but if somehow they aren't then
     // send the user back to the report form to fix them.
@@ -157,15 +160,26 @@ class ReportController @Inject()(
   private def checkConfirmation(companiesHouseId: CompaniesHouseId, report: ReportFormModel)(implicit request: CompanyAuthRequest[_]): Future[Result] = {
     emptyReview.bindFromRequest().fold(
       errs => Future.successful(BadRequest(page(home, pages.review(errs, report, companiesHouseId, request.companyName, df, reportValidations.reportFormModel)))),
-      review =>
-        if (review.confirmed) reports.create(review.confirmedBy, companiesHouseId, request.companyName, report, review).map { reportId =>
-          Redirect(controllers.routes.ReportController.showConfirmation(reportId))
-        }
-        else Future.successful(BadRequest(page(home, pages.review(emptyReview.fill(review), report, companiesHouseId, request.companyName, df, reportValidations.reportFormModel))))
+      review => {
+        if (review.confirmed)
+          createReport(companiesHouseId, report, review)
+            .map(rId => Redirect(controllers.routes.ReportController.showConfirmation(rId)))
+        else
+          Future.successful(BadRequest(page(home, pages.review(emptyReview.fill(review), report, companiesHouseId, request.companyName, df, reportValidations.reportFormModel))))
+      }
     )
   }
 
-  def showConfirmation(reportId: ReportId) = Action(Ok(page(home, pages.filingSuccess(reportId, "<unknown>"))))
+  val emailAddress = "doug.clinton@digital.beis.gov.uk"
+
+  private def createReport(companiesHouseId: CompaniesHouseId, report: ReportFormModel, review: ReportReviewModel)(implicit request: CompanyAuthRequest[_]): Future[ReportId] = {
+    val urlFunction: ReportId => String = (id: ReportId) => controllers.routes.SearchController.view(id).absoluteURL()
+    for {
+      reportId <- reports.create(review.confirmedBy, companiesHouseId, request.companyName, report, review, emailAddress, urlFunction)
+    } yield reportId
+  }
+
+  def showConfirmation(reportId: ReportId) = Action(Ok(page(home, pages.filingSuccess(reportId, emailAddress))))
 }
 
 object ReportController {

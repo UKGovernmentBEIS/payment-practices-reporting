@@ -10,18 +10,33 @@ create table "other_info" ("report_id" BIGINT NOT NULL,"offer_einvoicing" BOOLEA
 create unique index "otherinfo_report_idx" on "other_info" ("report_id");
 create table "filing" ("report_id" BIGINT NOT NULL,"filing_date" date NOT NULL,"approved_by" VARCHAR(255) NOT NULL);
 create unique index "filing_report_idx" on "filing" ("report_id");
+create table "confirmation_pending" ("report_id" BIGINT NOT NULL,"email_address" VARCHAR(255) NOT NULL,"url" VARCHAR(255) NOT NULL,"retry_count" INTEGER NOT NULL,"last_error_status" INTEGER,"last_error_text" VARCHAR(2048),"locked_at" timestamp);
+create unique index "confirmationpending_report_idx" on "confirmation_pending" ("report_id");
+create table "confirmation_sent" ("report_id" BIGINT NOT NULL,"email_address" VARCHAR(255) NOT NULL,"email_body" VARCHAR(4096) NOT NULL,"notification_id" VARCHAR(36) NOT NULL,"sent_at" timestamp NOT NULL);
+create unique index "confirmationsent_report_idx" on "confirmation_sent" ("report_id");
+create table "confirmation_failed" ("report_id" BIGINT NOT NULL,"email_address" VARCHAR(255) NOT NULL,"error_status" INTEGER NOT NULL,"error_text" VARCHAR(2048) NOT NULL,"failed_at" timestamp NOT NULL);
+create unique index "confirmationfailed_report_idx" on "confirmation_failed" ("report_id");
 alter table "report_period" add constraint "reportperiod_report_fk" foreign key("report_id") references "report_header"("id") on update NO ACTION on delete CASCADE;
 alter table "payment_terms" add constraint "paymentterms_report_fk" foreign key("report_id") references "report_header"("id") on update NO ACTION on delete CASCADE;
 alter table "payment_history" add constraint "paymenthistory_report_fk" foreign key("report_id") references "report_header"("id") on update NO ACTION on delete CASCADE;
 alter table "other_info" add constraint "otherinfo_report_fk" foreign key("report_id") references "report_header"("id") on update NO ACTION on delete CASCADE;
 alter table "filing" add constraint "filing_report_fk" foreign key("report_id") references "report_header"("id") on update NO ACTION on delete CASCADE;
+alter table "confirmation_pending" add constraint "confirmationpending_report_fk" foreign key("report_id") references "report_header"("id") on update NO ACTION on delete CASCADE;
+alter table "confirmation_sent" add constraint "confirmationsent_report_fk" foreign key("report_id") references "report_header"("id") on update NO ACTION on delete CASCADE;
+alter table "confirmation_failed" add constraint "confirmationfailed_report_fk" foreign key("report_id") references "report_header"("id") on update NO ACTION on delete CASCADE;
 
 # --- !Downs
+alter table "confirmation_failed" drop constraint "confirmationfailed_report_fk";
+alter table "confirmation_sent" drop constraint "confirmationsent_report_fk";
+alter table "confirmation_pending" drop constraint "confirmationpending_report_fk";
 alter table "filing" drop constraint "filing_report_fk";
 alter table "other_info" drop constraint "otherinfo_report_fk";
 alter table "payment_history" drop constraint "paymenthistory_report_fk";
 alter table "payment_terms" drop constraint "paymentterms_report_fk";
 alter table "report_period" drop constraint "reportperiod_report_fk";
+drop table "confirmation_failed";
+drop table "confirmation_sent";
+drop table "confirmation_pending";
 drop table "filing";
 drop table "other_info";
 drop table "payment_history";
