@@ -5,7 +5,7 @@
     <h3 class="heading-medium">
         Enter the start and end dates of your financial year
     </h3>
-    <p class="form-hint">This will tell you your next reporting periods and your deadlines for reporting.</p>
+    <p class="form-hint">This will tell you the reporting periods and deadlines for the financial year</p>
     <form method="post" action="@controllers.routes.CalculatorController.submit()">
         <fieldset class='@(if(dateForm.hasErrors) "error" else "")'>
             @if(dateForm.hasErrors) {

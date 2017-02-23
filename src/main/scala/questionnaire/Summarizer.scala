@@ -47,9 +47,9 @@ class Summarizer @Inject()(messages: MessagesApi) {
         ifYes(decisionState.companyThresholds.employees, keyForFinancialYear(decisionState, "summary.company.employees"))
       ),
       ThresholdSummary(
-        ifYes(decisionState.subsidiaryThresholds.turnover, "summary.subsidiaries.turnover"),
-        ifYes(decisionState.subsidiaryThresholds.balanceSheet, "summary.subsidiaries.balance"),
-        ifYes(decisionState.subsidiaryThresholds.employees, "summary.subsidiaries.employees")
+        ifYes(decisionState.subsidiaryThresholds.turnover, keyForFinancialYear(decisionState, "summary.subsidiaries.turnover")),
+        ifYes(decisionState.subsidiaryThresholds.balanceSheet, keyForFinancialYear(decisionState, "summary.subsidiaries.balance")),
+        ifYes(decisionState.subsidiaryThresholds.employees, keyForFinancialYear(decisionState, "summary.subsidiaries.employees"))
       )
     )
 

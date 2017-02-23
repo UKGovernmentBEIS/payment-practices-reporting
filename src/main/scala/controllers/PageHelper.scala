@@ -32,7 +32,7 @@ trait PageHelper {
     views.html.templates.govukTemplateDefaults.render("Payment practices reporting", content)
   }
 
-  def h1(text: String) = views.html.shared._h1(text)
+  def h1(text: String) = views.html.shared._h1(Html(text))
 
   val homeBreadcrumb = Breadcrumb(routes.HomeController.index(), "Payment practices reporting")
   val home = breadcrumbs(homeBreadcrumb)

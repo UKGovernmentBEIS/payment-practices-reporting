@@ -1,54 +1,67 @@
 error.endafterstart=The end date must be later than the start date
 
-reason.firstyear=Your business doesn''t have to report in its first year of operations. You should check at the beginning of your second financial year to see if you have to report.
-reason.company.notlargeenough=Your business isn’t large enough to have to report. You should check at the beginning of every financial year to see if this has changed.
-reason.group.notlargeenough=Your group isn’t large enough to have to report. You should check at the beginning of every financial year to see if this has changed.
+reason.firstyear=This is because it'’s in its first year of operations. You should check back at the beginning of your second financial year to see if you have to report.
+reason.company.notlargeenough=You should check at the beginning of every financial year to see if you need to report.
+reason.group.notlargeenough=You should check at the beginning of every financial year to see if you need to report.
 
-question.iscompanyorllp=Is your business a company or Limited Liability Partnership incorporated in the UK?
+
+question.iscompanyorllp=Is your business a company incorporated in the UK or a limited liability partnership registered in the UK?
 question.financialyear=Which financial year is your business currently in?
-choice.first=First Year
-choice.second=Second Year
+choice.first=First year
+choice.second=Second year
 choice.third=Third year or later
 
-question.hassubsidiaries=Does your company have subsidiaries?
+question.hassubsidiaries=Does your business have subsidiaries?
+question.hassubsidiaries.reveal=
 
-hint.company=If your business is part of a group, your answers must be for your business on its own. Every business within the group will need to do this individually
-question.company.turnover.y2=Did your business have a turnover of more than £36 million on its last balance sheet date?
-question.company.balance.y2=Did your business have a balance sheet total greater than £18 million at its last financial year end?
+hint.turnover=The £36 million threshold is based on a financial year which runs for a full calendar year. If your financial year is more or less than this, pro-rate the threshold.
+hint.balance=
+hint.employees=For each month in the financial year, calculate how many people were employed, even if it was just for a day. Then add together the monthly totals and divide by the number of months in the financial year.
+
+question.company.turnover.y2=In your last financial year, did your business have a turnover of more than £36 million on its last balance sheet date?
+question.company.balance.y2=Did your business have a balance sheet total greater than £18 million on its last balance sheet date?
 question.company.employees.y2=Did your business have an average of at least 250 employees during its last financial year?
 
 question.company.turnover.y3=Did your business have a turnover of more than £36 million on its last 2 balance sheet dates?
-question.company.balance.y3=Did your business have a balance sheet total greater than £18 million at its last 2 financial year ends?
+question.company.balance.y3=Did your business have a balance sheet total greater than £18 million at its last 2 balance sheet dates?
 question.company.employees.y3=Did your business have an average of at least 250 employees during its last 2 financial years?
 
 hint.subsidiaries=''Net'' here means after any set-offs and other adjustments to exclude group transactions. ''Gross'' means without those set-offs and adjustments.
-question.subsidiaries.turnover.y2=Did you and your subsidiaries have an total turnover of at least £36 million net or £43.2 million gross on the last balance sheet date?
-question.subsidiaries.balance.y2=Did you and your subsidiaries have a combined balance sheet total of £18 million net or £21.6 million gross on the last balance sheet date?
-question.subsidiaries.employees.y2=Did the you and your subsidiaries have a combined workforce of at least 250 on the last balance sheet date?
 
-question.subsidiaries.turnover.y3=Did you and your subsidiaries have an total turnover of at least £36 million net or £43.2 million gross on both of the last 2 balance sheet dates?
-question.subsidiaries.balance.y3=Did you and your subsidiaries have a combined balance sheet total of £18 million net or £21.6 million gross on both of the last 2 balance sheet dates?
-question.subsidiaries.employees.y3=Did the you and your subsidiaries have a combined workforce of at least 250 on both of the last 2 balance sheet dates?
+question.subsidiaries.turnover.y2=Did your business and its subsidiaries have a total turnover of at least £36 million net or £43.2 million gross on their last balance sheet date?
+question.subsidiaries.balance.y2=Did your business and its subsidiaries have a combined balance sheet total of £18 million net or £21.6 million gross on their last balance sheet date?
+question.subsidiaries.employees.y2=Did your business and its subsidiaries have an average of more than 250 employees during both of their last financial year?
 
-summary.iscompanyorllp=is a company or Limited Liability Partnership incorporated in the UK
+question.subsidiaries.turnover.y3=Did your business and its subsidiaries have a combined turnover of more than £36 million net or £43.2 million gross on both of their last 2 balance sheet dates?
+question.subsidiaries.balance.y3=Did your business and its subsidiaries have a combined balance sheet total higher than £18 million net or £21.6 million gross on both of their last 2 balance sheet dates?
+question.subsidiaries.employees.y3=Did your business and its subsidiaries have an average of more than 250 employees during both of their last 2 financial years?
+
+summary.iscompanyorllp=is a company incorporated in the UK or limited liability partnership registered in the UK
+
 summary.company.turnover.y2=had a turnover of more than £36 million on its last balance sheet date
-summary.company.balance.y2=had more than £18 million balance sheet total at its last financial year end
-summary.company.employees.y2=had an average of at least 250 employees during its last financial year
+summary.company.balance.y2=had more than £18 million balance sheet total on its last balance sheet date
+summary.company.employees.y2=had an average of more than 250 employees during its last financial year
+
 summary.company.turnover.y3=had a turnover of more than £36 million on its last 2 balance sheet dates
-summary.company.balance.y3=had more than £18 million balance sheet total at its last 2 financial year ends
-summary.company.employees.y3=had an average of at least 250 employees during both of its last 2 financial years
-summary.subsidiaries.turnover=had an total turnover of at least £36 million net or £43.2 million gross
-summary.subsidiaries.balance=had a combined balance sheet total of £18 million net or £21.6 million gross
-summary.subsidiaries.employees=had a combined workforce of at least 250
+summary.company.balance.y3=had more than £18 million balance sheet total on its last 2 balance sheet dates
+summary.company.employees.y3=had an average of more than 250 employees during both of its last 2 financial years
+
+summary.subsidiaries.turnover=had a total turnover of at least £36 million net or £43.2 million gross on their last balance sheet date
+summary.subsidiaries.balance=had a combined balance sheet total of £18 million net or £21.6 million gross on their last balance sheet date
+summary.subsidiaries.employees=had an average of more than 250 employees during their last financial year
+
+summary.subsidiaries.turnover.y3=had a total turnover of at least £36 million net or £43.2 million gross on both of their last 2 balance sheet dates
+summary.subsidiaries.balance.y3=had a combined balance sheet total of £18 million net or £21.6 million gross on both of their last 2 balance sheet dates
+summary.subsidiaries.employees.y3=had an average of more than 250 employees during both of their last 2 financial years
 
 field.reportDates.startDate.label=Start date of reporting period
 field.reportDates.endDate.label=End date of reporting period
 
 field.paymentHistory.averageDaysToPay.label=Average time to pay in days
-field.paymentHistory.averageDaysToPay.hint=Out all of the payments you have made in the reporting period, the average time it took to pay.
+field.paymentHistory.averageDaysToPay.hint=Of the payments you have made in the reporting period, the average time it took to pay.
 
 field.paymentHistory.percentPaidBeyondAgreedTerms.label=Percentage of invoices not paid within agreed terms
-field.paymentHistory.percentPaidBeyondAgreedTerms.hint=The percentage of invoices you failed to pay under the terms of your supplier contracts. This relates to the number of invoices, not their value.
+field.paymentHistory.percentPaidBeyondAgreedTerms.hint=This relates to the number of invoices, not their value.
 
 field.paymentHistory.percentageSplit.percentWithin30Days.label=A) Percentage of invoices paid within 30 days
 field.paymentHistory.percentageSplit.percentWithin30Days.hint=
@@ -56,7 +69,7 @@ field.paymentHistory.percentageSplit.percentWithin30Days.hint=
 field.paymentHistory.percentageSplit.percentWithin60Days.label=B) Percentage of invoices paid between 31 and 60 days
 field.paymentHistory.percentageSplit.percentWithin60Days.hint=
 
-field.paymentHistory.percentageSplit.percentBeyond60Days.label=C) Percentage of invoices paid later than 60 days
+field.paymentHistory.percentageSplit.percentBeyond60Days.label=C) Percentage of invoices paid on or after day 61
 field.paymentHistory.percentageSplit.percentBeyond60Days.hint=
 
 field.paymentTerms.terms.label=Describe your standard payment terms
@@ -85,21 +98,21 @@ field.paymentTerms.paymentTermsComment.label=Optional: any further information a
 field.paymentTerms.paymentTermsComment.hint=
 
 field.paymentTerms.disputeResolution.label=Describe your dispute resolution process
-field.paymentTerms.disputeResolution.hint=How do you handle complaints and queries from your suppliers about payments under qualifying contracts?
+field.paymentTerms.disputeResolution.hint=How do you resolve disputes and complaints with your suppliers about payments?
 
-field.offerEInvoicing.label=Does your business offer E-invoicing?
-field.offerEInvoicing.hint=Do you allow suppliers to electronically submit invoices?
+field.offerEInvoicing.label=Does your business offer e-invoicing?
+field.offerEInvoicing.hint=This is where your suppliers can electronically submit and track invoices. It''s not just allowing suppliers to email you an invoice.
 
 field.offerSupplyChainFinancing.label=Does your business offer supply chain finance options?
-field.offerSupplyChainFinancing.hint=This is where a supplier’s invoice can be paid quickly by a third-party company, who you then pay at a later date.
+field.offerSupplyChainFinancing.hint=This is where you have an arrangement where a supplier who has submitted an invoice can be paid by a third-party finance provider earlier than the agreed payment date.
 
-field.retentionChargesInPolicy.label=Does your business have a policy of deducting sums from payments as a charge for remaining on a supplier list?
+field.retentionChargesInPolicy.label=Under its payment practices and policies, can your business deduct sums from payments as a charge for remaining on a supplier list?
 field.retentionChargesInPolicy.hint=
 
 field.retentionChargesInPast.label=In this reporting period, has your business deducted sums from payments as a charge for remaining on a supplier list?
 field.retentionChargesInPast.hint=
 
-field.paymentCodes.yesNo.label=Is your business a signatory to a code of practice for payment?
+field.paymentCodes.yesNo.label=Is your business a member of a code of practice for payment?
 field.paymentCodes.yesNo.hint=
 field.paymentCodes.text.label=If so, enter the name of the code of practice
 field.paymentCodes.text.hint=

@@ -1,14 +1,14 @@
 @(companyName:String, companyId:CompaniesHouseId)
 
 <div class="scannable-wrapper">
-    <h1 class="heading-xlarge">Publish a report for @companyName</h1>
+    <h1 class="heading-xlarge">Publish a report for:<br>@companyName</h1>
     <p class="bold-medium">Company number: @companyId.id</p>
     <div class="notice">
         <i class="icon icon-important">
             <span class="visually-hidden">Warning</span>
         </i>
         <strong>
-            You could be fined if you publish a false or misleading report.
+            You could be prosecuted and fined if you publish a false or misleading report.
         </strong>
     </div>
     <a href="@routes.ReportController.preLogin(companyId)" class="button button-start">File a payment report</a>

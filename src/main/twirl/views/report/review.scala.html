@@ -44,6 +44,7 @@
     }
 
     <div class="scannable-wrapper">
+        @_textField(review, "confirmedBy")
         <fieldset class='confirmation form-group'>
             <h3 class="bold-medium">Confirm this statement then publish your report</h3>
 
@@ -53,7 +54,7 @@
                 <input type="checkbox" name="confirmed" id="confirmed" value="true">
                 I confirm that the information provided in this report is accurate and has been approved by a director of my company or a designated member of my limited liability partnership.
             </label>
-            @_textField(review, "confirmedBy")
+
         </fieldset>
         <input type="submit" class="button" value="Publish your report">
         <input type="submit" name="revise" class="button button-secondary" value="Revise">

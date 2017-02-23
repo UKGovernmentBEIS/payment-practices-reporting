@@ -1,11 +1,11 @@
 @(companyName: String, companyId:CompaniesHouseId)
 
 <div class="scannable-wrapper">
-    <h1 class="heading-xlarge">Publish a report for @companyName</h1>
+    <h1 class="heading-xlarge">Publish a report for:<br>@companyName</h1>
         <p class="lede">If you want a colleague who has a Companies House authentication code to publish the report, follow these steps.</p>
         <ol class="list list-number">
-            <li>Give them the report data, approved by a director, or a designated member if the business is a Limited Liability Partnership.</li>
-            <li>Make sure you also give them the deadline to publish the report.</li>
+            <li>Give them the report data, approved by a director, or a designated member if the business is a limited liability partnership.</li>
+            <li>Make sure you also tell them what the deadline is to publish the report.</li>
             <li>They will need to use their Companies House authentication code to <a href="@routes.ReportController.start(companyId)">publish the report</a>.</li>
         </ol>
 </div>

@@ -127,7 +127,7 @@ class ReportController @Inject()(
     form.bindFromRequest().fold(errs => BadRequest(s"Invalid option"), resultFor)
   }
 
-  def reportPageHeader(implicit request: CompanyAuthRequest[_]) = h1(s"Publish a report for ${request.companyName}")
+  def reportPageHeader(implicit request: CompanyAuthRequest[_]) = h1(s"Publish a report for:<br>${request.companyName}")
 
   def file(companiesHouseId: CompaniesHouseId) = CompanyAuthAction(companiesHouseId) { implicit request =>
     Ok(page(home, reportPageHeader, pages.file(emptyReport, companiesHouseId, LocalDate.now(), df)))
