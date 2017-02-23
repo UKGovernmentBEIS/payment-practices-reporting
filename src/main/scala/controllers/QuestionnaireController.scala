@@ -65,6 +65,6 @@ class QuestionnaireController @Inject()(decider: Decider, summarizer: Summarizer
     val state = decisionStateMapping.bindFromRequest.fold(_ => DecisionState.empty, s => s)
 
     val summary = summarizer.summarize(state)
-    Ok(page(home, pages.required(state, summary)))
+    Ok(page(home, pages.required(summary)))
   }
 }

@@ -19,18 +19,27 @@ package controllers
 
 import javax.inject.Inject
 
+import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, Controller}
 import play.twirl.api.Html
-import questionnaire.Questions
+import questionnaire.{Questions, StateSummary, ThresholdSummary}
 
-class VisualTestController @Inject()(questions: Questions) extends Controller with PageHelper {
-import questions._
-  def show = Action {
+class VisualTestController @Inject()(questions: Questions)(implicit messages: MessagesApi) extends Controller with PageHelper {
+
+  import questions._
+
+  def show = Action { implicit request =>
     val index = views.html.index()
     val download = views.html.download.accessData()
     val qStart = views.html.questionnaire.start()
+    val reasons = None +: Seq("reason.firstyear", "reason.company", "reason.group.notlargeenough").map(Some(_))
+    val exempts = reasons.map(views.html.questionnaire.exempt(_))
 
-    val content = (Seq(index, download, qStart) ++ questionPages).flatMap(x => Seq(x, Html("<hr/>")))
+    val content = (
+      Seq(index, download, qStart)
+        ++ questionPages
+        ++ exempts
+      ).flatMap(x => Seq(x, Html("<hr/>")))
     Ok(page(content: _*))
   }
 
@@ -51,5 +60,9 @@ import questions._
     subsidiaryBalanceSheetQuestionY3,
     subsidiaryEmployeesQuestionY3
   ).map(views.html.questionnaire.question("", _))
+
+  val states = Seq(
+    StateSummary(None, ThresholdSummary(None, None, None), ThresholdSummary(None, None, None))
+  )
 
 }
