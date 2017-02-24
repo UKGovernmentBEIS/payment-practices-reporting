@@ -36,9 +36,9 @@ class SearchController @Inject()(companiesHouseAPI: CompaniesHouseAPI, reports: 
   val df = DateTimeFormat.forPattern("d MMMM YYYY")
 
   def search(query: Option[String], pageNumber: Option[Int], itemsPerPage: Option[Int]) = Action.async {
-    val searchLink = routes.SearchController.search(None, None, None)
-    val pageLink = { i: Int => routes.SearchController.search(query, Some(i), itemsPerPage) }
-    val companyLink = { id: CompaniesHouseId => routes.SearchController.company(id, pageNumber) }
+    val searchLink = routes.SearchController.search(None, None, None).url
+    val pageLink = { i: Int => routes.SearchController.search(query, Some(i), itemsPerPage).url }
+    val companyLink = { id: CompaniesHouseId => routes.SearchController.company(id, pageNumber).url }
     val header = h1("Search for a report")
 
     query match {
@@ -57,7 +57,7 @@ class SearchController @Inject()(companiesHouseAPI: CompaniesHouseAPI, reports: 
   }
 
   def company(companiesHouseId: CompaniesHouseId, pageNumber: Option[Int]) = Action.async { implicit request =>
-    val pageLink = { i: Int => routes.SearchController.company(companiesHouseId, Some(i)) }
+    val pageLink = { i: Int => routes.SearchController.company(companiesHouseId, Some(i)).url }
     val result = for {
       co <- OptionT(companiesHouseAPI.find(companiesHouseId))
       rs <- OptionT.liftF(reports.byCompanyNumber(companiesHouseId).map(rs => PagedResults.page(rs.flatMap(_.filed), pageNumber.getOrElse(1))))
@@ -75,13 +75,12 @@ class SearchController @Inject()(companiesHouseAPI: CompaniesHouseAPI, reports: 
 
   def view(reportId: ReportId) = Action.async { implicit request =>
     val f = for {
-      report <- OptionT(reports.find(reportId).map(_.flatMap(_.filed)))
-      company <- OptionT(companiesHouseAPI.find(report.header.companyId))
+      report <- OptionT(reports.findFiled(reportId))
     } yield {
       val searchCrumb = Breadcrumb(routes.SearchController.search(None, None, None), "Search for reports")
-      val companyCrumb = Breadcrumb(routes.SearchController.company(company.company_number, None), s"${company.company_name} reports")
+      val companyCrumb = Breadcrumb(routes.SearchController.company(report.header.companyId, None), s"${report.header.companyName} reports")
       val crumbs = breadcrumbs(homeBreadcrumb, searchCrumb, companyCrumb)
-      Ok(page(crumbs, views.html.search.report(report, company, df)))
+      Ok(page(crumbs, views.html.search.report(report, df)))
     }
 
     f.value.map {

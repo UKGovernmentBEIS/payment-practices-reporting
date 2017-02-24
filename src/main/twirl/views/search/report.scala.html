@@ -1,10 +1,10 @@
 @import org.joda.time.format.DateTimeFormatter
 @import slicks.modules.FiledReport
-@(report: FiledReport, company: services.CompanyDetail, df: DateTimeFormatter)
+@(report: FiledReport, df: DateTimeFormatter)
 
 <div class="scannable-wrapper">
-    <h1 class="heading-xlarge"> @company.company_name
-    <p class="small-aside">Company number: @company.company_number.id</p>
+    <h1 class="heading-xlarge"> @report.header.companyName
+    <p class="small-aside">Company number: @report.header.companyId.id</p>
     </h1>
 
     <h2 class="heading-large">
@@ -61,7 +61,7 @@
         <h4 class="heading-small">Were suppliers notified or consulted about these changes?</h4>
         <p>
             @report.paymentTerms.paymentTermsChangedNotifiedComment.map { text =>
-                <strong>Yes </strong>&ndash; shared._multiline(companyReport.report.PaymentTermsChangedNotifiedComment)
+                <strong>Yes </strong>&ndash; @shared._multiline(text)
             }.getOrElse {
                 <strong>No</strong>
             }

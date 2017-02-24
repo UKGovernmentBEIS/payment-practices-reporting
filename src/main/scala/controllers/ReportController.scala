@@ -53,9 +53,9 @@ class ReportController @Inject()(
   val df = DateTimeFormat.forPattern("d MMMM YYYY")
 
   def search(query: Option[String], pageNumber: Option[Int], itemsPerPage: Option[Int]) = Action.async {
-    val searchLink = routes.ReportController.search(None, None, None)
-    val pageLink = { i: Int => routes.ReportController.search(query, Some(i), itemsPerPage) }
-    val companyLink = { id: CompaniesHouseId => routes.ReportController.start(id) }
+    val searchLink = routes.ReportController.search(None, None, None).url
+    val pageLink = { i: Int => routes.ReportController.search(query, Some(i), itemsPerPage).url }
+    val companyLink = { id: CompaniesHouseId => routes.ReportController.start(id).url }
     val header = h1("Publish a report")
 
     query match {

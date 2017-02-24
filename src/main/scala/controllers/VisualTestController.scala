@@ -20,16 +20,23 @@ package controllers
 import javax.inject.Inject
 
 import calculator.Calculator
+import db._
 import forms.DateRange
+import models.{CompaniesHouseId, ReportId}
 import org.joda.time.LocalDate
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, Controller}
 import play.twirl.api.Html
 import questionnaire._
+import slicks.modules.FiledReport
+import utils.YesNo
 
 class VisualTestController @Inject()(questions: Questions, summarizer: Summarizer)(implicit messages: MessagesApi) extends Controller with PageHelper {
 
   import questions._
+
+  val startDate = new LocalDate(2017, 1, 1)
+  val endDate = new LocalDate(2017, 12, 31)
 
   def show = Action { implicit request =>
     val index = views.html.index()
@@ -44,10 +51,14 @@ class VisualTestController @Inject()(questions: Questions, summarizer: Summarize
       views.html.calculator.calculator(CalculatorController.emptyForm),
       views.html.calculator.calculator(CalculatorController.emptyForm.bind(Map[String, String]())))
 
-    val calc = Calculator(calculator.FinancialYear(DateRange(new LocalDate(2017, 1, 1), new LocalDate(2017, 12, 31))))
-    val answers = Seq(views.html.calculator.answer(false, calc, CalculatorController.df))
 
-    //val searches = Seq(views.html.search.search("", None, Map()))
+    val calc = Calculator(calculator.FinancialYear(DateRange(startDate, endDate)))
+    val answers = Seq(views.html.calculator.answer(false, calc, CalculatorController.df))
+    val searches = Seq(views.html.search.search("", None, Map(), "", _ => "", _ => ""))
+
+    val reports = Seq(
+      views.html.search.report(healthyReport, CalculatorController.df)
+    )
 
     val content = (
       Seq(index, download, qStart)
@@ -56,7 +67,9 @@ class VisualTestController @Inject()(questions: Questions, summarizer: Summarize
         ++ requireds
         ++ calcs
         ++ answers
-      ).zipWithIndex.flatMap{case (x, i) => Seq(Html(s"<hr/>screen ${i+1}"), x )}
+        ++ searches
+        ++ reports
+      ).zipWithIndex.flatMap { case (x, i) => Seq(Html(s"<hr/>screen ${i + 1}"), x) }
     Ok(page(content: _*))
   }
 
@@ -80,6 +93,19 @@ class VisualTestController @Inject()(questions: Questions, summarizer: Summarize
 
   val states = Seq(
     StateSummary(None, ThresholdSummary(None, None, None), ThresholdSummary(None, None, None))
+  )
+
+  import YesNo._
+
+  val reportId = ReportId(0)
+
+  val healthyReport = FiledReport(
+    ReportHeaderRow(reportId, "ABC Limited", CompaniesHouseId("1234567890"), LocalDate.now, LocalDate.now),
+    ReportPeriodRow(reportId, startDate, endDate),
+    PaymentTermsRow(reportId, "payment terms", 30, 30, Some("Maximum period is very fair"), Some("Payment terms have changed"), Some("We told everyone"), Some("Other comments"), "Dispute resolution process is the best"),
+    PaymentHistoryRow(reportId, 30, 10, 33, 33, 33),
+    OtherInfoRow(reportId, No, Yes, No, Yes, Some("Payment Practice Code")),
+    FilingRow(reportId, LocalDate.now, "The big boss")
   )
 
 }
