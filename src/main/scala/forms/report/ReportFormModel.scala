@@ -17,8 +17,9 @@
 
 package forms.report
 
+import db.{PaymentHistoryRow, PaymentTermsRow}
 import forms.DateRange
-import org.joda.time.LocalDate
+import slicks.modules.FiledReport
 import utils.YesNo
 import utils.YesNo.{No, Yes}
 
@@ -38,6 +39,11 @@ case class ConditionalText(yesNo: YesNo, text: Option[String]) {
   }
 }
 
+object ConditionalText {
+  def apply(o: Option[String]): ConditionalText =
+    o.map(s => ConditionalText(Yes, Some(s))).getOrElse(ConditionalText(No, None))
+}
+
 case class PercentageSplit(
                             percentWithin30Days: Int,
                             percentWithin60Days: Int,
@@ -52,6 +58,11 @@ case class PaymentHistory(
                            percentageSplit: PercentageSplit
                          )
 
+object PaymentHistory {
+  def apply(row: PaymentHistoryRow): PaymentHistory =
+    PaymentHistory(row.averageDaysToPay, row.percentPaidLaterThanAgreedTerms, PercentageSplit(row.percentInvoicesWithin30Days, row.percentInvoicesWithin60Days, row.percentInvoicesBeyond60Days))
+}
+
 
 case class PaymentTerms(
                          terms: String,
@@ -64,8 +75,17 @@ case class PaymentTerms(
                          disputeResolution: String
                        )
 
+object PaymentTerms {
+  def apply(row: PaymentTermsRow): PaymentTerms =
+    PaymentTerms(row.paymentTerms, row.paymentPeriod, row.maximumContractPeriod, row.maximumContractPeriodComment,
+      ConditionalText(row.paymentTermsChangedComment),
+      ConditionalText(row.paymentTermsChangedNotifiedComment),
+      row.paymentTermsChangedComment,
+      row.disputeResolution
+    )
+}
+
 case class ReportFormModel(
-                            filingDate: LocalDate,
                             reportDates: DateRange,
                             paymentHistory: PaymentHistory,
                             paymentTerms: PaymentTerms,
@@ -76,8 +96,26 @@ case class ReportFormModel(
                             retentionChargesInPast: YesNo
                           )
 
+object ReportFormModel {
+  def apply(filed: FiledReport): ReportFormModel = {
+    ReportFormModel(
+      DateRange(filed.period.startDate, filed.period.endDate),
+      PaymentHistory(filed.paymentHistory),
+      PaymentTerms(filed.paymentTerms),
+      ConditionalText(filed.otherInfo.paymentCodes),
+      filed.otherInfo.offerEInvoicing,
+      filed.otherInfo.offerSupplyChainFinance,
+      filed.otherInfo.retentionChargesInPolicy,
+      filed.otherInfo.retentionChargesInPast
+    )
+  }
+
+}
+
 case class ReportReviewModel(
                               confirmed: Boolean,
                               confirmedBy: String
                             )
+
+
 

@@ -13,7 +13,6 @@
 <p>Round up or down to the nearest whole number</p>
 
 @_numberField(form, "paymentHistory.averageDaysToPay", Some("days"))
-@_numberField(form, "paymentHistory.percentPaidBeyondAgreedTerms", Some("%"))
 
 <div class="form-group @errorClass("paymentHistory.percentageSplit")" style="margin-bottom:15px;">
     <label class="form-label">
@@ -26,3 +25,5 @@
     @_numberField(form, "paymentHistory.percentageSplit.percentWithin60Days", Some("%"))
     @_numberField(form, "paymentHistory.percentageSplit.percentBeyond60Days", Some("%"))
 </div>
+
+@_numberField(form, "paymentHistory.percentPaidBeyondAgreedTerms", Some("%"))

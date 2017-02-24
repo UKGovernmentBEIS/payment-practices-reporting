@@ -31,6 +31,11 @@ case class DecisionState(
 
 object DecisionState {
   val empty: DecisionState = DecisionState(None, None, Thresholds.empty, None, Thresholds.empty)
+
+  import YesNo.Yes
+
+  val secondYear: DecisionState = DecisionState(Some(Yes), Some(FinancialYear.Second), Thresholds(Some(Yes), Some(Yes), Some(Yes)), Some(Yes), Thresholds(Some(Yes), Some(Yes), Some(Yes)))
+  val thirdYear: DecisionState = DecisionState(Some(Yes), Some(FinancialYear.ThirdOrLater), Thresholds(Some(Yes), Some(Yes), Some(Yes)), Some(Yes), Thresholds(Some(Yes), Some(Yes), Some(Yes)))
 }
 
 sealed trait Decision
@@ -41,7 +46,7 @@ case class Exempt(reason: Option[String]) extends Decision
 
 case object Required extends Decision
 
-class Decider @Inject()(questions: Questions){
+class Decider @Inject()(questions: Questions) {
 
   import FinancialYear._
   import YesNo._

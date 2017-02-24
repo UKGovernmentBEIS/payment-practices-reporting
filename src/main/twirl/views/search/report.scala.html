@@ -1,32 +1,49 @@
 @import org.joda.time.format.DateTimeFormatter
 @import slicks.modules.FiledReport
-@(report: FiledReport, company: services.CompanyDetail, df: DateTimeFormatter)
+@(report: FiledReport, df: DateTimeFormatter)
 
 <div class="scannable-wrapper">
-    <h1 class="heading-xlarge">
-        @company.company_name:
-        <span class="nowrap">@df.print(report.period.startDate)</span> to <span class="nowrap">@df.print(report.period.endDate)</span>
-        <hr>
+    <h1 class="heading-xlarge"> @report.header.companyName
+    <p class="small-aside">Company number: @report.header.companyId.id</p>
     </h1>
 
-    <p class="small-aside">Company number: @company.company_number.id</p>
-    <p>This information is as reported by the business, and is in their own words.</p>
-    <h3 class="heading-medium">Summary</h3>
+    <h2 class="heading-large">
+        Reporting period:<br>
+        <span class="nowrap">@df.print(report.period.startDate)</span> to <span class="nowrap">@df.print(report.period.endDate)</span>
+        <hr>
+    </h2>
+
+
+
+    <div class="notice">
+        <i class="icon icon-important">
+            <span class="visually-hidden">Warning</span>
+        </i>
+        <strong>This information is as reported by the business, and is in their own words.</strong>
+    </div>
+
+    <h3 class="heading-medium">Payment statistics</h3>
     <p>Average time taken to pay invoices: <span class="datum">@report.paymentHistory.averageDaysToPay days</span></p>
-    <p>Invoices not paid within agreed terms: <span class="datum">@report.paymentHistory.percentPaidLaterThanAgreedTerms%</span></p>
+
     <p>
-        Invoices paid
+        Invoices paid:
     </p>
     <ul class="list list-bullet">
         <li>within 30 days: <span class="datum">@report.paymentHistory.percentInvoicesWithin30Days%</span></li>
         <li>between 31 and 60 days: <span class="datum">@report.paymentHistory.percentInvoicesWithin60Days%</span></li>
-        <li>later than 60 days: <span class="datum">@report.paymentHistory.percentInvoicesBeyond60Days%</span></li>
+        <li>61 days or more: <span class="datum">@report.paymentHistory.percentInvoicesBeyond60Days%</span></li>
     </ul>
+
+    <p>Invoices not paid within agreed terms: <span class="datum">@report.paymentHistory.percentPaidLaterThanAgreedTerms%</span></p>
 
     <h3 class="heading-medium">Payment terms</h3>
     <h4 class="heading-small">Standard payment terms</h4>
     <p>
         @shared._multiline(report.paymentTerms.paymentTerms)
+    </p>
+    <h4 class="heading-small">Standard payment period</h4>
+    <p>
+        @report.paymentTerms.paymentPeriod days
     </p>
     <h4 class="heading-small">Maximum contractual period</h4>
     <p>
@@ -44,7 +61,7 @@
         <h4 class="heading-small">Were suppliers notified or consulted about these changes?</h4>
         <p>
             @report.paymentTerms.paymentTermsChangedNotifiedComment.map { text =>
-                <strong>Yes </strong>&ndash; shared._multiline(companyReport.report.PaymentTermsChangedNotifiedComment)
+                <strong>Yes </strong>&ndash; @shared._multiline(text)
             }.getOrElse {
                 <strong>No</strong>
             }
@@ -54,14 +71,14 @@
     <p>
         @report.paymentTerms.paymentTermsComment.map(text => shared._multiline(text)).getOrElse(<em>N/A</em>)
     </p>
-    <h3 class="heading-medium">What is the business's dispute resolution policy?</h3>
+    <h3 class="heading-medium">Dispute resolution process</h3>
     <p>
         @shared._multiline(report.paymentTerms.disputeResolution)
     </p>
 
     <h3 class="heading-medium">Other payment information</h3>
     <h4 class="heading-small">
-        Is this business a member of a code of practice for payment?
+        Has this business signed up to a code of conduct or standards on payment practices? If so, which?
         <span class="form-hint">For example, signatories to The Prompt Payment Code must commit to paying 95% of their invoices within 60 days.</span>
     </h4>
     <p>
@@ -73,7 +90,7 @@
     </p>
     <h4 class="heading-small">
         Does this business offer e-invoicing?
-        <span class="form-hint">This is where a business allows suppliers to electronically submit and track the progress of their invoices.
+        <span class="form-hint">This is where suppliers can electronically submit and track invoices. It’s not just allowing suppliers to email them an invoice.
 </span>
     </h4>
     <p>
@@ -82,20 +99,20 @@
 
     <h4 class="heading-small">
         Does this business offer supply chain finance?
-        <span class="form-hint">This is where a supplier's invoice can be paid quickly by a third-party financing company, who the business pays at a later date.</span>
+        <span class="form-hint">This is where a supplier who has submitted an invoice can be paid by a third-party finance provider earlier than the agreed payment date.
+            The business would then pay the finance provider the invoiced sum by the payment date.</span>
     </h4>
     <p>
         @report.otherInfo.offerSupplyChainFinance.entryName.capitalize
     </p>
     <h4 class="heading-small">
-        Do this business' terms allow it to charge suppliers to remain on a supplier list?
-        <span class="form-hint">This is sometimes known as 'pay to play'.</span>
+        Under its payment practices and policies, can this business deduct sums from payments as a charge for remaining on a supplier list?
     </h4>
     <p>
         @report.otherInfo.retentionChargesInPolicy.entryName.capitalize
     </p>
     <h4 class="heading-small">
-        Did the business actually do this during this reporting period?
+        Did this business actually do this during this reporting period?
     </h4>
     <p>
         @report.otherInfo.retentionChargesInPast.entryName.capitalize

@@ -1,41 +1,42 @@
-GET         /assets/*file                                             controllers.Assets.at(path="/public", file)
+GET         /assets/*file                                               controllers.Assets.at(path="/public", file)
 
-GET         /                                                         controllers.HomeController.index()
+GET         /                                                           controllers.HomeController.index()
 
-GET         /wip                                                      controllers.Default.todo
+GET         /wip                                                        controllers.Default.todo
+GET         /visual-test                                                controllers.VisualTestController.show
 
-GET         /check-if-you-need-to-report                              controllers.QuestionnaireController.start()
-GET         /check-if-you-need-to-report/questions                    controllers.QuestionnaireController.nextQuestion
-POST        /check-if-you-need-to-report/questions                    controllers.QuestionnaireController.postAnswer
-GET         /check-if-you-need-to-report/exempt                       controllers.QuestionnaireController.exempt
-GET         /check-if-you-need-to-report/required                     controllers.QuestionnaireController.required
+GET         /check-if-you-need-to-report                                controllers.QuestionnaireController.start()
+GET         /check-if-you-need-to-report/questions                      controllers.QuestionnaireController.nextQuestion
+POST        /check-if-you-need-to-report/questions                      controllers.QuestionnaireController.postAnswer
+GET         /check-if-you-need-to-report/exempt                         controllers.QuestionnaireController.exempt
+GET         /check-if-you-need-to-report/required                       controllers.QuestionnaireController.required
 
-GET         /calculate-reporting-deadlines                            controllers.CalculatorController.start()
-POST        /calculate-reporting-deadlines                            controllers.CalculatorController.submit()
-GET         /calculate-reporting-deadlines/deadlines                  controllers.CalculatorController.showAnswer()
+GET         /calculate-reporting-deadlines                              controllers.CalculatorController.start()
+POST        /calculate-reporting-deadlines                              controllers.CalculatorController.submit()
+GET         /calculate-reporting-deadlines/deadlines                    controllers.CalculatorController.showAnswer()
 
-GET         /search-payment-practice-reports                          controllers.SearchController.search(q:Option[String], page:Option[Int], items_per_page:Option[Int])
-GET         /search-payment-practice-reports/company                  controllers.SearchController.company(company:CompaniesHouseId, page:Option[Int])
-GET         /search-payment-practice-reports/report/:reportId         controllers.SearchController.view(reportId: ReportId)
+GET         /search-payment-practice-reports                            controllers.SearchController.search(q:Option[String], page:Option[Int], items_per_page:Option[Int])
+GET         /search-payment-practice-reports/company/:id/reports        controllers.SearchController.company(id:CompaniesHouseId, page:Option[Int])
+GET         /search-payment-practice-reports/report/:reportId           controllers.SearchController.view(reportId: ReportId)
 
-GET         /download-payment-practice-data                           controllers.DownloadController.show
-GET         /download-payment-practice-data/export                    controllers.DownloadController.export
+GET         /download-payment-practice-data                             controllers.DownloadController.show
+GET         /download-payment-practice-data/export                      controllers.DownloadController.export
 
-GET         /report-payment-practices                                 controllers.ReportController.search(q:Option[String], page:Option[Int], items_per_page:Option[Int])
-GET         /report-payment-practices/company/:id/start               controllers.ReportController.start(id:CompaniesHouseId)
-GET         /report-payment-practices/company/:id/pre-login           controllers.ReportController.preLogin(id:CompaniesHouseId)
-POST        /report-payment-practices/company/:id/login               controllers.ReportController.login(id:CompaniesHouseId)
-GET         /report-payment-practices/company/:id/code                controllers.ReportController.code(id:CompaniesHouseId)
-POST        /report-payment-practices/company/:id/code-options        controllers.ReportController.codeOptions(id:CompaniesHouseId)
-GET         /report-payment-practices/company/:id/colleague           controllers.ReportController.colleague(id:CompaniesHouseId)
-GET         /report-payment-practices/company/:id/register            controllers.ReportController.register(id:CompaniesHouseId)
-GET         /report-payment-practices/company/:id/file                controllers.ReportController.file(id:CompaniesHouseId)
-POST        /report-payment-practices/company/:id/file                controllers.ReportController.postForm(id:CompaniesHouseId)
-POST        /report-payment-practices/company/:id/review              controllers.ReportController.postReview(id:CompaniesHouseId)
-GET         /report-payment-practices/:reportId/success               controllers.ReportController.showConfirmation(reportId:ReportId)
+GET         /report-payment-practices                                   controllers.ReportController.search(q:Option[String], page:Option[Int], items_per_page:Option[Int])
+GET         /report-payment-practices/company/:id/start                 controllers.ReportController.start(id:CompaniesHouseId)
+GET         /report-payment-practices/company/:id/pre-login             controllers.ReportController.preLogin(id:CompaniesHouseId)
+POST        /report-payment-practices/company/:id/login                 controllers.ReportController.login(id:CompaniesHouseId)
+GET         /report-payment-practices/company/:id/code                  controllers.ReportController.code(id:CompaniesHouseId)
+POST        /report-payment-practices/company/:id/code-options          controllers.ReportController.codeOptions(id:CompaniesHouseId)
+GET         /report-payment-practices/company/:id/colleague             controllers.ReportController.colleague(id:CompaniesHouseId)
+GET         /report-payment-practices/company/:id/register              controllers.ReportController.register(id:CompaniesHouseId)
+GET         /report-payment-practices/company/:id/file                  controllers.ReportController.file(id:CompaniesHouseId)
+POST        /report-payment-practices/company/:id/file                  controllers.ReportController.postForm(id:CompaniesHouseId)
+POST        /report-payment-practices/company/:id/review                controllers.ReportController.postReview(id:CompaniesHouseId)
+GET         /report-payment-practices/:reportId/success                 controllers.ReportController.showConfirmation(reportId:ReportId)
 
-GET         /report-payment-practices/coho/login/:id                  controllers.CoHoOAuthMockController.login(id:CompaniesHouseId)
-POST        /report-payment-practices/coho/login/:id                  controllers.CoHoOAuthMockController.postLogin(id:CompaniesHouseId)
+GET         /report-payment-practices/coho/login/:id                    controllers.CoHoOAuthMockController.login(id:CompaniesHouseId)
+POST        /report-payment-practices/coho/login/:id                    controllers.CoHoOAuthMockController.postLogin(id:CompaniesHouseId)
 
-GET         /report-payment-practices/coho/code/:id                   controllers.CoHoOAuthMockController.authCode(id:CompaniesHouseId)
-POST        /report-payment-practices/coho/code/:id                   controllers.CoHoOAuthMockController.postAuthCode(id:CompaniesHouseId)
+GET         /report-payment-practices/coho/code/:id                     controllers.CoHoOAuthMockController.authCode(id:CompaniesHouseId)
+POST        /report-payment-practices/coho/code/:id                     controllers.CoHoOAuthMockController.postAuthCode(id:CompaniesHouseId)

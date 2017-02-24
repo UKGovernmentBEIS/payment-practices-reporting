@@ -1,7 +1,7 @@
 @(companyName: String, companyId: CompaniesHouseId)
 
 <div class="scannable-wrapper">
-    <h1 class="heading-xlarge">Publish a report for @companyName</h1>
+    <h1 class="heading-xlarge">Publish a report for:<br>@companyName</h1>
 
     <p class="lede">
         You need a Companies House account and authentication code before you can publish your payment report. To request an authentication code from Companies House:</p>
@@ -11,7 +11,7 @@
             Request an authentication code</span></li>
     </ul>
     <p>
-        Companies House will post a letter to your business address to verify your identity - this will take a few days. You can then return to file your report.
+        The code will be sent to your company’s registered office by post, so allow plenty of time for delivery. You can then use this code to log on and publish your report.
     </p>
 
     <form method="post" action="@routes.ReportController.login(companyId)">

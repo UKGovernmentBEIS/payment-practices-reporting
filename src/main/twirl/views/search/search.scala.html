@@ -3,12 +3,12 @@
         searchTerm: String,
         resultsO: Option[PagedResults[CompanySummary]],
         counts: Map[CompaniesHouseId, Int],
-        searchLink: Call,
-        companyLink: models.CompaniesHouseId => Call,
-        pageLink: Int => Call
+        searchLink: String,
+        companyLink: models.CompaniesHouseId => String,
+        pageLink: Int => String
 )
 
-<p class="lede">Enter company number or business name</p>
+<p class="lede">Enter business name or company number</p>
 @shared._search(searchTerm, searchLink)
 
 @resultsO.map { results =>
