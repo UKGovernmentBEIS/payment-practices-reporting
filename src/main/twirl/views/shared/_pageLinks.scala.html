@@ -1,4 +1,4 @@
-@(results:services.PagedResults[_] ,pageLink: Int => Call)
+@(results:services.PagedResults[_] ,pageLink: Int => String)
 
 @if(results.canPage) {
     <div class="paging">

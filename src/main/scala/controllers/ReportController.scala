@@ -53,9 +53,9 @@ class ReportController @Inject()(
   val df = DateTimeFormat.forPattern("d MMMM YYYY")
 
   def search(query: Option[String], pageNumber: Option[Int], itemsPerPage: Option[Int]) = Action.async {
-    val searchLink = routes.ReportController.search(None, None, None)
-    val pageLink = { i: Int => routes.ReportController.search(query, Some(i), itemsPerPage) }
-    val companyLink = { id: CompaniesHouseId => routes.ReportController.start(id) }
+    val searchLink = routes.ReportController.search(None, None, None).url
+    val pageLink = { i: Int => routes.ReportController.search(query, Some(i), itemsPerPage).url }
+    val companyLink = { id: CompaniesHouseId => routes.ReportController.start(id).url }
     val header = h1("Publish a report")
 
     query match {
@@ -130,13 +130,13 @@ class ReportController @Inject()(
   def reportPageHeader(implicit request: CompanyAuthRequest[_]) = h1(s"Publish a report for:<br>${request.companyName}")
 
   def file(companiesHouseId: CompaniesHouseId) = CompanyAuthAction(companiesHouseId) { implicit request =>
-    Ok(page(home, reportPageHeader, pages.file(emptyReport, companiesHouseId, LocalDate.now(), df)))
+    Ok(page(home, reportPageHeader, pages.file(emptyReport, companiesHouseId, df)))
   }
 
   def postForm(companiesHouseId: CompaniesHouseId) = CompanyAuthAction(companiesHouseId)(parse.urlFormEncoded) { implicit request =>
     //println(request.body.flatMap { case (k, v) => v.headOption.map(value => s""""$k" -> "$value"""") }.mkString(", "))
     emptyReport.bindFromRequest().fold(
-      errs => BadRequest(page(home, reportPageHeader, pages.file(errs, companiesHouseId, LocalDate.now(), df))),
+      errs => BadRequest(page(home, reportPageHeader, pages.file(errs, companiesHouseId, df))),
       report => Ok(page(home, pages.review(emptyReview, report, companiesHouseId, request.companyName, df, reportValidations.reportFormModel)))
     )
   }
@@ -150,9 +150,9 @@ class ReportController @Inject()(
     // (as we only send the user to the review page if they are) but if somehow they aren't then
     // send the user back to the report form to fix them.
     emptyReport.bindFromRequest().fold(
-      errs => Future.successful(BadRequest(page(home, reportPageHeader, pages.file(errs, companiesHouseId, LocalDate.now(), df)))),
+      errs => Future.successful(BadRequest(page(home, reportPageHeader, pages.file(errs, companiesHouseId, df)))),
       report =>
-        if (revise) Future.successful(Ok(page(home, reportPageHeader, pages.file(emptyReport.fill(report), companiesHouseId, LocalDate.now(), df))))
+        if (revise) Future.successful(Ok(page(home, reportPageHeader, pages.file(emptyReport.fill(report), companiesHouseId, df))))
         else checkConfirmation(companiesHouseId, report)
     )
   }

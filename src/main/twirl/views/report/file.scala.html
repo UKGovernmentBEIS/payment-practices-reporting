@@ -1,6 +1,5 @@
-@import org.joda.time.LocalDate
 @import org.joda.time.format.DateTimeFormatter
-@(form: Form[forms.report.ReportFormModel], companyId: CompaniesHouseId, filingDate: LocalDate, df: DateTimeFormatter)(implicit messages: MessagesApi)
+@(form: Form[forms.report.ReportFormModel], companyId: CompaniesHouseId, df: DateTimeFormatter)(implicit messages: MessagesApi)
 
 <div class="scannable-wrapper">
 
@@ -22,20 +21,13 @@
         <p>
             Please correct the errors shown below.
         </p>
-        @form.errors.map { e =>
-            @e<br/>
-        }
     </div>
 }
 
     <form action="@routes.ReportController.postForm(companyId)" method="POST" id="file-report">
         <p class="small-aside">
             Companies House number: @companyId.id
-            <br>
-            Date of submission: @df.print(filingDate)
         </p>
-
-        <input type="hidden" name="filingDate" value='@filingDate' />
 
         @_reportingPeriod(form)
         @_paymentStatistics(form)

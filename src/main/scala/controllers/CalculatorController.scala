@@ -21,6 +21,7 @@ import javax.inject.Inject
 
 import calculator.{Calculator, FinancialYear}
 import forms.DateRange
+import forms.Validations.dateRange
 import org.joda.time.format.DateTimeFormat
 import play.api.data.Form
 import play.api.i18n.MessagesApi
@@ -30,9 +31,7 @@ class CalculatorController @Inject()(implicit messages: MessagesApi) extends Con
 
   import forms.Validations._
 
-  val emptyForm = Form[DateRange](dateRange)
-
-  val df = DateTimeFormat.forPattern("d MMMM YYYY")
+  import CalculatorController._
 
   def calculatorPage(form: Form[DateRange]) = page(home, views.html.calculator.calculator(form))
 
@@ -54,4 +53,11 @@ class CalculatorController @Inject()(implicit messages: MessagesApi) extends Con
       fy => Ok(page(home, views.html.calculator.answer(isGroup = false, Calculator(fy), df)))
     )
   }
+}
+
+object CalculatorController {
+  val emptyForm = Form[DateRange](dateRange)
+
+  val df = DateTimeFormat.forPattern("d MMMM YYYY")
+
 }

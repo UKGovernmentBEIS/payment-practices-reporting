@@ -3,6 +3,7 @@ GET         /assets/*file                                               controll
 GET         /                                                           controllers.HomeController.index()
 
 GET         /wip                                                        controllers.Default.todo
+GET         /visual-test                                                controllers.VisualTestController.show
 
 GET         /check-if-you-need-to-report                                controllers.QuestionnaireController.start()
 GET         /check-if-you-need-to-report/questions                      controllers.QuestionnaireController.nextQuestion
