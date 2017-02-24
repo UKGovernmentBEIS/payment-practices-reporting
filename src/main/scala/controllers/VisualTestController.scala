@@ -19,12 +19,15 @@ package controllers
 
 import javax.inject.Inject
 
+import calculator.Calculator
+import forms.DateRange
+import org.joda.time.LocalDate
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, Controller}
 import play.twirl.api.Html
-import questionnaire.{Questions, StateSummary, ThresholdSummary}
+import questionnaire._
 
-class VisualTestController @Inject()(questions: Questions)(implicit messages: MessagesApi) extends Controller with PageHelper {
+class VisualTestController @Inject()(questions: Questions, summarizer: Summarizer)(implicit messages: MessagesApi) extends Controller with PageHelper {
 
   import questions._
 
@@ -32,14 +35,28 @@ class VisualTestController @Inject()(questions: Questions)(implicit messages: Me
     val index = views.html.index()
     val download = views.html.download.accessData()
     val qStart = views.html.questionnaire.start()
-    val reasons = None +: Seq("reason.firstyear", "reason.company", "reason.group.notlargeenough").map(Some(_))
+    val reasons = None +: Seq("reason.firstyear", "reason.company.notlargeenough", "reason.group.notlargeenough").map(Some(_))
     val exempts = reasons.map(views.html.questionnaire.exempt(_))
+    val requireds =
+      Seq(views.html.questionnaire.required(summarizer.summarize(DecisionState.secondYear)),
+        views.html.questionnaire.required(summarizer.summarize(DecisionState.thirdYear)))
+    val calcs = Seq(
+      views.html.calculator.calculator(CalculatorController.emptyForm),
+      views.html.calculator.calculator(CalculatorController.emptyForm.bind(Map[String, String]())))
+
+    val calc = Calculator(calculator.FinancialYear(DateRange(new LocalDate(2017, 1, 1), new LocalDate(2017, 12, 31))))
+    val answers = Seq(views.html.calculator.answer(false, calc, CalculatorController.df))
+
+    //val searches = Seq(views.html.search.search("", None, Map()))
 
     val content = (
       Seq(index, download, qStart)
         ++ questionPages
         ++ exempts
-      ).flatMap(x => Seq(x, Html("<hr/>")))
+        ++ requireds
+        ++ calcs
+        ++ answers
+      ).zipWithIndex.flatMap{case (x, i) => Seq(Html(s"<hr/>screen ${i+1}"), x )}
     Ok(page(content: _*))
   }
 
