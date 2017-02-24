@@ -28,8 +28,12 @@ case class Breadcrumb(href: Call, name: String)
 
 trait PageHelper {
   def page(contents: Html*): Html = {
-    val content = new Html(immutable.Seq[Html](contents: _*))
+    val content = html(contents: _*)
     views.html.templates.govukTemplateDefaults.render("Payment practices reporting", content)
+  }
+
+  def html(contents: Html*): Html = {
+    new Html(immutable.Seq[Html](contents: _*))
   }
 
   def h1(text: String) = views.html.shared._h1(Html(text))

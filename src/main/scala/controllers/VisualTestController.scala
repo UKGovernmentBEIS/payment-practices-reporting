@@ -22,14 +22,17 @@ import javax.inject.Inject
 import calculator.Calculator
 import db._
 import forms.DateRange
+import forms.report.{ReportFormModel, ReportReviewModel, Validations}
 import models.{CompaniesHouseId, ReportId}
 import org.joda.time.LocalDate
+import play.api.data.Form
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, Controller}
 import play.twirl.api.Html
 import questionnaire._
+import services.{CompanyDetail, CompanySummary, PagedResults}
 import slicks.modules.FiledReport
-import utils.YesNo
+import utils.{SystemTimeSource, YesNo}
 
 class VisualTestController @Inject()(questions: Questions, summarizer: Summarizer)(implicit messages: MessagesApi) extends Controller with PageHelper {
 
@@ -39,6 +42,7 @@ class VisualTestController @Inject()(questions: Questions, summarizer: Summarize
   val endDate = new LocalDate(2017, 12, 31)
 
   def show = Action { implicit request =>
+    val df = CalculatorController.df
     val index = views.html.index()
     val download = views.html.download.accessData()
     val qStart = views.html.questionnaire.start()
@@ -53,22 +57,52 @@ class VisualTestController @Inject()(questions: Questions, summarizer: Summarize
 
 
     val calc = Calculator(calculator.FinancialYear(DateRange(startDate, endDate)))
-    val answers = Seq(views.html.calculator.answer(false, calc, CalculatorController.df))
-    val searches = Seq(views.html.search.search("", None, Map(), "", _ => "", _ => ""))
-
-    val reports = Seq(
-      views.html.search.report(healthyReport, CalculatorController.df)
+    val answers = Seq(views.html.calculator.answer(false, calc, df))
+    val reports = Seq(views.html.search.report(healthyReport, df))
+    val id = CompaniesHouseId("1234567890")
+    val companyName = "ABC Limited"
+    val summary = CompanySummary(id, companyName, "123 Abc Road")
+    val results = PagedResults(Seq(summary, summary, summary), 25, 1, 100)
+    val searches = Seq(
+      html(h1("Publish a report"), views.html.search.search("cod", Some(results), Map(id -> 3), "", _ => "", _ => "")),
+      html(h1("Search for a report"), views.html.search.search("cod", Some(results), Map(id -> 3), "", _ => "", _ => ""))
+    )
+    val companies = Seq(views.html.search.company(CompanyDetail(id, companyName), PagedResults(Seq(healthyReport, healthyReport, healthyReport), 25, 1, 100), _ => "", df))
+    val start = Seq(views.html.report.start(companyName, id))
+    val signIn = Seq(views.html.report.preLogin(id))
+    val options = Seq(
+      views.html.report.companiesHouseOptions(companyName, id),
+      views.html.report.askColleague(companyName, id),
+      views.html.report.requestAccessCode(companyName, id)
     )
 
-    val content = (
+    val reportValidations = new Validations(new SystemTimeSource)
+    val emptyReport: Form[ReportFormModel] = Form(reportValidations.reportFormModel)
+    val emptyReview: Form[ReportReviewModel] = Form(reportValidations.reportReviewModel)
+    val publish = Seq(
+      html(h1(s"Publish a report for:<br>$companyName"), views.html.report.file(emptyReport, id, df)),
+      html(h1(s"Publish a report for:<br>$companyName"), views.html.report.file(emptyReport.fill(ReportFormModel(healthyReport)), id, df)),
+      html(h1(s"Publish a report for:<br>$companyName"), views.html.report.file(emptyReport.fillAndValidate(ReportFormModel(unhealthyReport)), id, df))
+    )
+    val review = Seq(views.html.report.review(emptyReview, ReportFormModel(healthyReport), id, companyName, df, reportValidations.reportFormModel))
+    val published = Seq(views.html.report.filingSuccess(reportId, "foobar@example.com"))
+
+    val content: Seq[Html] = (
       Seq(index, download, qStart)
         ++ questionPages
         ++ exempts
         ++ requireds
         ++ calcs
         ++ answers
-        ++ searches
         ++ reports
+        ++ searches
+        ++ companies
+        ++ start
+        ++ signIn
+        ++ options
+        ++ publish
+        ++ review
+        ++ published
       ).zipWithIndex.flatMap { case (x, i) => Seq(Html(s"<hr/>screen ${i + 1}"), x) }
     Ok(page(content: _*))
   }
@@ -104,6 +138,15 @@ class VisualTestController @Inject()(questions: Questions, summarizer: Summarize
     ReportPeriodRow(reportId, startDate, endDate),
     PaymentTermsRow(reportId, "payment terms", 30, 30, Some("Maximum period is very fair"), Some("Payment terms have changed"), Some("We told everyone"), Some("Other comments"), "Dispute resolution process is the best"),
     PaymentHistoryRow(reportId, 30, 10, 33, 33, 33),
+    OtherInfoRow(reportId, No, Yes, No, Yes, Some("Payment Practice Code")),
+    FilingRow(reportId, LocalDate.now, "The big boss")
+  )
+
+  val unhealthyReport = FiledReport(
+    ReportHeaderRow(reportId, "ABC Limited", CompaniesHouseId("1234567890"), LocalDate.now, LocalDate.now),
+    ReportPeriodRow(reportId, startDate.plusYears(1), endDate.plusYears(1)),
+    PaymentTermsRow(reportId, "payment terms", -1, 200, Some("Maximum period is very fair"), Some("Payment terms have changed"), Some("We told everyone"), Some("Other comments"), "Dispute resolution process is the best"),
+    PaymentHistoryRow(reportId, -1, 200, 20, 33, 33),
     OtherInfoRow(reportId, No, Yes, No, Yes, Some("Payment Practice Code")),
     FilingRow(reportId, LocalDate.now, "The big boss")
   )
