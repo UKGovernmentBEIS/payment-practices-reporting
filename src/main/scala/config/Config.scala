@@ -24,12 +24,24 @@ case class NotifyConfig(
                          templateId: String
                        )
 
+case class ApiConfig(host: String, isSandbox: Option[Boolean] = None, isLocal: Option[Boolean] = None, callbackURL: String) {
+  val baseURI = s"https://$host"
+
+  val accessTokenUri = s"$baseURI/oauth/token"
+  val authorizeSchemeUri = s"$baseURI/oauth2/authorise"
+}
+
+case class ClientConfig(id: String, secret: String)
+
 case class Config(
                    companiesHouse: CompaniesHouseConfig,
                    notifyService: NotifyConfig,
                    logAssets: Option[Boolean],
                    logRequests: Option[Boolean],
-                   printDBTables: Option[Boolean])
+                   printDBTables: Option[Boolean],
+                   api: ApiConfig,
+                   client: ClientConfig
+                 )
 
 object Config {
 

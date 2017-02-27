@@ -24,9 +24,8 @@ import com.google.inject.ImplementedBy
 import com.wellfactored.playbindings.ValueClassReads
 import config.Config
 import models.CompaniesHouseId
-import org.joda.time.LocalDateTime
 import play.api.Logger
-import play.api.libs.json.{JsError, JsSuccess, Json, Reads}
+import play.api.libs.json.{Json, Reads}
 import play.api.libs.ws.WSClient
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -59,7 +58,7 @@ trait CompaniesHouseAPI {
   def getEmailAddress(oAuthToken: OAuthToken): Future[ResponseWithToken[Option[String]]]
 }
 
-class CompaniesHouseAPIImpl @Inject()(val ws: WSClient)(implicit val ec: ExecutionContext)
+class CompaniesHouseAPIImpl @Inject()(val ws: WSClient, ouath2Service: OAuth2Service)(implicit val ec: ExecutionContext)
   extends RestService
     with CompaniesHouseAPI
     with ValueClassReads {
@@ -108,7 +107,7 @@ class CompaniesHouseAPIImpl @Inject()(val ws: WSClient)(implicit val ec: Executi
   }
 
   def withFreshAccessToken[T](oAuthToken: OAuthToken)(body: OAuthToken => Future[T]): Future[T] = {
-    val f = if (oAuthToken.isExpired) refreshToken(oAuthToken) else Future.successful(oAuthToken)
+    val f = if (oAuthToken.isExpired) ouath2Service.refreshToken(oAuthToken) else Future.successful(oAuthToken)
     f.flatMap(body(_))
   }
 
@@ -116,24 +115,5 @@ class CompaniesHouseAPIImpl @Inject()(val ws: WSClient)(implicit val ec: Executi
 
   implicit val atrReads = Json.reads[AccessTokenResponse]
 
-  def refreshToken(oAuthToken: OAuthToken): Future[OAuthToken] = {
-    val url = "https://account.companieshouse.gov.uk/oauth2/token"
-    val body = Map(
-      "client_id" -> "",
-      "client_secret" -> "",
-      "grant_type" -> "refresh_token",
-      "refresh_token" -> oAuthToken.refreshToken
-    ).map { case (k, v) => (k, Seq(v)) }
 
-    ws.url(url)
-      .withHeaders(("Content-Type", "application/x-www-form-urlencoded"), ("Charset", "utf-8"))
-      .post(body).map { response =>
-      response.status match {
-        case 200 => response.json.validate[AccessTokenResponse] match {
-          case JsSuccess(atr, _) => OAuthToken(atr.access_token, LocalDateTime.now().plusSeconds(atr.expires_in.toInt), atr.refresh_token)
-          case JsError(errs) => throw new Exception(errs.toString)
-        }
-      }
-    }
-  }
 }

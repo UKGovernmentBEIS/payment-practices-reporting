@@ -24,7 +24,6 @@ import controllers.ReportController.CodeOption.{Colleague, Register}
 import forms.Validations
 import forms.report.{ReportFormModel, ReportReviewModel, Validations}
 import models.{CompaniesHouseId, ReportId}
-import org.joda.time.LocalDate
 import org.joda.time.format.DateTimeFormat
 import play.api.data.Forms._
 import play.api.data._
@@ -42,6 +41,7 @@ class ReportController @Inject()(
                                   notifyService: NotifyService,
                                   reports: ReportRepo,
                                   timeSource: TimeSource,
+                                  oAuthController: OAuth2Controller,
                                   CompanyAuthAction: CompanyAuthAction
                                 )(implicit ec: ExecutionContext, messages: MessagesApi) extends Controller with PageHelper {
 
@@ -85,14 +85,12 @@ class ReportController @Inject()(
   def login(companiesHouseId: CompaniesHouseId) = Action { implicit request =>
     val hasAccountChoice = Form(single("account" -> Validations.yesNo))
 
-    val next = hasAccountChoice.bindFromRequest().fold(
-      errs => routes.ReportController.preLogin(companiesHouseId),
+    hasAccountChoice.bindFromRequest().fold(
+      errs => BadRequest(page(home, pages.preLogin(companiesHouseId))),
       hasAccount =>
-        if (hasAccount == YesNo.Yes) routes.CoHoOAuthMockController.login(companiesHouseId)
-        else routes.ReportController.code(companiesHouseId)
+        if (hasAccount == YesNo.Yes) oAuthController.startOauthDance(companiesHouseId)
+        else Redirect(routes.ReportController.code(companiesHouseId))
     )
-
-    Redirect(next)
   }
 
   def withCompany(companiesHouseId: CompaniesHouseId)(body: CompanyDetail => Html): Future[Result] = {
