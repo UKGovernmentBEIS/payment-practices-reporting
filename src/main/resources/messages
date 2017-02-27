@@ -1,6 +1,6 @@
 error.endafterstart=The end date must be later than the start date
 
-reason.firstyear=This is because it'’s in its first year of operations. You should check back at the beginning of your second financial year to see if you have to report.
+reason.firstyear=This is because it'’s in its first year of operations. You should check back at the beginning of your second financial year to see if you need to report.
 reason.company.notlargeenough=You should check at the beginning of every financial year to see if you need to report.
 reason.group.notlargeenough=You should check at the beginning of every financial year to see if you need to report.
 
@@ -16,9 +16,9 @@ question.hassubsidiaries.reveal=
 
 hint.turnover=The £36 million threshold is based on a financial year which runs for a full calendar year. If your financial year is more or less than this, pro-rate the threshold.
 hint.balance=
-hint.employees=For each month in the financial year, calculate how many people were employed, even if it was just for a day. Then add together the monthly totals and divide by the number of months in the financial year.
+hint.employees=Calculate how many people were employed for each month, even if they were employees for a single day in that month. Then add together the monthly totals and divide by the number of months.
 
-question.company.turnover.y2=In your last financial year, did your business have a turnover of more than £36 million on its last balance sheet date?
+question.company.turnover.y2=Did your business have a turnover of more than £36 million on its last balance sheet date?
 question.company.balance.y2=Did your business have a balance sheet total greater than £18 million on its last balance sheet date?
 question.company.employees.y2=Did your business have an average of at least 250 employees during its last financial year?
 

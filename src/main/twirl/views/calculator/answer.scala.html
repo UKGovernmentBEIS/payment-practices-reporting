@@ -8,10 +8,10 @@
     <h3 class="heading-medium underline">Your reporting periods and deadlines</h3>
     @if(calculator.isFuture) {
     <p>
-        You told us that your financial year runs from <span class="nowrap">@df.print(calculator.financialYear.dates.startDate)</span> to <span class="nowrap">@df.print(calculator.financialYear.dates.endDate)</span>. You do not have to report for that year, as it starts before the regulations come into force on 6 April 2017.
+        You told us that your financial year runs from <span class="nowrap">@df.print(calculator.financialYear.dates.startDate)</span> to <span class="nowrap">@df.print(calculator.financialYear.dates.endDate)</span>. You don't need to report for that year, as it started before the regulations came into force on 6 April 2017.
     </p>
     <p>
-        As long as you do not change your financial year end until then
+        If your financial year end stays the same,
         @(calculator.reportingPeriods.length match{ case 1 => "this is your first reporting period" case n => "these are your next " + n + " reporting periods"}):
     </p>
     } else {
@@ -50,7 +50,7 @@
     <h3 class="heading-medium underline">What you need to report</h3>
 
     <h4 class="heading-small">Start and end date of reporting period</h4>
-        These are shown above, under 'Your reporting periods and deadlines'
+        These are shown above, under 'Your reporting periods and deadlines'.
 
 
     <h4 class="heading-small">Average time to pay in days</h4>
@@ -78,7 +78,7 @@
     <h4 class="heading-small">Standard payment terms</h4>
         This must include a description of your standard payment terms.
             If you have different terms for different types of supplier, you should explain them.
-            Most companies write a couple of paragraphs here.
+            Most businesses write a couple of paragraphs here.
 
     <h4 class="heading-small">Standard payment period</h4>
         This is your standard contractual payment period in days.
@@ -109,6 +109,7 @@
 
 
     <h4 class="heading-small">Under its payment practices and policies, can your business deduct sums from payments as a charge for remaining on a supplier list?</h4>
+        Answer 'Yes' or 'No'
 
     <h4 class="heading-small">Did the business do this during this reporting period?</h4>
         You must answer this even if you answered 'no' to the above question.
@@ -120,8 +121,8 @@
 
     <p>
         The person publishing the report needs to have a <a href="https://beta.companieshouse.gov.uk/" rel="external">Companies House</a>
-            authentication code to publish reports for your company (the same code you'd use to file your annual accounts online.
-            The code is sent to your company's registered office by post, so allow plenty of time for delivery.
+            authentication code (This is the same code you'd use to file your annual accounts online.
+            It is sent to your company's registered office by post, so allow plenty of time for delivery.
     </p>
 
     <p>
