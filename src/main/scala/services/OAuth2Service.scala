@@ -28,7 +28,7 @@ import play.api.libs.ws.{WSClient, WSResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-case class AccessTokenResponse(access_token: String, expires_in: Int, scope: String, refresh_token: String, token_type: String)
+case class AccessTokenResponse(access_token: String, expires_in: Int, refresh_token: String, token_type: String)
 
 case class RefreshTokenResponse(access_token: String, expires_in: Int)
 
@@ -68,8 +68,12 @@ class OAuth2ServiceImpl @Inject()(ws: WSClient)(implicit ec: ExecutionContext) e
     call(params).map { response =>
       response.status match {
         case 200 => response.json.validate[AccessTokenResponse] match {
-          case JsSuccess(resp, _) => OAuthToken(resp.access_token, LocalDateTime.now().plusSeconds(resp.expires_in), resp.refresh_token)
-          case JsError(errs) => throw new Exception(s"could not decode token response: $errs")
+          case JsSuccess(resp, _) =>
+            Logger.debug(s"converted code to token $resp")
+            OAuthToken(resp.access_token, LocalDateTime.now().plusSeconds(resp.expires_in), resp.refresh_token)
+          case JsError(errs) =>
+            Logger.warn(s"response json is ${response.json}")
+            throw new Exception(s"could not decode token response: $errs")
         }
 
         case s =>
@@ -96,7 +100,7 @@ class OAuth2ServiceImpl @Inject()(ws: WSClient)(implicit ec: ExecutionContext) e
       .post(body).map { response =>
       response.status match {
         case 200 => response.json.validate[AccessTokenResponse] match {
-          case JsSuccess(atr, _) => OAuthToken(atr.access_token, LocalDateTime.now().plusSeconds(atr.expires_in.toInt), atr.refresh_token)
+          case JsSuccess(atr, _) => OAuthToken(atr.access_token, LocalDateTime.now().plusSeconds(atr.expires_in), atr.refresh_token)
           case JsError(errs) => throw new Exception(errs.toString)
         }
       }

@@ -27,7 +27,7 @@ case class NotifyConfig(
 case class ApiConfig(host: String, isSandbox: Option[Boolean] = None, isLocal: Option[Boolean] = None, callbackURL: String) {
   val baseURI = s"https://$host"
 
-  val accessTokenUri = s"$baseURI/oauth/token"
+  val accessTokenUri = s"$baseURI/oauth2/token"
   val authorizeSchemeUri = s"$baseURI/oauth2/authorise"
 }
 
