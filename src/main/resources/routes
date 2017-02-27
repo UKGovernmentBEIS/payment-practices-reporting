@@ -35,6 +35,8 @@ POST        /report-payment-practices/company/:id/file                  controll
 POST        /report-payment-practices/company/:id/review                controllers.ReportController.postReview(id:CompaniesHouseId)
 GET         /report-payment-practices/:reportId/success                 controllers.ReportController.showConfirmation(reportId:ReportId)
 
+GET         /report-payment-practices/claim-callback                    controllers.OAuth2Controller.claimCallback(code: Option[String], state: Option[String], error:Option[String], errorDescription:Option[String], errorCode:Option[String])
+
 GET         /report-payment-practices/coho/login/:id                    controllers.CoHoOAuthMockController.login(id:CompaniesHouseId)
 POST        /report-payment-practices/coho/login/:id                    controllers.CoHoOAuthMockController.postLogin(id:CompaniesHouseId)
 

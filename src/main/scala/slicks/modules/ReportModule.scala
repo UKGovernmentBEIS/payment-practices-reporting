@@ -117,21 +117,21 @@ trait ReportModule extends DBBinding {
 
     def reportIdIndex = index("paymentterms_report_idx", reportId, unique = true)
 
-    def paymentTerms = column[String]("payment_terms", O.Length(255))
+    def paymentTerms = column[String]("payment_terms", O.Length(longTerms))
 
     def paymentPeriod = column[Int]("payment_period")
 
     def maximumContractPeriod = column[Int]("maximum_contract_period")
 
-    def maximumContractPeriodComment = column[Option[String]]("maximum_contract_period_comment", O.Length(255))
+    def maximumContractPeriodComment = column[Option[String]]("maximum_contract_period_comment", O.Length(shortComment))
 
-    def paymentTermsChangedComment = column[Option[String]]("payment_terms_changed_comment", O.Length(255))
+    def paymentTermsChangedComment = column[Option[String]]("payment_terms_changed_comment", O.Length(shortComment))
 
-    def paymentTermsChangedNotifiedComment = column[Option[String]]("payment_terms_changed_notified_comment", O.Length(255))
+    def paymentTermsChangedNotifiedComment = column[Option[String]]("payment_terms_changed_notified_comment", O.Length(shortComment))
 
-    def paymentTermsComment = column[Option[String]]("payment_terms_comment", O.Length(255))
+    def paymentTermsComment = column[Option[String]]("payment_terms_comment", O.Length(shortComment))
 
-    def disputeResolution = column[String]("dispute_resolution", O.Length(255))
+    def disputeResolution = column[String]("dispute_resolution", O.Length(longComment))
 
     def * = (reportId, paymentTerms, paymentPeriod, maximumContractPeriod, maximumContractPeriodComment, paymentTermsChangedComment, paymentTermsChangedNotifiedComment, paymentTermsComment, disputeResolution) <> (PaymentTermsRow.tupled, PaymentTermsRow.unapply)
   }
