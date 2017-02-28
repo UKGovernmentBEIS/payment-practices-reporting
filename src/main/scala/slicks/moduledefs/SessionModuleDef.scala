@@ -15,18 +15,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import actors.ConfirmationActor
-import com.google.inject.AbstractModule
-import config.Config
-import play.api.libs.concurrent.AkkaGuiceSupport
-import services.SessionCleaner
-import slicks.modules.DB
+package slicks.moduledefs
 
-class Module extends AbstractModule with AkkaGuiceSupport {
-  override def configure(): Unit = {
-    if (Config.config.printDBTables.getOrElse(false)) bind(classOf[DB]).asEagerSingleton()
-    bindActor[ConfirmationActor]("confirmation-actor")
+import com.wellfactored.slickgen.{ModuleDefinition, ModuleSpec}
+import db._
 
-    bind(classOf[SessionCleaner]).asEagerSingleton()
-  }
+object SessionModuleDef extends ModuleDefinition {
+  override def spec = ModuleSpec("SessionModule")
+    .withTableFor[SessionRow]
 }

@@ -17,21 +17,22 @@
 
 package controllers
 
-import javax.inject.Inject
+import javax.inject.{Inject, Named}
 
 import actions.{CompanyAuthAction, CompanyAuthRequest}
+import actors.ConfirmationActor
+import akka.actor.{ActorRef, ActorSystem}
 import controllers.ReportController.CodeOption.{Colleague, Register}
 import forms.Validations
 import forms.report.{ReportFormModel, ReportReviewModel, Validations}
 import models.{CompaniesHouseId, ReportId}
-import org.joda.time.LocalDate
 import org.joda.time.format.DateTimeFormat
 import play.api.data.Forms._
 import play.api.data._
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, Controller, Result}
 import play.twirl.api.Html
-import services.{CompaniesHouseAPI, CompanyDetail, NotifyService}
+import services._
 import slicks.modules.ReportRepo
 import utils.{TimeSource, YesNo}
 
@@ -41,13 +42,15 @@ class ReportController @Inject()(
                                   companiesHouseAPI: CompaniesHouseAPI,
                                   notifyService: NotifyService,
                                   reports: ReportRepo,
-                                  timeSource: TimeSource,
-                                  CompanyAuthAction: CompanyAuthAction
+                                  reportValidations: Validations,
+                                  oAuthController: OAuth2Controller,
+                                  CompanyAuthAction: CompanyAuthAction,
+                                  @Named("confirmation-actor") confirmationActor: ActorRef,
+                                  oAuth2Service: OAuth2Service
                                 )(implicit ec: ExecutionContext, messages: MessagesApi) extends Controller with PageHelper {
 
   import views.html.{report => pages}
 
-  private val reportValidations = new Validations(timeSource)
   val emptyReport: Form[ReportFormModel] = Form(reportValidations.reportFormModel)
   val emptyReview: Form[ReportReviewModel] = Form(reportValidations.reportReviewModel)
   val df = DateTimeFormat.forPattern("d MMMM YYYY")
@@ -85,14 +88,12 @@ class ReportController @Inject()(
   def login(companiesHouseId: CompaniesHouseId) = Action { implicit request =>
     val hasAccountChoice = Form(single("account" -> Validations.yesNo))
 
-    val next = hasAccountChoice.bindFromRequest().fold(
-      errs => routes.ReportController.preLogin(companiesHouseId),
+    hasAccountChoice.bindFromRequest().fold(
+      errs => BadRequest(page(home, pages.preLogin(companiesHouseId))),
       hasAccount =>
-        if (hasAccount == YesNo.Yes) routes.CoHoOAuthMockController.login(companiesHouseId)
-        else routes.ReportController.code(companiesHouseId)
+        if (hasAccount == YesNo.Yes) oAuthController.startOauthDance(companiesHouseId)
+        else Redirect(routes.ReportController.code(companiesHouseId))
     )
-
-    Redirect(next)
   }
 
   def withCompany(companiesHouseId: CompaniesHouseId)(body: CompanyDetail => Html): Future[Result] = {
@@ -127,7 +128,7 @@ class ReportController @Inject()(
     form.bindFromRequest().fold(errs => BadRequest(s"Invalid option"), resultFor)
   }
 
-  def reportPageHeader(implicit request: CompanyAuthRequest[_]) = h1(s"Publish a report for:<br>${request.companyName}")
+  def reportPageHeader(implicit request: CompanyAuthRequest[_]) = h1(s"Publish a report for:<br>${request.companyDetail.company_name}")
 
   def file(companiesHouseId: CompaniesHouseId) = CompanyAuthAction(companiesHouseId) { implicit request =>
     Ok(page(home, reportPageHeader, pages.file(emptyReport, companiesHouseId, df)))
@@ -137,7 +138,7 @@ class ReportController @Inject()(
     //println(request.body.flatMap { case (k, v) => v.headOption.map(value => s""""$k" -> "$value"""") }.mkString(", "))
     emptyReport.bindFromRequest().fold(
       errs => BadRequest(page(home, reportPageHeader, pages.file(errs, companiesHouseId, df))),
-      report => Ok(page(home, pages.review(emptyReview, report, companiesHouseId, request.companyName, df, reportValidations.reportFormModel)))
+      report => Ok(page(home, pages.review(emptyReview, report, companiesHouseId, request.companyDetail.company_name, df, reportValidations.reportFormModel)))
     )
   }
 
@@ -159,13 +160,13 @@ class ReportController @Inject()(
 
   private def checkConfirmation(companiesHouseId: CompaniesHouseId, report: ReportFormModel)(implicit request: CompanyAuthRequest[_]): Future[Result] = {
     emptyReview.bindFromRequest().fold(
-      errs => Future.successful(BadRequest(page(home, pages.review(errs, report, companiesHouseId, request.companyName, df, reportValidations.reportFormModel)))),
+      errs => Future.successful(BadRequest(page(home, pages.review(errs, report, companiesHouseId, request.companyDetail.company_name, df, reportValidations.reportFormModel)))),
       review => {
         if (review.confirmed)
           createReport(companiesHouseId, report, review)
             .map(rId => Redirect(controllers.routes.ReportController.showConfirmation(rId)))
         else
-          Future.successful(BadRequest(page(home, pages.review(emptyReview.fill(review), report, companiesHouseId, request.companyName, df, reportValidations.reportFormModel))))
+          Future.successful(BadRequest(page(home, pages.review(emptyReview.fill(review), report, companiesHouseId, request.companyDetail.company_name, df, reportValidations.reportFormModel))))
       }
     )
   }
@@ -175,7 +176,8 @@ class ReportController @Inject()(
   private def createReport(companiesHouseId: CompaniesHouseId, report: ReportFormModel, review: ReportReviewModel)(implicit request: CompanyAuthRequest[_]): Future[ReportId] = {
     val urlFunction: ReportId => String = (id: ReportId) => controllers.routes.SearchController.view(id).absoluteURL()
     for {
-      reportId <- reports.create(review.confirmedBy, companiesHouseId, request.companyName, report, review, emailAddress, urlFunction)
+      reportId <- reports.create(review.confirmedBy, companiesHouseId, request.companyDetail.company_name, report, review, request.emailAddress, urlFunction)
+      _ <- Future.successful(confirmationActor ! 'poll)
     } yield reportId
   }
 
