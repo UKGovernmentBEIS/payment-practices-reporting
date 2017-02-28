@@ -19,11 +19,14 @@ import actors.ConfirmationActor
 import com.google.inject.AbstractModule
 import config.Config
 import play.api.libs.concurrent.AkkaGuiceSupport
+import services.SessionCleaner
 import slicks.modules.DB
 
 class Module extends AbstractModule with AkkaGuiceSupport {
   override def configure(): Unit = {
     if (Config.config.printDBTables.getOrElse(false)) bind(classOf[DB]).asEagerSingleton()
     bindActor[ConfirmationActor]("confirmation-actor")
+
+    bind(classOf[SessionCleaner]).asEagerSingleton()
   }
 }

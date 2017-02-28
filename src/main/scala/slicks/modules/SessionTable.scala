@@ -92,4 +92,8 @@ class SessionTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(impli
   }
 
   override def pgjson: String = "jsonb"
+
+  override def removeExpired(): Future[Unit] = db.run {
+    sessionTable.filter(_.expiresAt <= LocalDateTime.now).delete.map(_ => ())
+  }
 }

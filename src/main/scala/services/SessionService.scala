@@ -17,12 +17,17 @@
 
 package services
 
+import javax.inject.{Inject, Singleton}
+
+import akka.actor.ActorSystem
 import com.google.inject.ImplementedBy
 import db.SessionRow
 import play.api.libs.json.{Reads, Writes}
 import slicks.modules.SessionTable
 
-import scala.concurrent.Future
+import scala.concurrent.duration._
+import scala.concurrent.{ExecutionContext, Future}
+import scala.language.postfixOps
 
 case class SessionId(id: String)
 
@@ -43,4 +48,13 @@ trait SessionService {
     */
   def refresh(sessionId: SessionId, lifetimeInMinutes: Int = 20): Future[Unit]
 
+  def removeExpired(): Future[Unit]
+
+}
+
+@Singleton
+class SessionCleaner @Inject()(sessionService: SessionService, system: ActorSystem)(implicit ec: ExecutionContext) {
+  system.scheduler.schedule(10 seconds, 30 seconds) {
+    sessionService.removeExpired()
+  }
 }
