@@ -39,15 +39,19 @@ class SessionTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(impli
 
   import api._
 
+  def sessionQ(sessionId: Rep[SessionId]) = sessionTable.filter(s => s.id === sessionId && s.expiresAt >= LocalDateTime.now)
+
+  val sessionC = Compiled(sessionQ _)
+
   override def find(sessionId: SessionId): Future[Option[SessionRow]] = db.run {
-    sessionTable.filter(_.id === sessionId).result.headOption
+    sessionC(sessionId).result.headOption
   }
 
   override def put[T: Writes](sessionId: SessionId, key: String, value: T): Future[Unit] = db.run {
-    sessionTable.filter(_.id === sessionId).result.headOption.flatMap {
+    sessionC(sessionId).result.headOption.flatMap {
       case Some(s) =>
         val newSessionData = s.sessionData + (key -> Json.toJson(value))
-        sessionTable.filter(_.id === sessionId).update(s.copy(sessionData = newSessionData))
+        sessionC(sessionId).update(s.copy(sessionData = newSessionData))
 
       case None =>
         val row = SessionRow(sessionId, LocalDateTime.now().plusMinutes(20), JsObject(Seq(key -> Json.toJson(value))))
@@ -56,7 +60,7 @@ class SessionTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(impli
   }
 
   override def get[T: Reads](sessionId: SessionId, key: String): Future[Option[T]] = db.run {
-    sessionTable.filter(_.id === sessionId).result.headOption.map {
+    sessionC(sessionId).result.headOption.map {
       _.flatMap { row =>
         (row.sessionData \ key).validateOpt[T] match {
           case JsSuccess(t, _) => t
@@ -67,10 +71,10 @@ class SessionTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(impli
   }
 
   override def clear(sessionId: SessionId, key: String): Future[Unit] = db.run {
-    sessionTable.filter(_.id === sessionId).result.headOption.map {
+    sessionC(sessionId).result.headOption.map {
       case Some(s) =>
         val newSessionData = s.sessionData - key
-        sessionTable.filter(_.id === sessionId).update(s.copy(sessionData = newSessionData))
+        sessionC(sessionId).update(s.copy(sessionData = newSessionData))
 
       case None => DBIO.successful(())
     }.transactionally.map(_ => ())
@@ -81,8 +85,8 @@ class SessionTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(impli
     * timeout in minutes
     */
   override def refresh(sessionId: SessionId, lifetimeInMinutes: Int): Future[Unit] = db.run {
-    sessionTable.filter(_.id === sessionId).result.headOption.map {
-      case Some(s) => sessionTable.filter(_.id === sessionId).update(s.copy(expiresAt = LocalDateTime.now.plusMinutes(lifetimeInMinutes)))
+    sessionC(sessionId).result.headOption.map {
+      case Some(s) => sessionC(sessionId).update(s.copy(expiresAt = LocalDateTime.now.plusMinutes(lifetimeInMinutes)))
       case None => DBIO.successful(())
     }.transactionally.map(_ => ())
   }
