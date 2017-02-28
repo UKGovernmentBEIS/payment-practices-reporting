@@ -22,6 +22,7 @@ import javax.inject.Inject
 import com.github.tminglei.slickpg.{PgDateSupportJoda, PgPlayJsonSupport}
 import db.SessionRow
 import org.joda.time.LocalDateTime
+import play.api.Logger
 import play.api.db.slick.DatabaseConfigProvider
 import play.api.libs.json.{JsObject, _}
 import services.{SessionId, SessionService}
@@ -38,6 +39,8 @@ class SessionTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(impli
     with RowBuilders {
 
   import api._
+
+  override def pgjson: String = "jsonb"
 
   def sessionQ(sessionId: Rep[SessionId]) = sessionTable.filter(s => s.id === sessionId && s.expiresAt >= LocalDateTime.now)
 
@@ -85,13 +88,12 @@ class SessionTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(impli
     * timeout in minutes
     */
   override def refresh(sessionId: SessionId, lifetimeInMinutes: Int): Future[Unit] = db.run {
-    sessionC(sessionId).result.headOption.map {
+    Logger.debug(s"asked to refresh $sessionId")
+    sessionC(sessionId).result.headOption.flatMap {
       case Some(s) => sessionC(sessionId).update(s.copy(expiresAt = LocalDateTime.now.plusMinutes(lifetimeInMinutes)))
       case None => DBIO.successful(())
     }.transactionally.map(_ => ())
   }
-
-  override def pgjson: String = "jsonb"
 
   override def removeExpired(): Future[Unit] = db.run {
     sessionTable.filter(_.expiresAt <= LocalDateTime.now).delete.map(_ => ())
