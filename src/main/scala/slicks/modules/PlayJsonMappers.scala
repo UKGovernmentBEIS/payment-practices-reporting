@@ -17,30 +17,29 @@
 
 package slicks.modules
 
-import javax.inject.Inject
+import com.github.tminglei.slickpg.{ExPostgresDriver, PgPlayJsonSupport}
+import play.api.libs.json.{JsArray, JsObject, Json}
+import slick.jdbc.JdbcType
 
-import com.github.tminglei.slickpg.{ExPostgresDriver, PgDateSupportJoda, PgPlayJsonSupport}
-import config.Config
-import play.api.Logger
-import play.api.db.slick.DatabaseConfigProvider
+trait PlayJsonMappers {
+  self: ExPostgresDriver with PgPlayJsonSupport =>
 
-class DB @Inject()(override val dbConfigProvider: DatabaseConfigProvider)
-  extends ReportModule
-    with ConfirmationModule
-    with SessionModule
-    with ExPostgresDriver
-    with PgDateSupportJoda
-    with PgPlayJsonSupport {
+  implicit val playJsObjectTypeMapper: JdbcType[JsObject] =
+    new GenericJdbcType[JsObject](
+      pgjson,
+      (v) => Json.parse(v).as[JsObject],
+      (v) => Json.stringify(v),
+      zero = JsObject(Seq()),
+      hasLiteralForm = false
+    )
 
-  Logger.info("DB created")
-
-  override def pgjson: String = "jsonb"
-
-  if (Config.config.printDBTables.getOrElse(false)) {
-    println("# --- !Ups")
-    schema.createStatements.foreach(s => println(s"$s;"))
-    println
-    println("# --- !Downs")
-    schema.dropStatements.foreach(s => println(s"$s;"))
-  }
+  implicit val playJsArrayTypeMapper: JdbcType[JsArray] =
+    new GenericJdbcType[JsArray](
+      pgjson,
+      (v) => Json.parse(v).as[JsArray],
+      (v) => Json.stringify(v),
+      zero = JsArray(),
+      hasLiteralForm = false
+    )
 }
+

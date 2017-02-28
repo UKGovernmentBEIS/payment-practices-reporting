@@ -2,7 +2,7 @@
 create table "report_header" ("id" BIGSERIAL NOT NULL PRIMARY KEY,"company_name" VARCHAR(255) NOT NULL,"company_id" VARCHAR(255) NOT NULL,"created_at" date NOT NULL,"updated_at" date NOT NULL);
 create table "report_period" ("report_id" BIGINT NOT NULL,"start_date" date NOT NULL,"end_date" date NOT NULL);
 create unique index "reportperiod_report_idx" on "report_period" ("report_id");
-create table "payment_terms" ("report_id" BIGINT NOT NULL,"payment_terms" VARCHAR(255) NOT NULL,"payment_period" INTEGER NOT NULL,"maximum_contract_period" INTEGER NOT NULL,"maximum_contract_period_comment" VARCHAR(255),"payment_terms_changed_comment" VARCHAR(255),"payment_terms_changed_notified_comment" VARCHAR(255),"payment_terms_comment" VARCHAR(255),"dispute_resolution" VARCHAR(255) NOT NULL);
+create table "payment_terms" ("report_id" BIGINT NOT NULL,"payment_terms" VARCHAR(35000) NOT NULL,"payment_period" INTEGER NOT NULL,"maximum_contract_period" INTEGER NOT NULL,"maximum_contract_period_comment" VARCHAR(3500),"payment_terms_changed_comment" VARCHAR(3500),"payment_terms_changed_notified_comment" VARCHAR(3500),"payment_terms_comment" VARCHAR(3500),"dispute_resolution" VARCHAR(14000) NOT NULL);
 create unique index "paymentterms_report_idx" on "payment_terms" ("report_id");
 create table "payment_history" ("report_id" BIGINT NOT NULL,"average_days_to_pay" INTEGER NOT NULL,"percent_paid_later_than_agreed_terms" INTEGER NOT NULL,"percent_invoices_within30days" INTEGER NOT NULL,"percent_invoices_within60days" INTEGER NOT NULL,"percent_invoices_beyond60days" INTEGER NOT NULL);
 create unique index "paymenthistory_report_idx" on "payment_history" ("report_id");
@@ -16,6 +16,7 @@ create table "confirmation_sent" ("report_id" BIGINT NOT NULL,"email_address" VA
 create unique index "confirmationsent_report_idx" on "confirmation_sent" ("report_id");
 create table "confirmation_failed" ("report_id" BIGINT NOT NULL,"email_address" VARCHAR(255) NOT NULL,"error_status" INTEGER NOT NULL,"error_text" VARCHAR(2048) NOT NULL,"failed_at" timestamp NOT NULL);
 create unique index "confirmationfailed_report_idx" on "confirmation_failed" ("report_id");
+create table "session" ("id" VARCHAR(36) NOT NULL PRIMARY KEY,"expires_at" timestamp NOT NULL,"session_data" jsonb NOT NULL);
 alter table "report_period" add constraint "reportperiod_report_fk" foreign key("report_id") references "report_header"("id") on update NO ACTION on delete CASCADE;
 alter table "payment_terms" add constraint "paymentterms_report_fk" foreign key("report_id") references "report_header"("id") on update NO ACTION on delete CASCADE;
 alter table "payment_history" add constraint "paymenthistory_report_fk" foreign key("report_id") references "report_header"("id") on update NO ACTION on delete CASCADE;
@@ -34,6 +35,7 @@ alter table "other_info" drop constraint "otherinfo_report_fk";
 alter table "payment_history" drop constraint "paymenthistory_report_fk";
 alter table "payment_terms" drop constraint "paymentterms_report_fk";
 alter table "report_period" drop constraint "reportperiod_report_fk";
+drop table "session";
 drop table "confirmation_failed";
 drop table "confirmation_sent";
 drop table "confirmation_pending";

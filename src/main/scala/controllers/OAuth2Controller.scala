@@ -19,13 +19,14 @@ package controllers
 
 import javax.inject.Inject
 
+import actions.SessionAction
 import models.CompaniesHouseId
 import play.api.mvc._
-import services.{OAuth2Service, OAuthToken}
+import services.{CompanyDetail, OAuth2Service, OAuthToken, SessionService}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class OAuth2Controller @Inject()(oAuth2Service: OAuth2Service)(implicit exec: ExecutionContext) extends Controller {
+class OAuth2Controller @Inject()(sessionService: SessionService, oAuth2Service: OAuth2Service, SessionAction: SessionAction)(implicit exec: ExecutionContext) extends Controller {
 
   import config.Config._
 
@@ -40,26 +41,23 @@ class OAuth2Controller @Inject()(oAuth2Service: OAuth2Service)(implicit exec: Ex
   }
 
   def claimCallback(code: Option[String], state: Option[String], error: Option[String], errorDescription: Option[String], errorCode: Option[String]) =
-    Action.async { implicit request =>
+    SessionAction.async { implicit request =>
       val tokenDetails: Future[Either[Result, OAuthToken]] = code match {
         case None => Future.successful(Left(BadRequest("No oAuth code")))
         case Some(c) => oAuth2Service.convertCode(c).map(Right(_))
       }
 
       val companyId = CompaniesHouseId("09575031")
+      val companyName: String = "Well-Factored Software Ltd."
 
       import actions.CompanyAuthAction._
-      tokenDetails.map {
-        case Left(result) => result
-        case Right(ref) =>
-          Redirect(controllers.routes.ReportController.file(companyId))
-            .addingToSession(
-              refreshToken -> ref.refreshToken,
-              accessToken -> ref.accessToken,
-              accessTokenExpiry -> ref.accessTokenExpiry.toDate.getTime.toString,
-              companyIdHeader -> companyId.id,
-              companyNameHeader -> "Well-Factored Software Ltd."
-            )
+
+      tokenDetails.flatMap {
+        case Left(result) => Future.successful(result)
+        case Right(ref) => for {
+          _ <- sessionService.put(request.sessionId, oAuthTokenKey, ref)
+          _ <- sessionService.put(request.sessionId, companyDetailsKey, CompanyDetail(companyId, companyName))
+        } yield Redirect(controllers.routes.ReportController.file(companyId))
       }
     }
 }

@@ -18,7 +18,31 @@
 package services
 
 import org.joda.time.LocalDateTime
+import org.joda.time.format.DateTimeFormat
+import play.api.libs.json._
+
+import scala.util.{Failure, Success, Try}
 
 case class OAuthToken(accessToken: String, accessTokenExpiry: LocalDateTime, refreshToken: String) {
   def isExpired = accessTokenExpiry.isAfter(LocalDateTime.now)
+}
+
+object OAuthToken {
+  private val pattern = "yyyy-MM-dd hh:mm:ss"
+  val df = DateTimeFormat.forPattern(pattern)
+
+  implicit val ldtFormat = new Format[LocalDateTime] {
+    override def reads(json: JsValue): JsResult[LocalDateTime] = json.validate[JsString].flatMap { js =>
+      Try {
+        df.parseLocalDateTime(js.value)
+      } match {
+        case Success(ldt) => JsSuccess(ldt)
+        case Failure(t) => JsError(s"could not parse $js as a LocalDateTime with pattern $pattern")
+      }
+    }
+
+    override def writes(d: LocalDateTime): JsValue = JsString(df.print(d))
+  }
+
+  implicit val fmt = Json.format[OAuthToken]
 }

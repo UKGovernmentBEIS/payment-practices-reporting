@@ -19,53 +19,53 @@ package actions
 
 import javax.inject.Inject
 
+import cats.data.OptionT
+import cats.instances.future._
 import models.CompaniesHouseId
 import org.joda.time.LocalDateTime
 import play.api.mvc.Results._
 import play.api.mvc._
-import services.OAuthToken
+import services._
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 
-case class CompanyAuthRequest[A](companiesHouseId: CompaniesHouseId, companyName: String, oAuthToken: OAuthToken, request: Request[A]) extends WrappedRequest[A](request)
-
 object CompanyAuthAction {
-  val companyIdHeader = "company_id"
-  val companyNameHeader = "company_name"
-  val refreshToken = "refresh_token"
-  val accessToken = "access_token"
-  val accessTokenExpiry = "access_token_expiry"
+  val oAuthTokenKey = "oAuthToken"
+  val companyDetailsKey = "companyDetails"
 }
 
-class CompanyAuthAction @Inject()(implicit ec: ExecutionContext) {
+case class CompanyAuthRequest[A](sessionId: SessionId, companyDetail: CompanyDetail, oAuthToken: OAuthToken, request: Request[A]) extends WrappedRequest[A](request)
 
-  import CompanyAuthAction._
-
-  implicit class SessionSyntax(result: Result)(implicit request: Request[_]) {
-    def clearingSession = result.removingFromSession(companyIdHeader, companyNameHeader)
-  }
-
+class CompanyAuthAction @Inject()(SessionAction: SessionAction, sessionService: SessionService, oAuth2Service: OAuth2Service)(implicit ec: ExecutionContext) {
   def extractTime(s: String): Option[LocalDateTime] = Try(new LocalDateTime(s.toLong)).toOption
 
-  def apply(expectedId: CompaniesHouseId): ActionBuilder[CompanyAuthRequest] =
-    new ActionBuilder[CompanyAuthRequest] {
-      override def invokeBlock[A](request: Request[A], next: (CompanyAuthRequest[A]) => Future[Result]): Future[Result] = {
-        implicit val r = request
-        val companyRequest = for {
-          coHoId <- request.session.get(companyIdHeader).map(CompaniesHouseId)
-          name <- request.session.get(companyNameHeader)
-          at <- request.session.get(accessToken)
-          expiry <- request.session.get(accessTokenExpiry).flatMap(extractTime)
-          rt <- request.session.get(refreshToken)
-        } yield CompanyAuthRequest(coHoId, name, OAuthToken(at, expiry, rt), request)
+  def apply(expectedId: CompaniesHouseId): ActionBuilder[CompanyAuthRequest] = new ActionBuilder[CompanyAuthRequest] {
+    override def invokeBlock[A](request: Request[A], block: (CompanyAuthRequest[A]) => Future[Result]) =
+      (SessionAction andThen refiner(expectedId)).invokeBlock(request, block)
+  }
 
-        companyRequest match {
-          case Some(cr) if cr.companiesHouseId == expectedId => next(cr)
-          case Some(cr) => Future.successful(Unauthorized("company id on session does not match id in url").clearingSession)
-          case None => Future.successful(Unauthorized("no company details found on request").clearingSession)
-        }
+  def refiner(expectedId: CompaniesHouseId): ActionRefiner[SessionRequest, CompanyAuthRequest] = new ActionRefiner[SessionRequest, CompanyAuthRequest] {
+
+    import CompanyAuthAction._
+
+    override protected def refine[A](request: SessionRequest[A]): Future[Either[Result, CompanyAuthRequest[A]]] = {
+      val companyRequest = for {
+        companyDetails <- OptionT(sessionService.get[CompanyDetail](request.sessionId, companyDetailsKey))
+        oAuthToken <- OptionT(sessionService.get[OAuthToken](request.sessionId, oAuthTokenKey))
+        freshToken <- OptionT.liftF(freshenToken(oAuthToken))
+      } yield CompanyAuthRequest(request.sessionId, companyDetails, freshToken, request.request)
+
+      companyRequest.value.map {
+        case Some(car) if car.companyDetail.company_number == expectedId => Right(car)
+        case Some(car) => Left(Unauthorized("company id from session does not match id in url"))
+        case None => Left(Unauthorized("no company details found on request"))
       }
     }
+  }
+
+  def freshenToken(oAuthToken: OAuthToken): Future[OAuthToken] = {
+    if (oAuthToken.isExpired) oAuth2Service.refreshToken(oAuthToken) else Future.successful(oAuthToken)
+  }
 }
 

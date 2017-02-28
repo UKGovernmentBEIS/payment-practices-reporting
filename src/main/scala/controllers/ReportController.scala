@@ -30,7 +30,7 @@ import play.api.data._
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, Controller, Result}
 import play.twirl.api.Html
-import services.{CompaniesHouseAPI, CompanyDetail, NotifyService}
+import services._
 import slicks.modules.ReportRepo
 import utils.{TimeSource, YesNo}
 
@@ -42,7 +42,8 @@ class ReportController @Inject()(
                                   reports: ReportRepo,
                                   timeSource: TimeSource,
                                   oAuthController: OAuth2Controller,
-                                  CompanyAuthAction: CompanyAuthAction
+                                  CompanyAuthAction: CompanyAuthAction,
+                                  oAuth2Service: OAuth2Service
                                 )(implicit ec: ExecutionContext, messages: MessagesApi) extends Controller with PageHelper {
 
   import views.html.{report => pages}
@@ -125,7 +126,7 @@ class ReportController @Inject()(
     form.bindFromRequest().fold(errs => BadRequest(s"Invalid option"), resultFor)
   }
 
-  def reportPageHeader(implicit request: CompanyAuthRequest[_]) = h1(s"Publish a report for:<br>${request.companyName}")
+  def reportPageHeader(implicit request: CompanyAuthRequest[_]) = h1(s"Publish a report for:<br>${request.companyDetail.company_name}")
 
   def file(companiesHouseId: CompaniesHouseId) = CompanyAuthAction(companiesHouseId) { implicit request =>
     Ok(page(home, reportPageHeader, pages.file(emptyReport, companiesHouseId, df)))
@@ -135,7 +136,7 @@ class ReportController @Inject()(
     //println(request.body.flatMap { case (k, v) => v.headOption.map(value => s""""$k" -> "$value"""") }.mkString(", "))
     emptyReport.bindFromRequest().fold(
       errs => BadRequest(page(home, reportPageHeader, pages.file(errs, companiesHouseId, df))),
-      report => Ok(page(home, pages.review(emptyReview, report, companiesHouseId, request.companyName, df, reportValidations.reportFormModel)))
+      report => Ok(page(home, pages.review(emptyReview, report, companiesHouseId, request.companyDetail.company_name, df, reportValidations.reportFormModel)))
     )
   }
 
@@ -157,13 +158,13 @@ class ReportController @Inject()(
 
   private def checkConfirmation(companiesHouseId: CompaniesHouseId, report: ReportFormModel)(implicit request: CompanyAuthRequest[_]): Future[Result] = {
     emptyReview.bindFromRequest().fold(
-      errs => Future.successful(BadRequest(page(home, pages.review(errs, report, companiesHouseId, request.companyName, df, reportValidations.reportFormModel)))),
+      errs => Future.successful(BadRequest(page(home, pages.review(errs, report, companiesHouseId, request.companyDetail.company_name, df, reportValidations.reportFormModel)))),
       review => {
         if (review.confirmed)
           createReport(companiesHouseId, report, review)
             .map(rId => Redirect(controllers.routes.ReportController.showConfirmation(rId)))
         else
-          Future.successful(BadRequest(page(home, pages.review(emptyReview.fill(review), report, companiesHouseId, request.companyName, df, reportValidations.reportFormModel))))
+          Future.successful(BadRequest(page(home, pages.review(emptyReview.fill(review), report, companiesHouseId, request.companyDetail.company_name, df, reportValidations.reportFormModel))))
       }
     )
   }
@@ -173,8 +174,13 @@ class ReportController @Inject()(
   private def createReport(companiesHouseId: CompaniesHouseId, report: ReportFormModel, review: ReportReviewModel)(implicit request: CompanyAuthRequest[_]): Future[ReportId] = {
     val urlFunction: ReportId => String = (id: ReportId) => controllers.routes.SearchController.view(id).absoluteURL()
     for {
-      reportId <- reports.create(review.confirmedBy, companiesHouseId, request.companyName, report, review, emailAddress, urlFunction)
+      reportId <- reports.create(review.confirmedBy, companiesHouseId, request.companyDetail.company_name, report, review, emailAddress, urlFunction)
     } yield reportId
+  }
+
+  def withFreshAccessToken[T](oAuthToken: OAuthToken)(body: OAuthToken => Future[T]): Future[T] = {
+    val f = if (oAuthToken.isExpired) oAuth2Service.refreshToken(oAuthToken) else Future.successful(oAuthToken)
+    f.flatMap(body(_))
   }
 
   def showConfirmation(reportId: ReportId) = Action(Ok(page(home, pages.filingSuccess(reportId, emailAddress))))
