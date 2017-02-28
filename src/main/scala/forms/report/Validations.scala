@@ -44,6 +44,11 @@ class Validations @Inject()(timeSource: TimeSource) {
     }
   }
 
+  val yesNoText: Mapping[ConditionalText] = mapping(
+    "yesNo" -> yesNo,
+    "text" -> optional(text)
+  )(ConditionalText.apply)(ConditionalText.unapply)
+
   private val condText: Mapping[ConditionalText] = mapping(
     "yesNo" -> yesNo,
     "text" -> optional(text)
@@ -79,13 +84,35 @@ class Validations @Inject()(timeSource: TimeSource) {
     "percentageSplit" -> percentageSplit
   )(PaymentHistory.apply)(PaymentHistory.unapply)
 
+  val answerNotifiedIfChanged = Constraint { ch: PaymentTermsChanged =>
+    ch match {
+      case PaymentTermsChanged(ConditionalText(Yes, _), None) => Invalid("error.mustanswer")
+      case _ => Valid
+    }
+  }
+
+  val ptc = mapping(
+    "changed" -> conditionalText,
+    "notified" -> optional(condText)
+  )(PaymentTermsChanged.apply)(PaymentTermsChanged.unapply)
+    .verifying(answerNotifiedIfChanged)
+
+  val paymentTermsChanged = AdjustErrors(ptc) { (key, errs) =>
+    def keyFix(k: String, s: String) = if (k == "") s else s"$k.$s"
+
+    errs.map {
+      case FormError(k, messages, args) if messages.headOption.contains("error.mustanswer") => FormError(keyFix(k, "notified.yesNo"), messages, args)
+      case FormError(k, messages, args) if k == keyFix(key, "notified") => FormError(keyFix(k, "text"), messages, args)
+      case e => e
+    }
+  }
+
   val paymentTerms: Mapping[PaymentTerms] = mapping(
     "terms" -> nonEmptyText,
     "paymentPeriod" -> number(min = 0),
     "maximumContractPeriod" -> number(min = 0),
     "maximumContractPeriodComment" -> optional(nonEmptyText),
-    "paymentTermsChanged" -> conditionalText,
-    "paymentTermsNotified" -> conditionalText,
+    "paymentTermsChanged" -> paymentTermsChanged,
     "paymentTermsComment" -> optional(nonEmptyText),
     "disputeResolution" -> nonEmptyText
   )(PaymentTerms.apply)(PaymentTerms.unapply)

@@ -32,8 +32,8 @@ trait RowBuilders {
       report.paymentTerms.paymentPeriod,
       report.paymentTerms.maximumContractPeriod,
       report.paymentTerms.maximumContractPeriodComment,
-      report.paymentTerms.paymentTermsChanged.text,
-      report.paymentTerms.paymentTermsChangedNotified.text,
+      report.paymentTerms.paymentTermsChanged.comment.text,
+      report.paymentTerms.paymentTermsChanged.notified.flatMap(_.text),
       report.paymentTerms.paymentTermsComment,
       report.paymentTerms.disputeResolution
     )

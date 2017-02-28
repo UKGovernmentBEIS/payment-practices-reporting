@@ -21,6 +21,11 @@
         <p>
             Please correct the errors shown below.
         </p>
+        <p>
+            @form.errors.map{ err=>
+                <br>@err
+            }
+        </p>
     </div>
 }
 
