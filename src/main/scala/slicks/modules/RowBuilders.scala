@@ -57,6 +57,6 @@ trait RowBuilders {
       report.hasPaymentCodes.text
     )
 
-  def buildFilingRow(review: ReportReviewModel, reportId: ReportId): FilingRow =
-    FilingRow(reportId, new LocalDate(), review.confirmedBy)
+  def buildFilingRow(review: ReportReviewModel, reportId: ReportId, confirmationEmail:String): FilingRow =
+    FilingRow(reportId, new LocalDate(), review.confirmedBy, confirmationEmail)
 }

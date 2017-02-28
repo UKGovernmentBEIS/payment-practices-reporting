@@ -20,8 +20,7 @@ package controllers
 import javax.inject.{Inject, Named}
 
 import actions.{CompanyAuthAction, CompanyAuthRequest}
-import actors.ConfirmationActor
-import akka.actor.{ActorRef, ActorSystem}
+import akka.actor.ActorRef
 import controllers.ReportController.CodeOption.{Colleague, Register}
 import forms.Validations
 import forms.report.{ReportFormModel, ReportReviewModel, Validations}
@@ -34,7 +33,7 @@ import play.api.mvc.{Action, Controller, Result}
 import play.twirl.api.Html
 import services._
 import slicks.modules.ReportRepo
-import utils.{TimeSource, YesNo}
+import utils.YesNo
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -171,8 +170,6 @@ class ReportController @Inject()(
     )
   }
 
-  val emailAddress = "doug.clinton@digital.beis.gov.uk"
-
   private def createReport(companiesHouseId: CompaniesHouseId, report: ReportFormModel, review: ReportReviewModel)(implicit request: CompanyAuthRequest[_]): Future[ReportId] = {
     val urlFunction: ReportId => String = (id: ReportId) => controllers.routes.SearchController.view(id).absoluteURL()
     for {
@@ -181,7 +178,12 @@ class ReportController @Inject()(
     } yield reportId
   }
 
-  def showConfirmation(reportId: ReportId) = Action(Ok(page(home, pages.filingSuccess(reportId, emailAddress))))
+  def showConfirmation(reportId: ReportId) = Action.async { implicit request =>
+    reports.findFiled(reportId).map {
+      case Some(report) => Ok(page(home, pages.filingSuccess(reportId, report.filing.confirmationEmailAddress)))
+      case None => BadRequest(s"Could not find a report with id ${reportId.id}")
+    }
+  }
 }
 
 object ReportController {

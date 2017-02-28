@@ -55,7 +55,9 @@ trait ReportModule extends DBBinding {
 
     def approvedBy = column[String]("approved_by", O.Length(255))
 
-    def * = (reportId, filingDate, approvedBy) <> (FilingRow.tupled, FilingRow.unapply)
+    def confirmationEmailAddress = column[String]("confirmation_email_address", O.Length(255))
+
+    def * = (reportId, filingDate, approvedBy, confirmationEmailAddress) <> (FilingRow.tupled, FilingRow.unapply)
   }
 
   lazy val filingTable = TableQuery[FilingTable]

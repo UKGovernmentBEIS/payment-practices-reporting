@@ -8,7 +8,7 @@ create table "payment_history" ("report_id" BIGINT NOT NULL,"average_days_to_pay
 create unique index "paymenthistory_report_idx" on "payment_history" ("report_id");
 create table "other_info" ("report_id" BIGINT NOT NULL,"offer_einvoicing" BOOLEAN NOT NULL,"offer_supply_chain_finance" BOOLEAN NOT NULL,"retention_charges_in_policy" BOOLEAN NOT NULL,"retention_charges_in_past" BOOLEAN NOT NULL,"payment_codes" VARCHAR(255));
 create unique index "otherinfo_report_idx" on "other_info" ("report_id");
-create table "filing" ("report_id" BIGINT NOT NULL,"filing_date" date NOT NULL,"approved_by" VARCHAR(255) NOT NULL);
+create table "filing" ("report_id" BIGINT NOT NULL,"filing_date" date NOT NULL,"approved_by" VARCHAR(255) NOT NULL,"confirmation_email_address" VARCHAR(255) NOT NULL);
 create unique index "filing_report_idx" on "filing" ("report_id");
 create table "confirmation_pending" ("report_id" BIGINT NOT NULL,"email_address" VARCHAR(255) NOT NULL,"url" VARCHAR(255) NOT NULL,"retry_count" INTEGER NOT NULL,"last_error_status" INTEGER,"last_error_text" VARCHAR(2048),"locked_at" timestamp);
 create unique index "confirmationpending_report_idx" on "confirmation_pending" ("report_id");

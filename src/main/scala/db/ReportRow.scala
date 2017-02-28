@@ -42,7 +42,8 @@ case class ReportHeaderRow(
 case class FilingRow(
                       reportId: ReportId,
                       filingDate: LocalDate,
-                      approvedBy: String
+                      approvedBy: String,
+                      confirmationEmailAddress: String
                     )
 
 case class ReportPeriodRow(

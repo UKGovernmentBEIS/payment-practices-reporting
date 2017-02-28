@@ -93,7 +93,7 @@ class ReportTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(implic
         _ <- paymentTermsTable += buildPaymentTermsRow(report, reportId)
         _ <- paymentHistoryTable += buildPaymentHistoryRow(report, reportId)
         _ <- otherInfoTable += buildOtherInfoRow(report, reportId)
-        _ <- filingTable += buildFilingRow(review, reportId)
+        _ <- filingTable += buildFilingRow(review, reportId, confirmationEmailAddress)
         _ <- confirmationPendingTable += ConfirmationPendingRow(reportId, confirmationEmailAddress, reportUrl(reportId), 0, None, None, None)
       } yield reportId
     }.transactionally
