@@ -21,7 +21,7 @@ import javax.inject.{Inject, Singleton}
 
 import akka.actor.ActorSystem
 import com.google.inject.ImplementedBy
-import db.SessionRow
+import org.joda.time.LocalDateTime
 import play.api.libs.json.{Reads, Writes}
 import slicks.modules.SessionTable
 
@@ -34,29 +34,48 @@ case class SessionId(id: String)
 @ImplementedBy(classOf[SessionTable])
 trait SessionService {
 
-  def find(sessionId: SessionId): Future[Option[SessionRow]]
-
-  def put[T: Writes](sessionId: SessionId, key: String, value: T): Future[Unit]
-
-  def get[T: Reads](sessionId: SessionId, key: String): Future[Option[T]]
-
+  /**
+    * Retrieve the entire session data associated with the `sessionId` and attempt to convert it to
+    * a value of type `T`
+    */
   def get[T: Reads](sessionId: SessionId): Future[Option[T]]
 
+  /**
+    * Retrieve a sub-section of the session data corresponding to the `key` and attempt
+    * to convert it to a value of type `T`
+    */
+  def get[T: Reads](sessionId: SessionId, key: String): Future[Option[T]]
+
+  /**
+    * Accept a value of type `T` and store it into the session, associated with the
+    * given `key`. Any previous value associated with `key` will be replaced.
+    */
+  def put[T: Writes](sessionId: SessionId, key: String, value: T): Future[Unit]
+
+  /**
+    * Remove any value associated with the given `key` from the session.
+    */
   def clear(sessionId: SessionId, key: String): Future[Unit]
 
   /**
     * Refresh the expiry time of the session to be the current time plus the
     * timeout in minutes
     */
-  def refresh(sessionId: SessionId, lifetimeInMinutes: Int = 20): Future[Unit]
+  def refresh(sessionId: SessionId, lifetimeInMinutes: Int = 20, now: LocalDateTime = LocalDateTime.now): Future[Unit]
 
-  def removeExpired(): Future[Unit]
+  /**
+    * Find any expired sessions (i.e. sessions that have expiry times that are earlier
+    * than the current time) and remove them from the session store.
+    */
+  def removeExpired(now: LocalDateTime = LocalDateTime.now): Future[Unit]
 
 }
 
+/**
+  * Schedule a process that will call the `SessionService.removeExpired` method periodically
+  * to ensure that stale sessions are cleaned up.
+  */
 @Singleton
 class SessionCleaner @Inject()(sessionService: SessionService, system: ActorSystem)(implicit ec: ExecutionContext) {
-  system.scheduler.schedule(10 seconds, 30 seconds) {
-    sessionService.removeExpired()
-  }
+  system.scheduler.schedule(10 seconds, 30 seconds)(sessionService.removeExpired())
 }

@@ -27,6 +27,11 @@ import scala.concurrent.{ExecutionContext, Future}
 
 case class SessionRequest[A](sessionId: SessionId, request: Request[A])
 
+/**
+  * This action checks for a `sessionId` attribute on the Play session. If none is found then an id is created (as a UUID).
+  * The value of this `sessionId` is lifted to a property of the `SessionRequest` so that action handlers can access it
+  * easily.
+  */
 class SessionAction @Inject()(sessionService: SessionService)(implicit ec: ExecutionContext) extends ActionBuilder[SessionRequest] {
   override def invokeBlock[A](request: Request[A], block: (SessionRequest[A]) => Future[Result]): Future[Result] = {
     val sessionId = request.session.get("sessionId") match {

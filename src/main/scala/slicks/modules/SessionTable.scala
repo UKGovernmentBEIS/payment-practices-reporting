@@ -46,10 +46,6 @@ class SessionTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(impli
 
   val sessionC = Compiled(sessionQ _)
 
-  override def find(sessionId: SessionId): Future[Option[SessionRow]] = db.run {
-    sessionC(sessionId).result.headOption
-  }
-
   override def put[T: Writes](sessionId: SessionId, key: String, value: T): Future[Unit] = db.run {
     sessionC(sessionId).result.headOption.flatMap {
       case Some(s) =>
@@ -100,15 +96,15 @@ class SessionTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(impli
     * Refresh the expiry time of the session to be the current time plus the
     * timeout in minutes
     */
-  override def refresh(sessionId: SessionId, lifetimeInMinutes: Int): Future[Unit] = db.run {
+  override def refresh(sessionId: SessionId, lifetimeInMinutes: Int, now: LocalDateTime): Future[Unit] = db.run {
     Logger.debug(s"asked to refresh $sessionId")
     sessionC(sessionId).result.headOption.flatMap {
-      case Some(s) => sessionC(sessionId).update(s.copy(expiresAt = LocalDateTime.now.plusMinutes(lifetimeInMinutes)))
+      case Some(s) => sessionC(sessionId).update(s.copy(expiresAt = now.plusMinutes(lifetimeInMinutes)))
       case None => DBIO.successful(())
     }.transactionally.map(_ => ())
   }
 
-  override def removeExpired(): Future[Unit] = db.run {
-    sessionTable.filter(_.expiresAt <= LocalDateTime.now).delete.map(_ => ())
+  override def removeExpired(now: LocalDateTime): Future[Unit] = db.run {
+    sessionTable.filter(_.expiresAt <= now).delete.map(_ => ())
   }
 }

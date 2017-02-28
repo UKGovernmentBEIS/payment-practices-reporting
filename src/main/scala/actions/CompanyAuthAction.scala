@@ -45,6 +45,16 @@ object SessionDetails {
 
 case class CompanyAuthRequest[A](sessionId: SessionId, companyDetail: CompanyDetail, emailAddress: String, oAuthToken: OAuthToken, request: Request[A]) extends WrappedRequest[A](request)
 
+/**
+  * The `CompanyAuthAction` checks for the presence of a `sessionId` that corresponds to an entry in the
+  * `session` table in the database. This session entry must contain the necessary details about the
+  * company, the email address of the user who has authorised for filing, and the oAuth token details
+  * needed to call the Companies House api. All of these are exposed as properties on the `CompanyAuthRequest`
+  * so that action handlers can access them easily.
+  *
+  * If the access token retrieved from the session has expired then this action will refresh it using
+  * the oAuth2 refresh token and update the session with the new values.
+  */
 class CompanyAuthAction @Inject()(SessionAction: SessionAction, sessionService: SessionService, oAuth2Service: OAuth2Service)(implicit ec: ExecutionContext) {
   def extractTime(s: String): Option[LocalDateTime] = Try(new LocalDateTime(s.toLong)).toOption
 
