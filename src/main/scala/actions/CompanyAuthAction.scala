@@ -23,6 +23,7 @@ import cats.data.OptionT
 import cats.instances.future._
 import models.CompaniesHouseId
 import org.joda.time.LocalDateTime
+import play.api.libs.json.Json
 import play.api.mvc.Results._
 import play.api.mvc._
 import services._
@@ -33,9 +34,16 @@ import scala.util.Try
 object CompanyAuthAction {
   val oAuthTokenKey = "oAuthToken"
   val companyDetailsKey = "companyDetails"
+  val emailAddressKey = "emailAddress"
 }
 
-case class CompanyAuthRequest[A](sessionId: SessionId, companyDetail: CompanyDetail, oAuthToken: OAuthToken, request: Request[A]) extends WrappedRequest[A](request)
+case class SessionDetails(companyDetails: CompanyDetail, emailAddress: String, oAuthToken: OAuthToken)
+
+object SessionDetails {
+  implicit val fmt = Json.format[SessionDetails]
+}
+
+case class CompanyAuthRequest[A](sessionId: SessionId, companyDetail: CompanyDetail, emailAddress: String, oAuthToken: OAuthToken, request: Request[A]) extends WrappedRequest[A](request)
 
 class CompanyAuthAction @Inject()(SessionAction: SessionAction, sessionService: SessionService, oAuth2Service: OAuth2Service)(implicit ec: ExecutionContext) {
   def extractTime(s: String): Option[LocalDateTime] = Try(new LocalDateTime(s.toLong)).toOption
@@ -47,16 +55,13 @@ class CompanyAuthAction @Inject()(SessionAction: SessionAction, sessionService: 
 
   def refiner(expectedId: CompaniesHouseId): ActionRefiner[SessionRequest, CompanyAuthRequest] = new ActionRefiner[SessionRequest, CompanyAuthRequest] {
 
-    import CompanyAuthAction._
-
     override protected def refine[A](request: SessionRequest[A]): Future[Either[Result, CompanyAuthRequest[A]]] = {
-      val companyRequest = for {
-        companyDetails <- OptionT(sessionService.get[CompanyDetail](request.sessionId, companyDetailsKey))
-        oAuthToken <- OptionT(sessionService.get[OAuthToken](request.sessionId, oAuthTokenKey))
-        freshToken <- OptionT.liftF(freshenToken(oAuthToken))
-      } yield CompanyAuthRequest(request.sessionId, companyDetails, freshToken, request.request)
+      val sessionDetails = for {
+        sessionDetails <- OptionT(sessionService.get[SessionDetails](request.sessionId))
+        freshToken <- OptionT.liftF(freshenToken(request.sessionId, sessionDetails.oAuthToken))
+      } yield CompanyAuthRequest(request.sessionId, sessionDetails.companyDetails, sessionDetails.emailAddress, freshToken, request.request)
 
-      companyRequest.value.map {
+      sessionDetails.value.map {
         case Some(car) if car.companyDetail.company_number == expectedId => Right(car)
         case Some(car) => Left(Unauthorized("company id from session does not match id in url"))
         case None => Left(Unauthorized("no company details found on request"))
@@ -64,8 +69,13 @@ class CompanyAuthAction @Inject()(SessionAction: SessionAction, sessionService: 
     }
   }
 
-  def freshenToken(oAuthToken: OAuthToken): Future[OAuthToken] = {
-    if (oAuthToken.isExpired) oAuth2Service.refreshToken(oAuthToken) else Future.successful(oAuthToken)
-  }
+  def freshenToken(sessionId: SessionId, oAuthToken: OAuthToken): Future[OAuthToken] =
+    if (oAuthToken.isExpired) {
+      for {
+        freshToken <- oAuth2Service.refreshAccessToken(oAuthToken)
+        _ <- sessionService.put(sessionId, CompanyAuthAction.oAuthTokenKey, freshToken)
+      } yield freshToken
+    } else Future.successful(oAuthToken)
+
 }
 

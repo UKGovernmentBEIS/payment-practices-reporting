@@ -40,6 +40,8 @@ trait SessionService {
 
   def get[T: Reads](sessionId: SessionId, key: String): Future[Option[T]]
 
+  def get[T: Reads](sessionId: SessionId): Future[Option[T]]
+
   def clear(sessionId: SessionId, key: String): Future[Unit]
 
   /**

@@ -24,11 +24,11 @@ import play.api.libs.json._
 import scala.util.{Failure, Success, Try}
 
 case class OAuthToken(accessToken: String, accessTokenExpiry: LocalDateTime, refreshToken: String) {
-  def isExpired = accessTokenExpiry.isAfter(LocalDateTime.now)
+  def isExpired = LocalDateTime.now.isAfter(accessTokenExpiry)
 }
 
 object OAuthToken {
-  private val pattern = "yyyy-MM-dd hh:mm:ss"
+  private val pattern = "yyyy-MM-dd HH:mm:ss"
   val df = DateTimeFormat.forPattern(pattern)
 
   implicit val ldtFormat = new Format[LocalDateTime] {

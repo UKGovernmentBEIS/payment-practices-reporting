@@ -36,7 +36,7 @@ case class RefreshTokenResponse(access_token: String, expires_in: Int)
 trait OAuth2Service {
   def convertCode(code: String): Future[OAuthToken]
 
-  def refreshToken(oAuthToken: OAuthToken): Future[OAuthToken]
+  def refreshAccessToken(oAuthToken: OAuthToken): Future[OAuthToken]
 }
 
 class OAuth2ServiceImpl @Inject()(ws: WSClient)(implicit ec: ExecutionContext) extends OAuth2Service with ValueClassFormats {
@@ -86,7 +86,7 @@ class OAuth2ServiceImpl @Inject()(ws: WSClient)(implicit ec: ExecutionContext) e
 
   implicit val rtrFormat = Json.format[RefreshTokenResponse]
 
-  def refreshToken(oAuthToken: OAuthToken): Future[OAuthToken] = {
+  def refreshAccessToken(oAuthToken: OAuthToken): Future[OAuthToken] = {
     val url = "https://account.companieshouse.gov.uk/oauth2/token"
     val body = Map(
       "client_id" -> client.id,
@@ -99,8 +99,10 @@ class OAuth2ServiceImpl @Inject()(ws: WSClient)(implicit ec: ExecutionContext) e
       .withHeaders(("Content-Type", "application/x-www-form-urlencoded"), ("Charset", "utf-8"))
       .post(body).map { response =>
       response.status match {
-        case 200 => response.json.validate[AccessTokenResponse] match {
-          case JsSuccess(atr, _) => OAuthToken(atr.access_token, LocalDateTime.now().plusSeconds(atr.expires_in), atr.refresh_token)
+        case 200 => response.json.validate[RefreshTokenResponse] match {
+          case JsSuccess(rtr, _) =>
+            Logger.debug(rtr.toString)
+            OAuthToken(rtr.access_token, LocalDateTime.now().plusSeconds(rtr.expires_in - 10), oAuthToken.refreshToken)
           case JsError(errs) => throw new Exception(errs.toString)
         }
       }

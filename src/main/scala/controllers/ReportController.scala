@@ -17,9 +17,11 @@
 
 package controllers
 
-import javax.inject.Inject
+import javax.inject.{Inject, Named}
 
 import actions.{CompanyAuthAction, CompanyAuthRequest}
+import actors.ConfirmationActor
+import akka.actor.{ActorRef, ActorSystem}
 import controllers.ReportController.CodeOption.{Colleague, Register}
 import forms.Validations
 import forms.report.{ReportFormModel, ReportReviewModel, Validations}
@@ -40,15 +42,15 @@ class ReportController @Inject()(
                                   companiesHouseAPI: CompaniesHouseAPI,
                                   notifyService: NotifyService,
                                   reports: ReportRepo,
-                                  timeSource: TimeSource,
+                                  reportValidations: Validations,
                                   oAuthController: OAuth2Controller,
                                   CompanyAuthAction: CompanyAuthAction,
+                                  @Named("confirmation-actor") confirmationActor: ActorRef,
                                   oAuth2Service: OAuth2Service
                                 )(implicit ec: ExecutionContext, messages: MessagesApi) extends Controller with PageHelper {
 
   import views.html.{report => pages}
 
-  private val reportValidations = new Validations(timeSource)
   val emptyReport: Form[ReportFormModel] = Form(reportValidations.reportFormModel)
   val emptyReview: Form[ReportReviewModel] = Form(reportValidations.reportReviewModel)
   val df = DateTimeFormat.forPattern("d MMMM YYYY")
@@ -174,13 +176,9 @@ class ReportController @Inject()(
   private def createReport(companiesHouseId: CompaniesHouseId, report: ReportFormModel, review: ReportReviewModel)(implicit request: CompanyAuthRequest[_]): Future[ReportId] = {
     val urlFunction: ReportId => String = (id: ReportId) => controllers.routes.SearchController.view(id).absoluteURL()
     for {
-      reportId <- reports.create(review.confirmedBy, companiesHouseId, request.companyDetail.company_name, report, review, emailAddress, urlFunction)
+      reportId <- reports.create(review.confirmedBy, companiesHouseId, request.companyDetail.company_name, report, review, request.emailAddress, urlFunction)
+      _ <- Future.successful(confirmationActor ! 'poll)
     } yield reportId
-  }
-
-  def withFreshAccessToken[T](oAuthToken: OAuthToken)(body: OAuthToken => Future[T]): Future[T] = {
-    val f = if (oAuthToken.isExpired) oAuth2Service.refreshToken(oAuthToken) else Future.successful(oAuthToken)
-    f.flatMap(body(_))
   }
 
   def showConfirmation(reportId: ReportId) = Action(Ok(page(home, pages.filingSuccess(reportId, emailAddress))))

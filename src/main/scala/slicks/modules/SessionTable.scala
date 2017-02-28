@@ -73,6 +73,19 @@ class SessionTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(impli
     }
   }
 
+  override def get[T: Reads](sessionId: SessionId): Future[Option[T]] = db.run {
+    sessionC(sessionId).result.headOption.map {
+      _.flatMap { row =>
+        row.sessionData.validateOpt[T] match {
+          case JsSuccess(t, _) => t
+          case JsError(errs) =>
+            Logger.debug(errs.toString)
+            None
+        }
+      }
+    }
+  }
+
   override def clear(sessionId: SessionId, key: String): Future[Unit] = db.run {
     sessionC(sessionId).result.headOption.map {
       case Some(s) =>

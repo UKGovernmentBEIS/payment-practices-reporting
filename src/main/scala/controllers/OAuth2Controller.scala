@@ -20,13 +20,15 @@ package controllers
 import javax.inject.Inject
 
 import actions.SessionAction
+import cats.data.OptionT
+import cats.instances.future._
 import models.CompaniesHouseId
 import play.api.mvc._
-import services.{CompanyDetail, OAuth2Service, OAuthToken, SessionService}
+import services._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class OAuth2Controller @Inject()(sessionService: SessionService, oAuth2Service: OAuth2Service, SessionAction: SessionAction)(implicit exec: ExecutionContext) extends Controller {
+class OAuth2Controller @Inject()(sessionService: SessionService, companiesHouseAPI: CompaniesHouseAPI, oAuth2Service: OAuth2Service, SessionAction: SessionAction)(implicit exec: ExecutionContext) extends Controller {
 
   import config.Config._
 
@@ -35,6 +37,7 @@ class OAuth2Controller @Inject()(sessionService: SessionService, oAuth2Service: 
       "client_id" -> Seq(config.client.id),
       "redirect_uri" -> Seq(config.api.callbackURL),
       "scope" -> Seq(s"https://api.companieshouse.gov.uk/company/${companiesHouseId.id}"),
+      "state" -> Seq(companiesHouseId.id),
       "response_type" -> Seq("code")
     )
     Redirect(config.api.authorizeSchemeUri, params)
@@ -43,21 +46,27 @@ class OAuth2Controller @Inject()(sessionService: SessionService, oAuth2Service: 
   def claimCallback(code: Option[String], state: Option[String], error: Option[String], errorDescription: Option[String], errorCode: Option[String]) =
     SessionAction.async { implicit request =>
       val tokenDetails: Future[Either[Result, OAuthToken]] = code match {
-        case None => Future.successful(Left(BadRequest("No oAuth code")))
+        case None => Future.successful(Left(BadRequest("No oAuth code provided")))
         case Some(c) => oAuth2Service.convertCode(c).map(Right(_))
       }
-
-      val companyId = CompaniesHouseId("09575031")
-      val companyName: String = "Well-Factored Software Ltd."
 
       import actions.CompanyAuthAction._
 
       tokenDetails.flatMap {
         case Left(result) => Future.successful(result)
-        case Right(ref) => for {
-          _ <- sessionService.put(request.sessionId, oAuthTokenKey, ref)
-          _ <- sessionService.put(request.sessionId, companyDetailsKey, CompanyDetail(companyId, companyName))
-        } yield Redirect(controllers.routes.ReportController.file(companyId))
+        case Right(ref) => {
+          for {
+            companyId <- OptionT.fromOption(state.map(CompaniesHouseId))
+            companyDetail <- OptionT(companiesHouseAPI.find(companyId))
+            emailAddress <- OptionT(companiesHouseAPI.getEmailAddress(ref))
+            _ <- OptionT.liftF(sessionService.put(request.sessionId, oAuthTokenKey, ref))
+            _ <- OptionT.liftF(sessionService.put(request.sessionId, companyDetailsKey, companyDetail))
+            _ <- OptionT.liftF(sessionService.put(request.sessionId, emailAddressKey, emailAddress))
+          } yield Redirect(controllers.routes.ReportController.file(companyId))
+        }.value.map {
+          case Some(result) => result
+          case None => BadRequest(s"Unable to find company details for state $state")
+        }
       }
     }
 }
