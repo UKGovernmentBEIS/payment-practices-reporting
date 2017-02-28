@@ -15,6 +15,20 @@ provided is an API key. You can provide this key to the application by setting t
 Similarly, for production, inject the api key value into the environment with that
 env variable.
 
+### Companies House oAuth2 API
+
+The application uses oAuth2 integration with Companies House to authorise the user for filing. The user
+must be able to log in to Companies House and provide an authorisation code that grants them permissions
+to file on behalf of the company. To configure the oAuth2 integration set the following environment vars:
+
+* `API_CLIENT_ID` and `API_CLIENT_SECRET` are the credentials associated with the application registered
+with Companies House
+* `OAUTH2_CALLBACK_URL` is the absolute url of the endpoint that the oAuth2 flow will redirect back to
+after the user has logged in.
+
+_NOTE:_ the Companies House oAuth2 integration is currently still in closed alpha and you must contact
+their developer support team directly if you want to get an application registered with them.
+
 ### Database
 In production the database configuration can be injected using the environment variables
 `JDBC_DATABASE_URL`, `JDBC_DATABASE_USER` and `JDBC_DATABASE_PASSWORD`. On Heroku, using
