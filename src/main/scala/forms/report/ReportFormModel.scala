@@ -63,14 +63,14 @@ object PaymentHistory {
     PaymentHistory(row.averageDaysToPay, row.percentPaidLaterThanAgreedTerms, PercentageSplit(row.percentInvoicesWithin30Days, row.percentInvoicesWithin60Days, row.percentInvoicesBeyond60Days))
 }
 
+case class PaymentTermsChanged(comment: ConditionalText, notified: Option[ConditionalText])
 
 case class PaymentTerms(
                          terms: String,
                          paymentPeriod: Int,
                          maximumContractPeriod: Int,
                          maximumContractPeriodComment: Option[String],
-                         paymentTermsChanged: ConditionalText,
-                         paymentTermsChangedNotified: ConditionalText,
+                         paymentTermsChanged: PaymentTermsChanged,
                          paymentTermsComment: Option[String],
                          disputeResolution: String
                        )
@@ -78,11 +78,19 @@ case class PaymentTerms(
 object PaymentTerms {
   def apply(row: PaymentTermsRow): PaymentTerms =
     PaymentTerms(row.paymentTerms, row.paymentPeriod, row.maximumContractPeriod, row.maximumContractPeriodComment,
-      ConditionalText(row.paymentTermsChangedComment),
-      ConditionalText(row.paymentTermsChangedNotifiedComment),
+      pt(row),
       row.paymentTermsChangedComment,
       row.disputeResolution
     )
+
+  def pt(row: PaymentTermsRow): PaymentTermsChanged = {
+    val comment = ConditionalText(row.paymentTermsChangedComment)
+    val notified =
+      if (comment.yesNo == Yes) Some(ConditionalText(row.paymentTermsChangedNotifiedComment))
+      else None
+
+    PaymentTermsChanged(comment, notified)
+  }
 }
 
 case class ReportFormModel(

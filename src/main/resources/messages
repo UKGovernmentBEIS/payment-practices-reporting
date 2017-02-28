@@ -84,15 +84,15 @@ field.paymentTerms.maximumContractPeriod.hint=For qualifying contracts only.
 field.paymentTerms.maximumContractPeriodComment.label=Optional: any further information about your maximum contractual payment period
 field.paymentTerms.maximumContractPeriodComment.hint=
 
-field.paymentTerms.paymentTermsChanged.yesNo.label=Were there any changes to your standard payment terms in the reporting period?
-field.paymentTerms.paymentTermsChanged.yesNo.hint=
-field.paymentTerms.paymentTermsChanged.text.label=If so, explain what the changes were
-field.paymentTerms.paymentTermsChanged.text.hint=
+field.paymentTerms.paymentTermsChanged.changed.yesNo.label=Were there any changes to your standard payment terms in the reporting period?
+field.paymentTerms.paymentTermsChanged.changed.yesNo.hint=
+field.paymentTerms.paymentTermsChanged.changed.text.label=If so, explain what the changes were
+field.paymentTerms.paymentTermsChanged.changed.text.hint=
 
-field.paymentTerms.paymentTermsNotified.yesNo.label=If there were changes, did you consult or notify suppliers before you made these changes?
-field.paymentTerms.paymentTermsNotified.yesNo.hint=
-field.paymentTerms.paymentTermsNotified.text.label=If so, explain how you did this
-field.paymentTerms.paymentTermsNotified.text.hint=
+field.paymentTerms.paymentTermsChanged.notified.yesNo.label=If there were changes, did you consult or notify suppliers before you made these changes?
+field.paymentTerms.paymentTermsChanged.notified.yesNo.hint=
+field.paymentTerms.paymentTermsChanged.notified.text.label=If so, explain how you did this
+field.paymentTerms.paymentTermsChanged.notified.text.hint=
 
 field.paymentTerms.paymentTermsComment.label=Optional: any further information about your payment terms
 field.paymentTerms.paymentTermsComment.hint=
@@ -126,3 +126,4 @@ error.sumto100=Figures A, B and C do not add up to 100
 error.number=Please enter a whole number
 error.min=Please enter {0} or greater
 error.max=Please enter {0} or less
+error.mustanswer=Please answer this question

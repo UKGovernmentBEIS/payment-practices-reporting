@@ -91,8 +91,9 @@ object ReviewPageData extends HtmlHelpers {
     ("Payment terms", r.paymentTerms.terms),
     ("Maximum contract period in days", r.paymentTerms.maximumContractPeriod),
     ("Maximum contract period: further information", r.paymentTerms.maximumContractPeriodComment.map(breakLines)),
-    ("Any changes to standard payment terms", conditionalText(r.paymentTerms.paymentTermsChanged)),
-    ("Did you consult or notify your suppliers about changes?", conditionalText(r.paymentTerms.paymentTermsChangedNotified)),
+    ("Any changes to standard payment terms", conditionalText(r.paymentTerms.paymentTermsChanged.comment)),
+    ("Did you consult or notify your suppliers about changes?",
+      r.paymentTerms.paymentTermsChanged.notified.map(conditionalText)),
     ("Further remarks about your payment terms", r.paymentTerms.paymentTermsComment.map(breakLines)),
     ("Your dispute resolution process", breakLines(r.paymentTerms.disputeResolution))
   )
