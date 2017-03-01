@@ -26,6 +26,7 @@ import forms.Validations
 import forms.report.{ReportFormModel, ReportReviewModel, Validations}
 import models.{CompaniesHouseId, ReportId}
 import org.joda.time.format.DateTimeFormat
+import org.scalactic.TripleEquals._
 import play.api.data.Forms._
 import play.api.data._
 import play.api.i18n.MessagesApi
@@ -90,7 +91,7 @@ class ReportController @Inject()(
     hasAccountChoice.bindFromRequest().fold(
       errs => BadRequest(page(home, pages.preLogin(companiesHouseId))),
       hasAccount =>
-        if (hasAccount == YesNo.Yes) oAuthController.startOauthDance(companiesHouseId)
+        if (hasAccount === YesNo.Yes) oAuthController.startOauthDance(companiesHouseId)
         else Redirect(routes.ReportController.code(companiesHouseId))
     )
   }

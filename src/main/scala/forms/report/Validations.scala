@@ -21,6 +21,7 @@ import javax.inject.Inject
 
 import models.CompaniesHouseId
 import org.joda.time.LocalDate
+import org.scalactic.TripleEquals._
 import play.api.data.Forms._
 import play.api.data.validation.{Constraint, Invalid, Valid}
 import play.api.data.{FormError, Mapping}
@@ -29,11 +30,11 @@ import utils.{AdjustErrors, TimeSource}
 
 class Validations @Inject()(timeSource: TimeSource) {
 
-  import forms.Validations._
   import ConditionalTextValidations._
   import PaymentTermsChangedValidations._
+  import forms.Validations._
 
-  def isBlank(s: String): Boolean = s.trim() == ""
+  def isBlank(s: String): Boolean = s.trim() === ""
 
   val companiesHouseId: Mapping[CompaniesHouseId] = nonEmptyText.transform(s => CompaniesHouseId(s), (c: CompaniesHouseId) => c.id)
 
@@ -116,12 +117,12 @@ object PaymentTermsChangedValidations {
     .verifying(answerNotifiedIfChanged)
 
   val paymentTermsChanged = AdjustErrors(ptc) { (key, errs) =>
-    def keyFor(baseKey: String, subKey: String) = if (baseKey == "") subKey else s"$baseKey.$subKey"
+    def keyFor(baseKey: String, subKey: String) = if (baseKey === "") subKey else s"$baseKey.$subKey"
 
     errs.map {
       case FormError(k, messages, args) if messages.headOption.contains(errorMustAnswer) => FormError(keyFor(k, "notified.yesNo"), messages, args)
       case FormError(k, messages, args) if messages.headOption.contains("error.notified.text.required") => FormError(keyFor(k, "notified.text"), Seq("error.required"), args)
-      case FormError(k, messages, args) if k == keyFor(key, "notified") => FormError(keyFor(k, "text"), messages, args)
+      case FormError(k, messages, args) if k === keyFor(key, "notified") => FormError(keyFor(k, "text"), messages, args)
       case e => e
     }
   }
@@ -165,7 +166,7 @@ object ConditionalTextValidations {
     */
   val conditionalText = AdjustErrors(condText) { (key, errs) =>
     errs.map {
-      case FormError(k, messages, args) if k == key => FormError(s"$k.text", messages, args)
+      case FormError(k, messages, args) if k === key => FormError(s"$k.text", messages, args)
       case e => e
     }
   }

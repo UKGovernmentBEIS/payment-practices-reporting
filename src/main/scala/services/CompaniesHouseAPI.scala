@@ -24,6 +24,7 @@ import com.google.inject.ImplementedBy
 import com.wellfactored.playbindings.{ValueClassFormats, ValueClassReads}
 import config.Config
 import models.CompaniesHouseId
+import org.scalactic.TripleEquals._
 import play.api.Logger
 import play.api.libs.json.{Json, Reads}
 import play.api.libs.ws.WSClient
@@ -97,7 +98,7 @@ class CompaniesHouseAPIImpl @Inject()(val ws: WSClient, oAuth2Service: OAuth2Ser
     implicit val verifyReads = Json.reads[VerifyResult]
     val url = "https://account.companieshouse.gov.uk/oauth2/verify"
     val auth = s"Bearer ${oAuthToken.accessToken}"
-    get[VerifyResult](url, auth).map(_.scope == targetScope(companiesHouseId))
+    get[VerifyResult](url, auth).map(_.scope === targetScope(companiesHouseId))
   }
 
   def targetScope(companiesHouseId: CompaniesHouseId): String = s"https://api.companieshouse.gov.uk/company/${companiesHouseId.id}"

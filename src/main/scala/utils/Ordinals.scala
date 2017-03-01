@@ -20,6 +20,7 @@ package utils
 import eu.timepit.refined._
 import eu.timepit.refined.api.Refined
 import eu.timepit.refined.numeric._
+import org.scalactic.TripleEquals._
 
 object Ordinals {
 
@@ -30,9 +31,9 @@ object Ordinals {
   def forNumber(n: PosInt): String = {
     n match {
       case _ if n.value < wordOrdinals.length => wordOrdinals(n.value)
-      case _ if n.value % 10 == 1 => s"${n.value}st"
-      case _ if n.value % 10 == 2 => s"${n.value}nd"
-      case _ if n.value % 10 == 3 => s"${n.value}rd"
+      case _ if n.value % 10 === 1 => s"${n.value}st"
+      case _ if n.value % 10 === 2 => s"${n.value}nd"
+      case _ if n.value % 10 === 3 => s"${n.value}rd"
       case _ => s"${n.value}th"
     }
   }

@@ -19,6 +19,7 @@ package forms.report
 
 import db.{PaymentHistoryRow, PaymentTermsRow}
 import forms.DateRange
+import org.scalactic.TripleEquals._
 import slicks.modules.FiledReport
 import utils.YesNo
 import utils.YesNo.{No, Yes}
@@ -34,7 +35,7 @@ object ReportConstants {
 case class ConditionalText(yesNo: YesNo, text: Option[String]) {
   def normalize = this match {
     case ConditionalText(No, _) => ConditionalText(No, None)
-    case ConditionalText(Yes, Some(t)) if t.trim() == "" => ConditionalText(Yes, None)
+    case ConditionalText(Yes, Some(t)) if t.trim() === "" => ConditionalText(Yes, None)
     case _ => this
   }
 }
@@ -94,7 +95,7 @@ object PaymentTerms {
   def pt(row: PaymentTermsRow): PaymentTermsChanged = {
     val comment = ConditionalText(row.paymentTermsChangedComment)
     val notified =
-      if (comment.yesNo == Yes) Some(ConditionalText(row.paymentTermsChangedNotifiedComment))
+      if (comment.yesNo === Yes) Some(ConditionalText(row.paymentTermsChangedNotifiedComment))
       else None
 
     PaymentTermsChanged(comment, notified)
