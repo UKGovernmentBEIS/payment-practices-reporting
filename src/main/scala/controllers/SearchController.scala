@@ -35,6 +35,8 @@ class SearchController @Inject()(companiesHouseAPI: CompaniesHouseAPI, reports: 
 
   val df = DateTimeFormat.forPattern("d MMMM YYYY")
 
+  def start() = Action(Ok(page(views.html.search.start())))
+
   def search(query: Option[String], pageNumber: Option[Int], itemsPerPage: Option[Int]) = Action.async {
     val searchLink = routes.SearchController.search(None, None, None).url
     val pageLink = { i: Int => routes.SearchController.search(query, Some(i), itemsPerPage).url }
