@@ -63,7 +63,15 @@ object PaymentHistory {
     PaymentHistory(row.averageDaysToPay, row.percentPaidLaterThanAgreedTerms, PercentageSplit(row.percentInvoicesWithin30Days, row.percentInvoicesWithin60Days, row.percentInvoicesBeyond60Days))
 }
 
-case class PaymentTermsChanged(comment: ConditionalText, notified: Option[ConditionalText])
+case class PaymentTermsChanged(comment: ConditionalText, notified: Option[ConditionalText]){
+  /**
+    * If the answer to the comment question is No then remove any answer to the Notified question
+    */
+  def normalise = this match {
+    case PaymentTermsChanged(c@ConditionalText(No, _), _) => PaymentTermsChanged(c, None)
+    case _ => this
+  }
+}
 
 case class PaymentTerms(
                          terms: String,

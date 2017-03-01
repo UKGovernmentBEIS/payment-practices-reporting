@@ -82,10 +82,15 @@ class ValidationsTest extends WordSpecLike with Matchers with OptionValues with 
       paymentTermsChanged.bind(params).left.value shouldBe List(expectedError)
     }
 
-    "fail validation when comment.yesNo is Yes, text is supplied and notified is not Yes but text is not supplied" in {
+    "fail validation when comment.yesNo is Yes, text is supplied and notified is Yes but text is not supplied" in {
       val params = Map("changed.yesNo" -> "yes", "changed.text" -> "changed", "notified.yesNo" -> "yes")
       val expectedError = FormError("notified.text", List("error.required"), mutable.WrappedArray.empty)
       paymentTermsChanged.bind(params).left.value shouldBe List(expectedError)
+    }
+
+    "ignore validation of Notified when Change is No" in {
+      val params = Map("changed.yesNo" -> "no", "changed.text" -> "", "notified.yesNo" -> "yes")
+      paymentTermsChanged.bind(params) shouldBe a[Right[_, _]]
     }
   }
 }

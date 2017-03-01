@@ -24,7 +24,7 @@ import org.joda.time.LocalDate
 import play.api.data.Forms._
 import play.api.data.validation.{Constraint, Invalid, Valid}
 import play.api.data.{FormError, Mapping}
-import utils.YesNo.Yes
+import utils.YesNo.{No, Yes}
 import utils.{AdjustErrors, TimeSource}
 
 class Validations @Inject()(timeSource: TimeSource) {
@@ -44,13 +44,13 @@ class Validations @Inject()(timeSource: TimeSource) {
     }
   }
 
-  private val condText: Mapping[ConditionalText] = mapping(
+  private val yesNoMapping = mapping(
     "yesNo" -> yesNo,
     "text" -> optional(text)
   )(ConditionalText.apply)(ConditionalText.unapply)
     .transform(_.normalize, (ct: ConditionalText) => ct)
-    .verifying(textRequiredIfYes)
 
+  private val condText: Mapping[ConditionalText] = yesNoMapping.verifying(textRequiredIfYes)
 
   /*
   * Move any messages attached to the base key to the `text` subkey. The
@@ -84,14 +84,17 @@ class Validations @Inject()(timeSource: TimeSource) {
   private val answerNotifiedIfChanged = Constraint { ch: PaymentTermsChanged =>
     ch match {
       case PaymentTermsChanged(ConditionalText(Yes, _), None) => Invalid(errorMustAnswer)
+      case PaymentTermsChanged(ConditionalText(Yes, _), Some(ConditionalText(Yes, None))) => Invalid("error.notified.text.required")
+      case PaymentTermsChanged(ConditionalText(No, _), _) => Valid
       case _ => Valid
     }
   }
 
   private val ptc = mapping(
     "changed" -> conditionalText,
-    "notified" -> optional(condText)
+    "notified" -> optional(yesNoMapping)
   )(PaymentTermsChanged.apply)(PaymentTermsChanged.unapply)
+    .transform(_.normalise, (ptc: PaymentTermsChanged) => ptc)
     .verifying(answerNotifiedIfChanged)
 
   val paymentTermsChanged = AdjustErrors(ptc) { (key, errs) =>
@@ -99,6 +102,7 @@ class Validations @Inject()(timeSource: TimeSource) {
 
     errs.map {
       case FormError(k, messages, args) if messages.headOption.contains(errorMustAnswer) => FormError(keyFor(k, "notified.yesNo"), messages, args)
+      case FormError(k, messages, args) if messages.headOption.contains("error.notified.text.required") => FormError(keyFor(k, "notified.text"), Seq("error.required"), args)
       case FormError(k, messages, args) if k == keyFor(key, "notified") => FormError(keyFor(k, "text"), messages, args)
       case e => e
     }
