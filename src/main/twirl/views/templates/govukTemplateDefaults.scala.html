@@ -1,38 +1,58 @@
-
-@(htmlTitle: String)(content: Html)
+@(htmlTitle: String)(content: Html)(gaCode: Option[String])
 
 @head = {
 }
 
 @govukTemplate(
-  Some(htmlTitle),
-  bodyClasses = None,
-  htmlLang = None
+    Some(htmlTitle),
+    bodyClasses = None,
+    htmlLang = None
 )(
-  head = head,
-  bodyStart = HtmlFormat.empty,
-  bodyEnd = HtmlFormat.empty,
-  insideHeader = HtmlFormat.empty,
-  afterHeader = HtmlFormat.empty,
-  footerTop = shared._footer(),
-  footerLinks = HtmlFormat.empty,
-  headerClass = Html("with-proposition"),
-  propositionHeader = Html("<div class=\"header-proposition\"><div class=\"content\"><nav id=\"proposition-menu\"><a id=\"proposition-name\" href=\"/\">"
-    + shared._name() + "</a></nav></div></div>"),
-  homepageUrl = None,
-  globalHeaderText = None,
-  cookieMessage = None,
-  skipLinkMessage = None,
-  skipLinkTarget = "contentStart",
-  logoLinkTitle = None,
-  licenceMessage = Html("<p>All content is available under the " +
-    "<a rel=\"license\" href=\"https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/\">Open Government Licence v3.0</a>," +
-    " except where otherwise stated</p>"),
-  crownCopyrightMessage = None
-)(
-  Html(
-  "<main id=\"content\" role=\"main\"> <div class=\"phase-banner-alpha\"><p><strong class=\"phase-tag\">ALPHA</strong><span>This is a new service – your <a href=\"" + shared._feedbackUrl() + "\">feedback</a> will help us to improve it.</span></p></div>" +
-  content +
-  "</main>" +
-  "<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');ga('create', 'UA-86264437-1', 'auto');ga('send', 'pageview');</script>")
-)
+    head = head,
+    bodyStart = HtmlFormat.empty,
+    bodyEnd = HtmlFormat.empty,
+    insideHeader = HtmlFormat.empty,
+    afterHeader = HtmlFormat.empty,
+    footerTop = shared._footer(),
+    footerLinks = HtmlFormat.empty,
+    headerClass = Html("with-proposition"),
+    propositionHeader = Html("<div class=\"header-proposition\"><div class=\"content\"><nav id=\"proposition-menu\"><a id=\"proposition-name\" href=\"/\">"
+            + shared._name() + "</a></nav></div></div>"),
+    homepageUrl = None,
+    globalHeaderText = None,
+    cookieMessage = None,
+    skipLinkMessage = None,
+    skipLinkTarget = "contentStart",
+    logoLinkTitle = None,
+    licenceMessage = Html("<p>All content is available under the " +
+            "<a rel=\"license\" href=\"https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/\">Open Government Licence v3.0</a>," +
+            " except where otherwise stated</p>"),
+    crownCopyrightMessage = None
+) {
+
+    <main id="content" role="main">
+        <div class="phase-banner-alpha">
+            <p>
+                <strong class="phase-tag">ALPHA</strong>
+                <span>
+                    This is a new service – your
+                        <a href="https://www.surveymonkey.co.uk/r/FCWW3MX">feedback</a>
+                        will help us to improve it.
+                </span>
+            </p>
+        </div>
+        @content
+    </main>
+    @gaCode.map { code =>
+        <script>
+                (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+                })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+                ga('create', '@code', 'auto');
+                ga('send', 'pageview');
+        </script>
+    }
+
+}

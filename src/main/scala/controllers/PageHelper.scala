@@ -29,7 +29,7 @@ case class Breadcrumb(href: Call, name: String)
 trait PageHelper {
   def page(contents: Html*): Html = {
     val content = html(contents: _*)
-    views.html.templates.govukTemplateDefaults.render("Payment practices reporting", content)
+    views.html.templates.govukTemplateDefaults("Payment practices reporting")(content)(config.Config.config.googleAnalytics.flatMap(_.code))
   }
 
   def html(contents: Html*): Html = {

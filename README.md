@@ -44,6 +44,11 @@ do this it needs an API key. You can generate one by registering an account at
 https://www.notifications.service.gov.uk.
 
 Use the environment variable `GDSNOTIFY_API_KEY` to pass the key into the application.
+
+### Google Analytics
+
+Set an environment variable `GA_CODE` to the tracking code for your google analytics
+account in order to enable tracking.
  
 ## Design notes
 

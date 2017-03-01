@@ -33,6 +33,8 @@ case class ApiConfig(host: String, isSandbox: Option[Boolean] = None, isLocal: O
 
 case class ClientConfig(id: String, secret: String)
 
+case class GoogleAnalytics(code: Option[String])
+
 case class Config(
                    companiesHouse: CompaniesHouseConfig,
                    notifyService: NotifyConfig,
@@ -40,7 +42,8 @@ case class Config(
                    logRequests: Option[Boolean],
                    printDBTables: Option[Boolean],
                    api: ApiConfig,
-                   client: ClientConfig
+                   client: ClientConfig,
+                   googleAnalytics: Option[GoogleAnalytics]
                  )
 
 object Config {
