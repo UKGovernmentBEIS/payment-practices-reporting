@@ -25,6 +25,7 @@ import org.joda.time.LocalDateTime
 import org.joda.time.format.DateTimeFormat
 import slicks.modules.{ConfirmationRepo, FiledReport}
 import uk.gov.service.notify.NotificationClientException
+import views.html.ReportNum
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -54,7 +55,7 @@ class ConfirmationDeliveryServiceImpl @Inject()(confirmationRepo: ConfirmationRe
       "companieshouseidentifier" -> report.header.companyId.id,
       "startdate" -> df.print(report.period.startDate),
       "enddate" -> df.print(report.period.endDate),
-      "reportid" -> row.reportId.id.toString,
+      "reportid" -> ReportNum(row.reportId),
       "reporturl" -> row.url
     )
   }
