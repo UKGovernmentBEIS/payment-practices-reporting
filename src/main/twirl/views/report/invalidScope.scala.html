@@ -1,6 +1,21 @@
 @(companyDetail: services.CompanyDetail)
 
 <div class="scannable-wrapper">
-    Something went wrong. It appears that the Companies House credentials you have provided do not give you
-    permission to file on behalf of @companyDetail.company_name.
+    <div class="notice">
+        <i class="icon icon-important">
+            <span class="visually-hidden">Warning</span>
+        </i>
+        <strong>
+            Your report has not been filed because of an error.
+        </strong>
+    </div>
+
+    <p>The credentials you have provided are not right. </p>
+
+
+    <h2 class="heading-medium">What happens next</h2>
+
+    <p><a href="@controllers.routes.HomeController.index()">Please try again</a>.</p>
+    <p> If you are still having problems, please contact paymentpracticesreporting@@beis.gov.uk. </p>
+
 </div>
