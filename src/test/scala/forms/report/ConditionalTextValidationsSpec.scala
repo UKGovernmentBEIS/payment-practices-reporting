@@ -20,15 +20,11 @@ package forms.report
 import org.scalatest.{EitherValues, Matchers, OptionValues, WordSpecLike}
 import play.api.data.Forms._
 import play.api.data.{Form, FormError}
-import utils.SystemTimeSource
 import utils.YesNo.{No, Yes}
 
-import scala.collection.mutable
+class ConditionalTextValidationsSpec extends WordSpecLike with Matchers with OptionValues with EitherValues {
 
-class ValidationsTest extends WordSpecLike with Matchers with OptionValues with EitherValues {
-  val validations = new Validations(new SystemTimeSource)
-
-  import validations._
+  import ConditionalTextValidations._
 
   "conditionalText" should {
     val m = single("test" -> conditionalText)
@@ -63,34 +59,6 @@ class ValidationsTest extends WordSpecLike with Matchers with OptionValues with 
     "result in a valid value when yesno is yes and text is non-blank" in {
       val result = m.bind(Map("test.yesNo" -> "yes", "test.text" -> "non-blank"))
       result.right.value shouldBe ConditionalText(Yes, Some("non-blank"))
-    }
-  }
-
-  "paymentTerms" should {
-    "validate successfully when comment.yesNo is No" in {
-      paymentTermsChanged.bind(Map("changed.yesNo" -> "no")) shouldBe a[Right[_, _]]
-    }
-
-    "validate successfully when comment.yesNo is Yes, text is supplied and notified is No" in {
-      val params = Map("changed.yesNo" -> "yes", "changed.text" -> "changed", "notified.yesNo" -> "no")
-      paymentTermsChanged.bind(params) shouldBe a[Right[_, _]]
-    }
-
-    "fail validation when comment.yesNo is Yes, text is supplied and notified is not present" in {
-      val params = Map("changed.yesNo" -> "yes", "changed.text" -> "changed")
-      val expectedError = FormError("notified.yesNo", List("error.mustanswer"), mutable.WrappedArray.empty)
-      paymentTermsChanged.bind(params).left.value shouldBe List(expectedError)
-    }
-
-    "fail validation when comment.yesNo is Yes, text is supplied and notified is Yes but text is not supplied" in {
-      val params = Map("changed.yesNo" -> "yes", "changed.text" -> "changed", "notified.yesNo" -> "yes")
-      val expectedError = FormError("notified.text", List("error.required"), mutable.WrappedArray.empty)
-      paymentTermsChanged.bind(params).left.value shouldBe List(expectedError)
-    }
-
-    "ignore validation of Notified when Change is No" in {
-      val params = Map("changed.yesNo" -> "no", "changed.text" -> "", "notified.yesNo" -> "yes")
-      paymentTermsChanged.bind(params) shouldBe a[Right[_, _]]
     }
   }
 }
