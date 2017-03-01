@@ -96,14 +96,17 @@ class Validations @Inject()(timeSource: TimeSource) {
   * with the relevant sub-field.
   */
 object PaymentTermsChangedValidations {
+
   import ConditionalTextValidations._
 
   private val errorMustAnswer = "error.mustanswer"
 
+  private val errorNotifiedTextRequired = "error.notified.text.required"
+
   private val answerNotifiedIfChanged = Constraint { ch: PaymentTermsChanged =>
     ch match {
       case PaymentTermsChanged(ConditionalText(Yes, _), None) => Invalid(errorMustAnswer)
-      case PaymentTermsChanged(ConditionalText(Yes, _), Some(ConditionalText(Yes, None))) => Invalid("error.notified.text.required")
+      case PaymentTermsChanged(ConditionalText(Yes, _), Some(ConditionalText(Yes, None))) => Invalid(errorNotifiedTextRequired)
       case PaymentTermsChanged(ConditionalText(No, _), _) => Valid
       case _ => Valid
     }
@@ -121,7 +124,9 @@ object PaymentTermsChangedValidations {
 
     errs.map {
       case FormError(k, messages, args) if messages.headOption.contains(errorMustAnswer) => FormError(keyFor(k, "notified.yesNo"), messages, args)
-      case FormError(k, messages, args) if messages.headOption.contains("error.notified.text.required") => FormError(keyFor(k, "notified.text"), Seq("error.required"), args)
+      case FormError(k, messages, args) if messages.headOption.contains(errorNotifiedTextRequired) =>
+
+        FormError(keyFor(k, "notified.text"), Seq(errorRequired), args)
       case FormError(k, messages, args) if k === keyFor(key, "notified") => FormError(keyFor(k, "text"), messages, args)
       case e => e
     }
@@ -131,6 +136,8 @@ object PaymentTermsChangedValidations {
 object ConditionalTextValidations {
 
   import forms.Validations._
+
+  val errorRequired = "error.required"
 
   /**
     * A yesNoText mapping combines a yesNo field with an optional text field to produce a ConditionalText
@@ -149,7 +156,7 @@ object ConditionalTextValidations {
     */
   private val textRequiredIfYes = Constraint { ct: ConditionalText =>
     ct match {
-      case ConditionalText(Yes, None) => Invalid("error.required")
+      case ConditionalText(Yes, None) => Invalid(errorRequired)
       case _ => Valid
     }
   }
