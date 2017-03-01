@@ -52,11 +52,11 @@ trait CompaniesHouseAPI {
 
   def find(companiesHouseId: CompaniesHouseId): Future[Option[CompanyDetail]]
 
-  def verifyAuthCode(authCode: String, redirectUri: String, companiesHouseIdentifier: String): String
-
   def isInScope(companiesHouseIdentifier: CompaniesHouseId, oAuthToken: OAuthToken): Future[Boolean]
 
   def getEmailAddress(oAuthToken: OAuthToken): Future[Option[String]]
+
+  def targetScope(companiesHouseId: CompaniesHouseId): String
 }
 
 class CompaniesHouseAPIImpl @Inject()(val ws: WSClient, oAuth2Service: OAuth2Service)(implicit val ec: ExecutionContext)
@@ -91,9 +91,16 @@ class CompaniesHouseAPIImpl @Inject()(val ws: WSClient, oAuth2Service: OAuth2Ser
     getOpt[CompanyDetail](url, basicAuth)
   }
 
-  override def verifyAuthCode(authCode: String, redirectUri: String, companiesHouseIdentifier: String): String = ???
+  case class VerifyResult(scope: String)
 
-  override def isInScope(companiesHouseIdentifier: CompaniesHouseId, oAuthToken: OAuthToken): Future[Boolean] = Future.successful(true)
+  override def isInScope(companiesHouseId: CompaniesHouseId, oAuthToken: OAuthToken): Future[Boolean] = {
+    implicit val verifyReads = Json.reads[VerifyResult]
+    val url = "https://account.companieshouse.gov.uk/oauth2/verify"
+    val auth = s"Bearer ${oAuthToken.accessToken}"
+    get[VerifyResult](url, auth).map(_.scope == targetScope(companiesHouseId))
+  }
+
+  def targetScope(companiesHouseId: CompaniesHouseId): String = s"https://api.companieshouse.gov.uk/company/${companiesHouseId.id}"
 
   case class Email(email: String)
 

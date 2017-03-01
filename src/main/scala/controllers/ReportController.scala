@@ -144,8 +144,6 @@ class ReportController @Inject()(
   def postReview(companiesHouseId: CompaniesHouseId) = CompanyAuthAction(companiesHouseId).async(parse.urlFormEncoded) { implicit request =>
     val revise = Form(single("revise" -> text)).bindFromRequest().value.contains("Revise")
 
-    companiesHouseAPI.isInScope(companiesHouseId, request.oAuthToken)
-
     // Re-capture the values for the report itself. In theory these values should always be valid
     // (as we only send the user to the review page if they are) but if somehow they aren't then
     // send the user back to the report form to fix them.
@@ -161,13 +159,20 @@ class ReportController @Inject()(
     emptyReview.bindFromRequest().fold(
       errs => Future.successful(BadRequest(page(home, pages.review(errs, report, companiesHouseId, request.companyDetail.company_name, df, reportValidations.reportFormModel)))),
       review => {
-        if (review.confirmed)
-          createReport(companiesHouseId, report, review)
-            .map(rId => Redirect(controllers.routes.ReportController.showConfirmation(rId)))
+        if (review.confirmed) verifyingOAuthScope(companiesHouseId, request.oAuthToken) {
+          createReport(companiesHouseId, report, review).map(rId => Redirect(controllers.routes.ReportController.showConfirmation(rId)))
+        }
         else
           Future.successful(BadRequest(page(home, pages.review(emptyReview.fill(review), report, companiesHouseId, request.companyDetail.company_name, df, reportValidations.reportFormModel))))
       }
     )
+  }
+
+  private def verifyingOAuthScope(companiesHouseId: CompaniesHouseId, oAuthToken: OAuthToken)(body: => Future[Result]): Future[Result] = {
+    companiesHouseAPI.isInScope(companiesHouseId, oAuthToken).flatMap {
+      case true => body
+      case false => Future.successful(Redirect(controllers.routes.ReportController.invalidScope(companiesHouseId)))
+    }
   }
 
   private def createReport(companiesHouseId: CompaniesHouseId, report: ReportFormModel, review: ReportReviewModel)(implicit request: CompanyAuthRequest[_]): Future[ReportId] = {
@@ -183,6 +188,10 @@ class ReportController @Inject()(
       case Some(report) => Ok(page(home, pages.filingSuccess(reportId, report.filing.confirmationEmailAddress)))
       case None => BadRequest(s"Could not find a report with id ${reportId.id}")
     }
+  }
+
+  def invalidScope(companiesHouseId: CompaniesHouseId) = CompanyAuthAction(companiesHouseId) { implicit request =>
+    Ok(page(home, pages.invalidScope(request.companyDetail)))
   }
 }
 

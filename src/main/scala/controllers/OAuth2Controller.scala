@@ -36,7 +36,7 @@ class OAuth2Controller @Inject()(sessionService: SessionService, companiesHouseA
     val params = Map(
       "client_id" -> Seq(config.client.id),
       "redirect_uri" -> Seq(config.api.callbackURL),
-      "scope" -> Seq(s"https://api.companieshouse.gov.uk/company/${companiesHouseId.id}"),
+      "scope" -> Seq(companiesHouseAPI.targetScope(companiesHouseId)),
       "state" -> Seq(companiesHouseId.id),
       "response_type" -> Seq("code")
     )
