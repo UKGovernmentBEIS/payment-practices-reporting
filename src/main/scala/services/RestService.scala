@@ -31,71 +31,87 @@ trait RestService {
 
   implicit def ec: ExecutionContext
 
-  def getOpt[A: Reads](url: String, auth:String): Future[Option[A]] = {
+  def getOpt[A: Reads](url: String, auth: String): Future[Option[A]] = {
     val request: WSRequest = ws.url(url).withHeaders(("Authorization", auth))
-    request.get.map { response =>
-      response.status match {
-        case 200 => response.json.validate[A] match {
-          case JsSuccess(a, _) => Some(a)
-          case JsError(errs) => throw JsonParseException("GET", request, response, errs)
+    loggingAndTiming("GET", request) {
+      request.get.map { response =>
+        response.status match {
+          case 200 => response.json.validate[A] match {
+            case JsSuccess(a, _) => Some(a)
+            case JsError(errs) => throw JsonParseException("GET", request, response, errs)
+          }
+          case 404 => None
+          case _ => throw RestFailure("GET", request, response)
         }
-        case 404 => None
-        case _ => throw RestFailure("GET", request, response)
       }
     }
   }
 
-  def get[A: Reads](url: String, auth:String): Future[A] = {
+  private def loggingAndTiming[T](method: String, request: WSRequest)(body: => T): T = {
+    val start = System.currentTimeMillis()
+    val result = body
+    val ms = System.currentTimeMillis() - start
+    Logger.debug(s"$method ${request.url} took $ms ms")
+    result
+  }
+
+  def get[A: Reads](url: String, auth: String): Future[A] = {
     val request: WSRequest = ws.url(url).withHeaders(("Authorization", auth))
-    request.get.map { response =>
-      response.status match {
-        case 200 => response.json.validate[A] match {
-          case JsSuccess(as, _) => as
-          case JsError(errs) => throw JsonParseException("GET", request, response, errs)
+    loggingAndTiming("GET", request) {
+      request.get.map { response =>
+        response.status match {
+          case 200 => response.json.validate[A] match {
+            case JsSuccess(as, _) => as
+            case JsError(errs) => throw JsonParseException("GET", request, response, errs)
+          }
+          case _ => throw RestFailure("GET", request, response)
         }
-        case _ => throw RestFailure("GET", request, response)
       }
     }
   }
 
   def getMany[A: Reads](url: String): Future[Seq[A]] = {
     val request: WSRequest = ws.url(url)
-    request.get.map { response =>
-      response.status match {
-        case 200 => response.json.validate[Seq[A]] match {
-          case JsSuccess(as, _) => as
-          case JsError(errs) => throw JsonParseException("GET", request, response, errs)
+    loggingAndTiming("GET", request) {
+      request.get.map { response =>
+        response.status match {
+          case 200 => response.json.validate[Seq[A]] match {
+            case JsSuccess(as, _) => as
+            case JsError(errs) => throw JsonParseException("GET", request, response, errs)
+          }
+          case _ => throw RestFailure("GET", request, response)
         }
-        case _ => throw RestFailure("GET", request, response)
       }
     }
   }
 
   def post[A: Writes](url: String, body: A): Future[Unit] = {
     val request = ws.url(url)
-    request.post(Json.toJson(body)).map(_ => ())
+    loggingAndTiming("POST", request)(request.post(Json.toJson(body)).map(_ => ()))
   }
 
   def put[A: Writes](url: String, body: A): Future[Unit] = {
     val request = ws.url(url)
-    request.put(Json.toJson(body)).map(_ => ())
+    loggingAndTiming("PUT", request)(request.put(Json.toJson(body)).map(_ => ()))
   }
 
   def delete(url: String): Future[Unit] = {
     val request = ws.url(url)
-    request.delete().map(_ => ())
+    loggingAndTiming("DELETE", request)(request.delete().map(_ => ()))
   }
 
   def postWithResult[A: Reads, B: Writes](url: String, body: B): Future[Option[A]] = {
-    val request:WSRequest = ws.url(url)
-    request.post(Json.toJson(body)).map { response =>
-      response.status match {
-        case 200 => response.json.validate[A] match {
-          case JsSuccess(a, _) =>  Some(a)
-          case JsError(errs) => throw JsonParseException("POST", request, response, errs)
+    val request: WSRequest = ws.url(url)
+    loggingAndTiming("POST", request) {
+      request.post(Json.toJson(body)).map { response =>
+        response.status match {
+          case 200 => response.json.validate[A] match {
+            case JsSuccess(a, _) => Some(a)
+            case JsError(errs) => throw JsonParseException("POST", request, response, errs)
+          }
+          case 404 => None
+          case _ => throw RestFailure("POST", request, response)
         }
-        case 404 => None
-        case _ => throw RestFailure("POST", request, response)
       }
     }
   }
