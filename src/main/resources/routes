@@ -2,6 +2,8 @@ GET         /assets/*file                                               controll
 
 GET         /                                                           controllers.HomeController.index()
 
+GET         /start                                                      controllers.HomeController.start()
+
 GET         /wip                                                        controllers.Default.todo
 GET         /visual-test                                                controllers.VisualTestController.show
 

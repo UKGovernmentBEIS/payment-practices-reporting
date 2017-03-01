@@ -26,4 +26,8 @@ class HomeController @Inject()() extends Controller with PageHelper {
   def index = Action {
     Ok(page(views.html.index()))
   }
+
+  def start = Action {
+    Ok(page(views.html.start()))
+  }
 }
