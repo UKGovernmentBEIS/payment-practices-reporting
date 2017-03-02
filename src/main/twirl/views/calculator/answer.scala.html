@@ -23,9 +23,9 @@
     @for((x,i) <- calculator.reportingPeriods.zipWithIndex) {
         <h3 class="bold-medium">Your @(Ordinals.forNumber(i+1)) report:</h3>
         <p>
-            <span class="bold-small"><span class="nowrap">@df.print(x.dateRange.startDate)</span> to <span class="nowrap">@df.print(x.dateRange.endDate)</span></span>
+            <span class="bold-small"><span id="period-start-@(i+1)" class="nowrap">@df.print(x.dateRange.startDate)</span> to <span id="period-end-@(i+1)" class="nowrap">@df.print(x.dateRange.endDate)</span></span>
             <br>
-            You must publish this report by <span class="bold-small nowrap">@df.print(x.filingDeadline)</span>
+            You must publish this report by <span id="deadline-@(i+1)" class="bold-small nowrap">@df.print(x.filingDeadline)</span>
         </p>
     }
 
