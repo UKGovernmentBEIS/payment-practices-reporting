@@ -55,11 +55,16 @@ class ReportController @Inject()(
   val emptyReview: Form[ReportReviewModel] = Form(reportValidations.reportReviewModel)
   val df = DateTimeFormat.forPattern("d MMMM YYYY")
 
+  private val searchPageTitle = "Search for a company"
+  private val signInPageTitle = "Sign in using your Companies House account"
+  private val reviewPageTitle = "Review your report"
+
   def search(query: Option[String], pageNumber: Option[Int], itemsPerPage: Option[Int]) = Action.async {
     val searchLink = routes.ReportController.search(None, None, None).url
     val pageLink = { i: Int => routes.ReportController.search(query, Some(i), itemsPerPage).url }
     val companyLink = { id: CompaniesHouseId => routes.ReportController.start(id).url }
     val header = h1("Publish a report")
+
 
     query match {
       case Some(q) => companiesHouseAPI.searchCompanies(q, pageNumber.getOrElse(1), itemsPerPage.getOrElse(25)).flatMap { results =>
@@ -69,10 +74,10 @@ class ReportController @Inject()(
 
         Future.sequence(countsF).map { counts =>
           val countMap = Map(counts: _*)
-          Ok(page("Search for a company")(home, header, views.html.search.search(q, Some(results), countMap, searchLink, companyLink, pageLink)))
+          Ok(page(searchPageTitle)(home, header, views.html.search.search(q, Some(results), countMap, searchLink, companyLink, pageLink)))
         }
       }
-      case None => Future.successful(Ok(page("Search for a company")(home, header, views.html.search.search("", None, Map.empty, searchLink, companyLink, pageLink))))
+      case None => Future.successful(Ok(page(searchPageTitle)(home, header, views.html.search.search("", None, Map.empty, searchLink, companyLink, pageLink))))
     }
   }
 
@@ -83,13 +88,13 @@ class ReportController @Inject()(
     }
   }
 
-  def preLogin(companiesHouseId: CompaniesHouseId) = Action(Ok(page(s"Sign in using your Companies House account")(home, pages.preLogin(companiesHouseId))))
+  def preLogin(companiesHouseId: CompaniesHouseId) = Action(Ok(page(signInPageTitle)(home, pages.preLogin(companiesHouseId))))
 
   def login(companiesHouseId: CompaniesHouseId) = Action { implicit request =>
     val hasAccountChoice = Form(single("account" -> Validations.yesNo))
 
     hasAccountChoice.bindFromRequest().fold(
-      errs => BadRequest(page(s"Sign in using your Companies House account")(home, pages.preLogin(companiesHouseId))),
+      errs => BadRequest(page(signInPageTitle)(home, pages.preLogin(companiesHouseId))),
       hasAccount =>
         if (hasAccount === YesNo.Yes) oAuthController.startOauthDance(companiesHouseId)
         else Redirect(routes.ReportController.code(companiesHouseId))
@@ -138,7 +143,7 @@ class ReportController @Inject()(
     //println(request.body.flatMap { case (k, v) => v.headOption.map(value => s""""$k" -> "$value"""") }.mkString(", "))
     emptyReport.bindFromRequest().fold(
       errs => BadRequest(page(s"Publish a report for ${request.companyDetail.company_name}")(home, reportPageHeader, pages.file(errs, companiesHouseId, df))),
-      report => Ok(page("Review your report")(home, pages.review(emptyReview, report, companiesHouseId, request.companyDetail.company_name, df, reportValidations.reportFormModel)))
+      report => Ok(page(reviewPageTitle)(home, pages.review(emptyReview, report, companiesHouseId, request.companyDetail.company_name, df, reportValidations.reportFormModel)))
     )
   }
 
@@ -158,13 +163,13 @@ class ReportController @Inject()(
 
   private def checkConfirmation(companiesHouseId: CompaniesHouseId, report: ReportFormModel)(implicit request: CompanyAuthRequest[_]): Future[Result] = {
     emptyReview.bindFromRequest().fold(
-      errs => Future.successful(BadRequest(page("Review your report")(home, pages.review(errs, report, companiesHouseId, request.companyDetail.company_name, df, reportValidations.reportFormModel)))),
+      errs => Future.successful(BadRequest(page(reviewPageTitle)(home, pages.review(errs, report, companiesHouseId, request.companyDetail.company_name, df, reportValidations.reportFormModel)))),
       review => {
         if (review.confirmed) verifyingOAuthScope(companiesHouseId, request.oAuthToken) {
           createReport(companiesHouseId, report, review).map(rId => Redirect(controllers.routes.ReportController.showConfirmation(rId)))
         }
         else
-          Future.successful(BadRequest(page("Review your report")(home, pages.review(emptyReview.fill(review), report, companiesHouseId, request.companyDetail.company_name, df, reportValidations.reportFormModel))))
+          Future.successful(BadRequest(page(reviewPageTitle)(home, pages.review(emptyReview.fill(review), report, companiesHouseId, request.companyDetail.company_name, df, reportValidations.reportFormModel))))
       }
     )
   }

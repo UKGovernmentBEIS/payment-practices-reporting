@@ -34,14 +34,16 @@ case class SessionRequest[A](sessionId: SessionId, request: Request[A])
   */
 class SessionAction @Inject()(sessionService: SessionService)(implicit ec: ExecutionContext) extends ActionBuilder[SessionRequest] {
   override def invokeBlock[A](request: Request[A], block: (SessionRequest[A]) => Future[Result]): Future[Result] = {
-    val sessionId = request.session.get("sessionId") match {
+    val sessionIdKey = "sessionId"
+
+    val sessionId = request.session.get(sessionIdKey) match {
       case Some(id) => SessionId(id)
       case None => SessionId(UUID.randomUUID().toString)
     }
 
     sessionService.refresh(sessionId).flatMap { _ =>
       block(SessionRequest(sessionId, request)).map { result =>
-        result.addingToSession("sessionId" -> sessionId.id)(request)
+        result.addingToSession(sessionIdKey -> sessionId.id)(request)
       }
     }
   }

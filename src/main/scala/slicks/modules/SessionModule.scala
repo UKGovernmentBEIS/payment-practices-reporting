@@ -31,7 +31,7 @@ trait SessionModule extends DBBinding with PlayJsonMappers {
 
   type SessionQuery = Query[SessionTable, SessionRow, Seq]
 
-  implicit def SessionIdMapper: BaseColumnType[SessionId] = MappedColumnType.base[SessionId, String](_.id, SessionId)
+  implicit def sessionIdMapper: BaseColumnType[SessionId] = MappedColumnType.base[SessionId, String](_.id, SessionId)
 
   class SessionTable(tag: Tag) extends Table[SessionRow](tag, "session") {
     def id = column[SessionId]("id", O.Length(36), O.PrimaryKey)

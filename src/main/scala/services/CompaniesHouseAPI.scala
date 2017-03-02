@@ -69,12 +69,16 @@ class CompaniesHouseAPIImpl @Inject()(val ws: WSClient, oAuth2Service: OAuth2Ser
   implicit val companyDetailReads: Reads[CompanyDetail] = Json.reads[CompanyDetail]
   implicit val resultsPageReads: Reads[ResultsPage] = Json.reads[ResultsPage]
 
+  private val basicAuth = "Basic " + new String(Base64.getEncoder.encode(Config.config.companiesHouse.apiKey.getBytes))
+
+  private def bearerAuth(oAuthToken: OAuthToken) = s"Bearer ${oAuthToken.accessToken}"
+
+  def targetScope(companiesHouseId: CompaniesHouseId): String = s"https://api.companieshouse.gov.uk/company/${companiesHouseId.id}"
+
   override def searchCompanies(search: String, page: Int, itemsPerPage: Int): Future[PagedResults[CompanySummary]] = {
     val s = views.html.helper.urlEncode(search)
     val startIndex = (page - 1) * itemsPerPage
     val url = s"https://api.companieshouse.gov.uk/search/companies?q=$s&items_per_page=$itemsPerPage&start_index=$startIndex"
-    val basicAuth = "Basic " + new String(Base64.getEncoder.encode(Config.config.companiesHouse.apiKey.getBytes))
-
     val start = System.currentTimeMillis()
 
     get[ResultsPage](url, basicAuth).map { resultsPage =>
@@ -87,7 +91,6 @@ class CompaniesHouseAPIImpl @Inject()(val ws: WSClient, oAuth2Service: OAuth2Ser
   override def find(companiesHouseId: CompaniesHouseId): Future[Option[CompanyDetail]] = {
     val id = views.html.helper.urlEncode(companiesHouseId.id)
     val url = s"https://api.companieshouse.gov.uk/company/$id"
-    val basicAuth = "Basic " + new String(Base64.getEncoder.encode(Config.config.companiesHouse.apiKey.getBytes))
 
     getOpt[CompanyDetail](url, basicAuth)
   }
@@ -97,26 +100,15 @@ class CompaniesHouseAPIImpl @Inject()(val ws: WSClient, oAuth2Service: OAuth2Ser
   override def isInScope(companiesHouseId: CompaniesHouseId, oAuthToken: OAuthToken): Future[Boolean] = {
     implicit val verifyReads = Json.reads[VerifyResult]
     val url = "https://account.companieshouse.gov.uk/oauth2/verify"
-    val auth = s"Bearer ${oAuthToken.accessToken}"
-    get[VerifyResult](url, auth).map(_.scope === targetScope(companiesHouseId))
+    get[VerifyResult](url, bearerAuth(oAuthToken)).map(_.scope === targetScope(companiesHouseId))
   }
-
-  def targetScope(companiesHouseId: CompaniesHouseId): String = s"https://api.companieshouse.gov.uk/company/${companiesHouseId.id}"
 
   case class Email(email: String)
 
   implicit val emailReads = Json.reads[Email]
 
   override def emailAddress(token: OAuthToken): Future[Option[String]] = {
-    val auth = s"Bearer ${token.accessToken}"
     val url = "https://account.companieshouse.gov.uk/user/profile"
-    getOpt[Email](url, auth).map(_.map(_.email))
+    getOpt[Email](url, bearerAuth(token)).map(_.map(_.email))
   }
-
-
-  case class AccessTokenResponse(access_token: String, expires_in: Long, refresh_token: String)
-
-  implicit val atrReads = Json.reads[AccessTokenResponse]
-
-
 }

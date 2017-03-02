@@ -23,11 +23,13 @@ import play.api.mvc.{Action, Controller}
 
 class HomeController @Inject()() extends Controller with PageHelper {
 
+  private val pateTitle = "Report on payment practices"
+
   def index = Action {
-    Ok(page("Report on payment practices")(views.html.index()))
+    Ok(page(pateTitle)(views.html.index()))
   }
 
   def start = Action {
-    Ok(page("Report on payment practices")(views.html.start()))
+    Ok(page(pateTitle)(views.html.start()))
   }
 }

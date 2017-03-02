@@ -2,6 +2,8 @@
   <include resource="common.stdout.logger.xml" />
 
   <logger name="application"                                               level="DEBUG" />
+  <logger name="slicks.modules"                                            level="WARN" />
+  <logger name="io.netty"                                                  level="INFO" />
   <logger name="ch.qos.logback"                                            level="OFF"   />
   <logger name="com.google.inject.internal"                                level="INFO"  />
   <logger name="com.ning.http.client.providers.netty.NettyConnectionsPool" level="INFO"  />
