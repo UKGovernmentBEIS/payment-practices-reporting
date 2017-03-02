@@ -32,7 +32,7 @@ class QuestionnaireController @Inject()(decider: Decider, summarizer: Summarizer
   private val exemptReasonKey = "exempt_reason"
 
   def start = Action { implicit request =>
-    Ok(page(home, views.html.questionnaire.start()))
+    Ok(page("Find out if your business needs to publish reports")(home, views.html.questionnaire.start()))
       .removing(decisionStateMapping)
       .removingFromSession(exemptReasonKey)
   }
@@ -41,7 +41,7 @@ class QuestionnaireController @Inject()(decider: Decider, summarizer: Summarizer
     val state = decisionStateMapping.bindFromRequest.fold(_ => DecisionState.empty, s => s)
 
     decider.calculateDecision(state) match {
-      case AskQuestion(key, q) => Ok(page(home, pages.question(key, q)))
+      case AskQuestion(key, q) => Ok(page(q.text)(home, pages.question(key, q)))
       case Exempt(Some(reason)) => Redirect(routeTo.exempt()).addingToSession((exemptReasonKey, reason))
       case Exempt(None) => Redirect(routeTo.exempt()).removingFromSession(exemptReasonKey)
       case Required => Redirect(routeTo.required())
@@ -59,12 +59,12 @@ class QuestionnaireController @Inject()(decider: Decider, summarizer: Summarizer
     )
   }
 
-  def exempt = Action(request => Ok(page(home, pages.exempt(request.session.get(exemptReasonKey)))))
+  def exempt = Action(request => Ok(page("Your business does not need to publish reports")(home, pages.exempt(request.session.get(exemptReasonKey)))))
 
   def required = Action { implicit request =>
     val state = decisionStateMapping.bindFromRequest.fold(_ => DecisionState.empty, s => s)
 
     val summary = summarizer.summarize(state)
-    Ok(page(home, pages.required(summary)))
+    Ok(page("Your business must publish reports")(home, pages.required(summary)))
   }
 }

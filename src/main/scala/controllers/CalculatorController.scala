@@ -33,7 +33,7 @@ class CalculatorController @Inject()(implicit messages: MessagesApi) extends Con
 
   import CalculatorController._
 
-  def calculatorPage(form: Form[DateRange]) = page(home, views.html.calculator.calculator(form))
+  def calculatorPage(form: Form[DateRange]) = page("Calculate reporting periods and deadlines")(home, views.html.calculator.calculator(form))
 
   def start = Action { implicit request =>
     Ok(calculatorPage(emptyForm)).removing(financialYear)
@@ -50,7 +50,7 @@ class CalculatorController @Inject()(implicit messages: MessagesApi) extends Con
   def showAnswer = Action { implicit request =>
     financialYear.bind(request.session.data).fold(
       _ => Redirect(controllers.routes.CalculatorController.start()),
-      fy => Ok(page(home, views.html.calculator.answer(isGroup = false, Calculator(fy), df)))
+      fy => Ok(page("Reporting periods and deadlines")(home, views.html.calculator.answer(isGroup = false, Calculator(fy), df)))
     )
   }
 }

@@ -29,7 +29,7 @@ import slicks.modules.{FiledReport, ReportRepo}
 class DownloadController @Inject()(reportRepo: ReportRepo) extends Controller with PageHelper {
 
   def show = Action {
-    Ok(page(home, views.html.download.accessData()))
+    Ok(page("Export data for published reports")(home, views.html.download.accessData()))
   }
 
   def export = Action { request =>

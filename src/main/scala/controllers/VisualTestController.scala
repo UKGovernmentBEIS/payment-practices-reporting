@@ -104,7 +104,7 @@ class VisualTestController @Inject()(questions: Questions, summarizer: Summarize
         ++ review
         ++ published
       ).zipWithIndex.flatMap { case (x, i) => Seq(Html(s"<hr/>screen ${i + 1}"), x) }
-    Ok(page(content: _*))
+    Ok(page("Visual test of all pages")(content: _*))
   }
 
   val questionPages = Seq(

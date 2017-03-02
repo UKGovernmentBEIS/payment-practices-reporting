@@ -24,10 +24,10 @@ import play.api.mvc.{Action, Controller}
 class HomeController @Inject()() extends Controller with PageHelper {
 
   def index = Action {
-    Ok(page(views.html.index()))
+    Ok(page("Report on payment practices")(views.html.index()))
   }
 
   def start = Action {
-    Ok(page(views.html.start()))
+    Ok(page("Report on payment practices")(views.html.start()))
   }
 }

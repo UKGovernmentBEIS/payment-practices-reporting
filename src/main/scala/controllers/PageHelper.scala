@@ -27,9 +27,9 @@ import scala.collection.immutable
 case class Breadcrumb(href: Call, name: String)
 
 trait PageHelper {
-  def page(contents: Html*): Html = {
+  def page(title: String)(contents: Html*): Html = {
     val content = html(contents: _*)
-    views.html.templates.govukTemplateDefaults("Payment practices reporting")(content)(config.Config.config.googleAnalytics.flatMap(_.code))
+    views.html.templates.govukTemplateDefaults(title)(content)(config.Config.config.googleAnalytics.flatMap(_.code))
   }
 
   def html(contents: Html*): Html = {

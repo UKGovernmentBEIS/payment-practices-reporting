@@ -35,13 +35,14 @@ class SearchController @Inject()(companiesHouseAPI: CompaniesHouseAPI, reports: 
 
   val df = DateTimeFormat.forPattern("d MMMM YYYY")
 
-  def start() = Action(Ok(page(views.html.search.start())))
+  def start() = Action(Ok(page("Search payment practice reports")(views.html.search.start())))
 
   def search(query: Option[String], pageNumber: Option[Int], itemsPerPage: Option[Int]) = Action.async {
     val searchLink = routes.SearchController.search(None, None, None).url
     val pageLink = { i: Int => routes.SearchController.search(query, Some(i), itemsPerPage).url }
     val companyLink = { id: CompaniesHouseId => routes.SearchController.company(id, pageNumber).url }
-    val header = h1("Search for a report")
+    val header = h1("Search for reports")
+    val title = "Search for a company"
 
     query match {
       case Some(q) => companiesHouseAPI.searchCompanies(q, pageNumber.getOrElse(1), itemsPerPage.getOrElse(25)).flatMap { results =>
@@ -51,10 +52,11 @@ class SearchController @Inject()(companiesHouseAPI: CompaniesHouseAPI, reports: 
 
         Future.sequence(countsF).map { counts =>
           val countMap = Map(counts: _*)
-          Ok(page(home, header, views.html.search.search(q, Some(results), countMap, searchLink, companyLink, pageLink)))
+
+          Ok(page(title)(home, header, views.html.search.search(q, Some(results), countMap, searchLink, companyLink, pageLink)))
         }
       }
-      case None => Future.successful(Ok(page(home, header, views.html.search.search("", None, Map.empty, searchLink, companyLink, pageLink))))
+      case None => Future.successful(Ok(page(title)(home, header, views.html.search.search("", None, Map.empty, searchLink, companyLink, pageLink))))
     }
   }
 
@@ -66,7 +68,7 @@ class SearchController @Inject()(companiesHouseAPI: CompaniesHouseAPI, reports: 
     } yield {
       val searchCrumb = Breadcrumb(routes.SearchController.search(None, None, None), "Search for reports")
       val crumbs = breadcrumbs(homeBreadcrumb, searchCrumb)
-      Ok(page(crumbs, views.html.search.company(co, rs, pageLink, df)))
+      Ok(page(s"Payment practice reports for ${co.company_name}")(crumbs, views.html.search.company(co, rs, pageLink, df)))
     }
 
     result.value.map {
@@ -82,7 +84,7 @@ class SearchController @Inject()(companiesHouseAPI: CompaniesHouseAPI, reports: 
       val searchCrumb = Breadcrumb(routes.SearchController.search(None, None, None), "Search for reports")
       val companyCrumb = Breadcrumb(routes.SearchController.company(report.header.companyId, None), s"${report.header.companyName} reports")
       val crumbs = breadcrumbs(homeBreadcrumb, searchCrumb, companyCrumb)
-      Ok(page(crumbs, views.html.search.report(report, df)))
+      Ok(page(s"Payment practice report for ${report.header.companyName}")(crumbs, views.html.search.report(report, df)))
     }
 
     f.value.map {
