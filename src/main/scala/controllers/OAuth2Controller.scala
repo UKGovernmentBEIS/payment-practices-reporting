@@ -58,7 +58,7 @@ class OAuth2Controller @Inject()(sessionService: SessionService, companiesHouseA
           for {
             companyId <- OptionT.fromOption(state.map(CompaniesHouseId))
             companyDetail <- OptionT(companiesHouseAPI.find(companyId))
-            emailAddress <- OptionT(companiesHouseAPI.getEmailAddress(ref))
+            emailAddress <- OptionT(companiesHouseAPI.emailAddress(ref))
             _ <- OptionT.liftF(sessionService.put(request.sessionId, oAuthTokenKey, ref))
             _ <- OptionT.liftF(sessionService.put(request.sessionId, companyDetailsKey, companyDetail))
             _ <- OptionT.liftF(sessionService.put(request.sessionId, emailAddressKey, emailAddress))

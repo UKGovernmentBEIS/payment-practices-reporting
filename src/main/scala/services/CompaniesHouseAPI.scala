@@ -55,7 +55,7 @@ trait CompaniesHouseAPI {
 
   def isInScope(companiesHouseIdentifier: CompaniesHouseId, oAuthToken: OAuthToken): Future[Boolean]
 
-  def getEmailAddress(oAuthToken: OAuthToken): Future[Option[String]]
+  def emailAddress(oAuthToken: OAuthToken): Future[Option[String]]
 
   def targetScope(companiesHouseId: CompaniesHouseId): String
 }
@@ -107,7 +107,7 @@ class CompaniesHouseAPIImpl @Inject()(val ws: WSClient, oAuth2Service: OAuth2Ser
 
   implicit val emailReads = Json.reads[Email]
 
-  override def getEmailAddress(token: OAuthToken): Future[Option[String]] = {
+  override def emailAddress(token: OAuthToken): Future[Option[String]] = {
     val auth = s"Bearer ${token.accessToken}"
     val url = "https://account.companieshouse.gov.uk/user/profile"
     getOpt[Email](url, auth).map(_.map(_.email))
