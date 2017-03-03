@@ -7,7 +7,8 @@ GET         /start                                                      controll
 GET         /wip                                                        controllers.Default.todo
 GET         /visual-test                                                controllers.VisualTestController.show
 
-GET         /check-if-you-need-to-report                                controllers.QuestionnaireController.start()
+GET         /check-if-you-need-to-report                                controllers.QuestionnaireController.start
+GET         /check-if-you-need-to-report/start-questions                controllers.QuestionnaireController.startQuestions
 GET         /check-if-you-need-to-report/questions                      controllers.QuestionnaireController.nextQuestion
 POST        /check-if-you-need-to-report/questions                      controllers.QuestionnaireController.postAnswer
 GET         /check-if-you-need-to-report/exempt                         controllers.QuestionnaireController.exempt

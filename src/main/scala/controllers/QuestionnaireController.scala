@@ -37,6 +37,12 @@ class QuestionnaireController @Inject()(decider: Decider, summarizer: Summarizer
       .removingFromSession(exemptReasonKey)
   }
 
+  def startQuestions = Action { implicit request =>
+    Redirect(controllers.routes.QuestionnaireController.nextQuestion())
+      .removing(decisionStateMapping)
+      .removingFromSession(exemptReasonKey)
+  }
+
   def nextQuestion = Action { implicit request =>
     val state = decisionStateMapping.bindFromRequest.fold(_ => DecisionState.empty, s => s)
 
