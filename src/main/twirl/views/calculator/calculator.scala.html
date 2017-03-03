@@ -7,19 +7,19 @@
         <fieldset class='@(if(dateForm.hasErrors) "error" else "")'>
             @if(dateForm.hasErrors) {
                 <span id="form-errors" class="error-message">
-                @dateForm.error("").map(err => messages(err.message)).getOrElse("These dates are not valid")
+                @dateForm.error("").map(err => messages(err.message)).getOrElse(messages("error.dates.invalid"))
                 </span>
             }
 
             <p class="heading-small">What is the start date of your financial year?</p>
             @dateForm.error("startDate").map { err =>
-                <span class="error-message">@messages(err.message)</span>
+                <span id="error-startDate" class="error-message">@messages(err.message)</span>
             }
             @shared._dateinput("startDate", dateForm("startDate.day").value, dateForm("startDate.month").value, dateForm("startDate.year").value)
 
             <p class="heading-small">What is the end date of your financial year?</p>
             @dateForm.error("endDate").map { err =>
-                <span class="error-message">@messages(err.message)</span>
+                <span id="error-endDate" class="error-message">@messages(err.message)</span>
             }
             @shared._dateinput("endDate", dateForm("endDate.day").value, dateForm("endDate.month").value, dateForm("endDate.year").value)
         </fieldset>
