@@ -29,7 +29,8 @@ class Questions @Inject()(implicit messages: MessagesApi) {
       Choice(messages("choice.third"), FinancialYear.ThirdOrLater.entryName)
     ))
 
-  val hasSubsidiariesQuestion = YesNoQuestion(messages("question.hassubsidiaries"), None)
+  val hasSubsidiariesDetail = views.html.questionnaire._hasSubsidiariesReveal()
+  val hasSubsidiariesQuestion = YesNoQuestion(messages("question.hassubsidiaries"), None, Some(hasSubsidiariesDetail))
 
   private val turnoverHint = Some(messages("hint.turnover"))
   private val balanceHint = Some(messages("hint.balance"))

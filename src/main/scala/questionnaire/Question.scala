@@ -17,6 +17,7 @@
 
 package questionnaire
 
+import play.twirl.api.Html
 import utils.YesNo
 
 case class Choice(label: String, value: String)
@@ -29,15 +30,17 @@ sealed trait Question {
   def text: String
 
   def hintText: Option[String]
+
+  def detailText: Option[Html]
 }
 
-case class YesNoQuestion(text: String, hintText: Option[String]) extends Question {
+case class YesNoQuestion(text: String, hintText: Option[String], detailText: Option[Html] = None) extends Question {
   override def choices: Seq[Choice] = Seq(Choice("Yes", YesNo.Yes.entryName), Choice("No", YesNo.No.entryName))
 
   override def inline = true
 }
 
-case class MultipleChoiceQuestion(text: String, hintText: Option[String], choices: Seq[Choice]) extends Question {
+case class MultipleChoiceQuestion(text: String, hintText: Option[String], choices: Seq[Choice], detailText: Option[Html] = None) extends Question {
   override def inline = false
 }
 

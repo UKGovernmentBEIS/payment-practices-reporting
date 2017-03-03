@@ -10,9 +10,8 @@
     <h3 class="heading-medium">
     @question.text
     </h3>
-    <p class="form-hint">
-    @question.hintText
-    </p>
+    @question.hintText.map {text=> <p class="form-hint">@text</p>}
+    @question.detailText.map { text => @text <br/> }
     <form method="POST" action="">
         <fieldset class='form-group @inlineClass(question)'>
         @question.choices.map { case Choice(label, value) =>
