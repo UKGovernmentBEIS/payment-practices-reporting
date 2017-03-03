@@ -87,3 +87,7 @@ There is an actor, `ConfirmationActor`, that manages sending of the email and up
   
   If no unlocked pending confirmation is found then the actor will wait for the scheduled 
   event to send it the next `'poll` message.
+  
+# Acceptance tests
+
+See https://github.com/UKGovernmentBEIS/ppr-acceptance-tests for the acceptance test suite.
