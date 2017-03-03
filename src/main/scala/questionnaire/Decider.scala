@@ -71,7 +71,8 @@ class Decider @Inject()(questions: Questions) {
 
   def checkCompanyThresholds(state: DecisionState): Decision =
     state.companyThresholds.nextQuestion(companyQuestionGroupForFY(state.financialYear.getOrElse(Second))) match {
-      case _ if state.companyThresholds.score >= 2 => checkIfSubsidiaries(state)
+      case _ if state.companyThresholds.yesCount >= 2 => checkIfSubsidiaries(state)
+      case _ if state.companyThresholds.noCount >= 2 => Exempt(Some("reason.company.notlargeenough"))
       case Some(AskQuestion(key, q)) => AskQuestion(s"companyThresholds.$key", q)
       case None => Exempt(Some("reason.company.notlargeenough"))
     }
@@ -89,7 +90,8 @@ class Decider @Inject()(questions: Questions) {
 
   def checkSubsidiaryThresholds(state: DecisionState): Decision =
     state.subsidiaryThresholds.nextQuestion(subsidiariesQuestionGroupForFY(state.financialYear.getOrElse(Second))) match {
-      case _ if state.subsidiaryThresholds.score >= 2 => Required
+      case _ if state.subsidiaryThresholds.yesCount >= 2 => Required
+      case _ if state.subsidiaryThresholds.noCount >= 2 => Exempt(Some("reason.group.notlargeenough"))
       case Some(AskQuestion(key, q)) => AskQuestion(s"subsidiaryThresholds.$key", q)
       case None => Exempt(Some("reason.group.notlargeenough"))
     }
