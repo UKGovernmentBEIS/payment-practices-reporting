@@ -21,12 +21,13 @@ import javax.inject.Inject
 
 import akka.stream.scaladsl.{Concat, Source}
 import akka.util.ByteString
+import config.AppConfig
 import org.joda.time.LocalDate
 import play.api.http.HttpEntity
 import play.api.mvc.{Action, Controller, ResponseHeader, Result}
 import slicks.modules.{FiledReport, ReportRepo}
 
-class DownloadController @Inject()(reportRepo: ReportRepo) extends Controller with PageHelper {
+class DownloadController @Inject()(reportRepo: ReportRepo, val appConfig: AppConfig) extends Controller with PageHelper {
 
   def show = Action {
     Ok(page("Export data for published reports")(home, views.html.download.accessData()))

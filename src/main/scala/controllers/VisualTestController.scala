@@ -20,6 +20,7 @@ package controllers
 import javax.inject.Inject
 
 import calculator.Calculator
+import config.AppConfig
 import db._
 import forms.DateRange
 import forms.report.{ReportFormModel, ReportReviewModel, Validations}
@@ -34,7 +35,7 @@ import services.{CompanyDetail, CompanySummary, PagedResults}
 import slicks.modules.FiledReport
 import utils.{SystemTimeSource, YesNo}
 
-class VisualTestController @Inject()(questions: Questions, summarizer: Summarizer)(implicit messages: MessagesApi) extends Controller with PageHelper {
+class VisualTestController @Inject()(questions: Questions, summarizer: Summarizer, val appConfig: AppConfig)(implicit messages: MessagesApi) extends Controller with PageHelper {
 
   import questions._
 

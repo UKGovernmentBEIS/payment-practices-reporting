@@ -22,15 +22,21 @@ import javax.inject.Inject
 import actions.SessionAction
 import cats.data.OptionT
 import cats.instances.future._
+import config.AppConfig
 import models.CompaniesHouseId
 import play.api.mvc._
 import services._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class OAuth2Controller @Inject()(sessionService: SessionService, companiesHouseAPI: CompaniesHouseAPI, oAuth2Service: OAuth2Service, SessionAction: SessionAction)(implicit exec: ExecutionContext) extends Controller {
+class OAuth2Controller @Inject()(
+                                  sessionService: SessionService,
+                                  companiesHouseAPI: CompaniesHouseAPI,
+                                  oAuth2Service: OAuth2Service,
+                                  appConfig: AppConfig,
+                                  SessionAction: SessionAction)(implicit exec: ExecutionContext) extends Controller {
 
-  import config.Config._
+  import appConfig.config
 
   def startOauthDance(companiesHouseId: CompaniesHouseId)(implicit request: RequestHeader): Result = {
     val params = Map(

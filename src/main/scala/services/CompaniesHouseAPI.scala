@@ -22,7 +22,7 @@ import javax.inject.Inject
 
 import com.google.inject.ImplementedBy
 import com.wellfactored.playbindings.{ValueClassFormats, ValueClassReads}
-import config.Config
+import config.AppConfig
 import models.CompaniesHouseId
 import org.scalactic.TripleEquals._
 import play.api.Logger
@@ -60,16 +60,18 @@ trait CompaniesHouseAPI {
   def targetScope(companiesHouseId: CompaniesHouseId): String
 }
 
-class CompaniesHouseAPIImpl @Inject()(val ws: WSClient, oAuth2Service: OAuth2Service)(implicit val ec: ExecutionContext)
+class CompaniesHouseAPIImpl @Inject()(val ws: WSClient, oAuth2Service: OAuth2Service, appConfig: AppConfig)(implicit val ec: ExecutionContext)
   extends RestService
     with CompaniesHouseAPI
     with ValueClassReads {
+
+  import appConfig.config
 
   implicit val companySummaryReads: Reads[CompanySummary] = Json.reads[CompanySummary]
   implicit val companyDetailReads: Reads[CompanyDetail] = Json.reads[CompanyDetail]
   implicit val resultsPageReads: Reads[ResultsPage] = Json.reads[ResultsPage]
 
-  private val basicAuth = "Basic " + new String(Base64.getEncoder.encode(Config.config.companiesHouse.apiKey.getBytes))
+  private val basicAuth = "Basic " + new String(Base64.getEncoder.encode(config.companiesHouse.apiKey.getBytes))
 
   private def bearerAuth(oAuthToken: OAuthToken) = s"Bearer ${oAuthToken.accessToken}"
 

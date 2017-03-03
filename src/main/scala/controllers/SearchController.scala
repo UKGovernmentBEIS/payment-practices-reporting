@@ -21,6 +21,7 @@ import javax.inject.Inject
 
 import cats.data.OptionT
 import cats.instances.future._
+import config.AppConfig
 import models.{CompaniesHouseId, ReportId}
 import org.joda.time.format.DateTimeFormat
 import play.api.mvc.{Action, Controller}
@@ -29,7 +30,7 @@ import slicks.modules.ReportRepo
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class SearchController @Inject()(companiesHouseAPI: CompaniesHouseAPI, reports: ReportRepo)(implicit ec: ExecutionContext)
+class SearchController @Inject()(companiesHouseAPI: CompaniesHouseAPI, reports: ReportRepo, val appConfig: AppConfig)(implicit ec: ExecutionContext)
   extends Controller
     with PageHelper {
 

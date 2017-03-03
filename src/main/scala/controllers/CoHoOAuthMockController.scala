@@ -19,13 +19,14 @@ package controllers
 
 import javax.inject.Inject
 
+import config.AppConfig
 import models.CompaniesHouseId
 import play.api.mvc.{Action, Controller}
 import services.CompaniesHouseAPI
 
 import scala.concurrent.ExecutionContext
 
-class CoHoOAuthMockController @Inject()(companiesHouseAPI: CompaniesHouseAPI)(implicit ec: ExecutionContext) extends Controller with PageHelper {
+class CoHoOAuthMockController @Inject()(companiesHouseAPI: CompaniesHouseAPI, val appConfig: AppConfig)(implicit ec: ExecutionContext) extends Controller with PageHelper {
 
   def login(companiesHouseId: CompaniesHouseId) = Action {
     Ok(views.html.oauthMock.p1(companiesHouseId))

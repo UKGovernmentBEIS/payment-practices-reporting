@@ -20,15 +20,17 @@ package filters
 import javax.inject.Inject
 
 import akka.stream.Materializer
-import config.Config
+import config.AppConfig
 import play.api.Logger
 import play.api.mvc._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class LoggingFilter @Inject()(implicit val mat: Materializer, ec: ExecutionContext) extends Filter {
-  lazy val logAssets = Config.config.logAssets.getOrElse(false)
-  lazy val logRequests = Config.config.logRequests.getOrElse(true)
+class LoggingFilter @Inject()( appConfig: AppConfig)(implicit val mat: Materializer, ec: ExecutionContext) extends Filter {
+  import appConfig.config
+
+  lazy val logAssets = config.logAssets.getOrElse(false)
+  lazy val logRequests = config.logRequests.getOrElse(true)
 
   def apply(nextFilter: RequestHeader => Future[Result])
            (requestHeader: RequestHeader): Future[Result] = {

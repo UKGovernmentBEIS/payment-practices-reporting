@@ -19,11 +19,12 @@ package controllers
 
 import javax.inject.Inject
 
+import config.AppConfig
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, Controller}
 import questionnaire._
 
-class QuestionnaireController @Inject()(decider: Decider, summarizer: Summarizer)(implicit messages: MessagesApi) extends Controller with PageHelper {
+class QuestionnaireController @Inject()(decider: Decider, summarizer: Summarizer, val appConfig: AppConfig)(implicit messages: MessagesApi) extends Controller with PageHelper {
 
   import QuestionnaireValidations._
   import controllers.routes.{QuestionnaireController => routeTo}
