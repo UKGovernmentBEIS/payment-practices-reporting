@@ -69,12 +69,14 @@ class Decider @Inject()(questions: Questions) {
     case _ => companyQuestionGroupY2
   }
 
+  val companyNotLargeEnough = "reason.company.notlargeenough"
+
   def checkCompanyThresholds(state: DecisionState): Decision =
     state.companyThresholds.nextQuestion(companyQuestionGroupForFY(state.financialYear.getOrElse(Second))) match {
       case _ if state.companyThresholds.yesCount >= 2 => checkIfSubsidiaries(state)
-      case _ if state.companyThresholds.noCount >= 2 => Exempt(Some("reason.company.notlargeenough"))
+      case _ if state.companyThresholds.noCount >= 2 => Exempt(Some(companyNotLargeEnough))
       case Some(AskQuestion(key, q)) => AskQuestion(s"companyThresholds.$key", q)
-      case None => Exempt(Some("reason.company.notlargeenough"))
+      case None => Exempt(Some(companyNotLargeEnough))
     }
 
   def checkIfSubsidiaries(state: DecisionState): Decision = state.subsidiaries match {
@@ -88,11 +90,13 @@ class Decider @Inject()(questions: Questions) {
     case _ => subsidiariesQuestionGroupY2
   }
 
+  val groupNotLargeEnough = "reason.group.notlargeenough"
+
   def checkSubsidiaryThresholds(state: DecisionState): Decision =
     state.subsidiaryThresholds.nextQuestion(subsidiariesQuestionGroupForFY(state.financialYear.getOrElse(Second))) match {
       case _ if state.subsidiaryThresholds.yesCount >= 2 => Required
-      case _ if state.subsidiaryThresholds.noCount >= 2 => Exempt(Some("reason.group.notlargeenough"))
+      case _ if state.subsidiaryThresholds.noCount >= 2 => Exempt(Some(groupNotLargeEnough))
       case Some(AskQuestion(key, q)) => AskQuestion(s"subsidiaryThresholds.$key", q)
-      case None => Exempt(Some("reason.group.notlargeenough"))
+      case None => Exempt(Some(groupNotLargeEnough))
     }
 }
