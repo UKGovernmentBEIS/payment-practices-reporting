@@ -17,6 +17,10 @@
 
 package config
 
+import javax.inject.Inject
+
+import play.api.Configuration
+
 case class CompaniesHouseConfig(apiKey: String)
 
 case class NotifyConfig(
@@ -46,9 +50,9 @@ case class Config(
                    googleAnalytics: Option[GoogleAnalytics]
                  )
 
-object Config {
+class AppConfig @Inject()(configuration: Configuration) {
 
   import pureconfig._
 
-  lazy val config: Config = loadConfig[Config].get
+  lazy val config: Config = loadConfig[Config](configuration.underlying).get
 }

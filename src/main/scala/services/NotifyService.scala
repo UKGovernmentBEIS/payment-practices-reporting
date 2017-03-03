@@ -22,7 +22,7 @@ import javax.inject.Inject
 
 import akka.actor.ActorSystem
 import com.google.inject.ImplementedBy
-import config.Config
+import config.AppConfig
 import uk.gov.service.notify.{NotificationClient, NotificationResponse}
 
 import scala.collection.JavaConversions._
@@ -33,8 +33,8 @@ trait NotifyService {
   def sendEmail(templateId: String, recipient: String, params: Map[String, String]): Future[NotificationResponse]
 }
 
-class NotifyServiceImpl @Inject()(actorSystem: ActorSystem) extends NotifyService {
-  val key = Config.config.notifyService.apiKey
+class NotifyServiceImpl @Inject()(actorSystem: ActorSystem,appConfig: AppConfig) extends NotifyService {
+  val key = appConfig.config.notifyService.apiKey
   implicit val ec = actorSystem.dispatchers.lookup("email-dispatcher")
 
   override def sendEmail(templateId: String, recipient: String, params: Map[String, String]): Future[NotificationResponse] = {

@@ -19,9 +19,10 @@ package controllers
 
 import javax.inject.Inject
 
+import config.AppConfig
 import play.api.mvc.{Action, Controller}
 
-class HomeController @Inject()() extends Controller with PageHelper {
+class HomeController @Inject()(val appConfig: AppConfig) extends Controller with PageHelper {
 
   private val pateTitle = "Report on payment practices"
 

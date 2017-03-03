@@ -20,11 +20,11 @@ package slicks.modules
 import javax.inject.Inject
 
 import com.github.tminglei.slickpg.{ExPostgresDriver, PgDateSupportJoda, PgPlayJsonSupport}
-import config.Config
+import config.{AppConfig, Config}
 import play.api.Logger
 import play.api.db.slick.DatabaseConfigProvider
 
-class DB @Inject()(override val dbConfigProvider: DatabaseConfigProvider)
+class DB @Inject()(override val dbConfigProvider: DatabaseConfigProvider, appConfig: AppConfig)
   extends ReportModule
     with ConfirmationModule
     with SessionModule
@@ -36,7 +36,9 @@ class DB @Inject()(override val dbConfigProvider: DatabaseConfigProvider)
 
   override def pgjson: String = "jsonb"
 
-  if (Config.config.printDBTables.getOrElse(false)) {
+  import appConfig.config
+
+  if (config.printDBTables.getOrElse(false)) {
     println("# --- !Ups")
     schema.createStatements.foreach(s => println(s"$s;"))
     println

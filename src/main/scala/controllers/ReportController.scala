@@ -21,6 +21,7 @@ import javax.inject.{Inject, Named}
 
 import actions.{CompanyAuthAction, CompanyAuthRequest}
 import akka.actor.ActorRef
+import config.AppConfig
 import controllers.ReportController.CodeOption.{Colleague, Register}
 import forms.Validations
 import forms.report.{ReportFormModel, ReportReviewModel, Validations}
@@ -45,6 +46,7 @@ class ReportController @Inject()(
                                   reportValidations: Validations,
                                   oAuthController: OAuth2Controller,
                                   CompanyAuthAction: CompanyAuthAction,
+                                  val appConfig: AppConfig,
                                   @Named("confirmation-actor") confirmationActor: ActorRef,
                                   oAuth2Service: OAuth2Service
                                 )(implicit ec: ExecutionContext, messages: MessagesApi) extends Controller with PageHelper {

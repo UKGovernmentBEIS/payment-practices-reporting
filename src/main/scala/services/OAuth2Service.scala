@@ -21,6 +21,7 @@ import javax.inject.Inject
 
 import com.google.inject.ImplementedBy
 import com.wellfactored.playbindings.ValueClassFormats
+import config.AppConfig
 import org.joda.time.LocalDateTime
 import play.api.Logger
 import play.api.libs.json.{JsError, JsSuccess, Json}
@@ -39,9 +40,9 @@ trait OAuth2Service {
   def refreshAccessToken(oAuthToken: OAuthToken): Future[OAuthToken]
 }
 
-class OAuth2ServiceImpl @Inject()(ws: WSClient)(implicit ec: ExecutionContext) extends OAuth2Service with ValueClassFormats {
+class OAuth2ServiceImpl @Inject()(ws: WSClient, appConfig: AppConfig)(implicit ec: ExecutionContext) extends OAuth2Service with ValueClassFormats {
 
-  import config.Config.config._
+  import appConfig.config._
 
   val clientDetails = Map(
     "client_id" -> client.id,

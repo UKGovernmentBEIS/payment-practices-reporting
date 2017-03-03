@@ -19,7 +19,7 @@ package services
 
 import javax.inject.Inject
 
-import config.Config
+import config.{AppConfig, Config}
 import db.ConfirmationPendingRow
 import org.joda.time.LocalDateTime
 import org.joda.time.format.DateTimeFormat
@@ -29,8 +29,8 @@ import views.html.ReportNum
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class ConfirmationDeliveryServiceImpl @Inject()(confirmationRepo: ConfirmationRepo, mailer: NotifyService) extends ConfirmationDeliveryService {
-  val templateId = Config.config.notifyService.templateId
+class ConfirmationDeliveryServiceImpl @Inject()(confirmationRepo: ConfirmationRepo, mailer: NotifyService, appConfig: AppConfig) extends ConfirmationDeliveryService {
+  val templateId = appConfig.config.notifyService.templateId
   val df = DateTimeFormat.forPattern("d MMMM YYYY")
 
   def attemptDelivery(implicit ec: ExecutionContext): Future[Option[DeliveryOutcome]] = {
