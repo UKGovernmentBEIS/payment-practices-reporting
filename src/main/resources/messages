@@ -1,9 +1,8 @@
-error.endafterstart=The end date must be later than the start date
+# Messages for the Questionnaire
 
 reason.firstyear=This is because it'’s in its first year of operations. You should check back at the beginning of your second financial year to see if you need to report.
 reason.company.notlargeenough=You should check at the beginning of every financial year to see if you need to report.
 reason.group.notlargeenough=You should check at the beginning of every financial year to see if you need to report.
-
 
 question.iscompanyorllp=Is your business a company incorporated in the UK or a limited liability partnership registered in the UK?
 question.financialyear=Which financial year is your business currently in?
@@ -53,6 +52,8 @@ summary.subsidiaries.employees.y2=had an average of more than 250 employees duri
 summary.subsidiaries.turnover.y3=had a total turnover of at least £36 million net or £43.2 million gross on both of their last 2 balance sheet dates
 summary.subsidiaries.balance.y3=had a combined balance sheet total of £18 million net or £21.6 million gross on both of their last 2 balance sheet dates
 summary.subsidiaries.employees.y3=had an average of more than 250 employees during both of their last 2 financial years
+
+# Messages for the report form
 
 field.reportDates.startDate.label=Start date of reporting period
 field.reportDates.endDate.label=End date of reporting period
@@ -120,6 +121,7 @@ field.paymentCodes.text.hint=
 field.confirmedBy.label=Enter the name of the director who approved this report
 field.confirmedBy.hint=
 
+# Various error codes
 error.required=Please answer this question
 error.date=This date is invalid
 error.sumto100=Figures A, B and C do not add up to 100
@@ -127,3 +129,4 @@ error.number=Please enter a whole number
 error.min=Please enter {0} or greater
 error.max=Please enter {0} or less
 error.mustanswer=Please answer this question
+error.endafterstart=The end date must be later than the start date

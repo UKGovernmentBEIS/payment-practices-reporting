@@ -6,7 +6,7 @@
     <form method="post" action="@controllers.routes.CalculatorController.submit()">
         <fieldset class='@(if(dateForm.hasErrors) "error" else "")'>
             @if(dateForm.hasErrors) {
-                <span class="error-message">
+                <span id="form-errors" class="error-message">
                 @dateForm.error("").map(err => messages(err.message)).getOrElse("These dates are not valid")
                 </span>
             }

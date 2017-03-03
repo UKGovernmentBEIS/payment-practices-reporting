@@ -8,7 +8,9 @@
     <h3 class="heading-medium underline">Your reporting periods and deadlines</h3>
     @if(calculator.isFuture) {
     <p>
-        You told us that your financial year runs from <span class="nowrap">@df.print(calculator.financialYear.dates.startDate)</span> to <span class="nowrap">@df.print(calculator.financialYear.dates.endDate)</span>. You don't need to report for that year, as it started before the regulations came into force on 6 April 2017.
+        You told us that your financial year runs from <span id="financial-year-start" class="nowrap">@df.print(calculator.financialYear.dates.startDate)</span>
+            to <span id="financial-year-end" class="nowrap">@df.print(calculator.financialYear.dates.endDate)</span>.
+            <span id="no-need-to-report">You don't need to report for that year, as it started before the regulations came into force on 6 April 2017.</span>
     </p>
     <p>
         If your financial year end stays the same,
@@ -16,7 +18,8 @@
     </p>
     } else {
     <p>
-        You told us that your financial year runs from <span class="nowrap">@df.print(calculator.financialYear.dates.startDate)</span> to <span class="nowrap">@df.print(calculator.financialYear.dates.endDate)</span>.
+        You told us that your financial year runs from <span id="financial-year-start" class="nowrap">@df.print(calculator.financialYear.dates.startDate)</span>
+            to <span id="financial-year-end" class="nowrap">@df.print(calculator.financialYear.dates.endDate)</span>.
             @(calculator.reportingPeriods.length match{ case 1 => "This is your reporting period" case n => "These are your reporting periods"}):
     </p>
     }
