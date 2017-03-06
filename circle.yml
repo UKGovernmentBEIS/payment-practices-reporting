@@ -4,7 +4,9 @@ machine:
 
 dependencies:
   override:
-    - cat /dev/null
+    - cat /dev/null | sbt update
+  cache_directories:
+    - "~/.coursier"
 
 test:
   override:
