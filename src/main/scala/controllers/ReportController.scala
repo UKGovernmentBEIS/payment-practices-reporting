@@ -40,7 +40,8 @@ import utils.YesNo
 import scala.concurrent.{ExecutionContext, Future}
 
 class ReportController @Inject()(
-                                  companiesHouseAPI: CompaniesHouseAPI,
+                                  companySearch: CompanySearchService,
+                                  companyAuth: CompanyAuthService,
                                   notifyService: NotifyService,
                                   reports: ReportRepo,
                                   reportValidations: Validations,
@@ -69,7 +70,7 @@ class ReportController @Inject()(
 
 
     query match {
-      case Some(q) => companiesHouseAPI.searchCompanies(q, pageNumber.getOrElse(1), itemsPerPage.getOrElse(25)).flatMap { results =>
+      case Some(q) => companySearch.searchCompanies(q, pageNumber.getOrElse(1), itemsPerPage.getOrElse(25)).flatMap { results =>
         val countsF = results.items.map { report =>
           reports.byCompanyNumber(report.company_number).map(rs => (report.company_number, rs.length))
         }
@@ -84,7 +85,7 @@ class ReportController @Inject()(
   }
 
   def start(companiesHouseId: CompaniesHouseId) = Action.async { request =>
-    companiesHouseAPI.find(companiesHouseId).map {
+    companySearch.find(companiesHouseId).map {
       case Some(co) => Ok(page(publishTitle(co.company_name))(home, pages.start(co.company_name, co.company_number)))
       case None => NotFound(s"Could not find a company with id ${companiesHouseId.id}")
     }
@@ -104,7 +105,7 @@ class ReportController @Inject()(
   }
 
   def withCompany(companiesHouseId: CompaniesHouseId)(body: CompanyDetail => Html): Future[Result] = {
-    companiesHouseAPI.find(companiesHouseId).map {
+    companySearch.find(companiesHouseId).map {
       case Some(co) => Ok(body(co))
       case None => BadRequest(s"Unknown company id ${companiesHouseId.id}")
     }
@@ -179,7 +180,7 @@ class ReportController @Inject()(
   }
 
   private def verifyingOAuthScope(companiesHouseId: CompaniesHouseId, oAuthToken: OAuthToken)(body: => Future[Result]): Future[Result] = {
-    companiesHouseAPI.isInScope(companiesHouseId, oAuthToken).flatMap {
+    companyAuth.isInScope(companiesHouseId, oAuthToken).flatMap {
       case true => body
       case false => Future.successful(Redirect(controllers.routes.ReportController.invalidScope(companiesHouseId)))
     }

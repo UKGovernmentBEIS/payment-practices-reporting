@@ -31,7 +31,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class OAuth2Controller @Inject()(
                                   sessionService: SessionService,
-                                  companiesHouseAPI: CompaniesHouseAPI,
+                                  companySearchService: CompanySearchService,
+                                  companyAuthService: CompanyAuthService,
                                   oAuth2Service: OAuth2Service,
                                   appConfig: AppConfig,
                                   SessionAction: SessionAction)(implicit exec: ExecutionContext) extends Controller {
@@ -42,7 +43,7 @@ class OAuth2Controller @Inject()(
     val params = Map(
       "client_id" -> Seq(config.client.id),
       "redirect_uri" -> Seq(config.api.callbackURL),
-      "scope" -> Seq(companiesHouseAPI.targetScope(companiesHouseId)),
+      "scope" -> Seq(companyAuthService.targetScope(companiesHouseId)),
       "state" -> Seq(companiesHouseId.id),
       "response_type" -> Seq("code")
     )
@@ -63,8 +64,8 @@ class OAuth2Controller @Inject()(
         case Right(ref) => {
           for {
             companyId <- OptionT.fromOption(state.map(CompaniesHouseId))
-            companyDetail <- OptionT(companiesHouseAPI.find(companyId))
-            emailAddress <- OptionT(companiesHouseAPI.emailAddress(ref))
+            companyDetail <- OptionT(companySearchService.find(companyId))
+            emailAddress <- OptionT(companyAuthService.emailAddress(ref))
             _ <- OptionT.liftF(sessionService.put(request.sessionId, oAuthTokenKey, ref))
             _ <- OptionT.liftF(sessionService.put(request.sessionId, companyDetailsKey, companyDetail))
             _ <- OptionT.liftF(sessionService.put(request.sessionId, emailAddressKey, emailAddress))

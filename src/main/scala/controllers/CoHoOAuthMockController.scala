@@ -22,11 +22,11 @@ import javax.inject.Inject
 import config.AppConfig
 import models.CompaniesHouseId
 import play.api.mvc.{Action, Controller}
-import services.CompaniesHouseAPI
+import services.CompanySearchService
 
 import scala.concurrent.ExecutionContext
 
-class CoHoOAuthMockController @Inject()(companiesHouseAPI: CompaniesHouseAPI, val appConfig: AppConfig)(implicit ec: ExecutionContext) extends Controller with PageHelper {
+class CoHoOAuthMockController @Inject()(companySearch: CompanySearchService, val appConfig: AppConfig)(implicit ec: ExecutionContext) extends Controller with PageHelper {
 
   def login(companiesHouseId: CompaniesHouseId) = Action {
     Ok(views.html.oauthMock.p1(companiesHouseId))
@@ -36,7 +36,7 @@ class CoHoOAuthMockController @Inject()(companiesHouseAPI: CompaniesHouseAPI, va
 
   def authCode(companiesHouseId: CompaniesHouseId) = Action.async { implicit request =>
 
-    companiesHouseAPI.find(companiesHouseId).map {
+    companySearch.find(companiesHouseId).map {
       case Some(co) =>
         Ok(views.html.oauthMock.p2(companiesHouseId, co.company_name))
       case None => BadRequest(s"Unknown company id ${companiesHouseId.id}")
