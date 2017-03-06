@@ -176,15 +176,15 @@ function Validation(messages) {
 
     /**
      * Check that the three inputs sum to 100 +/- 2 (to allow for rounding errors because the numbers should be integers)
-     * @param x - three integers
+     * @param values - three integers
      * @returns an error message if the sum is less than 98 or more than 102
      */
-    function multiSumTo100(x) {
-        if (textPercentage(x[0]) || textPercentage(x[1]) || textPercentage(x[2])) {
+    function multiSumTo100(values) {
+        if (textPercentage(values[0]) || textPercentage(values[1]) || textPercentage(values[2])) {
             return false;
         } else {
-            var numberOne = asInteger(x[0]), numberTwo = asInteger(x[1]), numberThree = asInteger(x[2]);
-            return (numberOne + numberTwo + numberThree > 102 || numberOne + numberTwo + numberThree < 98) && messages.sumto100;
+            var sum = asInteger(values[0]) + asInteger(values[1]) + asInteger(values[2]);
+            return (sum > 102 || sum < 98) && messages.sumto100;
         }
     }
 
