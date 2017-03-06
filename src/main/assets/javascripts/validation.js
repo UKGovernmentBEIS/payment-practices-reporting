@@ -126,9 +126,12 @@ function Validation(messages) {
     }
 
     function asInteger(text) {
-        var trimmed = text.replace(/^\s+|\s+$/gm, "");
-        var match = /^(-?[0-9]+)(\.0+)?[^0-9]*$/.exec(trimmed);
-        return match ? parseInt(match[1]) : null;
+        var i = parseInt(text)
+        if (isNaN(i)) {
+            return null;
+        } else {
+            return i
+        }
     }
 
     function dateValid(year, month, day) {
