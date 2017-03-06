@@ -31,8 +31,10 @@ trait RestService {
 
   implicit def ec: ExecutionContext
 
+  private val authorizationHeader = "Authorization"
+
   def getOpt[A: Reads](url: String, auth: String): Future[Option[A]] = {
-    val request: WSRequest = ws.url(url).withHeaders(("Authorization", auth))
+    val request: WSRequest = ws.url(url).withHeaders((authorizationHeader, auth))
     loggingAndTiming("GET", request) {
       request.get.map { response =>
         response.status match {
@@ -56,7 +58,7 @@ trait RestService {
   }
 
   def get[A: Reads](url: String, auth: String): Future[A] = {
-    val request: WSRequest = ws.url(url).withHeaders(("Authorization", auth))
+    val request: WSRequest = ws.url(url).withHeaders((authorizationHeader, auth))
     loggingAndTiming("GET", request) {
       request.get.map { response =>
         response.status match {
