@@ -23,7 +23,7 @@
     @if(results.items.nonEmpty) {
         <ul class="searchresults">
         @for(result <- results.items) {
-            @views.html.shared._companySummary(result, counts.getOrElse(result.company_number, 0), companyLink(result.company_number))
+            @views.html.shared._companySummary(result, counts.getOrElse(result.companiesHouseId, 0), companyLink(result.companiesHouseId))
         }
         </ul>
         @shared._pageLinks(results, pageLink)

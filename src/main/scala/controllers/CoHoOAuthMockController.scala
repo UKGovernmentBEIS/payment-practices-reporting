@@ -38,7 +38,7 @@ class CoHoOAuthMockController @Inject()(companySearch: CompanySearchService, val
 
     companySearch.find(companiesHouseId).map {
       case Some(co) =>
-        Ok(views.html.oauthMock.p2(companiesHouseId, co.company_name))
+        Ok(views.html.oauthMock.p2(companiesHouseId, co.companyName))
       case None => BadRequest(s"Unknown company id ${companiesHouseId.id}")
     }
   }

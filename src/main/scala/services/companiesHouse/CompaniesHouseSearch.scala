@@ -46,7 +46,8 @@ class CompaniesHouseSearch @Inject()(val ws: WSClient, oAuth2Service: OAuth2Serv
     get[ResultsPage](url, basicAuth).map { resultsPage =>
       val t = System.currentTimeMillis() - start
       Logger.debug(s"Companies house search took ${t}ms")
-      PagedResults(resultsPage.items, resultsPage.items_per_page, resultsPage.page_number, resultsPage.total_results)
+      val results = resultsPage.items.map(i => CompanySearchResult(i.company_number, i.title, i.address_snippet))
+      PagedResults(results, resultsPage.items_per_page, resultsPage.page_number, resultsPage.total_results)
     }
   }
 
@@ -54,6 +55,6 @@ class CompaniesHouseSearch @Inject()(val ws: WSClient, oAuth2Service: OAuth2Serv
     val id = views.html.helper.urlEncode(companiesHouseId.id)
     val url = targetScope(companiesHouseId)
 
-    getOpt[CompanyDetail](url, basicAuth)
+    getOpt[CompaniesHouseFindResult](url, basicAuth).map(_.map(r => CompanyDetail(r.company_number, r.company_name)))
   }
 }

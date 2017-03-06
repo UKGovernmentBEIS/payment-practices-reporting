@@ -33,10 +33,10 @@ class MockCompanySearch @Inject()(implicit ec: ExecutionContext) extends Company
   )
 
   override def searchCompanies(search: String, page: Int, itemsPerPage: Int): Future[PagedResults[CompanySearchResult]] = Future {
-    PagedResults.page(companies.filter(_.title.toLowerCase.contains(search.toLowerCase)), 1)
+    PagedResults.page(companies.filter(_.companyName.toLowerCase.contains(search.toLowerCase)), 1)
   }
 
   override def find(companiesHouseId: CompaniesHouseId): Future[Option[CompanyDetail]] = Future {
-    companies.find(_.company_number === companiesHouseId).map(r => CompanyDetail(r.company_number, r.title))
+    companies.find(_.companiesHouseId === companiesHouseId).map(r => CompanyDetail(r.companiesHouseId, r.companyName))
   }
 }
