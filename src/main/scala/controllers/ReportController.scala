@@ -85,7 +85,7 @@ class ReportController @Inject()(
 
   def start(companiesHouseId: CompaniesHouseId) = Action.async { request =>
     companiesHouseAPI.find(companiesHouseId).map {
-      case Some(co) => Ok(page(s"Publish a report for ${co.company_name}")(home, pages.start(co.company_name, co.company_number)))
+      case Some(co) => Ok(page(publishTitle(co.company_name))(home, pages.start(co.company_name, co.company_number)))
       case None => NotFound(s"Could not find a company with id ${companiesHouseId.id}")
     }
   }
@@ -137,14 +137,16 @@ class ReportController @Inject()(
 
   def reportPageHeader(implicit request: CompanyAuthRequest[_]) = h1(s"Publish a report for:<br>${request.companyDetail.company_name}")
 
+  private def publishTitle(companyName: String) = s"Publish a report for $companyName"
+
   def file(companiesHouseId: CompaniesHouseId) = CompanyAuthAction(companiesHouseId) { implicit request =>
-    Ok(page(s"Publish a report for ${request.companyDetail.company_name}")(home, reportPageHeader, pages.file(emptyReport, companiesHouseId, df)))
+    Ok(page(publishTitle(request.companyDetail.company_name))(home, reportPageHeader, pages.file(emptyReport, companiesHouseId, df)))
   }
 
   def postForm(companiesHouseId: CompaniesHouseId) = CompanyAuthAction(companiesHouseId)(parse.urlFormEncoded) { implicit request =>
     //println(request.body.flatMap { case (k, v) => v.headOption.map(value => s""""$k" -> "$value"""") }.mkString(", "))
     emptyReport.bindFromRequest().fold(
-      errs => BadRequest(page(s"Publish a report for ${request.companyDetail.company_name}")(home, reportPageHeader, pages.file(errs, companiesHouseId, df))),
+      errs => BadRequest(page(publishTitle(request.companyDetail.company_name))(home, reportPageHeader, pages.file(errs, companiesHouseId, df))),
       report => Ok(page(reviewPageTitle)(home, pages.review(emptyReview, report, companiesHouseId, request.companyDetail.company_name, df, reportValidations.reportFormModel)))
     )
   }
@@ -156,9 +158,9 @@ class ReportController @Inject()(
     // (as we only send the user to the review page if they are) but if somehow they aren't then
     // send the user back to the report form to fix them.
     emptyReport.bindFromRequest().fold(
-      errs => Future.successful(BadRequest(page(s"Publish a report for ${request.companyDetail.company_name}")(home, reportPageHeader, pages.file(errs, companiesHouseId, df)))),
+      errs => Future.successful(BadRequest(page(publishTitle(request.companyDetail.company_name))(home, reportPageHeader, pages.file(errs, companiesHouseId, df)))),
       report =>
-        if (revise) Future.successful(Ok(page(s"Publish a report for ${request.companyDetail.company_name}")(home, reportPageHeader, pages.file(emptyReport.fill(report), companiesHouseId, df))))
+        if (revise) Future.successful(Ok(page(publishTitle(request.companyDetail.company_name))(home, reportPageHeader, pages.file(emptyReport.fill(report), companiesHouseId, df))))
         else checkConfirmation(companiesHouseId, report)
     )
   }

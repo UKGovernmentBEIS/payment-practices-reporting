@@ -35,17 +35,21 @@ trait ReportModule extends DBBinding {
 
   import api._
 
-  implicit def YesNoMapper: BaseColumnType[YesNo] = MappedColumnType.base[YesNo, Boolean](_.toBoolean, YesNo.fromBoolean)
+  implicit def yesNoMapper: BaseColumnType[YesNo] = MappedColumnType.base[YesNo, Boolean](_.toBoolean, YesNo.fromBoolean)
 
-  implicit def ReportIdMapper: BaseColumnType[ReportId] = MappedColumnType.base[ReportId, Long](_.id, ReportId)
+  implicit def reportIdMapper: BaseColumnType[ReportId] = MappedColumnType.base[ReportId, Long](_.id, ReportId)
 
-  implicit def CompaniesHouseIdMapper: BaseColumnType[CompaniesHouseId] = MappedColumnType.base[CompaniesHouseId, String](_.id, CompaniesHouseId)
+  implicit def companiesHouseIdMapper: BaseColumnType[CompaniesHouseId] = MappedColumnType.base[CompaniesHouseId, String](_.id, CompaniesHouseId)
 
 
   type FilingQuery = Query[FilingTable, FilingRow, Seq]
 
+  val reportIdColumnName = "report_id"
+
   class FilingTable(tag: Tag) extends Table[FilingRow](tag, "filing") {
-    def reportId = column[ReportId]("report_id", O.Length(IdType.length))
+    def reportId = {
+      column[ReportId](reportIdColumnName, O.Length(IdType.length))
+    }
 
     def reportIdFK = foreignKey("filing_report_fk", reportId, reportHeaderTable)(_.id, onDelete = ForeignKeyAction.Cascade)
 
@@ -65,7 +69,7 @@ trait ReportModule extends DBBinding {
   type OtherInfoQuery = Query[OtherInfoTable, OtherInfoRow, Seq]
 
   class OtherInfoTable(tag: Tag) extends Table[OtherInfoRow](tag, "other_info") {
-    def reportId = column[ReportId]("report_id", O.Length(IdType.length))
+    def reportId = column[ReportId](reportIdColumnName, O.Length(IdType.length))
 
     def reportIdFK = foreignKey("otherinfo_report_fk", reportId, reportHeaderTable)(_.id, onDelete = ForeignKeyAction.Cascade)
 
@@ -89,7 +93,7 @@ trait ReportModule extends DBBinding {
   type PaymentHistoryQuery = Query[PaymentHistoryTable, PaymentHistoryRow, Seq]
 
   class PaymentHistoryTable(tag: Tag) extends Table[PaymentHistoryRow](tag, "payment_history") {
-    def reportId = column[ReportId]("report_id", O.Length(IdType.length))
+    def reportId = column[ReportId](reportIdColumnName, O.Length(IdType.length))
 
     def reportIdFK = foreignKey("paymenthistory_report_fk", reportId, reportHeaderTable)(_.id, onDelete = ForeignKeyAction.Cascade)
 
@@ -113,7 +117,7 @@ trait ReportModule extends DBBinding {
   type PaymentTermsQuery = Query[PaymentTermsTable, PaymentTermsRow, Seq]
 
   class PaymentTermsTable(tag: Tag) extends Table[PaymentTermsRow](tag, "payment_terms") {
-    def reportId = column[ReportId]("report_id", O.Length(IdType.length))
+    def reportId = column[ReportId](reportIdColumnName, O.Length(IdType.length))
 
     def reportIdFK = foreignKey("paymentterms_report_fk", reportId, reportHeaderTable)(_.id, onDelete = ForeignKeyAction.Cascade)
 
@@ -143,7 +147,7 @@ trait ReportModule extends DBBinding {
   type ReportPeriodQuery = Query[ReportPeriodTable, ReportPeriodRow, Seq]
 
   class ReportPeriodTable(tag: Tag) extends Table[ReportPeriodRow](tag, "report_period") {
-    def reportId = column[ReportId]("report_id", O.Length(IdType.length))
+    def reportId = column[ReportId](reportIdColumnName, O.Length(IdType.length))
 
     def reportIdFK = foreignKey("reportperiod_report_fk", reportId, reportHeaderTable)(_.id, onDelete = ForeignKeyAction.Cascade)
 

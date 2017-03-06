@@ -92,7 +92,7 @@ class CompaniesHouseAPIImpl @Inject()(val ws: WSClient, oAuth2Service: OAuth2Ser
 
   override def find(companiesHouseId: CompaniesHouseId): Future[Option[CompanyDetail]] = {
     val id = views.html.helper.urlEncode(companiesHouseId.id)
-    val url = s"https://api.companieshouse.gov.uk/company/$id"
+    val url = targetScope(companiesHouseId)
 
     getOpt[CompanyDetail](url, basicAuth)
   }

@@ -38,11 +38,13 @@ class SearchController @Inject()(companiesHouseAPI: CompaniesHouseAPI, reports: 
 
   def start() = Action(Ok(page("Search payment practice reports")(views.html.search.start())))
 
+  private val searchForReports = "Search for reports"
+
   def search(query: Option[String], pageNumber: Option[Int], itemsPerPage: Option[Int]) = Action.async {
     val searchLink = routes.SearchController.search(None, None, None).url
     val pageLink = { i: Int => routes.SearchController.search(query, Some(i), itemsPerPage).url }
     val companyLink = { id: CompaniesHouseId => routes.SearchController.company(id, pageNumber).url }
-    val header = h1("Search for reports")
+    val header = h1(searchForReports)
     val title = "Search for a company"
 
     query match {
@@ -67,7 +69,7 @@ class SearchController @Inject()(companiesHouseAPI: CompaniesHouseAPI, reports: 
       co <- OptionT(companiesHouseAPI.find(companiesHouseId))
       rs <- OptionT.liftF(reports.byCompanyNumber(companiesHouseId).map(rs => PagedResults.page(rs.flatMap(_.filed), pageNumber.getOrElse(1))))
     } yield {
-      val searchCrumb = Breadcrumb(routes.SearchController.search(None, None, None), "Search for reports")
+      val searchCrumb = Breadcrumb(routes.SearchController.search(None, None, None), searchForReports)
       val crumbs = breadcrumbs(homeBreadcrumb, searchCrumb)
       Ok(page(s"Payment practice reports for ${co.company_name}")(crumbs, views.html.search.company(co, rs, pageLink, df)))
     }
@@ -82,7 +84,7 @@ class SearchController @Inject()(companiesHouseAPI: CompaniesHouseAPI, reports: 
     val f = for {
       report <- OptionT(reports.findFiled(reportId))
     } yield {
-      val searchCrumb = Breadcrumb(routes.SearchController.search(None, None, None), "Search for reports")
+      val searchCrumb = Breadcrumb(routes.SearchController.search(None, None, None), searchForReports)
       val companyCrumb = Breadcrumb(routes.SearchController.company(report.header.companyId, None), s"${report.header.companyName} reports")
       val crumbs = breadcrumbs(homeBreadcrumb, searchCrumb, companyCrumb)
       Ok(page(s"Payment practice report for ${report.header.companyName}")(crumbs, views.html.search.report(report, df)))
