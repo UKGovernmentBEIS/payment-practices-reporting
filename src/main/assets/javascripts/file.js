@@ -1,4 +1,3 @@
-
 /* Validation */
 function Validation() {
     function findErrorMessage(parent) {
@@ -227,10 +226,10 @@ function Validation() {
         return dateValid(y, m, d) || dateFuture(y, m, d);
     };
 
-    this.validations.textPositiveInteger: textPositiveInteger;
-    this.validations.textPercentage: textPercentage;
-    this.validations.multiSumTo100: multiSumTo100;
-    this.validations.multiStartBeforeEnd: multiStartBeforeEnd;
+    this.validations.textPositiveInteger = textPositiveInteger;
+    this.validations.textPercentage = textPercentage;
+    this.validations.multiSumTo100 = multiSumTo100;
+    this.validations.multiStartBeforeEnd = multiStartBeforeEnd;
 }
 
 function validationPlumbing() {
