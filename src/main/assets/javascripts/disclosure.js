@@ -1,13 +1,17 @@
 /* Gradual disclosure */
 
 function gradualDisclosure() {
-    var panel1 = document.getElementById("show-if-payment-codes");
-    var panel2 = document.getElementById("show-if-payment-changes");
-    var panel3 = document.getElementById("show-if-payment-changes-notified");
+    var data =[
+        ["show-if-payment-codes", "paymentCodes.yesNo"],
+        ["show-if-payment-changes", "paymentTerms.paymentTermsChanged.changed.yesNo"],
+        ["show-if-payment-changes-notified", "paymentTerms.paymentTermsChanged.notified.yesNo"]
+    ];
 
-    function showDependingOnValue(elem, name) {
-        var radios = document.getElementsByName(name);
-        var val = null;
+    function showDependingOnValue(panelId, checkboxName) {
+        var panel = document.getElementById(panelId);
+        var radios = document.getElementsByName(checkboxName);
+        var val = "no";
+
         for (var i = 0; i < radios.length; i++) {
             if (radios[i].checked) {
                 val = radios[i].value;
@@ -15,26 +19,23 @@ function gradualDisclosure() {
         }
 
         if (val === "yes") {
-            elem.style.display = "";
+            panel.style.display = "";
         } else {
-            elem.style.display = "none";
+            panel.style.display = "none";
         }
     }
 
-    function subscribeToChange(elem, name) {
-        var radios = document.getElementsByName(name);
+    function subscribeToChange(panelId, checkboxName) {
+        var radios = document.getElementsByName(checkboxName);
         for (var i = 0; i < radios.length; i++) {
             radios[i].onclick = function () {
-                showDependingOnValue(elem, name);
+                showDependingOnValue(panelId, checkboxName);
             }
         }
     }
 
-    showDependingOnValue(panel1, "paymentCodes.yesNo");
-    showDependingOnValue(panel2, "paymentTerms.paymentTermsChanged.changed.yesNo");
-    showDependingOnValue(panel3, "paymentTerms.paymentTermsChanged.notified.yesNo");
-
-    subscribeToChange(panel1, "paymentCodes.yesNo");
-    subscribeToChange(panel2, "paymentTerms.paymentTermsChanged.changed.yesNo");
-    subscribeToChange(panel3, "paymentTerms.paymentTermsChanged.notified.yesNo");
+    for (var j = 0; j < data.length; j++) {
+        showDependingOnValue(data[j][0], data[j][1]);
+        subscribeToChange(data[j][0], data[j][1]);
+    }
 }
