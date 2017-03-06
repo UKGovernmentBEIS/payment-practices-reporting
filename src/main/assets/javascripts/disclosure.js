@@ -13,7 +13,9 @@ function gradualDisclosure() {
         var yesNo = "no";
 
         for (var i = 0; i < radios.length; i++) {
-            if (radios[i].checked) yesNo = radios[i].value;
+            if (radios[i].checked) {
+                yesNo = radios[i].value;
+            }
         }
 
         panel.style.display = yesNo === "yes" ? "" : "none";
@@ -24,7 +26,7 @@ function gradualDisclosure() {
         for (var i = 0; i < radios.length; i++) {
             radios[i].onclick = function () {
                 showPanelIfYes(panelId, checkboxName);
-            }
+            };
         }
     }
 
