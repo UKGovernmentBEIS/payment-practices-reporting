@@ -7,7 +7,6 @@ import com.wellfactored.playbindings.ValueClassReads
 import config.AppConfig
 import models.CompaniesHouseId
 import play.api.Logger
-import play.api.libs.json.{Json, Reads}
 import play.api.libs.ws.WSClient
 import services._
 
@@ -22,14 +21,9 @@ class CompaniesHouseSearch @Inject()(val ws: WSClient, oAuth2Service: OAuth2Serv
 
   private val basicAuth = "Basic " + new String(Base64.getEncoder.encode(config.companiesHouse.apiKey.getBytes))
 
-  implicit val companySummaryReads: Reads[CompanySummary] = Json.reads[CompanySummary]
-  implicit val companyDetailReads: Reads[CompanyDetail] = Json.reads[CompanyDetail]
-  implicit val resultsPageReads: Reads[ResultsPage] = Json.reads[ResultsPage]
-
   def targetScope(companiesHouseId: CompaniesHouseId): String = s"https://api.companieshouse.gov.uk/company/${companiesHouseId.id}"
 
-  override def searchCompanies(search: String, page: Int, itemsPerPage: Int): Future[PagedResults[CompanySummary]] = {
-
+  override def searchCompanies(search: String, page: Int, itemsPerPage: Int): Future[PagedResults[CompanySearchResult]] = {
     val s = views.html.helper.urlEncode(search)
     val startIndex = (page - 1) * itemsPerPage
     val url = s"https://api.companieshouse.gov.uk/search/companies?q=$s&items_per_page=$itemsPerPage&start_index=$startIndex"

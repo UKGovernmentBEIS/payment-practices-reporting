@@ -1,7 +1,7 @@
-@import services.{CompanySummary, PagedResults}
+@import services.{CompanySearchResult, PagedResults}
 @(
         searchTerm: String,
-        resultsO: Option[PagedResults[CompanySummary]],
+        resultsO: Option[PagedResults[CompanySearchResult]],
         counts: Map[CompaniesHouseId, Int],
         searchLink: String,
         companyLink: models.CompaniesHouseId => String,
