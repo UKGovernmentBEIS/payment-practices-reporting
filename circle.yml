@@ -8,8 +8,7 @@ dependencies:
 
 test:
   override:
-    - sbt coverage test:test
+    - sbt clean coverage test coverageReport codacyCoverage
   post:
-    - sbt coverageReport codacyCoverage
     - mkdir -p $CIRCLE_TEST_REPORTS/junit/
     - find . -type f -regex ".*/target/test-reports/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;
