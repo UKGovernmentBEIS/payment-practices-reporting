@@ -38,7 +38,7 @@ class Validations @Inject()(timeSource: TimeSource) {
 
   val companiesHouseId: Mapping[CompaniesHouseId] = nonEmptyText.transform(s => CompaniesHouseId(s), (c: CompaniesHouseId) => c.id)
 
-  val percentage = number(min = 0, max = 100)
+  val percentage = number.verifying("error.percentage", n => n>=0 && n <=100)
 
   val percentageSplit: Mapping[PercentageSplit] = mapping(
     "percentWithin30Days" -> percentage,
