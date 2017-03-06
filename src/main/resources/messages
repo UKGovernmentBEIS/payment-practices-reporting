@@ -127,6 +127,7 @@ error.sumto100=Figures A, B and C do not add up to 100
 error.number=Please enter a whole number
 error.min=Please enter {0} or greater
 error.max=Please enter {0} or less
+error.percentage=This should be a number between 0 and 100
 error.mustanswer=Please answer this question
 error.endafterstart=The end date must be later than the start date
 error.dates.invalid=These dates are not valid

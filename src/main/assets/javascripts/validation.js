@@ -92,16 +92,12 @@ function Validation() {
     }
 
     function validateDateInput(namePrefix, validate) {
-        var years = document.getElementsByName(namePrefix + "year");
-        var months = document.getElementsByName(namePrefix + "month");
-        var days = document.getElementsByName(namePrefix + "day");
-        if (!years || !years[0] || !months || !months[0] || !days || !days[0]) {
+        var year = document.getElementById(namePrefix + ".year");
+        var month = document.getElementById(namePrefix + ".month");
+        var day = document.getElementById(namePrefix + ".day");
+        if (!year || !month || !day) {
             return;
         }
-
-        var year = years[0];
-        var month = months[0];
-        var day = days[0];
 
         var message = findErrorMessage(year.parentElement.parentElement);
 
@@ -142,13 +138,13 @@ function Validation() {
     }
 
     var messages = {
-        integer: "Please round up or down to the nearest whole number",
-        nonnegative: "This should be a non-negative number",
+        integer: "Please enter a whole number",
+        nonnegative: "Please enter 0 or greater",
         percentagebounds: "This should be a number between 0 and 100",
         sumto100: "Figures A, B and C do not add up to 100",
-        date: "This date is invalid",
+        date: "This date is not valid",
         future: "Reporting period cannot cover the future",
-        startbeforeend: "The end date cannot be before the start date"
+        startbeforeend: "The end date must be later than the start date"
     };
 
     function asInteger(text) {
@@ -171,7 +167,8 @@ function Validation() {
     }
 
     function dateFuture(year, month, day) {
-        return new Date().getTime() < new Date(asInteger(year), asInteger(month), asInteger(day), 0, 0, 0, 0).getTime() && messages.future;
+        var date = new Date(asInteger(year), asInteger(month) - 1, asInteger(day), 0, 0, 0, 0);
+        return now.getTime() < date.getTime() && messages.future
     }
 
     function textNonNegative(text) {
@@ -235,20 +232,25 @@ function Validation() {
 function validationPlumbing() {
     var v = new Validation();
 
-    v.validateDateInput("StartDate_", v.validations.dateValid);
-    v.validateDateInput("EndDate_", v.validations.dateValid);
+    v.validateDateInput("reportDates.startDate", v.validations.dateValid);
+    v.validateDateInput("reportDates.endDate", v.validations.dateValid);
 
-    v.validateMultiple(["StartDate_year", "StartDate_month", "StartDate_day", "EndDate_year", "EndDate_month", "EndDate_day"],
-        document.getElementsByName("EndDate_year")[0].parentElement.parentElement,
-        v.validations.multiStartBeforeEnd);
+    // v.validateMultiple(["reportDates.startDate.year", "reportDates.startDate.month", "reportDates.startDate.day",
+    //         "reportDates.endDate.year", "reportDates.endDate.month", "reportDates.endDate.year"],
+    //     document.getElementsByName("reportDates.endDate.year")[0].parentElement.parentElement,
+    //     v.validations.multiStartBeforeEnd);
 
-    v.validateTextInput("AverageTimeToPay", v.validations.textPositiveInteger);
-    v.validateTextInput("PercentInvoicesPaidBeyondAgreedTerms", v.validations.textPercentage);
-    v.validateTextInput("PercentInvoicesWithin30Days", v.validations.textPercentage);
-    v.validateTextInput("PercentInvoicesWithin60Days", v.validations.textPercentage);
-    v.validateTextInput("PercentInvoicesBeyond60Days", v.validations.textPercentage);
+    v.validateTextInput("paymentHistory.averageDaysToPay", v.validations.textPositiveInteger);
+    v.validateTextInput("paymentHistory.percentPaidBeyondAgreedTerms", v.validations.textPercentage);
+    v.validateTextInput("paymentHistory.percentageSplit.percentWithin30Days", v.validations.textPercentage);
+    v.validateTextInput("paymentHistory.percentageSplit.percentWithin60Days", v.validations.textPercentage);
+    v.validateTextInput("paymentHistory.percentageSplit.percentBeyond60Days", v.validations.textPercentage);
 
-    v.validateMultiple(["PercentInvoicesWithin30Days", "PercentInvoicesWithin60Days", "PercentInvoicesBeyond60Days"],
-        document.getElementsByName("PercentInvoicesWithin30Days")[0].parentElement.parentElement,
+    v.validateMultiple([
+            "paymentHistory.percentageSplit.percentWithin30Days",
+            "paymentHistory.percentageSplit.percentWithin60Days",
+            "paymentHistory.percentageSplit.percentBeyond60Days"
+        ],
+        document.getElementsByName("paymentHistory.percentageSplit.percentWithin30Days")[0].parentElement.parentElement,
         v.validations.multiSumTo100);
 }
