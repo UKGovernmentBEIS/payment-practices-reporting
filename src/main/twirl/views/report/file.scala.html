@@ -3,31 +3,31 @@
 
 <div class="scannable-wrapper">
 
-<div class="notice">
-    <i class="icon icon-important">
-        <span class="visually-hidden">Warning</span>
-    </i>
-    <strong><a href="@routes.QuestionnaireController.start()">You should prepare</a> before filling in this form.</strong>
-</div>
+    <div class="notice">
+        <i class="icon icon-important">
+            <span class="visually-hidden">Warning</span>
+        </i>
+        <strong><a href="@routes.QuestionnaireController.start()">You should prepare</a> before filling in this form.</strong>
+    </div>
 
-@shared._coverageInformation()
+    @shared._coverageInformation()
 
-@if(form.hasErrors) {
-    <div class="error-summary" role="group" aria-labelledby="error-summary-heading" tabindex="-1">
-        <h1 class="heading-medium error-summary-heading" id="error-summary-heading">
-            The form contains invalid entries
-        </h1>
+    @if(form.hasErrors) {
+        <div class="error-summary" role="group" aria-labelledby="error-summary-heading" tabindex="-1">
+            <h1 class="heading-medium error-summary-heading" id="error-summary-heading">
+                The form contains invalid entries
+            </h1>
 
-        <p>
-            Please correct the errors shown below.
-        </p>
-        <p>
-            @form.errors.map{ err=>
+            <p>
+                Please correct the errors shown below.
+            </p>
+            <p>
+            @form.errors.map { err =>
                 <br>@err
             }
-        </p>
-    </div>
-}
+            </p>
+        </div>
+    }
 
     <form action="@routes.ReportController.postForm(companyId)" method="POST" id="file-report">
         <p class="small-aside">
@@ -43,9 +43,8 @@
         <input type="submit" class="button" value="Continue">
     </form>
 
-    <script type="text/javascript" src='@routes.Assets.at("javascripts/file.js")'></script>
-<script type="text/javascript">
-        gradualDisclosure();
-        validationPlumbing();
-</script>
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/disclosure.js")'></script>
+    <script type="text/javascript">
+            $(document).ready(function() { gradualDisclosure() });
+    </script>
 </div>
