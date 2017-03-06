@@ -1,5 +1,5 @@
 /* Validation */
-function Validation() {
+function Validation(messages) {
     function findErrorMessage(parent) {
         if (!parent) return null;
         if (parent.className && parent.className.indexOf("error-message") !== -1) {
@@ -126,27 +126,6 @@ function Validation() {
         subscribe(day, "onkeydown", callbackClear)
     }
 
-    function isSetTrue(name) {
-        var e = document.getElementsByName(name);
-        if (!e) return false;
-        for (var i = 0; i < e.length; i++) {
-            if (e[i].checked && e[i].value === "1") {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    var messages = {
-        integer: "Please enter a whole number",
-        nonnegative: "Please enter 0 or greater",
-        percentagebounds: "This should be a number between 0 and 100",
-        sumto100: "Figures A, B and C do not add up to 100",
-        date: "This date is not valid",
-        future: "Reporting period cannot cover the future",
-        startbeforeend: "The end date must be later than the start date"
-    };
-
     function asInteger(text) {
         var trimmed = text.replace(/^\s+|\s+$/gm, "");
         var match = /^(-?[0-9]+)(\.0+)?[^0-9]*$/.exec(trimmed);
@@ -168,7 +147,7 @@ function Validation() {
 
     function dateFuture(year, month, day) {
         var date = new Date(asInteger(year), asInteger(month) - 1, asInteger(day), 0, 0, 0, 0);
-        return now.getTime() < date.getTime() && messages.future
+        return new Date().getTime() < date.getTime() && messages.future
     }
 
     function textNonNegative(text) {
@@ -193,13 +172,13 @@ function Validation() {
 
     function multiStartBeforeEnd(inputs) {
         var startYear = inputs[0], startMonth = inputs[1], startDay = inputs[2],
-            year = inputs[3], month = inputs[4], day = inputs[5];
+            endYear = inputs[3], endMonth = inputs[4], endDay = inputs[5];
 
-        if (dateValid(startYear, startMonth, startDay) || dateFuture(startYear, startMonth, startDay) || dateValid(year, month, day) || dateFuture(year, month, day)) {
+        if (dateValid(startYear, startMonth, startDay) || dateFuture(startYear, startMonth, startDay) || dateValid(endYear, endMonth, endDay) || dateFuture(endYear, endMonth, endDay)) {
             return false;
         } else {
             var start = new Date(asInteger(startYear), asInteger(startMonth) - 1, asInteger(startDay), 0, 0, 0, 0);
-            var end = new Date(asInteger(year), asInteger(month) - 1, asInteger(day), 0, 0, 0, 0);
+            var end = new Date(asInteger(endYear), asInteger(endMonth) - 1, asInteger(endDay), 0, 0, 0, 0);
             return start.getTime() > end.getTime() && messages.startbeforeend;
         }
     }
@@ -229,16 +208,17 @@ function Validation() {
     this.validations.multiStartBeforeEnd = multiStartBeforeEnd;
 }
 
-function validationPlumbing() {
-    var v = new Validation();
+function validationPlumbing(messages) {
+    console.log(messages);
+    var v = new Validation(messages);
 
     v.validateDateInput("reportDates.startDate", v.validations.dateValid);
     v.validateDateInput("reportDates.endDate", v.validations.dateValid);
 
-    // v.validateMultiple(["reportDates.startDate.year", "reportDates.startDate.month", "reportDates.startDate.day",
-    //         "reportDates.endDate.year", "reportDates.endDate.month", "reportDates.endDate.year"],
-    //     document.getElementsByName("reportDates.endDate.year")[0].parentElement.parentElement,
-    //     v.validations.multiStartBeforeEnd);
+    v.validateMultiple(["reportDates.startDate.year", "reportDates.startDate.month", "reportDates.startDate.day",
+            "reportDates.endDate.year", "reportDates.endDate.month", "reportDates.endDate.day"],
+        document.getElementById("reportDates.endDate.year").parentElement.parentElement,
+        v.validations.multiStartBeforeEnd);
 
     v.validateTextInput("paymentHistory.averageDaysToPay", v.validations.textPositiveInteger);
     v.validateTextInput("paymentHistory.percentPaidBeyondAgreedTerms", v.validations.textPercentage);
