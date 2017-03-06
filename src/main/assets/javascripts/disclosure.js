@@ -7,7 +7,7 @@ function gradualDisclosure() {
         ["show-if-payment-changes-notified", "paymentTerms.paymentTermsChanged.notified.yesNo"]
     ];
 
-    function showDependingOnValue(panelId, checkboxName) {
+    function showPanelIfYes(panelId, checkboxName) {
         var panel = document.getElementById(panelId);
         var radios = document.getElementsByName(checkboxName);
         var val = "no";
@@ -29,13 +29,13 @@ function gradualDisclosure() {
         var radios = document.getElementsByName(checkboxName);
         for (var i = 0; i < radios.length; i++) {
             radios[i].onclick = function () {
-                showDependingOnValue(panelId, checkboxName);
+                showPanelIfYes(panelId, checkboxName);
             }
         }
     }
 
     for (var j = 0; j < data.length; j++) {
-        showDependingOnValue(data[j][0], data[j][1]);
+        showPanelIfYes(data[j][0], data[j][1]);
         subscribeToChange(data[j][0], data[j][1]);
     }
 }
