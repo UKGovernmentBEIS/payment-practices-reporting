@@ -9,7 +9,9 @@ function Validation(messages) {
      * error message container was found
      */
     function findErrorMessageContainer(node) {
-        if (!node) return null;
+        if (!node) {
+            return null;
+        }
         return $(node).find(".error-message")[0];
     }
 
