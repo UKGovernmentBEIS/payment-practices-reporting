@@ -147,7 +147,7 @@ function Validation(messages) {
 
     function dateFuture(year, month, day) {
         var date = new Date(asInteger(year), asInteger(month) - 1, asInteger(day), 0, 0, 0, 0);
-        return new Date().getTime() < date.getTime() && messages.future
+        return new Date().getTime() < date.getTime() && messages.future;
     }
 
     function textNonNegative(text) {
@@ -209,7 +209,6 @@ function Validation(messages) {
 }
 
 function validationPlumbing(messages) {
-    console.log(messages);
     var v = new Validation(messages);
 
     v.validateDateInput("reportDates.startDate", v.validations.dateValid);
