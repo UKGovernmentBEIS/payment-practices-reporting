@@ -17,12 +17,22 @@
 
 import actors.ConfirmationActor
 import com.google.inject.AbstractModule
+import config.AppConfig
 import play.api.libs.concurrent.AkkaGuiceSupport
-import services.SessionCleaner
+import play.api.{Configuration, Environment}
+import services.companiesHouse.CompaniesHouseSearch
+import services.mocks.MockCompanySearch
+import services.{CompanySearchService, SessionCleaner}
 import slicks.modules.DB
 
-class Module extends AbstractModule with AkkaGuiceSupport {
+class Module(environment: Environment, configuration: Configuration) extends AbstractModule with AkkaGuiceSupport {
   override def configure(): Unit = {
+
+    val mockConfig = new AppConfig(configuration).config.mockConfig
+
+    val searchImpl = if (mockConfig.mockCompanySearch) classOf[MockCompanySearch] else classOf[CompaniesHouseSearch]
+    bind(classOf[CompanySearchService]).to(searchImpl)
+
     bind(classOf[DB]).asEagerSingleton()
     bindActor[ConfirmationActor]("confirmation-actor")
 
