@@ -1,45 +1,3 @@
-/* Gradual disclosure */
-
-function gradualDisclosure() {
-    var panel1 = document.getElementById("show-if-payment-codes");
-    var panel2 = document.getElementById("show-if-payment-changes");
-    var panel3 = document.getElementById("show-if-payment-changes-notified");
-
-    function showDependingOnValue(elem, name) {
-        var radios = document.getElementsByName(name);
-        var val = null;
-        for (var i = 0; i < radios.length; i++) {
-            if (radios[i].checked) {
-                val = radios[i].value;
-            }
-        }
-
-        if (val === "1") {
-            elem.style.display = "";
-        } else {
-            elem.style.display = "none";
-        }
-    }
-
-    function subscribeToChange(elem, name) {
-        var radios = document.getElementsByName(name);
-        for (var i = 0; i < radios.length; i++) {
-            radios[i].onclick = function () {
-                showDependingOnValue(elem, name);
-            };
-        }
-    }
-
-    showDependingOnValue(panel1, "HasPaymentCodes");
-    showDependingOnValue(panel2, "PaymentTermsChanged");
-    showDependingOnValue(panel3, "PaymentTermsChangedNotified");
-
-    subscribeToChange(panel1, "HasPaymentCodes");
-    subscribeToChange(panel2, "PaymentTermsChanged");
-    subscribeToChange(panel3, "PaymentTermsChangedNotified");
-}
-
-
 /* Validation */
 function Validation() {
     function findErrorMessage(parent) {
@@ -268,10 +226,10 @@ function Validation() {
         return dateValid(y, m, d) || dateFuture(y, m, d);
     };
 
-    this.validations.textPositiveInteger: textPositiveInteger;
-    this.validations.textPercentage: textPercentage;
-    this.validations.multiSumTo100: multiSumTo100;
-    this.validations.multiStartBeforeEnd: multiStartBeforeEnd;
+    this.validations.textPositiveInteger = textPositiveInteger;
+    this.validations.textPercentage = textPercentage;
+    this.validations.multiSumTo100 = multiSumTo100;
+    this.validations.multiStartBeforeEnd = multiStartBeforeEnd;
 }
 
 function validationPlumbing() {

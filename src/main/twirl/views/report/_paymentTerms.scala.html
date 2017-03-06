@@ -1,6 +1,6 @@
 @(form: Form[forms.report.ReportFormModel])(implicit messages: MessagesApi)
 
-@import shared.{_textBox, _yesNoField, _numberField, _textField}
+    @import shared.{_numberField, _textBox, _yesNoField}
 
 <h2 class="heading-large">Payment terms</h2>
 @_textBox(form, "paymentTerms.terms")
@@ -14,7 +14,9 @@
 <div class="panel" id="show-if-payment-changes">
     @_textBox(form, "paymentTerms.paymentTermsChanged.changed.text")
     @_yesNoField(form, "paymentTerms.paymentTermsChanged.notified.yesNo")
+    <div class="panel" id="show-if-payment-changes-notified">
     @_textBox(form, "paymentTerms.paymentTermsChanged.notified.text")
+    </div>
 </div>
 
 @_textBox(form, "paymentTerms.paymentTermsComment")
