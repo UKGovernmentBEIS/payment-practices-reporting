@@ -28,14 +28,14 @@ function Validation(messages) {
         }
 
         var formGroup = e.parentElement;
-        var message = findErrorMessageContainer(formGroup);
+        var messageContainer = findErrorMessageContainer(formGroup);
 
-        if (!message) {
+        if (!messageContainer) {
             return;
         }
 
         var callbackClear = function () {
-            message.innerHTML = "&nbsp;";
+            messageContainer.innerHTML = "&nbsp;";
             formGroup.className = "form-group";
         };
 
@@ -45,7 +45,7 @@ function Validation(messages) {
             }
             var invalidation = validate(e.value);
             if (invalidation) {
-                message.innerHTML = invalidation;
+                messageContainer.innerHTML = invalidation;
                 formGroup.className = "form-group error";
             }
         });
@@ -129,12 +129,6 @@ function Validation(messages) {
         return match ? parseInt(match[1]) : null;
     }
 
-    function asNumber(text) {
-        var trimmed = text.replace(/^\s+|\s+$/gm, "");
-        var match = /^(-?[0-9]+(\.[0-9]+)?)[^0-9]*$/.exec(trimmed);
-        return match ? parseInt(match[1]) : null;
-    }
-
     function dateValid(year, month, day) {
         var date = new Date(asInteger(year), asInteger(month) - 1, asInteger(day), 0, 0, 0, 0);
         return (!date.getFullYear() || date.getFullYear() !== asInteger(year)
@@ -156,11 +150,11 @@ function Validation(messages) {
     }
 
     function textPercentageBounds(text) {
-        return (asNumber(text) < 0 || asNumber(text) > 100) && messages.percentagebounds;
+        return (asInteger(text) < 0 || asInteger(text) > 100) && messages.percentagebounds;
     }
 
     function textPositiveInteger(x) {
-        return textNonNegative(x) || textInteger(x);
+        return textInteger(x) || textNonNegative(x);
     }
 
     function textPercentage(x) {
@@ -180,6 +174,11 @@ function Validation(messages) {
         }
     }
 
+    /**
+     * Check that the three inputs sum to 100 +/- 2 (to allow for rounding errors because the numbers should be integers)
+     * @param x - three integers
+     * @returns an error message if the sum is less than 98 or more than 102
+     */
     function multiSumTo100(x) {
         if (textPercentage(x[0]) || textPercentage(x[1]) || textPercentage(x[2])) {
             return false;
