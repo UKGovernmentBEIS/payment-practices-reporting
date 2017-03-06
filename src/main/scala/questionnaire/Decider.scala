@@ -46,6 +46,10 @@ case class Exempt(reason: Option[String]) extends Decision
 
 case object Required extends Decision
 
+/**
+  * This class implements the decision tree to decide whether a business needs to report or not. This is based
+  * on the legislation, which can be found here http://www.legislation.gov.uk/ukdsi/2017/9780111153598/regulation/5
+  */
 class Decider @Inject()(questions: Questions) {
 
   import FinancialYear._
