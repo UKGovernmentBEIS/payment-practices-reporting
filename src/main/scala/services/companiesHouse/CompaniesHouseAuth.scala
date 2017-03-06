@@ -31,6 +31,8 @@ import scala.concurrent.{ExecutionContext, Future}
 class CompaniesHouseAuth @Inject()(val ws: WSClient, oAuth2Service: OAuth2Service, appConfig: AppConfig)(implicit val ec: ExecutionContext)
   extends RestService with CompanyAuthService {
 
+  import appConfig.config
+
   private def bearerAuth(oAuthToken: OAuthToken) = s"Bearer ${oAuthToken.accessToken}"
 
   def targetScope(companiesHouseId: CompaniesHouseId): String = s"https://api.companieshouse.gov.uk/company/${companiesHouseId.id}"
@@ -47,8 +49,18 @@ class CompaniesHouseAuth @Inject()(val ws: WSClient, oAuth2Service: OAuth2Servic
 
   implicit val emailReads = Json.reads[Email]
 
-  override def emailAddress(token: OAuthToken): Future[Option[String]] = {
+  override def emailAddress(companiesHouseId: CompaniesHouseId, token: OAuthToken): Future[Option[String]] = {
     val url = "https://account.companieshouse.gov.uk/user/profile"
     getOpt[Email](url, bearerAuth(token)).map(_.map(_.email))
   }
+
+  override def authoriseUrl(companiesHouseId: CompaniesHouseId) = config.api.authorizeSchemeUri
+
+  override def authoriseParams(companiesHouseId: CompaniesHouseId) = Map(
+    "client_id" -> Seq(config.client.id),
+    "redirect_uri" -> Seq(config.api.callbackURL),
+    "scope" -> Seq(targetScope(companiesHouseId)),
+    "state" -> Seq(companiesHouseId.id),
+    "response_type" -> Seq("code")
+  )
 }

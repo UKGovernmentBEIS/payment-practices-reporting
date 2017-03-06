@@ -39,7 +39,7 @@ case class ClientConfig(id: String, secret: String)
 
 case class GoogleAnalytics(code: Option[String])
 
-case class MockConfig(mockCompanySearch: Boolean)
+case class MockConfig(mockCompanySearch: Option[Boolean], mockCompanyAuth: Option[Boolean])
 
 case class Config(
                    companiesHouse: CompaniesHouseConfig,
@@ -50,7 +50,7 @@ case class Config(
                    api: ApiConfig,
                    client: ClientConfig,
                    googleAnalytics: Option[GoogleAnalytics],
-                   mockConfig: MockConfig
+                   mockConfig: Option[MockConfig]
                  )
 
 class AppConfig @Inject()(configuration: Configuration) {

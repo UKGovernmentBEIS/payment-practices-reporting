@@ -19,14 +19,25 @@ package controllers
 
 import javax.inject.Inject
 
+import actions.CompanyAuthAction.{companyDetailsKey, emailAddressKey, oAuthTokenKey}
+import actions.SessionAction
+import cats.data.OptionT
+import cats.instances.future._
 import config.AppConfig
 import models.CompaniesHouseId
+import org.joda.time.LocalDateTime
 import play.api.mvc.{Action, Controller}
-import services.CompanySearchService
+import services.{CompanyAuthService, CompanySearchService, OAuthToken, SessionService}
 
 import scala.concurrent.ExecutionContext
 
-class CoHoOAuthMockController @Inject()(companySearch: CompanySearchService, val appConfig: AppConfig)(implicit ec: ExecutionContext) extends Controller with PageHelper {
+class CoHoOAuthMockController @Inject()(
+                                         companySearch: CompanySearchService,
+                                         companyAuth: CompanyAuthService,
+                                         sessionService: SessionService,
+                                         SessionAction: SessionAction,
+                                         val appConfig: AppConfig)
+                                       (implicit ec: ExecutionContext) extends Controller with PageHelper {
 
   def login(companiesHouseId: CompaniesHouseId) = Action {
     Ok(views.html.oauthMock.p1(companiesHouseId))
@@ -43,8 +54,21 @@ class CoHoOAuthMockController @Inject()(companySearch: CompanySearchService, val
     }
   }
 
-  def postAuthCode(companiesHouseId: CompaniesHouseId) = Action { implicit request =>
-    Redirect(controllers.routes.ReportController.file(companiesHouseId))
+  def postAuthCode(companiesHouseId: CompaniesHouseId) = SessionAction.async { implicit request =>
+    val ref = OAuthToken("accessToken", LocalDateTime.now().plusMinutes(60), "refreshToken")
+
+    val f = for {
+      companyDetail <- OptionT(companySearch.find(companiesHouseId))
+      emailAddress <- OptionT(companyAuth.emailAddress(companiesHouseId, ref))
+      _ <- OptionT.liftF(sessionService.put(request.sessionId, oAuthTokenKey, ref))
+      _ <- OptionT.liftF(sessionService.put(request.sessionId, companyDetailsKey, companyDetail))
+      _ <- OptionT.liftF(sessionService.put(request.sessionId, emailAddressKey, emailAddress))
+    } yield Redirect(controllers.routes.ReportController.file(companiesHouseId))
+
+    f.value.map {
+      case Some(result) => result
+      case None => BadRequest(s"Unable to find company details for state $companiesHouseId")
+    }
   }
 
 }

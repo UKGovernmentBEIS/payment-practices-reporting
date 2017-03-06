@@ -25,9 +25,13 @@ import scala.concurrent.Future
 
 @ImplementedBy(classOf[CompaniesHouseAuth])
 trait CompanyAuthService {
-  def isInScope(companiesHouseIdentifier: CompaniesHouseId, oAuthToken: OAuthToken): Future[Boolean]
+  def authoriseUrl(companiesHouseId: CompaniesHouseId): String
 
-  def emailAddress(oAuthToken: OAuthToken): Future[Option[String]]
+  def authoriseParams(companiesHouseId: CompaniesHouseId): Map[String, Seq[String]]
+
+  def isInScope(companiesHouseId: CompaniesHouseId, oAuthToken: OAuthToken): Future[Boolean]
+
+  def emailAddress(companiesHouseId: CompaniesHouseId, oAuthToken: OAuthToken): Future[Option[String]]
 
   def targetScope(companiesHouseId: CompaniesHouseId): String
 }
