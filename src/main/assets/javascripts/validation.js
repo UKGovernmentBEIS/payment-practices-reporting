@@ -1,18 +1,16 @@
 /* Validation */
 function Validation(messages) {
-    function findErrorMessage(parent) {
-        if (!parent) return null;
-        if (parent.className && parent.className.indexOf("error-message") !== -1) {
-            return parent;
-        }
 
-        for (var i = 0; i < parent.childNodes.length; i++) {
-            var found = findErrorMessage(parent.childNodes[i]);
-            if (found) {
-                return found;
-            }
-        }
-        return null;
+    /**
+     * See if the given node is an error message container (identified by having a class of "error-message").
+     * If this node isn't an error message container then check its children recursively.
+     * @param node - the root node to start searching for an error message container
+     * @returns the first error message container found in the tree rooted in the provided node, or null if no
+     * error message container was found
+     */
+    function findErrorMessageContainer(node) {
+        if (!node) return null;
+        return $(node).find(".error-message")[0];
     }
 
     function subscribe(obj, eventname, callback) {
@@ -23,15 +21,14 @@ function Validation(messages) {
         };
     }
 
-    function validateTextInput(name, validate) {
-        var allElements = document.getElementsByName(name);
-        if (!allElements || allElements.length <= 0) {
+    function validateTextInput(id, validate) {
+        var e = document.getElementById(id);
+        if (!e) {
             return;
         }
 
-        var e = allElements[0];
         var formGroup = e.parentElement;
-        var message = findErrorMessage(formGroup);
+        var message = findErrorMessageContainer(formGroup);
 
         if (!message) {
             return;
@@ -65,7 +62,7 @@ function Validation(messages) {
             elements.push(es[0]);
         }
 
-        var message = findErrorMessage(container);
+        var message = findErrorMessageContainer(container);
 
         for (var i2 = 0; i2 < elements.length; i2++) {
             var element = elements[i2];
@@ -99,7 +96,7 @@ function Validation(messages) {
             return;
         }
 
-        var message = findErrorMessage(year.parentElement.parentElement);
+        var message = findErrorMessageContainer(year.parentElement.parentElement);
 
         var callbackClear = function () {
             message.innerHTML = "&nbsp;";
@@ -151,7 +148,7 @@ function Validation(messages) {
     }
 
     function textNonNegative(text) {
-        return asNumber(text) < 0 && messages.nonnegative;
+        return asInteger(text) < 0 && messages.nonnegative;
     }
 
     function textInteger(text) {
