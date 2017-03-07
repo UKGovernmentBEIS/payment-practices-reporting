@@ -4,7 +4,7 @@
 @(item: CompanyDetail, reports: PagedResults[FiledReport], pageLink: Int => String, df:DateTimeFormatter)
 
 <h1 class="heading-xlarge">
-    @item.company_name reports
+    @item.companyName reports
     <hr>
 </h1>
 
@@ -29,7 +29,7 @@
 
     <ul class="searchresults">
         @for(report <- reports.items) {
-            @shared._reportSummary(report, item.company_number.id, df)
+            @shared._reportSummary(report, item.companiesHouseId.id, df)
         }
     </ul>
         @shared._pageLinks(reports, pageLink)
@@ -43,7 +43,7 @@
         <h3 class="heading-sidebar">Do you work for this business?</h3>
         <ul class="list">
             <li><a href="@routes.QuestionnaireController.start()">Get prepared</a>: find out if, when and how your business needs to publish reports</li>
-            <li><a href="@routes.ReportController.start(item.company_number)">Publish a report</a>: once your report data is fully prepared</li>
+            <li><a href="@routes.ReportController.start(item.companiesHouseId)">Publish a report</a>: once your report data is fully prepared</li>
         </ul>
     </div>
 }

@@ -17,18 +17,19 @@
 
 package services
 
-import com.google.inject.ImplementedBy
-import services.live.OAuth2ServiceImpl
+import models.CompaniesHouseId
 
 import scala.concurrent.Future
 
+trait CompanyAuthService {
+  def authoriseUrl(companiesHouseId: CompaniesHouseId): String
 
+  def authoriseParams(companiesHouseId: CompaniesHouseId): Map[String, Seq[String]]
 
-@ImplementedBy(classOf[OAuth2ServiceImpl])
-trait OAuth2Service {
-  def convertCode(code: String): Future[OAuthToken]
+  def isInScope(companiesHouseId: CompaniesHouseId, oAuthToken: OAuthToken): Future[Boolean]
 
-  def refreshAccessToken(oAuthToken: OAuthToken): Future[OAuthToken]
+  def emailAddress(companiesHouseId: CompaniesHouseId, oAuthToken: OAuthToken): Future[Option[String]]
+
+  def targetScope(companiesHouseId: CompaniesHouseId): String
 }
-
 

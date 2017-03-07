@@ -39,6 +39,12 @@ case class ClientConfig(id: String, secret: String)
 
 case class GoogleAnalytics(code: Option[String])
 
+case class MockConfig(mockCompanySearch: Option[Boolean], mockCompanyAuth: Option[Boolean], mockNotify: Option[Boolean])
+
+object MockConfig {
+  val empty = MockConfig(None, None, None)
+}
+
 case class Config(
                    companiesHouse: CompaniesHouseConfig,
                    notifyService: NotifyConfig,
@@ -47,7 +53,8 @@ case class Config(
                    printDBTables: Option[Boolean],
                    api: ApiConfig,
                    client: ClientConfig,
-                   googleAnalytics: Option[GoogleAnalytics]
+                   googleAnalytics: Option[GoogleAnalytics],
+                   mockConfig: Option[MockConfig]
                  )
 
 class AppConfig @Inject()(configuration: Configuration) {

@@ -22,7 +22,6 @@ import javax.inject.Inject
 import actions.SessionAction
 import cats.data.OptionT
 import cats.instances.future._
-import config.AppConfig
 import models.CompaniesHouseId
 import play.api.mvc._
 import services._
@@ -31,22 +30,13 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class OAuth2Controller @Inject()(
                                   sessionService: SessionService,
-                                  companiesHouseAPI: CompaniesHouseAPI,
+                                  companySearchService: CompanySearchService,
+                                  companyAuthService: CompanyAuthService,
                                   oAuth2Service: OAuth2Service,
-                                  appConfig: AppConfig,
                                   SessionAction: SessionAction)(implicit exec: ExecutionContext) extends Controller {
 
-  import appConfig.config
-
   def startOauthDance(companiesHouseId: CompaniesHouseId)(implicit request: RequestHeader): Result = {
-    val params = Map(
-      "client_id" -> Seq(config.client.id),
-      "redirect_uri" -> Seq(config.api.callbackURL),
-      "scope" -> Seq(companiesHouseAPI.targetScope(companiesHouseId)),
-      "state" -> Seq(companiesHouseId.id),
-      "response_type" -> Seq("code")
-    )
-    Redirect(config.api.authorizeSchemeUri, params)
+    Redirect(companyAuthService.authoriseUrl(companiesHouseId), companyAuthService.authoriseParams(companiesHouseId))
   }
 
   def claimCallback(code: Option[String], state: Option[String], error: Option[String], errorDescription: Option[String], errorCode: Option[String]) =
@@ -63,8 +53,8 @@ class OAuth2Controller @Inject()(
         case Right(ref) => {
           for {
             companyId <- OptionT.fromOption(state.map(CompaniesHouseId))
-            companyDetail <- OptionT(companiesHouseAPI.find(companyId))
-            emailAddress <- OptionT(companiesHouseAPI.emailAddress(ref))
+            companyDetail <- OptionT(companySearchService.find(companyId))
+            emailAddress <- OptionT(companyAuthService.emailAddress(companyId, ref))
             _ <- OptionT.liftF(sessionService.put(request.sessionId, oAuthTokenKey, ref))
             _ <- OptionT.liftF(sessionService.put(request.sessionId, companyDetailsKey, companyDetail))
             _ <- OptionT.liftF(sessionService.put(request.sessionId, emailAddressKey, emailAddress))

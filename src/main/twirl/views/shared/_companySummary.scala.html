@@ -1,13 +1,13 @@
-@(result: services.CompanySummary, reportCount:Int, link: String)
+@(result: services.CompanySearchResult, reportCount:Int, link: String)
 <li class="searchresult">
     <h2 class="heading-medium">
-        <a href=@link>@result.title</a>
+        <a href=@link>@result.companyName</a>
         (@reportCount @(if(reportCount == 1) "report" else "reports"))
     </h2>
     <p>
-        Company number: @result.company_number.id
+        Company number: @result.companiesHouseId.id
     </p>
     <p>
-        @result.address_snippet
+        @result.companyAddress
     </p>
 </li>

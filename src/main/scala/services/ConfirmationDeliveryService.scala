@@ -19,6 +19,7 @@ package services
 
 import com.google.inject.ImplementedBy
 import models.ReportId
+import services.live.ConfirmationDeliveryServiceImpl
 
 import scala.concurrent.{ExecutionContext, Future}
 

@@ -73,7 +73,7 @@ class CompanyAuthAction @Inject()(SessionAction: SessionAction, sessionService: 
       } yield CompanyAuthRequest(request.sessionId, sessionDetails.companyDetails, sessionDetails.emailAddress, freshToken, request.request)
 
       sessionDetails.value.map {
-        case Some(car) if car.companyDetail.company_number === expectedId => Right(car)
+        case Some(car) if car.companyDetail.companiesHouseId === expectedId => Right(car)
         case Some(car) => Left(Unauthorized("company id from session does not match id in url"))
         case None => Left(Unauthorized("no company details found on request"))
       }

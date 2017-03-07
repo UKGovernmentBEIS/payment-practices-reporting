@@ -15,20 +15,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package services
+package services.mocks
 
-import com.google.inject.ImplementedBy
-import services.live.OAuth2ServiceImpl
+import services.NotifyService
+import uk.gov.service.notify.NotificationResponse
 
 import scala.concurrent.Future
 
+class MockNotify extends NotifyService {
 
+  val json =
+    """
+      |{
+      |  "data":{
+      |    "notification": {
+      |      "id":"1"
+      |    },
+      |    "body":"Your report has been published.",
+      |    "template_version":1
+      |  }
+      |}
+    """.stripMargin
 
-@ImplementedBy(classOf[OAuth2ServiceImpl])
-trait OAuth2Service {
-  def convertCode(code: String): Future[OAuthToken]
-
-  def refreshAccessToken(oAuthToken: OAuthToken): Future[OAuthToken]
+  override def sendEmail(templateId: String, recipient: String, params: Map[String, String]): Future[NotificationResponse] = {
+    val response = new NotificationResponse(json)
+    Future.successful(new NotificationResponse(json))
+  }
 }
-
-

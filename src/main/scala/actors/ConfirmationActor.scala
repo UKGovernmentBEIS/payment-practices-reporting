@@ -20,6 +20,7 @@ package actors
 import javax.inject.Inject
 
 import akka.actor.Actor
+import play.api.Logger
 import services.ConfirmationDeliveryService
 
 import scala.concurrent.duration._
@@ -42,6 +43,8 @@ import scala.util.Success
   */
 class ConfirmationActor @Inject()(deliveryService: ConfirmationDeliveryService) extends Actor {
   implicit val ec = context.dispatcher
+
+  Logger.debug(s"ConfirmationActor started")
 
   context.system.scheduler.schedule(1 second, 10 seconds, self, 'poll)
 

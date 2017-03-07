@@ -40,7 +40,8 @@ import utils.YesNo
 import scala.concurrent.{ExecutionContext, Future}
 
 class ReportController @Inject()(
-                                  companiesHouseAPI: CompaniesHouseAPI,
+                                  companySearch: CompanySearchService,
+                                  companyAuth: CompanyAuthService,
                                   notifyService: NotifyService,
                                   reports: ReportRepo,
                                   reportValidations: Validations,
@@ -69,9 +70,9 @@ class ReportController @Inject()(
 
 
     query match {
-      case Some(q) => companiesHouseAPI.searchCompanies(q, pageNumber.getOrElse(1), itemsPerPage.getOrElse(25)).flatMap { results =>
+      case Some(q) => companySearch.searchCompanies(q, pageNumber.getOrElse(1), itemsPerPage.getOrElse(25)).flatMap { results =>
         val countsF = results.items.map { report =>
-          reports.byCompanyNumber(report.company_number).map(rs => (report.company_number, rs.length))
+          reports.byCompanyNumber(report.companiesHouseId).map(rs => (report.companiesHouseId, rs.length))
         }
 
         Future.sequence(countsF).map { counts =>
@@ -84,8 +85,8 @@ class ReportController @Inject()(
   }
 
   def start(companiesHouseId: CompaniesHouseId) = Action.async { request =>
-    companiesHouseAPI.find(companiesHouseId).map {
-      case Some(co) => Ok(page(publishTitle(co.company_name))(home, pages.start(co.company_name, co.company_number)))
+    companySearch.find(companiesHouseId).map {
+      case Some(co) => Ok(page(publishTitle(co.companyName))(home, pages.start(co.companyName, co.companiesHouseId)))
       case None => NotFound(s"Could not find a company with id ${companiesHouseId.id}")
     }
   }
@@ -104,22 +105,22 @@ class ReportController @Inject()(
   }
 
   def withCompany(companiesHouseId: CompaniesHouseId)(body: CompanyDetail => Html): Future[Result] = {
-    companiesHouseAPI.find(companiesHouseId).map {
+    companySearch.find(companiesHouseId).map {
       case Some(co) => Ok(body(co))
       case None => BadRequest(s"Unknown company id ${companiesHouseId.id}")
     }
   }
 
   def code(companiesHouseId: CompaniesHouseId) = Action.async {
-    withCompany(companiesHouseId)(co => page("If you don't have a Companies House authentication code")(home, pages.companiesHouseOptions(co.company_name, companiesHouseId)))
+    withCompany(companiesHouseId)(co => page("If you don't have a Companies House authentication code")(home, pages.companiesHouseOptions(co.companyName, companiesHouseId)))
   }
 
   def colleague(companiesHouseId: CompaniesHouseId) = Action.async {
-    withCompany(companiesHouseId)(co => page("If you want a colleague to publish a report")(home, pages.askColleague(co.company_name, companiesHouseId)))
+    withCompany(companiesHouseId)(co => page("If you want a colleague to publish a report")(home, pages.askColleague(co.companyName, companiesHouseId)))
   }
 
   def register(companiesHouseId: CompaniesHouseId) = Action.async {
-    withCompany(companiesHouseId)(co => page("Request an authentication code")(home, pages.requestAccessCode(co.company_name, companiesHouseId)))
+    withCompany(companiesHouseId)(co => page("Request an authentication code")(home, pages.requestAccessCode(co.companyName, companiesHouseId)))
   }
 
   def codeOptions(companiesHouseId: CompaniesHouseId) = Action { implicit request =>
@@ -135,19 +136,19 @@ class ReportController @Inject()(
     form.bindFromRequest().fold(errs => BadRequest(s"Invalid option"), resultFor)
   }
 
-  def reportPageHeader(implicit request: CompanyAuthRequest[_]) = h1(s"Publish a report for:<br>${request.companyDetail.company_name}")
+  def reportPageHeader(implicit request: CompanyAuthRequest[_]) = h1(s"Publish a report for:<br>${request.companyDetail.companyName}")
 
   private def publishTitle(companyName: String) = s"Publish a report for $companyName"
 
   def file(companiesHouseId: CompaniesHouseId) = CompanyAuthAction(companiesHouseId) { implicit request =>
-    Ok(page(publishTitle(request.companyDetail.company_name))(home, reportPageHeader, pages.file(emptyReport, companiesHouseId, df)))
+    Ok(page(publishTitle(request.companyDetail.companyName))(home, reportPageHeader, pages.file(emptyReport, companiesHouseId, df)))
   }
 
   def postForm(companiesHouseId: CompaniesHouseId) = CompanyAuthAction(companiesHouseId)(parse.urlFormEncoded) { implicit request =>
     //println(request.body.flatMap { case (k, v) => v.headOption.map(value => s""""$k" -> "$value"""") }.mkString(", "))
     emptyReport.bindFromRequest().fold(
-      errs => BadRequest(page(publishTitle(request.companyDetail.company_name))(home, reportPageHeader, pages.file(errs, companiesHouseId, df))),
-      report => Ok(page(reviewPageTitle)(home, pages.review(emptyReview, report, companiesHouseId, request.companyDetail.company_name, df, reportValidations.reportFormModel)))
+      errs => BadRequest(page(publishTitle(request.companyDetail.companyName))(home, reportPageHeader, pages.file(errs, companiesHouseId, df))),
+      report => Ok(page(reviewPageTitle)(home, pages.review(emptyReview, report, companiesHouseId, request.companyDetail.companyName, df, reportValidations.reportFormModel)))
     )
   }
 
@@ -158,28 +159,28 @@ class ReportController @Inject()(
     // (as we only send the user to the review page if they are) but if somehow they aren't then
     // send the user back to the report form to fix them.
     emptyReport.bindFromRequest().fold(
-      errs => Future.successful(BadRequest(page(publishTitle(request.companyDetail.company_name))(home, reportPageHeader, pages.file(errs, companiesHouseId, df)))),
+      errs => Future.successful(BadRequest(page(publishTitle(request.companyDetail.companyName))(home, reportPageHeader, pages.file(errs, companiesHouseId, df)))),
       report =>
-        if (revise) Future.successful(Ok(page(publishTitle(request.companyDetail.company_name))(home, reportPageHeader, pages.file(emptyReport.fill(report), companiesHouseId, df))))
+        if (revise) Future.successful(Ok(page(publishTitle(request.companyDetail.companyName))(home, reportPageHeader, pages.file(emptyReport.fill(report), companiesHouseId, df))))
         else checkConfirmation(companiesHouseId, report)
     )
   }
 
   private def checkConfirmation(companiesHouseId: CompaniesHouseId, report: ReportFormModel)(implicit request: CompanyAuthRequest[_]): Future[Result] = {
     emptyReview.bindFromRequest().fold(
-      errs => Future.successful(BadRequest(page(reviewPageTitle)(home, pages.review(errs, report, companiesHouseId, request.companyDetail.company_name, df, reportValidations.reportFormModel)))),
+      errs => Future.successful(BadRequest(page(reviewPageTitle)(home, pages.review(errs, report, companiesHouseId, request.companyDetail.companyName, df, reportValidations.reportFormModel)))),
       review => {
         if (review.confirmed) verifyingOAuthScope(companiesHouseId, request.oAuthToken) {
           createReport(companiesHouseId, report, review).map(rId => Redirect(controllers.routes.ReportController.showConfirmation(rId)))
         }
         else
-          Future.successful(BadRequest(page(reviewPageTitle)(home, pages.review(emptyReview.fill(review), report, companiesHouseId, request.companyDetail.company_name, df, reportValidations.reportFormModel))))
+          Future.successful(BadRequest(page(reviewPageTitle)(home, pages.review(emptyReview.fill(review), report, companiesHouseId, request.companyDetail.companyName, df, reportValidations.reportFormModel))))
       }
     )
   }
 
   private def verifyingOAuthScope(companiesHouseId: CompaniesHouseId, oAuthToken: OAuthToken)(body: => Future[Result]): Future[Result] = {
-    companiesHouseAPI.isInScope(companiesHouseId, oAuthToken).flatMap {
+    companyAuth.isInScope(companiesHouseId, oAuthToken).flatMap {
       case true => body
       case false => Future.successful(Redirect(controllers.routes.ReportController.invalidScope(companiesHouseId)))
     }
@@ -188,7 +189,7 @@ class ReportController @Inject()(
   private def createReport(companiesHouseId: CompaniesHouseId, report: ReportFormModel, review: ReportReviewModel)(implicit request: CompanyAuthRequest[_]): Future[ReportId] = {
     val urlFunction: ReportId => String = (id: ReportId) => controllers.routes.SearchController.view(id).absoluteURL()
     for {
-      reportId <- reports.create(review.confirmedBy, companiesHouseId, request.companyDetail.company_name, report, review, request.emailAddress, urlFunction)
+      reportId <- reports.create(review.confirmedBy, companiesHouseId, request.companyDetail.companyName, report, review, request.emailAddress, urlFunction)
       _ <- Future.successful(confirmationActor ! 'poll)
     } yield reportId
   }

@@ -25,12 +25,16 @@ import config.AppConfig
 import models.{CompaniesHouseId, ReportId}
 import org.joda.time.format.DateTimeFormat
 import play.api.mvc.{Action, Controller}
-import services.{CompaniesHouseAPI, PagedResults}
+import services.{CompanyAuthService, CompanySearchService, PagedResults}
 import slicks.modules.ReportRepo
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class SearchController @Inject()(companiesHouseAPI: CompaniesHouseAPI, reports: ReportRepo, val appConfig: AppConfig)(implicit ec: ExecutionContext)
+class SearchController @Inject()(
+                                  companySearch: CompanySearchService,
+                                  companyAuth: CompanyAuthService,
+                                  reports: ReportRepo,
+                                  val appConfig: AppConfig)(implicit ec: ExecutionContext)
   extends Controller
     with PageHelper {
 
@@ -48,9 +52,9 @@ class SearchController @Inject()(companiesHouseAPI: CompaniesHouseAPI, reports: 
     val title = "Search for a company"
 
     query match {
-      case Some(q) => companiesHouseAPI.searchCompanies(q, pageNumber.getOrElse(1), itemsPerPage.getOrElse(25)).flatMap { results =>
+      case Some(q) => companySearch.searchCompanies(q, pageNumber.getOrElse(1), itemsPerPage.getOrElse(25)).flatMap { results =>
         val countsF = results.items.map { report =>
-          reports.byCompanyNumber(report.company_number).map(rs => (report.company_number, rs.length))
+          reports.byCompanyNumber(report.companiesHouseId).map(rs => (report.companiesHouseId, rs.length))
         }
 
         Future.sequence(countsF).map { counts =>
@@ -66,12 +70,12 @@ class SearchController @Inject()(companiesHouseAPI: CompaniesHouseAPI, reports: 
   def company(companiesHouseId: CompaniesHouseId, pageNumber: Option[Int]) = Action.async { implicit request =>
     val pageLink = { i: Int => routes.SearchController.company(companiesHouseId, Some(i)).url }
     val result = for {
-      co <- OptionT(companiesHouseAPI.find(companiesHouseId))
+      co <- OptionT(companySearch.find(companiesHouseId))
       rs <- OptionT.liftF(reports.byCompanyNumber(companiesHouseId).map(rs => PagedResults.page(rs.flatMap(_.filed), pageNumber.getOrElse(1))))
     } yield {
       val searchCrumb = Breadcrumb(routes.SearchController.search(None, None, None), searchForReports)
       val crumbs = breadcrumbs(homeBreadcrumb, searchCrumb)
-      Ok(page(s"Payment practice reports for ${co.company_name}")(crumbs, views.html.search.company(co, rs, pageLink, df)))
+      Ok(page(s"Payment practice reports for ${co.companyName}")(crumbs, views.html.search.company(co, rs, pageLink, df)))
     }
 
     result.value.map {

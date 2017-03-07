@@ -17,12 +17,37 @@
 
 import actors.ConfirmationActor
 import com.google.inject.AbstractModule
+import config.{AppConfig, MockConfig}
 import play.api.libs.concurrent.AkkaGuiceSupport
-import services.SessionCleaner
+import play.api.{Configuration, Environment, Logger}
+import services.live.{CompaniesHouseAuth, CompaniesHouseSearch, NotifyServiceImpl}
+import services.mocks.{MockCompanyAuth, MockCompanySearch, MockNotify}
+import services.{CompanyAuthService, CompanySearchService, NotifyService, SessionCleaner}
 import slicks.modules.DB
 
-class Module extends AbstractModule with AkkaGuiceSupport {
+class Module(environment: Environment, configuration: Configuration) extends AbstractModule with AkkaGuiceSupport {
   override def configure(): Unit = {
+
+    val mockConfig = new AppConfig(configuration).config.mockConfig.getOrElse(MockConfig.empty)
+
+    val searchImpl = if (mockConfig.mockCompanySearch.getOrElse(false)) {
+      Logger.debug("Wiring in Company Search Mock")
+      classOf[MockCompanySearch]
+    } else classOf[CompaniesHouseSearch]
+    bind(classOf[CompanySearchService]).to(searchImpl)
+
+    val authImpl = if (mockConfig.mockCompanyAuth.getOrElse(false)) {
+      Logger.debug("Wiring in Company Auth Mock")
+      classOf[MockCompanyAuth]
+    } else classOf[CompaniesHouseAuth]
+    bind(classOf[CompanyAuthService]).to(authImpl)
+
+    val notifyImpl = if (mockConfig.mockNotify.getOrElse(false)) {
+      Logger.debug("Wiring in Notify Mock")
+      classOf[MockNotify]
+    } else classOf[NotifyServiceImpl]
+    bind(classOf[NotifyService]).to(notifyImpl)
+
     bind(classOf[DB]).asEagerSingleton()
     bindActor[ConfirmationActor]("confirmation-actor")
 

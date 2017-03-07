@@ -31,7 +31,7 @@ import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, Controller}
 import play.twirl.api.Html
 import questionnaire._
-import services.{CompanyDetail, CompanySummary, PagedResults}
+import services.{CompanyDetail, CompanySearchResult, PagedResults}
 import slicks.modules.FiledReport
 import utils.{SystemTimeSource, YesNo}
 
@@ -58,11 +58,11 @@ class VisualTestController @Inject()(questions: Questions, summarizer: Summarize
 
 
     val calc = Calculator(calculator.FinancialYear(DateRange(startDate, endDate)))
-    val answers = Seq(views.html.calculator.answer(false, calc, df))
+    val answers = Seq(views.html.calculator.answer(isGroup = false, calc, df))
     val reports = Seq(views.html.search.report(healthyReport, df))
     val id = CompaniesHouseId("1234567890")
     val companyName = "ABC Limited"
-    val summary = CompanySummary(id, companyName, "123 Abc Road")
+    val summary = CompanySearchResult(id, companyName, "123 Abc Road")
     val results = PagedResults(Seq(summary, summary, summary), 25, 1, 100)
     val searches = Seq(
       html(h1("Publish a report"), views.html.search.search("cod", Some(results), Map(id -> 3), "", _ => "", _ => "")),

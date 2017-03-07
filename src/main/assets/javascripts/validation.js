@@ -18,7 +18,9 @@ function Validation(messages) {
     function subscribe(obj, eventname, callback) {
         var old = obj[eventname];
         obj[eventname] = function (x) {
-            if (old) old(x);
+            if (old) {
+                old(x);
+            }
             return callback(x);
         };
     }
@@ -51,7 +53,7 @@ function Validation(messages) {
                 formGroup.className = "form-group error";
             }
         });
-        subscribe(e, "onkeydown", callbackClear)
+        subscribe(e, "onkeydown", callbackClear);
     }
 
     function validateMultiple(names, container, validate) {
@@ -122,15 +124,15 @@ function Validation(messages) {
 
         subscribe(year, "onkeydown", callbackClear);
         subscribe(month, "onkeydown", callbackClear);
-        subscribe(day, "onkeydown", callbackClear)
+        subscribe(day, "onkeydown", callbackClear);
     }
 
     function asInteger(text) {
-        var i = parseInt(text)
+        var i = parseInt(text);
         if (isNaN(i)) {
             return null;
         } else {
-            return i
+            return i;
         }
     }
 

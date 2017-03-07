@@ -17,18 +17,22 @@
 
 package services
 
-import com.google.inject.ImplementedBy
-import services.live.OAuth2ServiceImpl
+import com.wellfactored.playbindings.ValueClassFormats
+import models.CompaniesHouseId
+import play.api.libs.json.Json
 
 import scala.concurrent.Future
 
+case class CompanySearchResult(companiesHouseId: CompaniesHouseId, companyName: String, companyAddress: String)
 
+case class CompanyDetail(companiesHouseId: CompaniesHouseId, companyName: String)
 
-@ImplementedBy(classOf[OAuth2ServiceImpl])
-trait OAuth2Service {
-  def convertCode(code: String): Future[OAuthToken]
-
-  def refreshAccessToken(oAuthToken: OAuthToken): Future[OAuthToken]
+object CompanyDetail extends ValueClassFormats {
+  implicit val fmt = Json.format[CompanyDetail]
 }
 
+trait CompanySearchService {
+  def searchCompanies(search: String, page: Int, itemsPerPage: Int): Future[PagedResults[CompanySearchResult]]
 
+  def find(companiesHouseId: CompaniesHouseId): Future[Option[CompanyDetail]]
+}
