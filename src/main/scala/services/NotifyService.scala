@@ -17,35 +17,13 @@
 
 package services
 
-import java.util
-import javax.inject.Inject
+import uk.gov.service.notify.NotificationResponse
 
-import akka.actor.ActorSystem
-import com.google.inject.ImplementedBy
-import config.AppConfig
-import uk.gov.service.notify.{NotificationClient, NotificationResponse}
-
-import scala.collection.JavaConversions._
 import scala.concurrent.Future
 
-@ImplementedBy(classOf[NotifyServiceImpl])
 trait NotifyService {
   def sendEmail(templateId: String, recipient: String, params: Map[String, String]): Future[NotificationResponse]
 }
 
-class NotifyServiceImpl @Inject()(actorSystem: ActorSystem,appConfig: AppConfig) extends NotifyService {
-  val key = appConfig.config.notifyService.apiKey
-  implicit val ec = actorSystem.dispatchers.lookup("email-dispatcher")
 
-  override def sendEmail(templateId: String, recipient: String, params: Map[String, String]): Future[NotificationResponse] = {
-    val client = new NotificationClient(key)
-
-    val m: util.Map[String, String] = params
-    val jParams = new util.HashMap[String, String]()
-    jParams.putAll(m)
-    Future {
-      client.sendEmail(templateId, recipient, jParams)
-    }
-  }
-}
 

@@ -15,21 +15,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package services
+package services.mocks
 
-import models.CompaniesHouseId
+import services.NotifyService
+import uk.gov.service.notify.NotificationResponse
 
 import scala.concurrent.Future
 
-trait CompanyAuthService {
-  def authoriseUrl(companiesHouseId: CompaniesHouseId): String
+class MockNotify extends NotifyService {
 
-  def authoriseParams(companiesHouseId: CompaniesHouseId): Map[String, Seq[String]]
+  val json =
+    """
+      |{
+      |  "data":{
+      |    "notification": {
+      |      "id":"1"
+      |    },
+      |    "body":"Your report has been published.",
+      |    "template_version":1
+      |  }
+      |}
+    """.stripMargin
 
-  def isInScope(companiesHouseId: CompaniesHouseId, oAuthToken: OAuthToken): Future[Boolean]
-
-  def emailAddress(companiesHouseId: CompaniesHouseId, oAuthToken: OAuthToken): Future[Option[String]]
-
-  def targetScope(companiesHouseId: CompaniesHouseId): String
+  override def sendEmail(templateId: String, recipient: String, params: Map[String, String]): Future[NotificationResponse] = {
+    val response = new NotificationResponse(json)
+    Future.successful(new NotificationResponse(json))
+  }
 }
-

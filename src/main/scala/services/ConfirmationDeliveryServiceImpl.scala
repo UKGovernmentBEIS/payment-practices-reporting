@@ -19,7 +19,7 @@ package services
 
 import javax.inject.Inject
 
-import config.{AppConfig, Config}
+import config.AppConfig
 import db.ConfirmationPendingRow
 import org.joda.time.LocalDateTime
 import org.joda.time.format.DateTimeFormat
@@ -29,14 +29,14 @@ import views.html.ReportNum
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class ConfirmationDeliveryServiceImpl @Inject()(confirmationRepo: ConfirmationRepo, mailer: NotifyService, appConfig: AppConfig) extends ConfirmationDeliveryService {
+class ConfirmationDeliveryServiceImpl @Inject()(confirmationRepo: ConfirmationRepo, notifyService: NotifyService, appConfig: AppConfig) extends ConfirmationDeliveryService {
   val templateId = appConfig.config.notifyService.templateId
   val df = DateTimeFormat.forPattern("d MMMM YYYY")
 
   def attemptDelivery(implicit ec: ExecutionContext): Future[Option[DeliveryOutcome]] = {
     confirmationRepo.findUnconfirmedAndLock().flatMap {
       case Some((confirmation, report)) =>
-        mailer.sendEmail(templateId, confirmation.emailAddress, buildParams(confirmation, report)).flatMap { response =>
+        notifyService.sendEmail(templateId, confirmation.emailAddress, buildParams(confirmation, report)).flatMap { response =>
           confirmationRepo.confirmationSent(report.header.id, LocalDateTime.now, response)
             .map(_ => Some(ConfirmationSent(report.header.id)))
         }.recoverWith {
