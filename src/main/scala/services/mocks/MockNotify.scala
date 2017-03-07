@@ -18,7 +18,7 @@
 package services.mocks
 
 import services.NotifyService
-import uk.gov.service.notify.NotificationResponse
+import uk.gov.service.notify.SendEmailResponse
 
 import scala.concurrent.Future
 
@@ -37,8 +37,8 @@ class MockNotify extends NotifyService {
       |}
     """.stripMargin
 
-  override def sendEmail(templateId: String, recipient: String, params: Map[String, String]): Future[NotificationResponse] = {
-    val response = new NotificationResponse(json)
-    Future.successful(new NotificationResponse(json))
+  override def sendEmail(templateId: String, recipient: String, params: Map[String, String]): Future[SendEmailResponse] = {
+    val response = new SendEmailResponse(json)
+    Future.successful(new SendEmailResponse(json))
   }
 }

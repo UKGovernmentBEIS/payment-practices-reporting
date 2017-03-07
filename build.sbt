@@ -44,7 +44,7 @@ libraryDependencies ++= Seq(
   "com.beachape" %% "enumeratum-play-json" % "1.5.2",
   "eu.timepit" %% "refined" % "0.6.1",
   "org.scalactic" %% "scalactic" % "3.0.1",
-  "uk.gov.service.notify" % "notifications-java-client" % "2.2.0-RELEASE",
+  "uk.gov.service.notify" % "notifications-java-client" % "3.1.1-RELEASE",
 
   "org.scalatest" %% "scalatest" % "3.0.1" % Test,
   "org.scalacheck" %% "scalacheck" % "1.13.4" % Test)

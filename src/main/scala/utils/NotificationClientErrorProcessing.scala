@@ -50,14 +50,13 @@ object NotificationClientErrorProcessing {
     def r = new Regex(sc.parts.mkString, sc.parts.tail.map(_ => "x"): _*)
   }
 
-
   implicit val messageReads = Json.reads[NotificationClientErrorMessage]
   implicit val bodyReads = Json.reads[NotificationClientErrorBody]
 
-  def parseNotificationMessage(s: String): Option[NotificationClientError] = {
-    s.replaceAll("\\n", "") match {
-      case r"Status code: ([0-9]+)$code (\{.+\})$body" => Try {
-        NotificationClientError(code.toInt, Json.parse(body).validate[NotificationClientErrorBody].get)
+  def parseNotificationMessage(httpResponseCode: Int, message: String): Option[NotificationClientError] = {
+    message.replaceAll("\\n", "") match {
+      case r"Status code: [0-9]+ (\{.+\})$body" => Try {
+        NotificationClientError(httpResponseCode, Json.parse(body).validate[NotificationClientErrorBody].get)
       }.toOption
       case _ =>
         None

@@ -25,7 +25,7 @@ import models.ReportId
 import org.joda.time.LocalDateTime
 import play.api.db.slick.DatabaseConfigProvider
 import slick.dbio.Effect.Write
-import uk.gov.service.notify.{NotificationClientException, NotificationResponse}
+import uk.gov.service.notify.{NotificationClientException, SendEmailResponse}
 import utils._
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -34,7 +34,7 @@ import scala.concurrent.{ExecutionContext, Future}
 trait ConfirmationRepo {
   def findUnconfirmedAndLock(): Future[Option[(ConfirmationPendingRow, FiledReport)]]
 
-  def confirmationSent(reportId: ReportId, when: LocalDateTime, response: NotificationResponse): Future[Unit]
+  def confirmationSent(reportId: ReportId, when: LocalDateTime, response: SendEmailResponse): Future[Unit]
 
   def confirmationFailed(reportId: ReportId, when: LocalDateTime, ex: NotificationClientException): Future[Unit]
 }
@@ -66,12 +66,12 @@ class ConfirmationTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(
     }.transactionally
   }
 
-  override def confirmationSent(reportId: ReportId, when: LocalDateTime, response: NotificationResponse): Future[Unit] = {
+  override def confirmationSent(reportId: ReportId, when: LocalDateTime, response: SendEmailResponse): Future[Unit] = {
     disposeOfPending(reportId, when, disposeToSent(response))
   }
 
   override def confirmationFailed(reportId: ReportId, when: LocalDateTime, ex: NotificationClientException): Future[Unit] = {
-    val err = NotificationClientErrorProcessing.parseNotificationMessage(ex.getMessage) match {
+    val err = NotificationClientErrorProcessing.parseNotificationMessage(ex.getHttpResult, ex.getMessage) match {
       case Some(err) => NotificationClientErrorProcessing.processError(err)
       case None => PermanentFailure(0, s"Unable to parse error body: ${ex.getMessage}")
     }
@@ -104,8 +104,8 @@ class ConfirmationTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(
     confirmationFailedTable += failedRow
   }
 
-  private def disposeToSent(response: NotificationResponse): DisposalFunction = { (pending, when) =>
-    val sentRow = ConfirmationSentRow(pending.reportId, pending.emailAddress, response.getBody, response.getNotificationId, when)
+  private def disposeToSent(response: SendEmailResponse): DisposalFunction = { (pending, when) =>
+    val sentRow = ConfirmationSentRow(pending.reportId, pending.emailAddress, response.getBody, response.getNotificationId.toString, when)
     confirmationSentTable += sentRow
   }
 

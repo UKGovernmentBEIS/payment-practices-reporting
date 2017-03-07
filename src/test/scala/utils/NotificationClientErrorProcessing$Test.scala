@@ -35,7 +35,7 @@ class NotificationClientErrorProcessing$Test extends WordSpecLike with Matchers 
 
       val expectedBody = NotificationClientErrorBody(NotificationClientErrorMessage(Some(List("Not a valid email address")), None), "error")
 
-      val result = NotificationClientErrorProcessing.parseNotificationMessage(message)
+      val result = NotificationClientErrorProcessing.parseNotificationMessage(400, message)
       result.value.statusCode shouldBe 400
       result.value.body shouldBe expectedBody
 

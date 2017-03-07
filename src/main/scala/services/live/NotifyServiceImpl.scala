@@ -23,7 +23,7 @@ import javax.inject.Inject
 import akka.actor.ActorSystem
 import config.AppConfig
 import services.NotifyService
-import uk.gov.service.notify.{NotificationClient, NotificationResponse}
+import uk.gov.service.notify.{NotificationClient, SendEmailResponse}
 
 import scala.collection.JavaConversions._
 import scala.concurrent.Future
@@ -32,14 +32,14 @@ class NotifyServiceImpl @Inject()(actorSystem: ActorSystem, appConfig: AppConfig
   val key = appConfig.config.notifyService.apiKey
   implicit val ec = actorSystem.dispatchers.lookup("email-dispatcher")
 
-  override def sendEmail(templateId: String, recipient: String, params: Map[String, String]): Future[NotificationResponse] = {
+  override def sendEmail(templateId: String, recipient: String, params: Map[String, String]): Future[SendEmailResponse] = {
     val client = new NotificationClient(key)
 
     val m: util.Map[String, String] = params
     val jParams = new util.HashMap[String, String]()
     jParams.putAll(m)
     Future {
-      client.sendEmail(templateId, recipient, jParams)
+      client.sendEmail(templateId, recipient, jParams, "")
     }
   }
 }

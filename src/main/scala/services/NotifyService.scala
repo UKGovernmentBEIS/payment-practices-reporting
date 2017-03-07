@@ -17,12 +17,12 @@
 
 package services
 
-import uk.gov.service.notify.NotificationResponse
+import uk.gov.service.notify.SendEmailResponse
 
 import scala.concurrent.Future
 
 trait NotifyService {
-  def sendEmail(templateId: String, recipient: String, params: Map[String, String]): Future[NotificationResponse]
+  def sendEmail(templateId: String, recipient: String, params: Map[String, String]): Future[SendEmailResponse]
 }
 
 
