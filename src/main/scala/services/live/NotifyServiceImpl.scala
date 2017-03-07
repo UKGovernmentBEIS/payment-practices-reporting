@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package services.notify
+package services.live
 
 import java.util
 import javax.inject.Inject

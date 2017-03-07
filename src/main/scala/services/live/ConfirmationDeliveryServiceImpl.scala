@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package services
+package services.live
 
 import javax.inject.Inject
 
@@ -23,6 +23,7 @@ import config.AppConfig
 import db.ConfirmationPendingRow
 import org.joda.time.LocalDateTime
 import org.joda.time.format.DateTimeFormat
+import services._
 import slicks.modules.{ConfirmationRepo, FiledReport}
 import uk.gov.service.notify.NotificationClientException
 import views.html.ReportNum

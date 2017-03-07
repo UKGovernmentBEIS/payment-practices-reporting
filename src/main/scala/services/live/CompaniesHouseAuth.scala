@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package services.companiesHouse
+package services.live
 
 import javax.inject.Inject
 

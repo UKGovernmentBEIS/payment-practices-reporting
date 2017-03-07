@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package services
+package services.live
 
 import com.wellfactored.playbindings.ValueClassFormats
 import models.CompaniesHouseId
@@ -25,7 +25,7 @@ import play.api.libs.json.Json
   * Contains the models for reading json from the companies house api, hence the non-scala naming
   * conventions for the case class parameters
   */
-package object companiesHouse {
+object CompaniesHouseModels {
 
   case class CompaniesHouseSearchResult(company_number: CompaniesHouseId, title: String, address_snippet: String)
 

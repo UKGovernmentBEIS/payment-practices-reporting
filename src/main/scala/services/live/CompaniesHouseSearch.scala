@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package services.companiesHouse
+package services.live
 
 import java.util.Base64
 import javax.inject.Inject
@@ -30,6 +30,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class CompaniesHouseSearch @Inject()(val ws: WSClient, oAuth2Service: OAuth2Service, appConfig: AppConfig)(implicit val ec: ExecutionContext)
   extends RestService with CompanySearchService {
+
+  import CompaniesHouseModels._
 
   import appConfig.config
 
