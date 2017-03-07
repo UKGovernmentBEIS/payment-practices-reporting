@@ -36,7 +36,7 @@ class MockCompanyAuth extends CompanyAuthService {
   override def isInScope(companiesHouseId: CompaniesHouseId, oAuthToken: OAuthToken): Future[Boolean] = Future.successful(true)
 
   override def emailAddress(companiesHouseId: CompaniesHouseId, oAuthToken: OAuthToken): Future[Option[String]] =
-    Future.successful(emails.get(companiesHouseId))
+    Future.successful(Some(emails.getOrElse(companiesHouseId, "test@barbaz.com")))
 
 
   override def targetScope(companiesHouseId: CompaniesHouseId): String = ""
