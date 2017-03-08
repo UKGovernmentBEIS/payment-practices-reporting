@@ -29,4 +29,8 @@ class ErrorController @Inject()(val appConfig: AppConfig) extends Controller wit
     Unauthorized(page("Your session timed out")(home, views.html.errors.sessionTimeout())).removingFromSession(SessionAction.sessionIdKey)
   }
 
+  def notFound = Action { implicit request =>
+    NotFound(page("Page not found")(home, views.html.errors.error404()))
+  }
+
 }
