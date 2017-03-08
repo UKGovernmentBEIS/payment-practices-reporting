@@ -21,6 +21,7 @@ import java.util.UUID
 import javax.inject.Inject
 
 import com.github.tminglei.slickpg.{PgDateSupportJoda, PgPlayJsonSupport}
+import config.AppConfig
 import db.SessionRow
 import play.api.Logger
 import play.api.db.slick.DatabaseConfigProvider
@@ -31,7 +32,7 @@ import utils.TimeSource
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class SessionTable @Inject()(val dbConfigProvider: DatabaseConfigProvider, timeSource: TimeSource)(implicit ec: ExecutionContext)
+class SessionTable @Inject()(val dbConfigProvider: DatabaseConfigProvider, timeSource: TimeSource, appConfig: AppConfig)(implicit ec: ExecutionContext)
   extends DBBinding
     with SessionService
     with SessionModule
@@ -40,6 +41,8 @@ class SessionTable @Inject()(val dbConfigProvider: DatabaseConfigProvider, timeS
     with RowBuilders {
 
   import api._
+
+  override def defaultLifetimeInMinutes: Int = appConfig.config.sessionTimeoutInMinutes.getOrElse(60)
 
   override def pgjson: String = "jsonb"
 
@@ -59,7 +62,7 @@ class SessionTable @Inject()(val dbConfigProvider: DatabaseConfigProvider, timeS
     }.transactionally.map(_ => ())
   }
 
-  private def sessionExpiryTime = timeSource.now().plusMinutes(defaultLifetime)
+  private def sessionExpiryTime = timeSource.now().plusMinutes(defaultLifetimeInMinutes)
 
   override def get[T: Reads](sessionId: SessionId, key: String): Future[Option[T]] = db.run {
     sessionC(sessionId).result.headOption.map {
@@ -120,4 +123,6 @@ class SessionTable @Inject()(val dbConfigProvider: DatabaseConfigProvider, timeS
   override def exists(sessionId: SessionId): Future[Boolean] = db.run {
     sessionC(sessionId).result.headOption.map(_.isDefined)
   }
+
+
 }

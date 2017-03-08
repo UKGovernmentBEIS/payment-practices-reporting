@@ -45,8 +45,8 @@ class OAuth2ServiceImpl @Inject()(ws: WSClient, appConfig: AppConfig)(implicit e
   val refreshTokenParam = "refresh_token"
 
   val clientDetails = Map(
-    clientIdParam -> client.id,
-    clientSecretParam -> client.secret
+    clientIdParam -> companySearchAPI.id,
+    clientSecretParam -> companySearchAPI.secret
   )
 
   implicit val atrFormat = Json.format[AccessTokenResponse]
@@ -55,7 +55,7 @@ class OAuth2ServiceImpl @Inject()(ws: WSClient, appConfig: AppConfig)(implicit e
     (clientDetails ++ ps).map { case (k, v) => k -> Seq(v) }
 
   private[services] def call(params: Seq[(String, String)]): Future[WSResponse] = {
-    ws.url(api.accessTokenUri).withMethod("POST").withBody(mkParams(params)).execute()
+    ws.url(oAuth.accessTokenUri).withMethod("POST").withBody(mkParams(params)).execute()
   }
 
 
@@ -66,7 +66,7 @@ class OAuth2ServiceImpl @Inject()(ws: WSClient, appConfig: AppConfig)(implicit e
     val params = Seq(
       grantTypeParam -> "authorization_code",
       codeParam -> code,
-      redirectUriParam -> api.callbackURL
+      redirectUriParam -> oAuth.callbackURL
     )
 
     call(params).map { response =>
@@ -94,8 +94,8 @@ class OAuth2ServiceImpl @Inject()(ws: WSClient, appConfig: AppConfig)(implicit e
     val url = "https://account.companieshouse.gov.uk/oauth2/token"
 
     val body = Map(
-      clientIdParam -> client.id,
-      clientSecretParam -> client.secret,
+      clientIdParam -> companySearchAPI.id,
+      clientSecretParam -> companySearchAPI.secret,
       grantTypeParam -> "refresh_token",
       refreshTokenParam -> oAuthToken.refreshToken
     ).map { case (k, v) => (k, Seq(v)) }

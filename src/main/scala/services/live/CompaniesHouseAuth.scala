@@ -54,11 +54,11 @@ class CompaniesHouseAuth @Inject()(val ws: WSClient, oAuth2Service: OAuth2Servic
     getOpt[Email](url, bearerAuth(token)).map(_.map(_.email))
   }
 
-  override def authoriseUrl(companiesHouseId: CompaniesHouseId) = config.api.authorizeSchemeUri
+  override def authoriseUrl(companiesHouseId: CompaniesHouseId) = config.oAuth.authorizeSchemeUri
 
   override def authoriseParams(companiesHouseId: CompaniesHouseId) = Map(
-    "client_id" -> Seq(config.client.id),
-    "redirect_uri" -> Seq(config.api.callbackURL),
+    "client_id" -> Seq(config.companySearchAPI.id),
+    "redirect_uri" -> Seq(config.oAuth.callbackURL),
     "scope" -> Seq(targetScope(companiesHouseId)),
     "state" -> Seq(companiesHouseId.id),
     "response_type" -> Seq("code")

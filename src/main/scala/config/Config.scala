@@ -28,14 +28,14 @@ case class NotifyConfig(
                          templateId: String
                        )
 
-case class ApiConfig(host: String, isSandbox: Option[Boolean] = None, isLocal: Option[Boolean] = None, callbackURL: String) {
+case class OAuthConfig(host: String, callbackURL: String) {
   val baseURI = s"https://$host"
 
   val accessTokenUri = s"$baseURI/oauth2/token"
   val authorizeSchemeUri = s"$baseURI/oauth2/authorise"
 }
 
-case class ClientConfig(id: String, secret: String)
+case class CompanySearchAPIConfig(id: String, secret: String)
 
 case class GoogleAnalytics(code: Option[String])
 
@@ -51,10 +51,11 @@ case class Config(
                    logAssets: Option[Boolean],
                    logRequests: Option[Boolean],
                    printDBTables: Option[Boolean],
-                   api: ApiConfig,
-                   client: ClientConfig,
+                   oAuth: OAuthConfig,
+                   companySearchAPI: CompanySearchAPIConfig,
                    googleAnalytics: Option[GoogleAnalytics],
-                   mockConfig: Option[MockConfig]
+                   mockConfig: Option[MockConfig],
+                   sessionTimeoutInMinutes: Option[Int]
                  )
 
 class AppConfig @Inject()(configuration: Configuration) {
