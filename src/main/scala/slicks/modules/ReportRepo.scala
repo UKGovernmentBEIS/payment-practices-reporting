@@ -63,7 +63,7 @@ trait ReportRepo {
 
   def byCompanyNumber(companiesHouseId: CompaniesHouseId): Future[Seq[Report]]
 
-  def list(cutoffDate: LocalDate, maxRows: Int = 100000): Publisher[FiledReport]
+  def list(cutoffDate: LocalDate): Publisher[FiledReport]
 
   /**
     *

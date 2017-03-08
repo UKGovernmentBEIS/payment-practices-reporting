@@ -69,7 +69,7 @@ class ReportTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(implic
     * Code to adjust fetchSize on Postgres driver taken from:
     * https://engineering.sequra.es/2016/02/database-streaming-on-play-with-slick-from-publisher-to-chunked-result/
     */
-  def list(cutoffDate: LocalDate, maxRows: Int = 100000): Publisher[FiledReport] = {
+  def list(cutoffDate: LocalDate): Publisher[FiledReport] = {
     val disableAutocommit = SimpleDBIO(_.connection.setAutoCommit(false))
     val action = filedReportQueryC.result.withStatementParameters(fetchSize = 10000)
 
