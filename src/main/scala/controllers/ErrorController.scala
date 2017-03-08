@@ -15,20 +15,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package utils
+package controllers
 
-import com.google.inject.ImplementedBy
-import org.joda.time.LocalDateTime
+import javax.inject.Inject
 
-@ImplementedBy(classOf[SystemTimeSource])
-trait TimeSource {
-  def currentTimeMillis(): Long
+import actions.SessionAction
+import config.AppConfig
+import play.api.mvc.{Action, Controller}
 
-  def now(): LocalDateTime
-}
+class ErrorController @Inject()(val appConfig: AppConfig) extends Controller with PageHelper {
 
-class SystemTimeSource extends TimeSource {
-  override def currentTimeMillis() = System.currentTimeMillis()
+  def sessionTimeout = Action { implicit request =>
+    Unauthorized(page("Your session timed out")(home, views.html.errors.sessionTimeout())).removingFromSession(SessionAction.sessionIdKey)
+  }
 
-  override def now(): LocalDateTime = new LocalDateTime()
 }

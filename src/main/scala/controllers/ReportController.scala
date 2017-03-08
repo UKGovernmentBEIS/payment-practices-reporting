@@ -19,7 +19,7 @@ package controllers
 
 import javax.inject.{Inject, Named}
 
-import actions.{CompanyAuthAction, CompanyAuthRequest}
+import actions.{CompanyAuthAction, CompanyAuthRequest, SessionAction}
 import akka.actor.ActorRef
 import config.AppConfig
 import controllers.ReportController.CodeOption.{Colleague, Register}
@@ -91,7 +91,9 @@ class ReportController @Inject()(
     }
   }
 
-  def preLogin(companiesHouseId: CompaniesHouseId) = Action(Ok(page(signInPageTitle)(home, pages.preLogin(companiesHouseId))))
+  def preLogin(companiesHouseId: CompaniesHouseId) = Action { implicit request =>
+    Ok(page(signInPageTitle)(home, pages.preLogin(companiesHouseId))).removingFromSession(SessionAction.sessionIdKey)
+  }
 
   def login(companiesHouseId: CompaniesHouseId) = Action { implicit request =>
     val hasAccountChoice = Form(single("account" -> Validations.yesNo))
