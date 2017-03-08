@@ -227,6 +227,8 @@ function validationPlumbing(messages) {
     v.validateTextInput("paymentHistory.percentageSplit.percentWithin30Days", v.validations.textPercentage);
     v.validateTextInput("paymentHistory.percentageSplit.percentWithin60Days", v.validations.textPercentage);
     v.validateTextInput("paymentHistory.percentageSplit.percentBeyond60Days", v.validations.textPercentage);
+    v.validateTextInput("paymentTerms.paymentPeriod", v.validations.textPositiveInteger);
+    v.validateTextInput("paymentTerms.maximumContractPeriod", v.validations.textPositiveInteger);
 
     v.validateMultiple([
             "paymentHistory.percentageSplit.percentWithin30Days",
