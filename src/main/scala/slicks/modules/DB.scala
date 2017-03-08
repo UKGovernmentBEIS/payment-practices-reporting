@@ -24,6 +24,11 @@ import config.{AppConfig, Config}
 import play.api.Logger
 import play.api.db.slick.DatabaseConfigProvider
 
+/**
+  * This is a helper class that pulls together all the database modules so that we can generate
+  * the sql to create and drop the tables.
+  */
+
 class DB @Inject()(override val dbConfigProvider: DatabaseConfigProvider, appConfig: AppConfig)
   extends ReportModule
     with ConfirmationModule
@@ -31,8 +36,6 @@ class DB @Inject()(override val dbConfigProvider: DatabaseConfigProvider, appCon
     with ExPostgresDriver
     with PgDateSupportJoda
     with PgPlayJsonSupport {
-
-  Logger.info("DB created")
 
   override def pgjson: String = "jsonb"
 
