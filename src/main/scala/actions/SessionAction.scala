@@ -40,7 +40,7 @@ class SessionAction @Inject()(sessionService: SessionService)(implicit ec: Execu
 
   override def invokeBlock[A](request: Request[A], block: (SessionRequest[A]) => Future[Result]): Future[Result] = {
     for {
-      sessionId <- getOrCreateSessionId(request, sessionIdKey)
+      sessionId <- retrieveOrCreateSessionId(request, sessionIdKey)
       exists <- sessionService.exists(sessionId)
       result <- if (exists) refreshAndInvoke(request, block, sessionId) else timeout
     } yield result
@@ -49,7 +49,7 @@ class SessionAction @Inject()(sessionService: SessionService)(implicit ec: Execu
 
   private val timeout = Future.successful(Redirect(controllers.routes.ErrorController.sessionTimeout()))
 
-  private def getOrCreateSessionId[A](request: Request[A], sessionIdKey: String): Future[SessionId] = {
+  private def retrieveOrCreateSessionId[A](request: Request[A], sessionIdKey: String): Future[SessionId] = {
     request.session.get(sessionIdKey) match {
       case Some(id) => Future.successful(SessionId(id))
       case None => sessionService.newSession()
