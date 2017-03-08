@@ -87,6 +87,7 @@ class VisualTestController @Inject()(questions: Questions, summarizer: Summarize
     )
     val review = Seq(views.html.report.review(emptyReview, ReportFormModel(healthyReport), id, companyName, df, reportValidations.reportFormModel))
     val published = Seq(views.html.report.filingSuccess(reportId, "foobar@example.com"))
+    val errors = Seq(views.html.errors.sessionTimeout())
 
     val content: Seq[Html] = (
       Seq(index, download, qStart)
@@ -104,6 +105,7 @@ class VisualTestController @Inject()(questions: Questions, summarizer: Summarize
         ++ publish
         ++ review
         ++ published
+        ++ errors
       ).zipWithIndex.flatMap { case (x, i) => Seq(Html(s"<hr/>screen ${i + 1}"), x) }
     Ok(page("Visual test of all pages")(content: _*))
   }
