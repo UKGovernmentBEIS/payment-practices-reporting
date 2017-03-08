@@ -18,12 +18,17 @@
 package utils
 
 import com.google.inject.ImplementedBy
+import org.joda.time.LocalDateTime
 
 @ImplementedBy(classOf[SystemTimeSource])
 trait TimeSource {
   def currentTimeMillis(): Long
+
+  def now(): LocalDateTime
 }
 
 class SystemTimeSource extends TimeSource {
   override def currentTimeMillis() = System.currentTimeMillis()
+
+  override def now(): LocalDateTime = new LocalDateTime()
 }

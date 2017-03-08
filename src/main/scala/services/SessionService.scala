@@ -21,7 +21,6 @@ import javax.inject.{Inject, Singleton}
 
 import akka.actor.ActorSystem
 import com.google.inject.ImplementedBy
-import org.joda.time.LocalDateTime
 import play.api.libs.json.{Reads, Writes}
 import slicks.modules.SessionTable
 
@@ -39,7 +38,7 @@ trait SessionService {
   /**
     * Create a new session in the session store and return its Id
     */
-  def newSession(lifetimeInMinutes: Int = defaultLifetime, now: LocalDateTime = LocalDateTime.now): Future[SessionId]
+  def newSession(lifetimeInMinutes: Int = defaultLifetime): Future[SessionId]
 
   /**
     * Check if a session with the given id exists in the session store. If there is no session with this id,
@@ -74,13 +73,13 @@ trait SessionService {
     * Refresh the expiry time of the session to be the current time plus the
     * timeout in minutes
     */
-  def refresh(sessionId: SessionId, lifetimeInMinutes: Int = defaultLifetime, now: LocalDateTime = LocalDateTime.now): Future[Unit]
+  def refresh(sessionId: SessionId, lifetimeInMinutes: Int = defaultLifetime): Future[Unit]
 
   /**
     * Find any expired sessions (i.e. sessions that have expiry times that are earlier
     * than the current time) and remove them from the session store.
     */
-  def removeExpired(now: LocalDateTime = LocalDateTime.now): Future[Unit]
+  def removeExpired(): Future[Unit]
 
 }
 

@@ -22,16 +22,16 @@ import javax.inject.Inject
 
 import com.github.tminglei.slickpg.{PgDateSupportJoda, PgPlayJsonSupport}
 import db.SessionRow
-import org.joda.time.LocalDateTime
 import play.api.Logger
 import play.api.db.slick.DatabaseConfigProvider
 import play.api.libs.json.{JsObject, _}
 import services.{SessionId, SessionService}
 import slicks.DBBinding
+import utils.TimeSource
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class SessionTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(implicit ec: ExecutionContext)
+class SessionTable @Inject()(val dbConfigProvider: DatabaseConfigProvider, timeSource: TimeSource)(implicit ec: ExecutionContext)
   extends DBBinding
     with SessionService
     with SessionModule
@@ -43,7 +43,7 @@ class SessionTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(impli
 
   override def pgjson: String = "jsonb"
 
-  def sessionQ(sessionId: Rep[SessionId]) = sessionTable.filter(s => s.id === sessionId && s.expiresAt >= LocalDateTime.now)
+  def sessionQ(sessionId: Rep[SessionId]) = sessionTable.filter(s => s.id === sessionId && s.expiresAt >= timeSource.now())
 
   val sessionC = Compiled(sessionQ _)
 
@@ -54,10 +54,12 @@ class SessionTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(impli
         sessionC(sessionId).update(s.copy(sessionData = newSessionData))
 
       case None =>
-        val row = SessionRow(sessionId, LocalDateTime.now().plusMinutes(20), JsObject(Seq(key -> Json.toJson(value))))
+        val row = SessionRow(sessionId, sessionExpiryTime, JsObject(Seq(key -> Json.toJson(value))))
         sessionTable += row
     }.transactionally.map(_ => ())
   }
+
+  private def sessionExpiryTime = timeSource.now().plusMinutes(defaultLifetime)
 
   override def get[T: Reads](sessionId: SessionId, key: String): Future[Option[T]] = db.run {
     sessionC(sessionId).result.headOption.map {
@@ -97,21 +99,21 @@ class SessionTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(impli
     * Refresh the expiry time of the session to be the current time plus the
     * timeout in minutes
     */
-  override def refresh(sessionId: SessionId, lifetimeInMinutes: Int, now: LocalDateTime): Future[Unit] = db.run {
+  override def refresh(sessionId: SessionId, lifetimeInMinutes: Int): Future[Unit] = db.run {
     Logger.debug(s"asked to refresh $sessionId")
     sessionC(sessionId).result.headOption.flatMap {
-      case Some(s) => sessionC(sessionId).update(s.copy(expiresAt = now.plusMinutes(lifetimeInMinutes)))
+      case Some(s) => sessionC(sessionId).update(s.copy(expiresAt = timeSource.now().plusMinutes(lifetimeInMinutes)))
       case None => DBIO.successful(())
     }.transactionally.map(_ => ())
   }
 
-  override def removeExpired(now: LocalDateTime): Future[Unit] = db.run {
-    sessionTable.filter(_.expiresAt <= now).delete.map(_ => ())
+  override def removeExpired(): Future[Unit] = db.run {
+    sessionTable.filter(_.expiresAt <= timeSource.now()).delete.map(_ => ())
   }
 
-  override def newSession(lifetimeInMinutes: Int, now: LocalDateTime): Future[SessionId] = db.run {
+  override def newSession(lifetimeInMinutes: Int): Future[SessionId] = db.run {
     val id = SessionId(UUID.randomUUID().toString)
-    val expiryTime = now.plusMinutes(lifetimeInMinutes)
+    val expiryTime = timeSource.now().plusMinutes(lifetimeInMinutes)
     (sessionTable += SessionRow(id, expiryTime, JsObject(Seq()))).map { _ => id }
   }
 
