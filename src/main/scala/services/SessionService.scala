@@ -34,8 +34,17 @@ case class SessionId(id: String)
 @ImplementedBy(classOf[SessionTable])
 trait SessionService {
 
-  def newSession(): Future[SessionId]
+  val defaultLifetime = 60
 
+  /**
+    * Create a new session in the session store and return its Id
+    */
+  def newSession(lifetimeInMinutes: Int = defaultLifetime, now: LocalDateTime = LocalDateTime.now): Future[SessionId]
+
+  /**
+    * Check if a session with the given id exists in the session store. If there is no session with this id,
+    * or a session exists but has timed out then this will return false.
+    */
   def exists(sessionId: SessionId): Future[Boolean]
 
   /**
@@ -65,7 +74,7 @@ trait SessionService {
     * Refresh the expiry time of the session to be the current time plus the
     * timeout in minutes
     */
-  def refresh(sessionId: SessionId, lifetimeInMinutes: Int = 20, now: LocalDateTime = LocalDateTime.now): Future[Unit]
+  def refresh(sessionId: SessionId, lifetimeInMinutes: Int = defaultLifetime, now: LocalDateTime = LocalDateTime.now): Future[Unit]
 
   /**
     * Find any expired sessions (i.e. sessions that have expiry times that are earlier

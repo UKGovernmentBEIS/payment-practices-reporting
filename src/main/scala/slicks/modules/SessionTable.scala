@@ -43,8 +43,6 @@ class SessionTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(impli
 
   override def pgjson: String = "jsonb"
 
-  val defaultLifetime = 60
-
   def sessionQ(sessionId: Rep[SessionId]) = sessionTable.filter(s => s.id === sessionId && s.expiresAt >= LocalDateTime.now)
 
   val sessionC = Compiled(sessionQ _)
@@ -111,9 +109,9 @@ class SessionTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(impli
     sessionTable.filter(_.expiresAt <= now).delete.map(_ => ())
   }
 
-  override def newSession(): Future[SessionId] = db.run {
+  override def newSession(lifetimeInMinutes: Int, now: LocalDateTime): Future[SessionId] = db.run {
     val id = SessionId(UUID.randomUUID().toString)
-    val expiryTime = new LocalDateTime().plusMinutes(defaultLifetime)
+    val expiryTime = now.plusMinutes(lifetimeInMinutes)
     (sessionTable += SessionRow(id, expiryTime, JsObject(Seq()))).map { _ => id }
   }
 
