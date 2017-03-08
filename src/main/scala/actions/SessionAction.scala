@@ -17,9 +17,9 @@
 
 package actions
 
-import java.util.UUID
 import javax.inject.Inject
 
+import play.api.mvc.Results.Redirect
 import play.api.mvc.{ActionBuilder, Request, Result}
 import services.{SessionId, SessionService}
 
@@ -31,20 +31,42 @@ case class SessionRequest[A](sessionId: SessionId, request: Request[A])
   * This action checks for a `sessionId` attribute on the Play session. If none is found then an id is created (as a UUID).
   * The value of this `sessionId` is lifted to a property of the `SessionRequest` so that action handlers can access it
   * easily.
+  *
+  * If a sessionId is found on the request, but does not exist in the SessionService, then it is assumed that the
+  * session has timed out and the user is redirected to an appropriate error page.
   */
 class SessionAction @Inject()(sessionService: SessionService)(implicit ec: ExecutionContext) extends ActionBuilder[SessionRequest] {
+  import SessionAction.sessionIdKey
+
   override def invokeBlock[A](request: Request[A], block: (SessionRequest[A]) => Future[Result]): Future[Result] = {
-    val sessionIdKey = "sessionId"
+    for {
+      sessionId <- getOrCreateSessionId(request, sessionIdKey)
+      exists <- sessionService.exists(sessionId)
+      result <- if (exists) refreshAndInvoke(request, block, sessionId) else timeout
+    } yield result
 
-    val sessionId = request.session.get(sessionIdKey) match {
-      case Some(id) => SessionId(id)
-      case None => SessionId(UUID.randomUUID().toString)
-    }
+  }
 
-    sessionService.refresh(sessionId).flatMap { _ =>
-      block(SessionRequest(sessionId, request)).map { result =>
-        result.addingToSession(sessionIdKey -> sessionId.id)(request)
-      }
+  private val timeout = Future.successful(Redirect(controllers.routes.ErrorController.sessionTimeout()))
+
+  private def getOrCreateSessionId[A](request: Request[A], sessionIdKey: String): Future[SessionId] = {
+    request.session.get(sessionIdKey) match {
+      case Some(id) => Future.successful(SessionId(id))
+      case None => sessionService.newSession()
     }
   }
+
+  private def refreshAndInvoke[A](request: Request[A], block: (SessionRequest[A]) => Future[Result], sessionId: SessionId) = {
+    sessionService.refresh(sessionId).flatMap { _ => proceed(request, block, sessionId) }
+  }
+
+  private def proceed[A](request: Request[A], block: (SessionRequest[A]) => Future[Result], sessionId: SessionId) = {
+    block(SessionRequest(sessionId, request)).map { result =>
+      result.addingToSession(sessionIdKey -> sessionId.id)(request)
+    }
+  }
+}
+
+object SessionAction {
+  val sessionIdKey = "sessionId"
 }

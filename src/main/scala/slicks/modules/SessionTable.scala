@@ -17,6 +17,7 @@
 
 package slicks.modules
 
+import java.util.UUID
 import javax.inject.Inject
 
 import com.github.tminglei.slickpg.{PgDateSupportJoda, PgPlayJsonSupport}
@@ -41,6 +42,8 @@ class SessionTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(impli
   import api._
 
   override def pgjson: String = "jsonb"
+
+  val defaultLifetime = 60
 
   def sessionQ(sessionId: Rep[SessionId]) = sessionTable.filter(s => s.id === sessionId && s.expiresAt >= LocalDateTime.now)
 
@@ -106,5 +109,15 @@ class SessionTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(impli
 
   override def removeExpired(now: LocalDateTime): Future[Unit] = db.run {
     sessionTable.filter(_.expiresAt <= now).delete.map(_ => ())
+  }
+
+  override def newSession(): Future[SessionId] = db.run {
+    val id = SessionId(UUID.randomUUID().toString)
+    val expiryTime = new LocalDateTime().plusMinutes(defaultLifetime)
+    (sessionTable += SessionRow(id, expiryTime, JsObject(Seq()))).map { _ => id }
+  }
+
+  override def exists(sessionId: SessionId): Future[Boolean] = db.run {
+    sessionC(sessionId).result.headOption.map(_.isDefined)
   }
 }

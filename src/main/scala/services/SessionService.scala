@@ -34,6 +34,10 @@ case class SessionId(id: String)
 @ImplementedBy(classOf[SessionTable])
 trait SessionService {
 
+  def newSession(): Future[SessionId]
+
+  def exists(sessionId: SessionId): Future[Boolean]
+
   /**
     * Retrieve the entire session data associated with the `sessionId` and attempt to convert it to
     * a value of type `T`

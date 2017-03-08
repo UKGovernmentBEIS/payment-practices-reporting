@@ -47,3 +47,5 @@ POST        /report-payment-practices/coho/login/:id                    controll
 
 GET         /report-payment-practices/coho/code/:id                     controllers.CoHoOAuthMockController.authCode(id:CompaniesHouseId)
 POST        /report-payment-practices/coho/code/:id                     controllers.CoHoOAuthMockController.postAuthCode(id:CompaniesHouseId)
+
+GET         /report-payment-practices/session-timeout                   controllers.ErrorController.sessionTimeout
