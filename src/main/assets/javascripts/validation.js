@@ -35,7 +35,7 @@ function Validation(messages) {
             }
         });
         subscribe(e, "onkeydown", function () {
-            clearError(messageContainer, formGroup)
+            clearError(messageContainer, formGroup);
         });
     }
 
@@ -105,7 +105,7 @@ function Validation(messages) {
 
         var clearErrorCallback = function () {
             clearError(messageContainer, formGroup);
-        }
+        };
 
         subscribe(year, "onkeydown", clearErrorCallback);
         subscribe(month, "onkeydown", clearErrorCallback);
