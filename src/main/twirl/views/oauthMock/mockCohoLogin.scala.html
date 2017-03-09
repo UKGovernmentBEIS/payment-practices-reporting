@@ -17,6 +17,7 @@
     <!--[if IE 6]><link href="//d2mhakq30m5twn.cloudfront.net/style/assets-digital-cabinet-office-gov-uk-static/govuk-template-ie6.css" media="screen" rel="stylesheet" type="text/css" /><![endif]-->
     <!--[if IE 7]><link href="//d2mhakq30m5twn.cloudfront.net/style/assets-digital-cabinet-office-gov-uk-static/govuk-template-ie7.css" media="screen" rel="stylesheet" type="text/css" /><![endif]-->
     <!--[if IE 8]><link href="//d2mhakq30m5twn.cloudfront.net/style/assets-digital-cabinet-office-gov-uk-static/govuk-template-ie8.css" media="screen" rel="stylesheet" type="text/css" /><![endif]-->
+    <link href="@controllers.routes.Assets.at("template/stylesheets/main.css")" media="screen" rel="stylesheet" type="text/css" />
 
     <link href="//d2mhakq30m5twn.cloudfront.net/style/assets-digital-cabinet-office-gov-uk-static/govuk-template-print.css" media="print" rel="stylesheet" type="text/css">
 
@@ -117,25 +118,23 @@
                 Sign in to Companies House
             </h1>
         </header>
+
+        <div class="notice">
+            <i class="icon icon-important">
+                <span class="visually-hidden">Warning</span>
+            </i>
+            <strong>This is a mockup of the Companies House login page. DO NOT enter your live credentials!
+                You do not need to enter any username or password, just click the Sign in button to proceed.</strong>
+        </div>
+
         <!-- TODO add enctype support -->
-        <form name="signin"
-
-              class="form "
-              action="@routes.CoHoOAuthMockController.login(chn)"
-
-              method="POST" enctype="multipart/form-data">
-
+        <form name="signin" class="form " action="@routes.CoHoOAuthMockController.login(chn)" method="POST" enctype="multipart/form-data">
             <fieldset>
                 <legend class="visuallyhidden">Sign in details</legend>
                 <div class="form-group ">
                     <label for="signin_email" class="form-label form-label-bold" id="signin_email-label">
                         Email address    </label>
-                    <input type="email" name="signin_email" id="signin_email" value=""
-
-
-
-                           autocomplete="off"
-                           class="form-control"   />
+                    <input type="email" name="signin_email" id="signin_email" value="" autocomplete="off" class="form-control"   />
                 </div>
                 <div class="form-group">
                     <label for="password" class="form-label form-label-bold" id="password-label">

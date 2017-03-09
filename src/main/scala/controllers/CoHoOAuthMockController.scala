@@ -40,7 +40,7 @@ class CoHoOAuthMockController @Inject()(
                                        (implicit ec: ExecutionContext) extends Controller with PageHelper {
 
   def login(companiesHouseId: CompaniesHouseId) = Action {
-    Ok(views.html.oauthMock.p1(companiesHouseId))
+    Ok(views.html.oauthMock.mockCohoLogin(companiesHouseId))
   }
 
   def postLogin(companiesHouseId: CompaniesHouseId) = Action { request => Redirect(controllers.routes.CoHoOAuthMockController.authCode(companiesHouseId)) }
@@ -49,7 +49,7 @@ class CoHoOAuthMockController @Inject()(
 
     companySearch.find(companiesHouseId).map {
       case Some(co) =>
-        Ok(views.html.oauthMock.p2(companiesHouseId, co.companyName))
+        Ok(views.html.oauthMock.mockCohoAuthCode(companiesHouseId, co.companyName))
       case None => BadRequest(s"Unknown company id ${companiesHouseId.id}")
     }
   }
