@@ -146,6 +146,10 @@ function Validation(messages) {
         return (asInteger(e) < 0 || asInteger(e) > 100) && messages.percentagebounds;
     }
 
+    /**
+     * Trick for dealing with non-numeric values in html5 `number` field taken from
+     * http://stackoverflow.com/questions/18852244/how-to-get-the-raw-value-an-input-type-number-field
+     */
     function validateTextPositiveInteger(e) {
         if ((e.validity) && (!e.validity.valid)) {
             //if html5 validation says it's bad: it's bad
