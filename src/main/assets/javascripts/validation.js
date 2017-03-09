@@ -34,9 +34,6 @@ function Validation(messages) {
                 clearError(messageContainer, formGroup);
             }
         });
-        subscribe(e, "onkeydown", function () {
-            clearError(messageContainer, formGroup);
-        });
     }
 
     function validateMultiple(names, validate) {
@@ -69,9 +66,6 @@ function Validation(messages) {
                 }
                 return true;
             });
-            subscribe(element, "onkeydown", function () {
-                clearError(messageContainer, formGroup);
-            });
         }
     }
 
@@ -102,14 +96,6 @@ function Validation(messages) {
         subscribe(year, "onblur", validationCallback);
         subscribe(month, "onblur", validationCallback);
         subscribe(day, "onblur", validationCallback);
-
-        var clearErrorCallback = function () {
-            clearError(messageContainer, formGroup);
-        };
-
-        subscribe(year, "onkeydown", clearErrorCallback);
-        subscribe(month, "onkeydown", clearErrorCallback);
-        subscribe(day, "onkeydown", clearErrorCallback);
     }
 
     function asInteger(element) {
