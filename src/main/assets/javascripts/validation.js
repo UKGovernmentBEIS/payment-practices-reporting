@@ -22,9 +22,6 @@ function Validation(messages) {
         };
 
         subscribe(e, "onblur", function () {
-            if (e.value === "") {
-                return;
-            }
             var errorMessage = validationFunction(e);
             if (errorMessage) {
                 messageContainer.html(errorMessage);
@@ -143,10 +140,28 @@ function Validation(messages) {
     }
 
     function validateTextPositiveInteger(e) {
+        if ((e.validity) && (!e.validity.valid)) {
+            //if html5 validation says it's bad: it's bad
+            return messages.integer;
+        }
+
+        if (e.value === "") {
+            return null;
+        }
+
         return textInteger(e) || textNonNegative(e);
     }
 
     function validateTextPercentage(e) {
+        if ((e.validity) && (!e.validity.valid)) {
+            //if html5 validation says it's bad: it's bad
+            return messages.integer;
+        }
+
+        if (e.value === "") {
+            return null;
+        }
+
         return textPercentageBounds(e) || textInteger(e);
     }
 
