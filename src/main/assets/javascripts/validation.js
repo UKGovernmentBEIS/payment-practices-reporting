@@ -1,23 +1,8 @@
 /* Validation */
 function Validation(messages) {
-
-    /**
-     * See if the given node is an error message container (identified by having a class of "error-message").
-     * If this node isn't an error message container then check its children recursively.
-     * @param node - the root node to start searching for an error message container
-     * @returns the first error message container found in the tree rooted in the provided node, or null if no
-     * error message container was found
-     */
-    function findErrorMessageContainer(node) {
-        if (!node) {
-            return null;
-        }
-        return $(node).find(".error-message")[0];
-    }
-
-    function subscribe(obj, eventname, callback) {
-        var old = obj[eventname];
-        obj[eventname] = function (x) {
+    function subscribe(element, eventname, callback) {
+        var old = element[eventname];
+        element[eventname] = function (x) {
             if (old) {
                 old(x);
             }
@@ -25,109 +10,97 @@ function Validation(messages) {
         };
     }
 
-    function validateTextInput(id, validate) {
-        var e = document.getElementById(id);
-        if (!e) {
-            return;
-        }
-
-        var formGroup = e.parentElement;
-        var messageContainer = findErrorMessageContainer(formGroup);
-
-        if (!messageContainer) {
-            return;
-        }
-
-        var callbackClear = function () {
-            messageContainer.innerHTML = "&nbsp;";
-            formGroup.className = "form-group";
-        };
-
-        subscribe(e, "onblur", function () {
-            if (e.value === "") {
-                return;
-            }
-            var invalidation = validate(e.value);
-            if (invalidation) {
-                messageContainer.innerHTML = invalidation;
-                formGroup.className = "form-group error";
-            }
-        });
-        subscribe(e, "onkeydown", callbackClear);
+    function clearError(messageContainer, formGroup) {
+        messageContainer.html("&nbsp;");
+        formGroup.removeClass("error");
     }
 
-    function validateMultiple(names, container, validate) {
+    function showError(messageContainer, formGroup, errorMessage) {
+        messageContainer.html(errorMessage);
+        formGroup.addClass("error");
+    }
+
+    function validateTextInput(id, validationFunction) {
+        var e = document.getElementById(id);
+
+        var formGroup = $(e).parents(".form-group").first();
+        var messageContainer = formGroup.find(".error-message");
+
+        subscribe(e, "onblur", function () {
+            var errorMessage = validationFunction(e);
+            if (errorMessage) {
+                showError(messageContainer, formGroup, errorMessage);
+            } else {
+                clearError(messageContainer, formGroup);
+            }
+        });
+    }
+
+    function validateMultiple(names, validate) {
         var elements = [];
-        for (var i = 0; i < names.length; i++) {
-            var es = document.getElementsByName(names[i]);
+        for (var nameIndex = 0; nameIndex < names.length; nameIndex++) {
+            var es = document.getElementsByName(names[nameIndex]);
             if (!es || es.length < 1) {
                 return;
             }
             elements.push(es[0]);
         }
 
-        var message = findErrorMessageContainer(container);
+        var formGroup = $(elements[0]).parents(".form-group").last();
+        var messageContainer = formGroup.find(".error-message").first();
 
-        for (var i2 = 0; i2 < elements.length; i2++) {
-            var element = elements[i2];
+        for (var elementIndex = 0; elementIndex < elements.length; elementIndex++) {
+            var element = elements[elementIndex];
+
             subscribe(element, "onblur", function () {
                 var values = [];
                 for (var j = 0; j < elements.length; j++) {
                     if (elements[j].value === "") {
                         return true;
                     }
-                    values.push(elements[j].value);
+                    values.push(elements[j]);
                 }
-                var invalidation = validate(values);
-                if (invalidation) {
-                    message.innerHTML = invalidation;
-                    message.parentElement.parentElement.className = "form-group error";
+                var errorMessage = validate(values);
+                if (errorMessage) {
+                    showError(messageContainer, formGroup, errorMessage);
+                } else {
+                    clearError(messageContainer, formGroup);
                 }
                 return true;
-            });
-            subscribe(element, "onkeydown", function () {
-                message.innerHTML = "&nbsp;";
-                message.parentElement.parentElement.className = "form-group";
             });
         }
     }
 
-    function validateDateInput(namePrefix, validate) {
-        var year = document.getElementById(namePrefix + ".year");
-        var month = document.getElementById(namePrefix + ".month");
-        var day = document.getElementById(namePrefix + ".day");
+    function validateDateInput(idPrefix, dateValidationFunction) {
+        var year = document.getElementById(idPrefix + ".year");
+        var month = document.getElementById(idPrefix + ".month");
+        var day = document.getElementById(idPrefix + ".day");
         if (!year || !month || !day) {
             return;
         }
 
-        var message = findErrorMessageContainer(year.parentElement.parentElement);
+        var formGroup = $(year).parents(".form-group").first();
+        var messageContainer = formGroup.find(".error-message").first();
 
-        var callbackClear = function () {
-            message.innerHTML = "&nbsp;";
-            message.parentElement.parentElement.className = "form-group";
-        };
-
-        var callback = function () {
+        var validationCallback = function () {
             if (year.value === "" || month.value === "" || day.value === "") {
                 return;
             }
-            var invalidation = validate(year.value, month.value, day.value);
-            if (invalidation) {
-                message.innerHTML = invalidation;
-                message.parentElement.parentElement.className = "form-group error";
+            var errorMessage = dateValidationFunction(year, month, day);
+            if (errorMessage) {
+                showError(messageContainer, formGroup, errorMessage);
+            } else {
+                clearError(messageContainer, formGroup);
             }
         };
 
-        subscribe(year, "onblur", callback);
-        subscribe(month, "onblur", callback);
-        subscribe(day, "onblur", callback);
-
-        subscribe(year, "onkeydown", callbackClear);
-        subscribe(month, "onkeydown", callbackClear);
-        subscribe(day, "onkeydown", callbackClear);
+        subscribe(year, "onblur", validationCallback);
+        subscribe(month, "onblur", validationCallback);
+        subscribe(day, "onblur", validationCallback);
     }
 
-    function asInteger(text) {
+    function asInteger(element) {
+        var text = element.value;
         var i = parseInt(text);
         if (isNaN(i)) {
             return null;
@@ -148,27 +121,49 @@ function Validation(messages) {
         return new Date().getTime() < date.getTime() && messages.future;
     }
 
-    function textNonNegative(text) {
-        return asInteger(text) < 0 && messages.nonnegative;
+    function textNonNegative(e) {
+        return asInteger(e) < 0 && messages.nonnegative;
     }
 
-    function textInteger(text) {
-        return asInteger(text) === null && messages.integer;
+    function textInteger(e) {
+        return asInteger(e) === null && messages.integer;
     }
 
-    function textPercentageBounds(text) {
-        return (asInteger(text) < 0 || asInteger(text) > 100) && messages.percentagebounds;
+    function textPercentageBounds(e) {
+        return (asInteger(e) < 0 || asInteger(e) > 100) && messages.percentagebounds;
     }
 
-    function textPositiveInteger(x) {
-        return textInteger(x) || textNonNegative(x);
+    /**
+     * Trick for dealing with non-numeric values in html5 `number` field taken from
+     * http://stackoverflow.com/questions/18852244/how-to-get-the-raw-value-an-input-type-number-field
+     */
+    function validateTextPositiveInteger(e) {
+        if ((e.validity) && (!e.validity.valid)) {
+            //if html5 validation says it's bad: it's bad
+            return messages.integer;
+        }
+
+        if (e.value === "") {
+            return null;
+        }
+
+        return textInteger(e) || textNonNegative(e);
     }
 
-    function textPercentage(x) {
-        return textPercentageBounds(x) || textInteger(x);
+    function validateTextPercentage(e) {
+        if ((e.validity) && (!e.validity.valid)) {
+            //if html5 validation says it's bad: it's bad
+            return messages.integer;
+        }
+
+        if (e.value === "") {
+            return null;
+        }
+
+        return textPercentageBounds(e) || textInteger(e);
     }
 
-    function multiStartBeforeEnd(inputs) {
+    function validateMultiStartBeforeEnd(inputs) {
         var startYear = inputs[0], startMonth = inputs[1], startDay = inputs[2],
             endYear = inputs[3], endMonth = inputs[4], endDay = inputs[5];
 
@@ -183,14 +178,14 @@ function Validation(messages) {
 
     /**
      * Check that the three inputs sum to 100 +/- 2 (to allow for rounding errors because the numbers should be integers)
-     * @param values - three integers
+     * @param elements - three integers
      * @returns an error message if the sum is less than 98 or more than 102
      */
-    function multiSumTo100(values) {
-        if (textPercentage(values[0]) || textPercentage(values[1]) || textPercentage(values[2])) {
+    function validateMultiSumTo100(elements) {
+        if (validateTextPercentage(elements[0]) || validateTextPercentage(elements[1]) || validateTextPercentage(elements[2])) {
             return false;
         } else {
-            var sum = asInteger(values[0]) + asInteger(values[1]) + asInteger(values[2]);
+            var sum = asInteger(elements[0]) + asInteger(elements[1]) + asInteger(elements[2]);
             return (sum > 102 || sum < 98) && messages.sumto100;
         }
     }
@@ -205,10 +200,10 @@ function Validation(messages) {
         return dateValid(y, m, d) || dateFuture(y, m, d);
     };
 
-    this.validations.textPositiveInteger = textPositiveInteger;
-    this.validations.textPercentage = textPercentage;
-    this.validations.multiSumTo100 = multiSumTo100;
-    this.validations.multiStartBeforeEnd = multiStartBeforeEnd;
+    this.validations.textPositiveInteger = validateTextPositiveInteger;
+    this.validations.textPercentage = validateTextPercentage;
+    this.validations.multiSumTo100 = validateMultiSumTo100;
+    this.validations.multiStartBeforeEnd = validateMultiStartBeforeEnd;
 }
 
 function validationPlumbing(messages) {
@@ -217,9 +212,9 @@ function validationPlumbing(messages) {
     v.validateDateInput("reportDates.startDate", v.validations.dateValid);
     v.validateDateInput("reportDates.endDate", v.validations.dateValid);
 
-    v.validateMultiple(["reportDates.startDate.year", "reportDates.startDate.month", "reportDates.startDate.day",
+    v.validateMultiple([
+            "reportDates.startDate.year", "reportDates.startDate.month", "reportDates.startDate.day",
             "reportDates.endDate.year", "reportDates.endDate.month", "reportDates.endDate.day"],
-        document.getElementById("reportDates.endDate.year").parentElement.parentElement,
         v.validations.multiStartBeforeEnd);
 
     v.validateTextInput("paymentHistory.averageDaysToPay", v.validations.textPositiveInteger);
@@ -231,10 +226,8 @@ function validationPlumbing(messages) {
     v.validateTextInput("paymentTerms.maximumContractPeriod", v.validations.textPositiveInteger);
 
     v.validateMultiple([
-            "paymentHistory.percentageSplit.percentWithin30Days",
-            "paymentHistory.percentageSplit.percentWithin60Days",
-            "paymentHistory.percentageSplit.percentBeyond60Days"
-        ],
-        document.getElementsByName("paymentHistory.percentageSplit.percentWithin30Days")[0].parentElement.parentElement,
-        v.validations.multiSumTo100);
+        "paymentHistory.percentageSplit.percentWithin30Days",
+        "paymentHistory.percentageSplit.percentWithin60Days",
+        "paymentHistory.percentageSplit.percentBeyond60Days"
+    ], v.validations.multiSumTo100);
 }

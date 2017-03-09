@@ -48,8 +48,7 @@ class ReportController @Inject()(
                                   oAuthController: OAuth2Controller,
                                   CompanyAuthAction: CompanyAuthAction,
                                   val appConfig: AppConfig,
-                                  @Named("confirmation-actor") confirmationActor: ActorRef,
-                                  oAuth2Service: OAuth2Service
+                                  @Named("confirmation-actor") confirmationActor: ActorRef
                                 )(implicit ec: ExecutionContext, messages: MessagesApi) extends Controller with PageHelper {
 
   import views.html.{report => pages}

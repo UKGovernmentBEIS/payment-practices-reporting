@@ -20,9 +20,9 @@ import com.google.inject.AbstractModule
 import config.{AppConfig, MockConfig}
 import play.api.libs.concurrent.AkkaGuiceSupport
 import play.api.{Configuration, Environment, Logger}
+import services._
 import services.live.{CompaniesHouseAuth, CompaniesHouseSearch, NotifyServiceImpl}
 import services.mocks.{MockCompanyAuth, MockCompanySearch, MockNotify}
-import services.{CompanyAuthService, CompanySearchService, NotifyService, SessionCleaner}
 import slicks.modules.DB
 
 class Module(environment: Environment, configuration: Configuration) extends AbstractModule with AkkaGuiceSupport {

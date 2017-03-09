@@ -24,6 +24,10 @@ import scala.concurrent.Future
 trait CompanyAuthService {
   def authoriseUrl(companiesHouseId: CompaniesHouseId): String
 
+  def convertCode(code: String): Future[OAuthToken]
+
+  def refreshAccessToken(oAuthToken: OAuthToken): Future[OAuthToken]
+
   def authoriseParams(companiesHouseId: CompaniesHouseId): Map[String, Seq[String]]
 
   def isInScope(companiesHouseId: CompaniesHouseId, oAuthToken: OAuthToken): Future[Boolean]

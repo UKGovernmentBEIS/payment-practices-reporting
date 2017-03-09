@@ -18,6 +18,7 @@
 package services.mocks
 
 import models.CompaniesHouseId
+import org.joda.time.LocalDateTime
 import services.{CompanyAuthService, OAuthToken}
 
 import scala.concurrent.Future
@@ -40,4 +41,8 @@ class MockCompanyAuth extends CompanyAuthService {
 
 
   override def targetScope(companiesHouseId: CompaniesHouseId): String = ""
+
+  override def convertCode(code: String): Future[OAuthToken] = Future.successful(OAuthToken("accessToken", LocalDateTime.now().plusMinutes(60), "refreshToken"))
+
+  override def refreshAccessToken(oAuthToken: OAuthToken): Future[OAuthToken] = Future.successful(OAuthToken("accessToken", LocalDateTime.now().plusMinutes(60), "refreshToken"))
 }

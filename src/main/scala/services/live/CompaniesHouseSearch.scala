@@ -28,7 +28,7 @@ import services._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class CompaniesHouseSearch @Inject()(val ws: WSClient, oAuth2Service: OAuth2Service, appConfig: AppConfig)(implicit val ec: ExecutionContext)
+class CompaniesHouseSearch @Inject()(val ws: WSClient, appConfig: AppConfig)(implicit val ec: ExecutionContext)
   extends RestService with CompanySearchService {
 
   import CompaniesHouseModels._
