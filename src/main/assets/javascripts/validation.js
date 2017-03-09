@@ -1,17 +1,5 @@
 /* Validation */
 function Validation(messages) {
-
-    /**
-     * See if the given node is an error message container (identified by having a class of "error-message").
-     * If this node isn't an error message container then check its children recursively.
-     * @param node - the root node to start searching for an error message container
-     * @returns the first error message container found in the tree rooted in the provided node, or null if no
-     * error message container was found
-     */
-    function findErrorMessageContainer(node) {
-        return $(node).find(".error-message")[0];
-    }
-
     function subscribe(element, eventname, callback) {
         var old = element[eventname];
         element[eventname] = function (x) {
@@ -106,7 +94,7 @@ function Validation(messages) {
             }
             var errorMessage = validationFunction(year, month, day);
             if (errorMessage) {
-                messageContainer.html(errorMessage)
+                messageContainer.html(errorMessage);
                 formGroup.addClass("error");
             }
         };
@@ -121,7 +109,7 @@ function Validation(messages) {
     }
 
     function asInteger(element) {
-        var text = element.value
+        var text = element.value;
         var i = parseInt(text);
         if (isNaN(i)) {
             return null;
