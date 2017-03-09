@@ -19,13 +19,14 @@ package calculator
 
 import org.joda.time.LocalDate
 
+/**
+  * A `Calculator` wraps a `FinancialYear` and provides some convenience methods.
+  */
 case class Calculator(financialYear: FinancialYear) {
   private val cutoff = new LocalDate(2017, 4, 6)
 
   val isFuture: Boolean = !financialYear.startsOnOrAfter(cutoff)
 
-  def reportingPeriods: Seq[ReportingPeriod] = {
-    val firstActiveYear = financialYear.firstYearOnOrAfter(cutoff)
-    firstActiveYear.reportingPeriods
-  }
+  def reportingPeriods: Seq[ReportingPeriod] =
+    financialYear.firstYearOnOrAfter(cutoff).reportingPeriods
 }

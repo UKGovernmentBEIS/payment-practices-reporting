@@ -21,6 +21,10 @@ import javax.inject.Inject
 
 import play.api.http.DefaultHttpFilters
 
+/**
+  * This provides the wiring for the application's filters and is used in
+  * the play configuration.
+  */
 class Filters @Inject()(
                          log: LoggingFilter,
                          rest: RestErrorFilter

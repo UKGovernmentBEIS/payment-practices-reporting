@@ -26,7 +26,14 @@ import play.api.mvc._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class LoggingFilter @Inject()( appConfig: AppConfig)(implicit val mat: Materializer, ec: ExecutionContext) extends Filter {
+/**
+  * Provides logging of the requests, with timings. Logging can be turned on and off with a config
+  * parameter of `logRequests`. Requests for static assets (i.e. urls starting with "/assets") can
+  * be independently turned on/off with a config parameter of `logAssets`, as they can lead to a lot
+  * of noise in the log files.
+  */
+class LoggingFilter @Inject()(appConfig: AppConfig)(implicit val mat: Materializer, ec: ExecutionContext) extends Filter {
+
   import appConfig.config
 
   lazy val logAssets = config.logAssets.getOrElse(false)

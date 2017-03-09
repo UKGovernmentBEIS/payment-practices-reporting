@@ -20,6 +20,10 @@ package calculator
 import forms.DateRange
 import org.joda.time.LocalDate
 
+/**
+  * A `FinancialYear` wraps a `DateRange` and provides methods for calculating
+  * reporting periods and the next financial year, etc.
+  */
 case class FinancialYear(dates: DateRange) {
 
   def startsOnOrAfter(cutoff: LocalDate): Boolean = dates.startsOnOrAfter(cutoff)
