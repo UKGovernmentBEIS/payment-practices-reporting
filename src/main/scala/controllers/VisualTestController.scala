@@ -87,7 +87,11 @@ class VisualTestController @Inject()(questions: Questions, summarizer: Summarize
     )
     val review = Seq(views.html.report.review(emptyReview, ReportFormModel(healthyReport), id, companyName, df, reportValidations.reportFormModel))
     val published = Seq(views.html.report.filingSuccess(reportId, "foobar@example.com"))
-    val errors = Seq(views.html.errors.sessionTimeout())
+    val errors = Seq(
+      views.html.errors.sessionTimeout(),
+      views.html.errors.error404(),
+      views.html.errors.error500()
+    )
 
     val content: Seq[Html] = (
       Seq(index, download, qStart)

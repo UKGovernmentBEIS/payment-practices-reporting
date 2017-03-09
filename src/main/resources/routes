@@ -49,4 +49,3 @@ GET         /report-payment-practices/coho/code/:id                     controll
 POST        /report-payment-practices/coho/code/:id                     controllers.CoHoOAuthMockController.postAuthCode(id:CompaniesHouseId)
 
 GET         /report-payment-practices/session-timeout                   controllers.ErrorController.sessionTimeout
-GET         /report-payment-practices/not-found                         controllers.ErrorController.notFound

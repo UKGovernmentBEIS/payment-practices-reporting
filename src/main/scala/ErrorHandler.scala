@@ -17,7 +17,8 @@
 
 import javax.inject._
 
-import controllers.routes
+import config.AppConfig
+import controllers.PageHelper
 import play.api._
 import play.api.http.DefaultHttpErrorHandler
 import play.api.mvc.Results._
@@ -28,14 +29,21 @@ import scala.concurrent.Future
 
 @Singleton
 class ErrorHandler @Inject()(
+                              val appConfig: AppConfig,
                               env: Environment,
                               conf: Configuration,
                               sourceMapper: OptionalSourceMapper,
                               router: Provider[Router]
-                            ) extends DefaultHttpErrorHandler(env, conf, sourceMapper, router) {
+                            )
+  extends DefaultHttpErrorHandler(env, conf, sourceMapper, router)
+    with PageHelper {
+
+  override protected def onProdServerError(request: RequestHeader, exception: UsefulException) = {
+    Future.successful(InternalServerError(page("Page not found")(home, views.html.errors.error500())))
+  }
 
   override protected def onNotFound(request: RequestHeader, message: String): Future[Result] = {
     if (env.mode != Mode.Prod) super.onNotFound(request, message)
-    else Future.successful(Redirect(routes.ErrorController.notFound()))
+    else Future.successful(NotFound(page("Page not found")(home, views.html.errors.error404())))
   }
 }
