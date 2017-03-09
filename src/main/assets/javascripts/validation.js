@@ -63,12 +63,13 @@ function Validation(messages) {
                 var errorMessage = validate(values);
                 if (errorMessage) {
                     showError(messageContainer, formGroup, errorMessage);
+                } else {
+                    clearError(messageContainer, formGroup);
                 }
                 return true;
             });
         }
     }
-
 
     function validateDateInput(idPrefix, dateValidationFunction) {
         var year = document.getElementById(idPrefix + ".year");
