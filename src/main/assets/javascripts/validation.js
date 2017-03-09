@@ -25,7 +25,7 @@ function Validation(messages) {
         };
     }
 
-    function validateTextInput(id, validate) {
+    function validateTextInput(id, validationFunction) {
         var e = document.getElementById(id);
         if (!e) {
             return;
@@ -38,7 +38,7 @@ function Validation(messages) {
             return;
         }
 
-        var callbackClear = function () {
+        var clearError = function () {
             messageContainer.innerHTML = "&nbsp;";
             formGroup.className = "form-group";
         };
@@ -47,13 +47,13 @@ function Validation(messages) {
             if (e.value === "") {
                 return;
             }
-            var invalidation = validate(e.value);
+            var invalidation = validationFunction(e.value);
             if (invalidation) {
                 messageContainer.innerHTML = invalidation;
                 formGroup.className = "form-group error";
             }
         });
-        subscribe(e, "onkeydown", callbackClear);
+        subscribe(e, "onkeydown", clearError);
     }
 
     function validateMultiple(names, container, validate) {
