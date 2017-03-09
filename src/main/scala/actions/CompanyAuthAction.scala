@@ -56,7 +56,7 @@ case class CompanyAuthRequest[A](sessionId: SessionId, companyDetail: CompanyDet
   * If the access token retrieved from the session has expired then this action will refresh it using
   * the oAuth2 refresh token and update the session with the new values.
   */
-class CompanyAuthAction @Inject()(SessionAction: SessionAction, sessionService: SessionService, oAuth2Service: OAuth2Service)(implicit ec: ExecutionContext) {
+class CompanyAuthAction @Inject()(SessionAction: SessionAction, sessionService: SessionService, companyAuthService: CompanyAuthService)(implicit ec: ExecutionContext) {
   def extractTime(s: String): Option[LocalDateTime] = Try(new LocalDateTime(s.toLong)).toOption
 
   def apply(expectedId: CompaniesHouseId): ActionBuilder[CompanyAuthRequest] = new ActionBuilder[CompanyAuthRequest] {
@@ -83,7 +83,7 @@ class CompanyAuthAction @Inject()(SessionAction: SessionAction, sessionService: 
   def freshenToken(sessionId: SessionId, oAuthToken: OAuthToken): Future[OAuthToken] =
     if (oAuthToken.isExpired) {
       for {
-        freshToken <- oAuth2Service.refreshAccessToken(oAuthToken)
+        freshToken <- companyAuthService.refreshAccessToken(oAuthToken)
         _ <- sessionService.put(sessionId, CompanyAuthAction.oAuthTokenKey, freshToken)
       } yield freshToken
     } else Future.successful(oAuthToken)

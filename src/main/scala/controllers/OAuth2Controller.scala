@@ -32,7 +32,6 @@ class OAuth2Controller @Inject()(
                                   sessionService: SessionService,
                                   companySearchService: CompanySearchService,
                                   companyAuthService: CompanyAuthService,
-                                  oAuth2Service: OAuth2Service,
                                   SessionAction: SessionAction)(implicit exec: ExecutionContext) extends Controller {
 
   def startOauthDance(companiesHouseId: CompaniesHouseId)(implicit request: RequestHeader): Result = {
@@ -43,7 +42,7 @@ class OAuth2Controller @Inject()(
     SessionAction.async { implicit request =>
       val tokenDetails: Future[Either[Result, OAuthToken]] = code match {
         case None => Future.successful(Left(BadRequest("No oAuth code provided")))
-        case Some(c) => oAuth2Service.convertCode(c).map(Right(_))
+        case Some(c) => companyAuthService.convertCode(c).map(Right(_))
       }
 
       import actions.CompanyAuthAction._
