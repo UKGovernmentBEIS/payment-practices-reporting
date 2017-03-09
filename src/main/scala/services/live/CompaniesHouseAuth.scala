@@ -39,6 +39,16 @@ class CompaniesHouseAuth @Inject()(val ws: WSClient, appConfig: AppConfig)(impli
 
   import appConfig.config
 
+  val clientIdParam = "client_id"
+  val clientSecretParam = "client_secret"
+  val grantTypeParam = "grant_type"
+  val redirectUriParam = "redirect_uri"
+  val refreshTokenParam = "refresh_token"
+  val responseTypeParam = "response_type"
+  val codeParam = "code"
+  val scopeParam = "scope"
+  val stateParam = "state"
+
   private def bearerAuth(oAuthToken: OAuthToken) = s"Bearer ${oAuthToken.accessToken}"
 
   def targetScope(companiesHouseId: CompaniesHouseId): String = s"https://api.companieshouse.gov.uk/company/${companiesHouseId.id}"
@@ -62,26 +72,20 @@ class CompaniesHouseAuth @Inject()(val ws: WSClient, appConfig: AppConfig)(impli
 
   override def authoriseUrl(companiesHouseId: CompaniesHouseId) = config.oAuth.authorizeSchemeUri
 
-  override def authoriseParams(companiesHouseId: CompaniesHouseId) = Map(
-    "client_id" -> Seq(config.companySearchAPI.id),
-    "redirect_uri" -> Seq(config.oAuth.callbackURL),
-    "scope" -> Seq(targetScope(companiesHouseId)),
-    "state" -> Seq(companiesHouseId.id),
-    "response_type" -> Seq("code")
-  )
+  override def authoriseParams(companiesHouseId: CompaniesHouseId) = {
 
-  import appConfig.config._
-
-  val clientIdParam = "client_id"
-  val clientSecretParam = "client_secret"
-  val grantTypeParam = "grant_type"
-  val redirectUriParam = "redirect_uri"
-  val codeParam = "code"
-  val refreshTokenParam = "refresh_token"
+    Map(
+      clientIdParam -> Seq(config.companySearchAPI.id),
+      redirectUriParam -> Seq(config.oAuth.callbackURL),
+      scopeParam -> Seq(targetScope(companiesHouseId)),
+      stateParam -> Seq(companiesHouseId.id),
+      responseTypeParam -> Seq("code")
+    )
+  }
 
   val clientDetails = Map(
-    clientIdParam -> companySearchAPI.id,
-    clientSecretParam -> companySearchAPI.secret
+    clientIdParam -> config.companySearchAPI.id,
+    clientSecretParam -> config.companySearchAPI.secret
   )
 
   implicit val atrFormat = Json.format[AccessTokenResponse]
@@ -90,9 +94,8 @@ class CompaniesHouseAuth @Inject()(val ws: WSClient, appConfig: AppConfig)(impli
     (clientDetails ++ ps).map { case (k, v) => k -> Seq(v) }
 
   private[services] def call(params: Seq[(String, String)]): Future[WSResponse] = {
-    ws.url(oAuth.accessTokenUri).withMethod("POST").withBody(mkParams(params)).execute()
+    ws.url(config.oAuth.accessTokenUri).withMethod("POST").withBody(mkParams(params)).execute()
   }
-
 
   def convertCode(code: String): Future[OAuthToken] = {
     Logger.debug("convert code")
@@ -101,7 +104,7 @@ class CompaniesHouseAuth @Inject()(val ws: WSClient, appConfig: AppConfig)(impli
     val params = Seq(
       grantTypeParam -> "authorization_code",
       codeParam -> code,
-      redirectUriParam -> oAuth.callbackURL
+      redirectUriParam -> config.oAuth.callbackURL
     )
 
     call(params).map { response =>
@@ -129,8 +132,8 @@ class CompaniesHouseAuth @Inject()(val ws: WSClient, appConfig: AppConfig)(impli
     val url = "https://account.companieshouse.gov.uk/oauth2/token"
 
     val body = Map(
-      clientIdParam -> companySearchAPI.id,
-      clientSecretParam -> companySearchAPI.secret,
+      clientIdParam -> config.companySearchAPI.id,
+      clientSecretParam -> config.companySearchAPI.secret,
       grantTypeParam -> "refresh_token",
       refreshTokenParam -> oAuthToken.refreshToken
     ).map { case (k, v) => (k, Seq(v)) }
