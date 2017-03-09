@@ -10,25 +10,33 @@ function Validation(messages) {
         };
     }
 
+    function clearError(messageContainer, formGroup) {
+        messageContainer.html("&nbsp;");
+        formGroup.removeClass("error");
+    }
+
+    function showError(messageContainer, formGroup, errorMessage) {
+        messageContainer.html(errorMessage);
+        formGroup.addClass("error");
+    }
+
     function validateTextInput(id, validationFunction) {
         var e = document.getElementById(id);
 
         var formGroup = $(e).parents(".form-group").first();
         var messageContainer = formGroup.find(".error-message");
 
-        var clearError = function () {
-            messageContainer.html("&nbsp;");
-            formGroup.removeClass("error");
-        };
-
         subscribe(e, "onblur", function () {
             var errorMessage = validationFunction(e);
             if (errorMessage) {
-                messageContainer.html(errorMessage);
-                formGroup.addClass("error");
+                showError(messageContainer, formGroup, errorMessage);
+            } else {
+                clearError(messageContainer, formGroup);
             }
         });
-        subscribe(e, "onkeydown", clearError);
+        subscribe(e, "onkeydown", function () {
+            clearError(messageContainer, formGroup)
+        });
     }
 
     function validateMultiple(names, validate) {
@@ -57,19 +65,18 @@ function Validation(messages) {
                 }
                 var errorMessage = validate(values);
                 if (errorMessage) {
-                    messageContainer.html(errorMessage);
-                    formGroup.addClass("error");
+                    showError(messageContainer, formGroup, errorMessage);
                 }
                 return true;
             });
             subscribe(element, "onkeydown", function () {
-                messageContainer.html("&nbsp;");
-                formGroup.removeClass("error");
+                clearError(messageContainer, formGroup);
             });
         }
     }
 
-    function validateDateInput(idPrefix, validationFunction) {
+
+    function validateDateInput(idPrefix, dateValidationFunction) {
         var year = document.getElementById(idPrefix + ".year");
         var month = document.getElementById(idPrefix + ".month");
         var day = document.getElementById(idPrefix + ".day");
@@ -80,19 +87,15 @@ function Validation(messages) {
         var formGroup = $(year).parents(".form-group").first();
         var messageContainer = formGroup.find(".error-message").first();
 
-        var clearError = function () {
-            messageContainer.html("&nbsp;");
-            formGroup.removeClass("error");
-        };
-
         var validationCallback = function () {
             if (year.value === "" || month.value === "" || day.value === "") {
                 return;
             }
-            var errorMessage = validationFunction(year, month, day);
+            var errorMessage = dateValidationFunction(year, month, day);
             if (errorMessage) {
-                messageContainer.html(errorMessage);
-                formGroup.addClass("error");
+                showError(messageContainer, formGroup, errorMessage);
+            } else {
+                clearError(messageContainer, formGroup);
             }
         };
 
@@ -100,9 +103,13 @@ function Validation(messages) {
         subscribe(month, "onblur", validationCallback);
         subscribe(day, "onblur", validationCallback);
 
-        subscribe(year, "onkeydown", clearError);
-        subscribe(month, "onkeydown", clearError);
-        subscribe(day, "onkeydown", clearError);
+        var clearErrorCallback = function () {
+            clearError(messageContainer, formGroup);
+        }
+
+        subscribe(year, "onkeydown", clearErrorCallback);
+        subscribe(month, "onkeydown", clearErrorCallback);
+        subscribe(day, "onkeydown", clearErrorCallback);
     }
 
     function asInteger(element) {
