@@ -40,7 +40,7 @@ class ErrorHandler @Inject()(
     with PageHelper {
 
   override protected def onProdServerError(request: RequestHeader, exception: UsefulException) = {
-    Future.successful(InternalServerError(page("Page not found")(home, views.html.errors.error500())))
+    Future.successful(InternalServerError(page("Something went wrong at our end")(home, views.html.errors.error500())))
   }
 
   override protected def onNotFound(request: RequestHeader, message: String): Future[Result] = {
