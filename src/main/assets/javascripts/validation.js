@@ -47,7 +47,7 @@ function Validation(messages) {
             if (e.value === "") {
                 return;
             }
-            var invalidation = validationFunction(e.value);
+            var invalidation = validationFunction(e);
             if (invalidation) {
                 messageContainer.innerHTML = invalidation;
                 formGroup.className = "form-group error";
@@ -76,7 +76,7 @@ function Validation(messages) {
                     if (elements[j].value === "") {
                         return true;
                     }
-                    values.push(elements[j].value);
+                    values.push(elements[j]);
                 }
                 var invalidation = validate(values);
                 if (invalidation) {
@@ -127,7 +127,8 @@ function Validation(messages) {
         subscribe(day, "onkeydown", callbackClear);
     }
 
-    function asInteger(text) {
+    function asInteger(element) {
+        var text = element.value
         var i = parseInt(text);
         if (isNaN(i)) {
             return null;
@@ -148,27 +149,27 @@ function Validation(messages) {
         return new Date().getTime() < date.getTime() && messages.future;
     }
 
-    function textNonNegative(text) {
-        return asInteger(text) < 0 && messages.nonnegative;
+    function textNonNegative(e) {
+        return asInteger(e) < 0 && messages.nonnegative;
     }
 
-    function textInteger(text) {
-        return asInteger(text) === null && messages.integer;
+    function textInteger(e) {
+        return asInteger(e) === null && messages.integer;
     }
 
-    function textPercentageBounds(text) {
-        return (asInteger(text) < 0 || asInteger(text) > 100) && messages.percentagebounds;
+    function textPercentageBounds(e) {
+        return (asInteger(e) < 0 || asInteger(e) > 100) && messages.percentagebounds;
     }
 
-    function textPositiveInteger(x) {
-        return textInteger(x) || textNonNegative(x);
+    function validateTextPositiveInteger(e) {
+        return textInteger(e) || textNonNegative(e);
     }
 
-    function textPercentage(x) {
-        return textPercentageBounds(x) || textInteger(x);
+    function validateTextPercentage(e) {
+        return textPercentageBounds(e) || textInteger(e);
     }
 
-    function multiStartBeforeEnd(inputs) {
+    function validateMultiStartBeforeEnd(inputs) {
         var startYear = inputs[0], startMonth = inputs[1], startDay = inputs[2],
             endYear = inputs[3], endMonth = inputs[4], endDay = inputs[5];
 
@@ -183,14 +184,14 @@ function Validation(messages) {
 
     /**
      * Check that the three inputs sum to 100 +/- 2 (to allow for rounding errors because the numbers should be integers)
-     * @param values - three integers
+     * @param elements - three integers
      * @returns an error message if the sum is less than 98 or more than 102
      */
-    function multiSumTo100(values) {
-        if (textPercentage(values[0]) || textPercentage(values[1]) || textPercentage(values[2])) {
+    function validateMultiSumTo100(elements) {
+        if (validateTextPercentage(elements[0]) || validateTextPercentage(elements[1]) || validateTextPercentage(elements[2])) {
             return false;
         } else {
-            var sum = asInteger(values[0]) + asInteger(values[1]) + asInteger(values[2]);
+            var sum = asInteger(elements[0]) + asInteger(elements[1]) + asInteger(elements[2]);
             return (sum > 102 || sum < 98) && messages.sumto100;
         }
     }
@@ -205,10 +206,10 @@ function Validation(messages) {
         return dateValid(y, m, d) || dateFuture(y, m, d);
     };
 
-    this.validations.textPositiveInteger = textPositiveInteger;
-    this.validations.textPercentage = textPercentage;
-    this.validations.multiSumTo100 = multiSumTo100;
-    this.validations.multiStartBeforeEnd = multiStartBeforeEnd;
+    this.validations.textPositiveInteger = validateTextPositiveInteger;
+    this.validations.textPercentage = validateTextPercentage;
+    this.validations.multiSumTo100 = validateMultiSumTo100;
+    this.validations.multiStartBeforeEnd = validateMultiStartBeforeEnd;
 }
 
 function validationPlumbing(messages) {
