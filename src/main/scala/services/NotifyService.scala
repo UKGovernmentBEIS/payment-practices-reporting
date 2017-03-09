@@ -19,10 +19,10 @@ package services
 
 import uk.gov.service.notify.SendEmailResponse
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 trait NotifyService {
-  def sendEmail(templateId: String, recipient: String, params: Map[String, String]): Future[SendEmailResponse]
+  def sendEmail(templateId: String, recipient: String, params: Map[String, String])(implicit ec:ExecutionContext): Future[SendEmailResponse]
 }
 
 

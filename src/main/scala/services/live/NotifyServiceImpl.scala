@@ -26,20 +26,23 @@ import services.NotifyService
 import uk.gov.service.notify.{NotificationClient, SendEmailResponse}
 
 import scala.collection.JavaConversions._
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class NotifyServiceImpl @Inject()(actorSystem: ActorSystem, appConfig: AppConfig) extends NotifyService {
   val key = appConfig.config.notifyService.apiKey
-  implicit val ec = actorSystem.dispatchers.lookup("email-dispatcher")
 
-  override def sendEmail(templateId: String, recipient: String, params: Map[String, String]): Future[SendEmailResponse] = {
+  /**
+    * @param ec - the `sendEmail` call is blocking on the network call (because we're using the Java implementation
+    *           of the GOV Notify API) so accept an execution context that can put these calls onto a separate thread
+    *           pool from Play's client pool.
+    * @return
+    */
+  override def sendEmail(templateId: String, recipient: String, params: Map[String, String])(implicit ec: ExecutionContext): Future[SendEmailResponse] = {
     val client = new NotificationClient(key)
 
     val m: util.Map[String, String] = params
     val jParams = new util.HashMap[String, String]()
     jParams.putAll(m)
-    Future {
-      client.sendEmail(templateId, recipient, jParams, "")
-    }
+    Future.successful(client.sendEmail(templateId, recipient, jParams, ""))
   }
 }

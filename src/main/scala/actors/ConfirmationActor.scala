@@ -42,9 +42,15 @@ import scala.util.Success
   *
   */
 class ConfirmationActor @Inject()(deliveryService: ConfirmationDeliveryService) extends Actor {
+
+  /**
+    * Use the execution context, and hence the thread pool, for this actor for scheduling
+    * the poll events and for making the network calls to deliver notifications.
+    */
   implicit val ec = context.dispatcher
 
   Logger.debug(s"ConfirmationActor started")
+  Logger.debug(s"dispatcher is ${context.dispatcher}")
 
   context.system.scheduler.schedule(1 second, 10 seconds, self, 'poll)
 
