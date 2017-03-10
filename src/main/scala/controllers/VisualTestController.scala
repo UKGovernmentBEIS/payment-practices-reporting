@@ -80,10 +80,11 @@ class VisualTestController @Inject()(questions: Questions, summarizer: Summarize
     val reportValidations = new Validations(new SystemTimeSource)
     val emptyReport: Form[ReportFormModel] = Form(reportValidations.reportFormModel)
     val emptyReview: Form[ReportReviewModel] = Form(reportValidations.reportReviewModel)
+    val header = h1(s"Publish a report for:<br>$companyName")
     val publish = Seq(
-      html(h1(s"Publish a report for:<br>$companyName"), views.html.report.file(emptyReport, id, df)),
-      html(h1(s"Publish a report for:<br>$companyName"), views.html.report.file(emptyReport.fill(ReportFormModel(healthyReport)), id, df)),
-      html(h1(s"Publish a report for:<br>$companyName"), views.html.report.file(emptyReport.fillAndValidate(ReportFormModel(unhealthyReport)), id, df))
+      views.html.report.file(header, emptyReport, id, df),
+      views.html.report.file(header, emptyReport.fill(ReportFormModel(healthyReport)), id, df),
+      views.html.report.file(header, emptyReport.fillAndValidate(ReportFormModel(unhealthyReport)), id, df)
     )
     val review = Seq(views.html.report.review(emptyReview, ReportFormModel(healthyReport), id, companyName, df, reportValidations.reportFormModel))
     val published = Seq(views.html.report.filingSuccess(reportId, "foobar@example.com"))

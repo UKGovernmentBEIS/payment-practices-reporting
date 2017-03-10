@@ -1,7 +1,9 @@
 @import org.joda.time.format.DateTimeFormatter
-@(form: Form[forms.report.ReportFormModel], companyId: CompaniesHouseId, df: DateTimeFormatter)(implicit messages: MessagesApi)
+@(header:Html, form: Form[forms.report.ReportFormModel], companyId: CompaniesHouseId, df: DateTimeFormatter)(implicit messages: MessagesApi)
 
 <div class="scannable-wrapper">
+
+    @header
 
     <div class="notice">
         <i class="icon icon-important">
