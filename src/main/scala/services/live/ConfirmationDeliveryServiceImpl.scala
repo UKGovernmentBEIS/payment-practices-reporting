@@ -23,30 +23,36 @@ import config.AppConfig
 import dbrows.ConfirmationPendingRow
 import org.joda.time.LocalDateTime
 import org.joda.time.format.DateTimeFormat
+import play.api.Logger
 import services._
-import slicks.modules.{ConfirmationRepo, FiledReport}
 import uk.gov.service.notify.NotificationClientException
 import views.html.ReportNum
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class ConfirmationDeliveryServiceImpl @Inject()(confirmationRepo: ConfirmationRepo, notifyService: NotifyService, appConfig: AppConfig) extends ConfirmationDeliveryService {
+class ConfirmationDeliveryServiceImpl @Inject()(confirmationRepo: ConfirmationService, notifyService: NotifyService, appConfig: AppConfig) extends ConfirmationDeliveryService {
   val templateId = appConfig.config.notifyService.templateId
   val df = DateTimeFormat.forPattern("d MMMM YYYY")
 
   def attemptDelivery(implicit ec: ExecutionContext): Future[Option[DeliveryOutcome]] = {
     confirmationRepo.findUnconfirmedAndLock().flatMap {
-      case Some((confirmation, report)) =>
-        notifyService.sendEmail(templateId, confirmation.emailAddress, buildParams(confirmation, report)).flatMap { response =>
-          confirmationRepo.confirmationSent(report.header.id, LocalDateTime.now, response)
-            .map(_ => Some(ConfirmationSent(report.header.id)))
-        }.recoverWith {
-          case nex: NotificationClientException =>
-            confirmationRepo.confirmationFailed(report.header.id, LocalDateTime.now, nex)
-              .map(_ => Some(ConfirmationFailed(report.header.id)))
-        }
-
+      case Some((confirmation, report)) => attemptToSend(confirmation, report).map(Some(_))
       case _ => Future.successful(None)
+    }
+  }
+
+  private def attemptToSend(confirmation: ConfirmationPendingRow, report: FiledReport)(implicit ec: ExecutionContext): Future[DeliveryOutcome] = {
+    notifyService.sendEmail(templateId, confirmation.emailAddress, buildParams(confirmation, report)).flatMap { response =>
+      confirmationRepo.confirmationSent(report.header.id, LocalDateTime.now, response)
+        .map(_ => ConfirmationSent(report.header.id))
+    }.recoverWith {
+      case nex: NotificationClientException =>
+        confirmationRepo.confirmationFailed(report.header.id, LocalDateTime.now, nex)
+          .map(_ => ConfirmationFailed(report.header.id))
+
+      case ex: Exception =>
+        Logger.error("Exception sending email", ex)
+        throw ex
     }
   }
 

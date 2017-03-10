@@ -18,7 +18,7 @@
 package controllers
 
 import org.joda.time.LocalDate
-import slicks.modules.FiledReport
+import services.FiledReport
 import utils.YesNo
 
 import scala.language.implicitConversions

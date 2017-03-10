@@ -25,15 +25,14 @@ import config.AppConfig
 import models.{CompaniesHouseId, ReportId}
 import org.joda.time.format.DateTimeFormat
 import play.api.mvc.{Action, Controller}
-import services.{CompanyAuthService, CompanySearchService, PagedResults}
-import slicks.modules.ReportRepo
+import services.{CompanyAuthService, CompanySearchService, PagedResults, ReportService}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class SearchController @Inject()(
                                   companySearch: CompanySearchService,
                                   companyAuth: CompanyAuthService,
-                                  reports: ReportRepo,
+                                  reports: ReportService,
                                   val appConfig: AppConfig)(implicit ec: ExecutionContext)
   extends Controller
     with PageHelper {

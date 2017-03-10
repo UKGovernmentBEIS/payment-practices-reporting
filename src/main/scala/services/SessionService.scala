@@ -22,7 +22,7 @@ import javax.inject.{Inject, Singleton}
 import akka.actor.ActorSystem
 import com.google.inject.ImplementedBy
 import play.api.libs.json.{Reads, Writes}
-import slicks.modules.SessionTable
+import slicks.repos.SessionTable
 
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}

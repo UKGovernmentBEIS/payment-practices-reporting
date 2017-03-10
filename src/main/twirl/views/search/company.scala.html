@@ -1,6 +1,5 @@
-@import services.{CompanyDetail, PagedResults}
+@import services.{CompanyDetail, FiledReport, PagedResults}
 @import org.joda.time.format.DateTimeFormatter
-@import slicks.modules.FiledReport
 @(item: CompanyDetail, reports: PagedResults[FiledReport], pageLink: Int => String, df:DateTimeFormatter)
 
 <h1 class="heading-xlarge">

@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package slicks.modules
+package slicks.repos
 
 import javax.inject.Inject
 
@@ -26,13 +26,16 @@ import models.{CompaniesHouseId, ReportId}
 import org.joda.time.LocalDate
 import org.reactivestreams.Publisher
 import play.api.db.slick.DatabaseConfigProvider
+import services.{FiledReport, Report, ReportService}
 import slicks.DBBinding
+import slicks.helpers.RowBuilders
+import slicks.modules.{ConfirmationModule, ReportModule}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class ReportTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(implicit ec: ExecutionContext)
   extends DBBinding
-    with ReportRepo
+    with ReportService
     with ReportModule
     with ConfirmationModule
     with ReportQueries

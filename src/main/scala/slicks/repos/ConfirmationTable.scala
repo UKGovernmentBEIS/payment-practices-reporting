@@ -15,32 +15,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package slicks.modules
+package slicks.repos
 
 import javax.inject.Inject
 
-import com.google.inject.ImplementedBy
 import dbrows.{ConfirmationFailedRow, ConfirmationPendingRow, ConfirmationSentRow}
 import models.ReportId
 import org.joda.time.LocalDateTime
 import play.api.db.slick.DatabaseConfigProvider
+import services.{ConfirmationService, FiledReport}
 import slick.dbio.Effect.Write
+import slicks.modules.{ConfirmationModule, ReportModule}
 import uk.gov.service.notify.{NotificationClientException, SendEmailResponse}
-import utils._
+import utils.{NotificationClientErrorProcessing, PermanentFailure, TransientFailure}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-@ImplementedBy(classOf[ConfirmationTable])
-trait ConfirmationRepo {
-  def findUnconfirmedAndLock(): Future[Option[(ConfirmationPendingRow, FiledReport)]]
-
-  def confirmationSent(reportId: ReportId, when: LocalDateTime, response: SendEmailResponse): Future[Unit]
-
-  def confirmationFailed(reportId: ReportId, when: LocalDateTime, ex: NotificationClientException): Future[Unit]
-}
-
 class ConfirmationTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(implicit ec: ExecutionContext)
-  extends ConfirmationRepo
+  extends ConfirmationService
     with ConfirmationModule
     with ReportModule
     with ReportQueries {
@@ -122,6 +114,3 @@ class ConfirmationTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(
     }.map(_ => ()).transactionally
   }
 }
-
-
-

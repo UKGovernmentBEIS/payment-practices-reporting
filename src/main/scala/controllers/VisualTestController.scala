@@ -31,8 +31,7 @@ import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, Controller}
 import play.twirl.api.Html
 import questionnaire._
-import services.{CompanyDetail, CompanySearchResult, PagedResults}
-import slicks.modules.FiledReport
+import services.{CompanyDetail, CompanySearchResult, FiledReport, PagedResults}
 import utils.{SystemTimeSource, YesNo}
 
 class VisualTestController @Inject()(questions: Questions, summarizer: Summarizer, val appConfig: AppConfig)(implicit messages: MessagesApi) extends Controller with PageHelper {

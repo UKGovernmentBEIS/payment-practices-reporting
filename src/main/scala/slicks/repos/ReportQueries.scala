@@ -15,9 +15,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package slicks.modules
+package slicks.repos
 
 import slicks.DBBinding
+import slicks.modules.ReportModule
 
 trait ReportQueries {
   self : DBBinding with ReportModule =>

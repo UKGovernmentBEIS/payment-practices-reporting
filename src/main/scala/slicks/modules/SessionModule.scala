@@ -23,6 +23,7 @@ import org.joda.time.LocalDateTime
 import play.api.libs.json.JsObject
 import services.SessionId
 import slicks.DBBinding
+import slicks.helpers.PlayJsonMappers
 
 trait SessionModule extends DBBinding with PlayJsonMappers {
   self: PgPlayJsonSupport =>

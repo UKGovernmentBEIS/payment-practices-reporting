@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package slicks.modules
+package slicks.helpers
 
 import dbrows._
 import forms.report.{ReportFormModel, ReportReviewModel}

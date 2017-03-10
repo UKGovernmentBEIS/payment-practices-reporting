@@ -33,8 +33,7 @@ import play.api.data._
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, Controller, Result}
 import play.twirl.api.Html
-import services._
-import slicks.modules.ReportRepo
+import services.{ReportService, _}
 import utils.YesNo
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -43,7 +42,7 @@ class ReportController @Inject()(
                                   companySearch: CompanySearchService,
                                   companyAuth: CompanyAuthService,
                                   notifyService: NotifyService,
-                                  reports: ReportRepo,
+                                  reports: ReportService,
                                   reportValidations: Validations,
                                   oAuthController: OAuth2Controller,
                                   CompanyAuthAction: CompanyAuthAction,

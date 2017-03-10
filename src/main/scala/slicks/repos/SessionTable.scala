@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package slicks.modules
+package slicks.repos
 
 import java.util.UUID
 import javax.inject.Inject
@@ -28,6 +28,8 @@ import play.api.db.slick.DatabaseConfigProvider
 import play.api.libs.json.{JsObject, _}
 import services.{SessionId, SessionService}
 import slicks.DBBinding
+import slicks.helpers.RowBuilders
+import slicks.modules.SessionModule
 import utils.TimeSource
 
 import scala.concurrent.{ExecutionContext, Future}

@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package slicks.modules
+package slicks.helpers
 
 import com.github.tminglei.slickpg.{ExPostgresDriver, PgPlayJsonSupport}
 import play.api.libs.json.{JsArray, JsObject, Json}

@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package slicks.modules
+package services
 
 import com.google.inject.ImplementedBy
 import dbrows._
@@ -23,6 +23,7 @@ import forms.report.{ReportFormModel, ReportReviewModel}
 import models.{CompaniesHouseId, ReportId}
 import org.joda.time.LocalDate
 import org.reactivestreams.Publisher
+import slicks.repos.ReportTable
 
 import scala.concurrent.Future
 
@@ -56,7 +57,7 @@ case class FiledReport(
                       )
 
 @ImplementedBy(classOf[ReportTable])
-trait ReportRepo {
+trait ReportService {
   def find(id: ReportId): Future[Option[Report]]
 
   def findFiled(id: ReportId): Future[Option[FiledReport]]
