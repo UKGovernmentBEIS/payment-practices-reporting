@@ -4,7 +4,7 @@
     <label class="form-label" for="@fieldName">
         <span class="bold-medium">@messages(s"field.$fieldName.label")</span>
         <span class="form-hint">@messages(s"field.$fieldName.hint")</span>
-        <span class="error-message">@errorMessage(form(fieldName))</span>
+        <span id="error-@fieldName" class="error-message">@errorMessage(form(fieldName))</span>
     </label>
     <textarea class="form-control" id="@fieldName" name="@fieldName">@form(fieldName).value</textarea>
 </fieldset>
