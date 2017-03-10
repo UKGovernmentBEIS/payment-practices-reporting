@@ -19,7 +19,7 @@ package slicks.modules
 
 import com.github.tminglei.slickpg.PgDateSupportJoda
 import com.wellfactored.slickgen.IdType
-import db.{ConfirmationFailedRow, ConfirmationPendingRow, ConfirmationSentRow}
+import dbrows.{ConfirmationFailedRow, ConfirmationPendingRow, ConfirmationSentRow}
 import models.ReportId
 import org.joda.time.LocalDateTime
 import slicks.DBBinding

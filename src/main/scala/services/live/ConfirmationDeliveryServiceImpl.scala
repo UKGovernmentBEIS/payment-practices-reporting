@@ -20,7 +20,7 @@ package services.live
 import javax.inject.Inject
 
 import config.AppConfig
-import db.ConfirmationPendingRow
+import dbrows.ConfirmationPendingRow
 import org.joda.time.LocalDateTime
 import org.joda.time.format.DateTimeFormat
 import services._

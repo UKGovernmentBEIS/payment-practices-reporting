@@ -18,7 +18,7 @@
 package slicks.modules
 
 import com.google.inject.ImplementedBy
-import db._
+import dbrows._
 import forms.report.{ReportFormModel, ReportReviewModel}
 import models.{CompaniesHouseId, ReportId}
 import org.joda.time.LocalDate

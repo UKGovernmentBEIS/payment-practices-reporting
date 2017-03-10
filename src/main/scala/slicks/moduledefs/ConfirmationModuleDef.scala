@@ -18,7 +18,7 @@
 package slicks.moduledefs
 
 import com.wellfactored.slickgen.{ModuleDefinition, ModuleSpec}
-import db.{ConfirmationFailedRow, ConfirmationPendingRow, ConfirmationSentRow}
+import dbrows.{ConfirmationFailedRow, ConfirmationPendingRow, ConfirmationSentRow}
 
 object ConfirmationModuleDef extends ModuleDefinition {
   override def spec: ModuleSpec = ModuleSpec("ConfirmationModule")

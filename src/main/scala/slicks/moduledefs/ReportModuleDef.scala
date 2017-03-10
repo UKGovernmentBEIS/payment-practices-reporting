@@ -18,7 +18,7 @@
 package slicks.moduledefs
 
 import com.wellfactored.slickgen.{ModuleDefinition, ModuleSpec}
-import db._
+import dbrows._
 
 object ReportModuleDef extends ModuleDefinition {
   override def spec = ModuleSpec("ReportModule")

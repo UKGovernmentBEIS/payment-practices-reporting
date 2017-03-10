@@ -18,7 +18,7 @@
 package slicks.modules
 
 import com.github.tminglei.slickpg.PgPlayJsonSupport
-import db.SessionRow
+import dbrows.SessionRow
 import org.joda.time.LocalDateTime
 import play.api.libs.json.JsObject
 import services.SessionId

@@ -20,7 +20,7 @@ package slicks.modules
 import javax.inject.Inject
 
 import com.google.inject.ImplementedBy
-import db.{ConfirmationFailedRow, ConfirmationPendingRow, ConfirmationSentRow}
+import dbrows.{ConfirmationFailedRow, ConfirmationPendingRow, ConfirmationSentRow}
 import models.ReportId
 import org.joda.time.LocalDateTime
 import play.api.db.slick.DatabaseConfigProvider
@@ -71,12 +71,12 @@ class ConfirmationTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(
   }
 
   override def confirmationFailed(reportId: ReportId, when: LocalDateTime, ex: NotificationClientException): Future[Unit] = {
-    val err = NotificationClientErrorProcessing.parseNotificationMessage(ex.getHttpResult, ex.getMessage) match {
+    val failure = NotificationClientErrorProcessing.parseNotificationMessage(ex.getHttpResult, ex.getMessage) match {
       case Some(err) => NotificationClientErrorProcessing.processError(err)
       case None => PermanentFailure(0, s"Unable to parse error body: ${ex.getMessage}")
     }
 
-    err match {
+    failure match {
       case f: PermanentFailure => failPermanently(reportId, when, f)
       case f: TransientFailure => failTransiently(reportId, when, f)
     }

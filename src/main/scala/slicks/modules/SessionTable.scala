@@ -22,7 +22,7 @@ import javax.inject.Inject
 
 import com.github.tminglei.slickpg.{PgDateSupportJoda, PgPlayJsonSupport}
 import config.AppConfig
-import db.SessionRow
+import dbrows.SessionRow
 import play.api.Logger
 import play.api.db.slick.DatabaseConfigProvider
 import play.api.libs.json.{JsObject, _}

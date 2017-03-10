@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package db
+package dbrows
 
 import org.joda.time.LocalDateTime
 import play.api.libs.json.JsObject

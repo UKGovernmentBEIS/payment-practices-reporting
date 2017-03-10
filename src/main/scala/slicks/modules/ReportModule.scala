@@ -19,7 +19,7 @@ package slicks.modules
 
 import com.github.tminglei.slickpg.PgDateSupportJoda
 import com.wellfactored.slickgen.IdType
-import db._
+import dbrows._
 import models.{CompaniesHouseId, ReportId}
 import org.joda.time.LocalDate
 import slicks.DBBinding

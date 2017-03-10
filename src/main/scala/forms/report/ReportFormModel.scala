@@ -17,7 +17,7 @@
 
 package forms.report
 
-import db.{PaymentHistoryRow, PaymentTermsRow}
+import dbrows.{PaymentHistoryRow, PaymentTermsRow}
 import forms.DateRange
 import org.scalactic.TripleEquals._
 import slicks.modules.FiledReport

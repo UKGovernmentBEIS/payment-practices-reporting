@@ -20,7 +20,7 @@ package slicks.modules
 import javax.inject.Inject
 
 import com.github.tminglei.slickpg.PgDateSupportJoda
-import db._
+import dbrows._
 import forms.report.{ReportFormModel, ReportReviewModel}
 import models.{CompaniesHouseId, ReportId}
 import org.joda.time.LocalDate

@@ -17,7 +17,7 @@
 
 package slicks.modules
 
-import db._
+import dbrows._
 import forms.report.{ReportFormModel, ReportReviewModel}
 import models.ReportId
 import org.joda.time.LocalDate

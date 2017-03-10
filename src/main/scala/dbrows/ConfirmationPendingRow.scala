@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package db
+package dbrows
 
 import models.ReportId
 import org.joda.time.LocalDateTime
