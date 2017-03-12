@@ -20,8 +20,7 @@ package slicks.modules
 import javax.inject.Inject
 
 import com.github.tminglei.slickpg.{ExPostgresDriver, PgDateSupportJoda, PgPlayJsonSupport}
-import config.{AppConfig, Config}
-import play.api.Logger
+import config.AppConfig
 import play.api.db.slick.DatabaseConfigProvider
 
 /**

@@ -21,7 +21,7 @@ import slicks.DBBinding
 import slicks.modules.ReportModule
 
 trait ReportQueries {
-  self : DBBinding with ReportModule =>
+  self: DBBinding with ReportModule =>
 
   import api._
 
@@ -46,15 +46,14 @@ trait ReportQueries {
     * Select reports that have been filed - i.e. all sections are present
     */
   val filedReportQuery = {
-    reportHeaderTable
-      .join(reportPeriodTable).on(_.id === _.reportId)
-      .join(paymentTermsTable).on(_._1.id === _.reportId)
-      .join(paymentHistoryTable).on(_._1._1.id === _.reportId)
-      .join(otherInfoTable).on(_._1._1._1.id === _.reportId)
-      .join(filingTable).on(_._1._1._1._1.id === _.reportId)
-      .map {
-        case (((((header, period), terms), history), other), filing) => (header, period, terms, history, other, filing)
-      }
+    for {
+      header <- reportHeaderTable
+      period <- reportPeriodTable if period.reportId === header.id
+      terms <- paymentTermsTable if terms.reportId === header.id
+      history <- paymentHistoryTable if history.reportId === header.id
+      other <- otherInfoTable if other.reportId === header.id
+      filing <- filingTable if filing.reportId === header.id
+    } yield (header, period, terms, history, other, filing)
   }
 
   val filedReportQueryC = Compiled(filedReportQuery)
