@@ -38,7 +38,7 @@
     </table>
 }
 
-<form action="@routes.ReportController.postReview(id)" method="POST">
+<form action="@routes.FilingController.postReview(id)" method="POST">
     @for((k, v) <- mapping.unbind(report)) {
         <input type="hidden" name='@k' value="@HtmlFormat.escape(v)">
     }

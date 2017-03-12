@@ -34,11 +34,11 @@ GET         /report-payment-practices/company/:id/code                  controll
 POST        /report-payment-practices/company/:id/code-options          controllers.ReportController.codeOptions(id:CompaniesHouseId)
 GET         /report-payment-practices/company/:id/colleague             controllers.ReportController.colleague(id:CompaniesHouseId)
 GET         /report-payment-practices/company/:id/register              controllers.ReportController.register(id:CompaniesHouseId)
-GET         /report-payment-practices/company/:id/file                  controllers.ReportController.file(id:CompaniesHouseId)
-POST        /report-payment-practices/company/:id/file                  controllers.ReportController.postForm(id:CompaniesHouseId)
-POST        /report-payment-practices/company/:id/review                controllers.ReportController.postReview(id:CompaniesHouseId)
-GET         /report-payment-practices/:reportId/success                 controllers.ReportController.showConfirmation(reportId:ReportId)
-GET         /report-payment-practices/error/:id                         controllers.ReportController.invalidScope(id:CompaniesHouseId)
+GET         /report-payment-practices/company/:id/file                  controllers.FilingController.file(id:CompaniesHouseId)
+POST        /report-payment-practices/company/:id/file                  controllers.FilingController.postForm(id:CompaniesHouseId)
+POST        /report-payment-practices/company/:id/review                controllers.FilingController.postReview(id:CompaniesHouseId)
+GET         /report-payment-practices/:reportId/success                 controllers.FilingController.showConfirmation(reportId:ReportId)
+GET         /report-payment-practices/error/:id                         controllers.FilingController.invalidScope(id:CompaniesHouseId)
 
 GET         /report-payment-practices/claim-callback                    controllers.OAuth2Controller.claimCallback(code: Option[String], state: Option[String], error:Option[String], errorDescription:Option[String], errorCode:Option[String])
 
