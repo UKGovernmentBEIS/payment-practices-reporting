@@ -27,7 +27,7 @@ class ConditionalTextValidationsSpec extends WordSpecLike with Matchers with Opt
   import ConditionalTextValidations._
 
   "conditionalText" should {
-    val m = single("test" -> conditionalText)
+    val m = single("test" -> conditionalText(30))
 
     "require a yesNo answer" in {
       val result = m.bind(Map())

@@ -20,12 +20,45 @@ package forms
 import calculator.FinancialYear
 import org.joda.time.LocalDate
 import play.api.data.Forms._
+import play.api.data.validation._
 import play.api.data.{Forms, Mapping}
 import utils.YesNo
 
 import scala.util.Try
 
 object Validations {
+
+  val averageWordLength = 7
+
+  /**
+    * Very simple word-count algorithm - just split at whitespace and count the results.
+    * I'm sure we can do better, but do we need to?
+    */
+  def countWords(s: String) = s.split("\\s+").length
+
+  def minWordConstraint(words: Int): Constraint[String] = Constraint[String]("constraint.minWords", words) { s =>
+    require(words >= 0, "string minWords must not be negative")
+    if (s == null) Invalid(ValidationError("error.minWords", words))
+    else if (countWords(s) >= words) Valid
+    else Invalid(ValidationError("error.minWords", words))
+  }
+
+  def maxWordConstraint(words: Int): Constraint[String] = Constraint[String]("constraint.maxWords", words) { s =>
+    require(words >= 0, "string maxWords must not be negative")
+    if (s == null) Invalid(ValidationError("error.maxWords", words))
+    else if (countWords(s) <= words) Valid
+    else Invalid(ValidationError("error.maxWords", words))
+  }
+
+  def words(minWords: Int = 0, maxWords: Int = Int.MaxValue): Mapping[String] = (minWords, maxWords) match {
+    case (0, Int.MaxValue) => text
+    case (min, Int.MaxValue) => text.verifying(minWordConstraint(min), Constraints.minLength(min))
+    case (0, max) => text.verifying(maxWordConstraint(max), Constraints.maxLength(max * averageWordLength))
+    case (min, max) =>
+      text.verifying(
+        minWordConstraint(min), Constraints.minLength(min),
+        maxWordConstraint(max), Constraints.maxLength(max * averageWordLength))
+  }
 
   val dateFields: Mapping[DateFields] = mapping(
     "day" -> number,
@@ -58,4 +91,6 @@ object Validations {
   )(FinancialYear.apply)(FinancialYear.unapply)
 
   val yesNo: Mapping[YesNo] = Forms.of(YesNo.formatter)
+
+
 }

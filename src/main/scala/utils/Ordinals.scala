@@ -25,6 +25,7 @@ import org.scalactic.TripleEquals._
 object Ordinals {
 
   type PosInt = Refined[Int, Positive]
+  type NonNegativeInt = Refined[Int, NonNegative]
 
   private val wordOrdinals = Seq("zeroth", "first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth", "eleventh", "twelfth", "thirteenth")
 

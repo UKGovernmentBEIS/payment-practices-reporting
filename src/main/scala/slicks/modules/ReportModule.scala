@@ -32,6 +32,7 @@ trait ReportModule extends DBBinding {
   val longTerms = wordLength * 5000
   val shortComment = wordLength * 500
   val longComment = wordLength * 2000
+  val shortText = wordLength * 35
 
   import api._
 
@@ -83,7 +84,7 @@ trait ReportModule extends DBBinding {
 
     def retentionChargesInPast = column[YesNo]("retention_charges_in_past")
 
-    def paymentCodes = column[Option[String]]("payment_codes", O.Length(255))
+    def paymentCodes = column[Option[String]]("payment_codes", O.Length(shortText))
 
     def * = (reportId, offerEInvoicing, offerSupplyChainFinance, retentionChargesInPolicy, retentionChargesInPast, paymentCodes) <> (OtherInfoRow.tupled, OtherInfoRow.unapply)
   }
