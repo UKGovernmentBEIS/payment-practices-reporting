@@ -131,4 +131,5 @@ error.percentage=This should be a number between 0 and 100
 error.mustanswer=Please answer this question
 error.endafterstart=The end date must be later than the start date
 error.notfuture=Reporting period cannot cover the future
+error.beforeservicestart=Reporting period cannot end before {0}
 error.dates.invalid=These dates are not valid

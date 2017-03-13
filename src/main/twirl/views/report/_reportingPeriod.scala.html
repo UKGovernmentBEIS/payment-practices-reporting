@@ -11,7 +11,7 @@
 <h2 class="heading-large">Reporting period</h2>
 
 <div class="form-group @errorClass">
-    @error.map { e => <span class="error-message">@messages(e.message)</span> }
+    @error.map { e => <span class="error-message">@messages(e.message, e.args:_*)</span> }
     @_dateField(form, "reportDates.startDate")
     @_dateField(form, "reportDates.endDate")
 </div>

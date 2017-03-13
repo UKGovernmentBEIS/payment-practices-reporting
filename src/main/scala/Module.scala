@@ -17,7 +17,7 @@
 
 import actors.ConfirmationActor
 import com.google.inject.AbstractModule
-import config.{AppConfig, MockConfig}
+import config.{AppConfig, MockConfig, ServiceConfig}
 import play.api.libs.concurrent.AkkaGuiceSupport
 import play.api.{Configuration, Environment, Logger}
 import services._
@@ -28,7 +28,9 @@ import slicks.modules.DB
 class Module(environment: Environment, configuration: Configuration) extends AbstractModule with AkkaGuiceSupport {
   override def configure(): Unit = {
 
-    val mockConfig = new AppConfig(configuration).config.mockConfig.getOrElse(MockConfig.empty)
+    val appConfig = new AppConfig(configuration)
+
+    val mockConfig = appConfig.config.mockConfig.getOrElse(MockConfig.empty)
 
     val searchImpl = if (mockConfig.mockCompanySearch.getOrElse(false)) {
       Logger.debug("Wiring in Company Search Mock")
@@ -52,5 +54,7 @@ class Module(environment: Environment, configuration: Configuration) extends Abs
     bindActor[ConfirmationActor]("confirmation-actor")
 
     bind(classOf[SessionCleaner]).asEagerSingleton()
+
+    bind(classOf[ServiceConfig]).toInstance(appConfig.config.service.getOrElse(ServiceConfig.empty))
   }
 }

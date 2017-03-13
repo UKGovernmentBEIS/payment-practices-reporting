@@ -1,5 +1,5 @@
 @import org.joda.time.format.DateTimeFormatter
-@(header:Html, form: Form[forms.report.ReportFormModel], companyId: CompaniesHouseId, df: DateTimeFormatter)(implicit messages: MessagesApi)
+@(header:Html, form: Form[forms.report.ReportFormModel], companyId: CompaniesHouseId, df: DateTimeFormatter, serviceStartDate: String)(implicit messages: MessagesApi)
 
 <div class="scannable-wrapper">
 
@@ -59,7 +59,8 @@
                     sumto100: "@messages("error.sumto100")",
                     date: "@messages("error.date")",
                     future: "Reporting period cannot cover the future",
-                    startbeforeend: "@messages("error.endafterstart")"
+                    startbeforeend: "@messages("error.endafterstart")",
+                    beforeservicestart: "@messages("error.beforeservicestart", serviceStartDate)"
                 };
                 validationPlumbing(messageTable);
             });

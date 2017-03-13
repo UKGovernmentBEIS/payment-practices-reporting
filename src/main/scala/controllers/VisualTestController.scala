@@ -20,7 +20,7 @@ package controllers
 import javax.inject.Inject
 
 import calculator.Calculator
-import config.AppConfig
+import config.{AppConfig, Config, ServiceConfig}
 import dbrows._
 import forms.DateRange
 import forms.report.{ReportFormModel, ReportReviewModel, Validations}
@@ -76,14 +76,16 @@ class VisualTestController @Inject()(questions: Questions, summarizer: Summarize
       views.html.report.requestAccessCode(companyName, id)
     )
 
-    val reportValidations = new Validations(new SystemTimeSource)
+    val reportValidations = new Validations(new SystemTimeSource, ServiceConfig.empty)
     val emptyReport: Form[ReportFormModel] = Form(reportValidations.reportFormModel)
     val emptyReview: Form[ReportReviewModel] = Form(reportValidations.reportReviewModel)
     val header = h1(s"Publish a report for:<br>$companyName")
+    val serviceStartDate = df.print(appConfig.config.service.flatMap(_.serviceStartDate).getOrElse(new LocalDate(2017, 4, 6)))
+
     val publish = Seq(
-      views.html.report.file(header, emptyReport, id, df),
-      views.html.report.file(header, emptyReport.fill(ReportFormModel(healthyReport)), id, df),
-      views.html.report.file(header, emptyReport.fillAndValidate(ReportFormModel(unhealthyReport)), id, df)
+      views.html.report.file(header, emptyReport, id, df, serviceStartDate),
+      views.html.report.file(header, emptyReport.fill(ReportFormModel(healthyReport)), id, df, serviceStartDate),
+      views.html.report.file(header, emptyReport.fillAndValidate(ReportFormModel(unhealthyReport)), id, df, serviceStartDate)
     )
     val review = Seq(views.html.report.review(emptyReview, ReportFormModel(healthyReport), id, companyName, df, reportValidations.reportFormModel))
     val published = Seq(views.html.report.filingSuccess(reportId, "foobar@example.com"))
