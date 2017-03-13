@@ -36,37 +36,33 @@ import utils.YesNo
 import scala.concurrent.{ExecutionContext, Future}
 
 class ReportController @Inject()(
-                                  companySearch: CompanySearchService,
                                   companyAuth: CompanyAuthService,
-                                  reports: ReportService,
+                                  val companySearch: CompanySearchService,
+                                  val reports: ReportService,
                                   val appConfig: AppConfig
-                                )(implicit ec: ExecutionContext, messages: MessagesApi) extends Controller with PageHelper {
+                                )(implicit val ec: ExecutionContext, messages: MessagesApi)
+  extends Controller
+    with PageHelper
+    with SearchHelper {
 
   import views.html.{report => pages}
 
   private val searchPageTitle = "Search for a company"
   private val signInPageTitle = "Sign in using your Companies House account"
+
   private def publishTitle(companyName: String) = s"Publish a report for $companyName"
 
+  val searchHeader = h1("Publish a report")
+  val searchLink = routes.ReportController.search(None, None, None).url
+  val companyLink = { id: CompaniesHouseId => routes.ReportController.start(id).url }
+
+  def pageLink(query: Option[String], itemsPerPage: Option[Int], pageNumber: Int) = routes.ReportController.search(query, Some(pageNumber), itemsPerPage).url
+
   def search(query: Option[String], pageNumber: Option[Int], itemsPerPage: Option[Int]) = Action.async {
-    val searchLink = routes.ReportController.search(None, None, None).url
-    val pageLink = { i: Int => routes.ReportController.search(query, Some(i), itemsPerPage).url }
-    val companyLink = { id: CompaniesHouseId => routes.ReportController.start(id).url }
-    val header = h1("Publish a report")
+    def resultsPage(q: String, results: Option[PagedResults[CompanySearchResult]], countMap: Map[CompaniesHouseId, Int]) =
+      page(searchPageTitle)(home, searchHeader, views.html.search.search(q, results, countMap, searchLink, companyLink, pageLink(query, itemsPerPage, _)))
 
-    query match {
-      case Some(q) => companySearch.searchCompanies(q, pageNumber.getOrElse(1), itemsPerPage.getOrElse(25)).flatMap { results =>
-        val countsF = results.items.map { report =>
-          reports.byCompanyNumber(report.companiesHouseId).map(rs => (report.companiesHouseId, rs.length))
-        }
-
-        Future.sequence(countsF).map { counts =>
-          val countMap = Map(counts: _*)
-          Ok(page(searchPageTitle)(home, header, views.html.search.search(q, Some(results), countMap, searchLink, companyLink, pageLink)))
-        }
-      }
-      case None => Future.successful(Ok(page(searchPageTitle)(home, header, views.html.search.search("", None, Map.empty, searchLink, companyLink, pageLink))))
-    }
+    doSearch(query, pageNumber, itemsPerPage, resultsPage).map(Ok(_))
   }
 
   def start(companiesHouseId: CompaniesHouseId) = Action.async { request =>

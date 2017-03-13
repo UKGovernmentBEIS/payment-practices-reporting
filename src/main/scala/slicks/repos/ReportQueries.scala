@@ -26,7 +26,10 @@ trait ReportQueries {
   import api._
 
   /**
-    * Use left joins so that sections that are not completed come back as None
+    * This is quite an awkward query expression. The purpose is to select all report headers and, at
+    * the same time, retrieve all sections of the report that are present in the database. This allows
+    * for the situation where some sections are not yet completed. All of the section structures come
+    * back as `Option`s. Only the header is guaranteed to be present in the result.
     */
   val reportQuery = {
     reportHeaderTable
