@@ -21,7 +21,7 @@ import javax.inject.{Inject, Named}
 
 import actions.{CompanyAuthAction, CompanyAuthRequest}
 import akka.actor.ActorRef
-import config.AppConfig
+import config.{AppConfig, ServiceConfig}
 import forms.report.{ReportFormModel, ReportReviewModel, Validations}
 import models.{CompaniesHouseId, ReportId}
 import org.joda.time.format.DateTimeFormat
@@ -50,18 +50,19 @@ class FilingController @Inject()(
   val emptyReview: Form[ReportReviewModel] = Form(reportValidations.reportReviewModel)
   private val reviewPageTitle = "Review your report"
   val df = DateTimeFormat.forPattern("d MMMM YYYY")
+  val serviceStartDate = appConfig.config.service.flatMap(_.startDate).getOrElse(ServiceConfig.defaultServiceStartDate)
 
   def reportPageHeader(implicit request: CompanyAuthRequest[_]): Html = h1(s"Publish a report for:<br>${request.companyDetail.companyName}")
 
   private def publishTitle(companyName: String) = s"Publish a report for $companyName"
 
   def file(companiesHouseId: CompaniesHouseId) = CompanyAuthAction(companiesHouseId) { implicit request =>
-    Ok(page(publishTitle(request.companyDetail.companyName))(home, pages.file(reportPageHeader, emptyReport, companiesHouseId, df)))
+    Ok(page(publishTitle(request.companyDetail.companyName))(home, pages.file(reportPageHeader, emptyReport, companiesHouseId, df, serviceStartDate)))
   }
 
   def postForm(companiesHouseId: CompaniesHouseId) = CompanyAuthAction(companiesHouseId)(parse.urlFormEncoded) { implicit request =>
     emptyReport.bindFromRequest().fold(
-      errs => BadRequest(page(publishTitle(request.companyDetail.companyName))(home, pages.file(reportPageHeader, errs, companiesHouseId, df))),
+      errs => BadRequest(page(publishTitle(request.companyDetail.companyName))(home, pages.file(reportPageHeader, errs, companiesHouseId, df, serviceStartDate))),
       report => Ok(page(reviewPageTitle)(home, pages.review(emptyReview, report, companiesHouseId, request.companyDetail.companyName, df, reportValidations.reportFormModel)))
     )
   }
@@ -73,9 +74,9 @@ class FilingController @Inject()(
     // (as we only send the user to the review page if they are) but if somehow they aren't then
     // send the user back to the report form to fix them.
     emptyReport.bindFromRequest().fold(
-      errs => Future.successful(BadRequest(page(publishTitle(request.companyDetail.companyName))(home, pages.file(reportPageHeader, errs, companiesHouseId, df)))),
+      errs => Future.successful(BadRequest(page(publishTitle(request.companyDetail.companyName))(home, pages.file(reportPageHeader, errs, companiesHouseId, df, serviceStartDate)))),
       report =>
-        if (revise) Future.successful(Ok(page(publishTitle(request.companyDetail.companyName))(home, pages.file(reportPageHeader, emptyReport.fill(report), companiesHouseId, df))))
+        if (revise) Future.successful(Ok(page(publishTitle(request.companyDetail.companyName))(home, pages.file(reportPageHeader, emptyReport.fill(report), companiesHouseId, df, serviceStartDate))))
         else checkConfirmation(companiesHouseId, report)
     )
   }

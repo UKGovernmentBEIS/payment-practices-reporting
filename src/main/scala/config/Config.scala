@@ -19,7 +19,11 @@ package config
 
 import javax.inject.Inject
 
+import org.joda.time.LocalDate
+import org.joda.time.format.DateTimeFormat
 import play.api.Configuration
+
+import scala.util.Try
 
 case class CompaniesHouseConfig(apiKey: String)
 
@@ -41,26 +45,40 @@ case class GoogleAnalytics(code: Option[String])
 
 case class MockConfig(mockCompanySearch: Option[Boolean], mockCompanyAuth: Option[Boolean], mockNotify: Option[Boolean])
 
+
 object MockConfig {
   val empty = MockConfig(None, None, None)
 }
 
+case class ServiceConfig(startDate: Option[LocalDate])
+
+object ServiceConfig {
+  val empty = ServiceConfig(None)
+  val defaultServiceStartDate = new LocalDate(2017, 4, 6)
+}
+
 case class Config(
+                   service: Option[ServiceConfig],
                    companiesHouse: CompaniesHouseConfig,
+                   companySearchAPI: CompanySearchAPIConfig,
                    notifyService: NotifyConfig,
+                   oAuth: OAuthConfig,
+                   googleAnalytics: Option[GoogleAnalytics],
+                   sessionTimeoutInMinutes: Option[Int],
                    logAssets: Option[Boolean],
                    logRequests: Option[Boolean],
                    printDBTables: Option[Boolean],
-                   oAuth: OAuthConfig,
-                   companySearchAPI: CompanySearchAPIConfig,
-                   googleAnalytics: Option[GoogleAnalytics],
-                   mockConfig: Option[MockConfig],
-                   sessionTimeoutInMinutes: Option[Int]
+                   mockConfig: Option[MockConfig]
                  )
 
 class AppConfig @Inject()(configuration: Configuration) {
 
+  val df = DateTimeFormat.forPattern("yyyy-M-d")
+
   import pureconfig._
+  import ConfigConvert._
+
+  implicit val localDateConvert = ConfigConvert.stringConvert[LocalDate](s => Try(df.parseLocalDate(s)), df.print(_))
 
   lazy val config: Config = loadConfig[Config](configuration.underlying).get
 }

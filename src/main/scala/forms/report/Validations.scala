@@ -19,16 +19,20 @@ package forms.report
 
 import javax.inject.Inject
 
+import config.ServiceConfig
+import forms.DateRange
 import models.CompaniesHouseId
 import org.joda.time.LocalDate
+import org.joda.time.format.DateTimeFormat
 import org.scalactic.TripleEquals._
+import play.api.Logger
 import play.api.data.Forms._
 import play.api.data.validation.{Constraint, Invalid, Valid}
 import play.api.data.{FormError, Mapping}
 import utils.YesNo.{No, Yes}
 import utils.{AdjustErrors, TimeSource}
 
-class Validations @Inject()(timeSource: TimeSource) {
+class Validations @Inject()(timeSource: TimeSource, serviceConfig: ServiceConfig) {
 
   import ConditionalTextValidations._
   import PaymentTermsChangedValidations._
@@ -67,8 +71,30 @@ class Validations @Inject()(timeSource: TimeSource) {
 
   private def now() = new LocalDate(timeSource.currentTimeMillis())
 
+
+  /**
+    * The service does not go live until April 6 2017 so we should not accept period end
+    * dates that are prior to that date. In order to support testing in non-live environments
+    * I've provided a config parameter to allow the date to be set to something different.
+    */
+  private val serviceStartDate = serviceConfig.startDate.getOrElse(ServiceConfig.defaultServiceStartDate)
+  private val df = DateTimeFormat.forPattern("d MMMM yyyy")
+  private val serviceStartConstraint = Constraint { dr: DateRange =>
+    if (dr.endDate.isBefore(serviceStartDate)) {
+      val invalid = Invalid("error.beforeservicestart", df.print(serviceStartDate))
+      Logger.debug(invalid.toString)
+      invalid
+    }
+    else Valid
+  }
+
+  private val reportDates =
+    dateRange
+      .verifying("error.notfuture", dr => !now().isBefore(dr.endDate))
+      .verifying(serviceStartConstraint)
+
   val reportFormModel = mapping(
-    "reportDates" -> dateRange.verifying("error.notfuture", dr => !now().isBefore(dr.endDate)),
+    "reportDates" -> reportDates,
     "paymentHistory" -> paymentHistory,
     "paymentTerms" -> paymentTerms,
     "paymentCodes" -> conditionalText,
