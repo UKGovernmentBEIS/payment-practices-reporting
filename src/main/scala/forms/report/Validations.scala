@@ -38,7 +38,7 @@ class Validations @Inject()(timeSource: TimeSource) {
 
   val companiesHouseId: Mapping[CompaniesHouseId] = nonEmptyText.transform(s => CompaniesHouseId(s), (c: CompaniesHouseId) => c.id)
 
-  val percentage = number.verifying("error.percentage", n => n>=0 && n <=100)
+  val percentage = number.verifying("error.percentage", n => n >= 0 && n <= 100)
 
   val percentageSplit: Mapping[PercentageSplit] = mapping(
     "percentWithin30Days" -> percentage,
@@ -68,7 +68,7 @@ class Validations @Inject()(timeSource: TimeSource) {
   private def now() = new LocalDate(timeSource.currentTimeMillis())
 
   val reportFormModel = mapping(
-    "reportDates" -> dateRange.verifying("error.beforenow", dr => dr.startDate.isBefore(now())),
+    "reportDates" -> dateRange.verifying("error.notfuture", dr => !now().isBefore(dr.endDate)),
     "paymentHistory" -> paymentHistory,
     "paymentTerms" -> paymentTerms,
     "paymentCodes" -> conditionalText,
