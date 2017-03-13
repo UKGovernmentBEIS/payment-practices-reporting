@@ -121,6 +121,10 @@ function Validation(messages) {
         return new Date().getTime() < date.getTime() && messages.future;
     }
 
+    function dateNotBeforeStartDate(serviceStartDate, date) {
+        return serviceStartDate.getTime() > date.getTime() && messages.beforeservicestart;
+    }
+
     function textNonNegative(e) {
         return asInteger(e) < 0 && messages.nonnegative;
     }
@@ -167,16 +171,18 @@ function Validation(messages) {
         return start.getTime() > end.getTime() && messages.startbeforeend;
     }
 
-    function validateMultiStartBeforeEnd(inputs) {
-        var startYear = inputs[0], startMonth = inputs[1], startDay = inputs[2],
-            endYear = inputs[3], endMonth = inputs[4], endDay = inputs[5];
+    function validateMultiStartBeforeEnd(serviceStartDate) {
+        return function (inputs) {
+            var startYear = inputs[0], startMonth = inputs[1], startDay = inputs[2],
+                endYear = inputs[3], endMonth = inputs[4], endDay = inputs[5];
 
-        if (dateValid(startYear, startMonth, startDay) || dateValid(endYear, endMonth, endDay)) {
-            return false;
-        } else {
-            var start = new Date(asInteger(startYear), asInteger(startMonth) - 1, asInteger(startDay), 0, 0, 0, 0);
-            var end = new Date(asInteger(endYear), asInteger(endMonth) - 1, asInteger(endDay), 0, 0, 0, 0);
-            return startBeforeEnd(start, end) || dateFuture(start) || dateFuture(end);
+            if (dateValid(startYear, startMonth, startDay) || dateValid(endYear, endMonth, endDay)) {
+                return false;
+            } else {
+                var start = new Date(asInteger(startYear), asInteger(startMonth) - 1, asInteger(startDay), 0, 0, 0, 0);
+                var end = new Date(asInteger(endYear), asInteger(endMonth) - 1, asInteger(endDay), 0, 0, 0, 0);
+                return startBeforeEnd(start, end) || dateFuture(start) || dateFuture(end) || dateNotBeforeStartDate(serviceStartDate, end);
+            }
         }
     }
 
@@ -208,16 +214,15 @@ function Validation(messages) {
     this.validations.multiStartBeforeEnd = validateMultiStartBeforeEnd;
 }
 
-function validationPlumbing(messages) {
+function validationPlumbing(messages, serviceStartDate) {
     var v = new Validation(messages);
 
     v.validateDateInput("reportDates.startDate", v.validations.dateValid);
     v.validateDateInput("reportDates.endDate", v.validations.dateValid);
 
-    v.validateMultiple([
-            "reportDates.startDate.year", "reportDates.startDate.month", "reportDates.startDate.day",
+    v.validateMultiple(["reportDates.startDate.year", "reportDates.startDate.month", "reportDates.startDate.day",
             "reportDates.endDate.year", "reportDates.endDate.month", "reportDates.endDate.day"],
-        v.validations.multiStartBeforeEnd);
+        v.validations.multiStartBeforeEnd(serviceStartDate));
 
     v.validateTextInput("paymentHistory.averageDaysToPay", v.validations.textPositiveInteger);
     v.validateTextInput("paymentHistory.percentPaidBeyondAgreedTerms", v.validations.textPercentage);

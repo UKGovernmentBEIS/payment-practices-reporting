@@ -51,7 +51,7 @@ class FilingController @Inject()(
   val emptyReview: Form[ReportReviewModel] = Form(reportValidations.reportReviewModel)
   private val reviewPageTitle = "Review your report"
   val df = DateTimeFormat.forPattern("d MMMM YYYY")
-  val serviceStartDate = df.print(appConfig.config.service.flatMap(_.startDate).getOrElse(new LocalDate(2017, 4, 6)))
+  val serviceStartDate = appConfig.config.service.flatMap(_.startDate).getOrElse(new LocalDate(2017, 4, 6))
 
   def reportPageHeader(implicit request: CompanyAuthRequest[_]): Html = h1(s"Publish a report for:<br>${request.companyDetail.companyName}")
 

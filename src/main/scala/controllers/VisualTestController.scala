@@ -80,7 +80,7 @@ class VisualTestController @Inject()(questions: Questions, summarizer: Summarize
     val emptyReport: Form[ReportFormModel] = Form(reportValidations.reportFormModel)
     val emptyReview: Form[ReportReviewModel] = Form(reportValidations.reportReviewModel)
     val header = h1(s"Publish a report for:<br>$companyName")
-    val serviceStartDate = df.print(appConfig.config.service.flatMap(_.startDate).getOrElse(new LocalDate(2017, 4, 6)))
+    val serviceStartDate = appConfig.config.service.flatMap(_.startDate).getOrElse(new LocalDate(2017, 4, 6))
 
     val publish = Seq(
       views.html.report.file(header, emptyReport, id, df, serviceStartDate),
