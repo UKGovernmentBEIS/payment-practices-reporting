@@ -38,7 +38,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class ReportController @Inject()(
                                   companyAuth: CompanyAuthService,
                                   val companySearch: CompanySearchService,
-                                  val reports: ReportService,
+                                  val reportService: ReportService,
                                   val appConfig: AppConfig
                                 )(implicit val ec: ExecutionContext, messages: MessagesApi)
   extends Controller

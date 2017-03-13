@@ -32,8 +32,7 @@ import scala.concurrent.ExecutionContext
 
 class SearchController @Inject()(
                                   val companySearch: CompanySearchService,
-                                  companyAuth: CompanyAuthService,
-                                  val reports: ReportService,
+                                  val reportService: ReportService,
                                   val appConfig: AppConfig)(implicit val ec: ExecutionContext)
   extends Controller
     with PageHelper
@@ -63,7 +62,7 @@ class SearchController @Inject()(
     val pageLink = { i: Int => routes.SearchController.company(companiesHouseId, Some(i)).url }
     val result = for {
       co <- OptionT(companySearch.find(companiesHouseId))
-      rs <- OptionT.liftF(reports.byCompanyNumber(companiesHouseId).map(rs => PagedResults.page(rs.flatMap(_.filed), pageNumber.getOrElse(1))))
+      rs <- OptionT.liftF(reportService.byCompanyNumber(companiesHouseId).map(rs => PagedResults.page(rs.flatMap(_.filed), pageNumber.getOrElse(1))))
     } yield {
       val searchCrumb = Breadcrumb(routes.SearchController.search(None, None, None), searchForReports)
       val crumbs = breadcrumbs(homeBreadcrumb, searchCrumb)
@@ -78,7 +77,7 @@ class SearchController @Inject()(
 
   def view(reportId: ReportId) = Action.async { implicit request =>
     val f = for {
-      report <- OptionT(reports.findFiled(reportId))
+      report <- OptionT(reportService.findFiled(reportId))
     } yield {
       val searchCrumb = Breadcrumb(routes.SearchController.search(None, None, None), searchForReports)
       val companyCrumb = Breadcrumb(routes.SearchController.company(report.header.companyId, None), s"${report.header.companyName} reports")

@@ -26,7 +26,7 @@ import scala.concurrent.{ExecutionContext, Future}
 trait SearchHelper {
   def companySearch: CompanySearchService
 
-  def reports: ReportService
+  def reportService: ReportService
 
   implicit def ec: ExecutionContext
 
@@ -35,8 +35,8 @@ trait SearchHelper {
   def doSearch(query: Option[String], pageNumber: Option[Int], itemsPerPage: Option[Int], resultsPage: ResultsPageFunction) = {
     query match {
       case Some(q) => companySearch.searchCompanies(q, pageNumber.getOrElse(1), itemsPerPage.getOrElse(25)).flatMap { results =>
-        val countsF = results.items.map { report =>
-          reports.byCompanyNumber(report.companiesHouseId).map(rs => (report.companiesHouseId, rs.count(_.isFiled)))
+        val countsF = results.items.map { result =>
+          reportService.byCompanyNumber(result.companiesHouseId).map(rs => (result.companiesHouseId, rs.count(_.isFiled)))
         }
 
         Future.sequence(countsF).map(counts => resultsPage(q, Some(results), Map(counts: _*)))
