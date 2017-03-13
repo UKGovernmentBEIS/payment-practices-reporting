@@ -130,4 +130,5 @@ error.max=Please enter {0} or less
 error.percentage=This should be a number between 0 and 100
 error.mustanswer=Please answer this question
 error.endafterstart=The end date must be later than the start date
+error.notfuture=Reporting period cannot cover the future
 error.dates.invalid=These dates are not valid

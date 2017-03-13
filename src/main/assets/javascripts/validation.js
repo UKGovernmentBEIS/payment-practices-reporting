@@ -46,7 +46,8 @@ function Validation(messages) {
             elements.push(es[0]);
         }
 
-        var formGroup = $(elements[0]).parents(".form-group").last();
+        var formGroups = $(elements[0]).parents(".form-group");
+        var formGroup = formGroups.last();
         var messageContainer = formGroup.find(".error-message").first();
 
         for (var elementIndex = 0; elementIndex < elements.length; elementIndex++) {
@@ -116,8 +117,7 @@ function Validation(messages) {
             || date.getDate() !== asInteger(day)) && messages.date;
     }
 
-    function dateFuture(year, month, day) {
-        var date = new Date(asInteger(year), asInteger(month) - 1, asInteger(day), 0, 0, 0, 0);
+    function dateFuture(date) {
         return new Date().getTime() < date.getTime() && messages.future;
     }
 
@@ -163,16 +163,20 @@ function Validation(messages) {
         return textPercentageBounds(e) || textInteger(e);
     }
 
+    function startBeforeEnd(start, end) {
+        return start.getTime() > end.getTime() && messages.startbeforeend;
+    }
+
     function validateMultiStartBeforeEnd(inputs) {
         var startYear = inputs[0], startMonth = inputs[1], startDay = inputs[2],
             endYear = inputs[3], endMonth = inputs[4], endDay = inputs[5];
 
-        if (dateValid(startYear, startMonth, startDay) || dateFuture(startYear, startMonth, startDay) || dateValid(endYear, endMonth, endDay) || dateFuture(endYear, endMonth, endDay)) {
+        if (dateValid(startYear, startMonth, startDay) || dateValid(endYear, endMonth, endDay)) {
             return false;
         } else {
             var start = new Date(asInteger(startYear), asInteger(startMonth) - 1, asInteger(startDay), 0, 0, 0, 0);
             var end = new Date(asInteger(endYear), asInteger(endMonth) - 1, asInteger(endDay), 0, 0, 0, 0);
-            return start.getTime() > end.getTime() && messages.startbeforeend;
+            return startBeforeEnd(start, end) || dateFuture(start) || dateFuture(end);
         }
     }
 
@@ -196,9 +200,7 @@ function Validation(messages) {
 
     this.validations = {};
 
-    this.validations.dateValid = function (y, m, d) {
-        return dateValid(y, m, d) || dateFuture(y, m, d);
-    };
+    this.validations.dateValid = dateValid;
 
     this.validations.textPositiveInteger = validateTextPositiveInteger;
     this.validations.textPercentage = validateTextPercentage;
