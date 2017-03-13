@@ -43,8 +43,8 @@ class ConfirmationTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(
     val lockTimeout = LocalDateTime.now().minusSeconds(30)
 
     val q = for {
-      c <- confirmationPendingTable.filter(c => c.lockedAt.isEmpty || c.lockedAt < lockTimeout)
-      r <- filedReportQuery.filter(_._1.id === c.reportId)
+      c <- confirmationPendingTable if c.lockedAt.isEmpty || c.lockedAt < lockTimeout
+      r <- filedReportQuery if r._1.id === c.reportId
     } yield (c, r)
 
     val action = q.result.headOption.map(_.map { case (c, r) => (c, FiledReport.tupled(r)) })
