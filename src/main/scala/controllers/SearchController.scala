@@ -25,52 +25,44 @@ import config.AppConfig
 import models.{CompaniesHouseId, ReportId}
 import org.joda.time.format.DateTimeFormat
 import play.api.mvc.{Action, Controller}
-import services.{CompanyAuthService, CompanySearchService, PagedResults, ReportService}
+import play.twirl.api.Html
+import services._
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 class SearchController @Inject()(
-                                  companySearch: CompanySearchService,
-                                  companyAuth: CompanyAuthService,
-                                  reports: ReportService,
-                                  val appConfig: AppConfig)(implicit ec: ExecutionContext)
+                                  val companySearch: CompanySearchService,
+                                  val reportService: ReportService,
+                                  val appConfig: AppConfig)(implicit val ec: ExecutionContext)
   extends Controller
-    with PageHelper {
+    with PageHelper
+    with SearchHelper {
 
   val df = DateTimeFormat.forPattern("d MMMM YYYY")
 
   def start() = Action(Ok(page("Search payment practice reports")(views.html.search.start())))
 
   private val searchForReports = "Search for reports"
+  val searchHeader = h1(searchForReports)
+  val searchLink = routes.SearchController.search(None, None, None).url
+  val searchPageTitle = "Search for a company"
+
+  def companyLink(id: CompaniesHouseId, pageNumber: Option[Int]) = routes.SearchController.company(id, pageNumber).url
+
+  def pageLink(query: Option[String], itemsPerPage: Option[Int], pageNumber: Int) = routes.ReportController.search(query, Some(pageNumber), itemsPerPage).url
 
   def search(query: Option[String], pageNumber: Option[Int], itemsPerPage: Option[Int]) = Action.async {
-    val searchLink = routes.SearchController.search(None, None, None).url
-    val pageLink = { i: Int => routes.SearchController.search(query, Some(i), itemsPerPage).url }
-    val companyLink = { id: CompaniesHouseId => routes.SearchController.company(id, pageNumber).url }
-    val header = h1(searchForReports)
-    val title = "Search for a company"
+    def resultsPage(q: String, results: Option[PagedResults[CompanySearchResult]], countMap: Map[CompaniesHouseId, Int]): Html =
+      page(searchPageTitle)(home, searchHeader, views.html.search.search(q, results, countMap, searchLink, companyLink(_, pageNumber), pageLink(query, itemsPerPage, _)))
 
-    query match {
-      case Some(q) => companySearch.searchCompanies(q, pageNumber.getOrElse(1), itemsPerPage.getOrElse(25)).flatMap { results =>
-        val countsF = results.items.map { report =>
-          reports.byCompanyNumber(report.companiesHouseId).map(rs => (report.companiesHouseId, rs.length))
-        }
-
-        Future.sequence(countsF).map { counts =>
-          val countMap = Map(counts: _*)
-
-          Ok(page(title)(home, header, views.html.search.search(q, Some(results), countMap, searchLink, companyLink, pageLink)))
-        }
-      }
-      case None => Future.successful(Ok(page(title)(home, header, views.html.search.search("", None, Map.empty, searchLink, companyLink, pageLink))))
-    }
+    doSearch(query, pageNumber, itemsPerPage, resultsPage).map(Ok(_))
   }
 
   def company(companiesHouseId: CompaniesHouseId, pageNumber: Option[Int]) = Action.async { implicit request =>
     val pageLink = { i: Int => routes.SearchController.company(companiesHouseId, Some(i)).url }
     val result = for {
       co <- OptionT(companySearch.find(companiesHouseId))
-      rs <- OptionT.liftF(reports.byCompanyNumber(companiesHouseId).map(rs => PagedResults.page(rs.flatMap(_.filed), pageNumber.getOrElse(1))))
+      rs <- OptionT.liftF(reportService.byCompanyNumber(companiesHouseId).map(rs => PagedResults.page(rs.flatMap(_.filed), pageNumber.getOrElse(1))))
     } yield {
       val searchCrumb = Breadcrumb(routes.SearchController.search(None, None, None), searchForReports)
       val crumbs = breadcrumbs(homeBreadcrumb, searchCrumb)
@@ -85,7 +77,7 @@ class SearchController @Inject()(
 
   def view(reportId: ReportId) = Action.async { implicit request =>
     val f = for {
-      report <- OptionT(reports.findFiled(reportId))
+      report <- OptionT(reportService.findFiled(reportId))
     } yield {
       val searchCrumb = Breadcrumb(routes.SearchController.search(None, None, None), searchForReports)
       val companyCrumb = Breadcrumb(routes.SearchController.company(report.header.companyId, None), s"${report.header.companyName} reports")

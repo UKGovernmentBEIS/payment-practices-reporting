@@ -45,6 +45,8 @@ case class Report(
     other <- otherInfo
     f <- filing
   } yield FiledReport(header, p, terms, hist, other, f)
+
+  def isFiled: Boolean = filed.isDefined
 }
 
 case class FiledReport(
