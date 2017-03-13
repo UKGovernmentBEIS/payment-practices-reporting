@@ -50,7 +50,7 @@ object MockConfig {
   val empty = MockConfig(None, None, None)
 }
 
-case class ServiceConfig(serviceStartDate: Option[LocalDate])
+case class ServiceConfig(startDate: Option[LocalDate])
 
 object ServiceConfig {
   val empty = ServiceConfig(None)
