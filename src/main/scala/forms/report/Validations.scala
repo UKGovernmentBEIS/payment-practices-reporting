@@ -71,12 +71,13 @@ class Validations @Inject()(timeSource: TimeSource, serviceConfig: ServiceConfig
 
   private def now() = new LocalDate(timeSource.currentTimeMillis())
 
+
   /**
     * The service does not go live until April 6 2017 so we should not accept period end
     * dates that are prior to that date. In order to support testing in non-live environments
     * I've provided a config parameter to allow the date to be set to something different.
     */
-  private val serviceStartDate = serviceConfig.startDate.getOrElse(new LocalDate(2017, 4, 6))
+  private val serviceStartDate = serviceConfig.startDate.getOrElse(ServiceConfig.defaultServiceStartDate)
   private val df = DateTimeFormat.forPattern("d MMMM yyyy")
   private val serviceStartConstraint = Constraint { dr: DateRange =>
     if (dr.endDate.isBefore(serviceStartDate)) {

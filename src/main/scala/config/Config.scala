@@ -54,6 +54,7 @@ case class ServiceConfig(startDate: Option[LocalDate])
 
 object ServiceConfig {
   val empty = ServiceConfig(None)
+  val defaultServiceStartDate = new LocalDate(2017, 4, 6)
 }
 
 case class Config(
