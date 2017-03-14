@@ -36,6 +36,7 @@ class Validations @Inject()(timeSource: TimeSource, serviceConfig: ServiceConfig
 
   import ConditionalTextValidations._
   import PaymentTermsChangedValidations._
+  import ReportConstants._
   import forms.Validations._
 
   def isBlank(s: String): Boolean = s.trim() === ""
@@ -44,14 +45,14 @@ class Validations @Inject()(timeSource: TimeSource, serviceConfig: ServiceConfig
 
   val percentage = number.verifying("error.percentage", n => n >= 0 && n <= 100)
 
+  private val sumTo100 = (ps: PercentageSplit) => (100 - ps.total).abs <= 2
+
   val percentageSplit: Mapping[PercentageSplit] = mapping(
     "percentWithin30Days" -> percentage,
     "percentWithin60Days" -> percentage,
     "percentBeyond60Days" -> percentage
   )(PercentageSplit.apply)(PercentageSplit.unapply)
-    .verifying("error.sumto100", sumTo100(_))
-
-  private def sumTo100(ps: PercentageSplit): Boolean = (100 - ps.total).abs <= 2
+    .verifying("error.sumto100", sumTo100)
 
   val paymentHistory: Mapping[PaymentHistory] = mapping(
     "averageDaysToPay" -> number(min = 0),
@@ -59,18 +60,18 @@ class Validations @Inject()(timeSource: TimeSource, serviceConfig: ServiceConfig
     "percentageSplit" -> percentageSplit
   )(PaymentHistory.apply)(PaymentHistory.unapply)
 
+
   val paymentTerms: Mapping[PaymentTerms] = mapping(
-    "terms" -> words(1, 5000),
+    "terms" -> words(1, paymentTermsWordCount),
     "paymentPeriod" -> number(min = 0),
     "maximumContractPeriod" -> number(min = 0),
-    "maximumContractPeriodComment" -> optional(words(1, 500)),
+    "maximumContractPeriodComment" -> optional(words(1, maxContractPeriodCommentWordCount)),
     "paymentTermsChanged" -> paymentTermsChanged,
-    "paymentTermsComment" -> optional(words(1, 500)),
-    "disputeResolution" -> words(1, 2000)
+    "paymentTermsComment" -> optional(words(1, paymentTermsCommentWordCount)),
+    "disputeResolution" -> words(1, disputeResolutionWordCount)
   )(PaymentTerms.apply)(PaymentTerms.unapply)
 
   private def now() = new LocalDate(timeSource.currentTimeMillis())
-
 
   /**
     * The service does not go live until April 6 2017 so we should not accept period end
@@ -97,7 +98,7 @@ class Validations @Inject()(timeSource: TimeSource, serviceConfig: ServiceConfig
     "reportDates" -> reportDates,
     "paymentHistory" -> paymentHistory,
     "paymentTerms" -> paymentTerms,
-    "paymentCodes" -> conditionalText(3),
+    "paymentCodes" -> conditionalText(paymentCodesWordCount),
     "offerEInvoicing" -> yesNo,
     "offerSupplyChainFinancing" -> yesNo,
     "retentionChargesInPolicy" -> yesNo,
@@ -109,6 +110,7 @@ class Validations @Inject()(timeSource: TimeSource, serviceConfig: ServiceConfig
     "confirmedBy" -> nonEmptyText(maxLength = 255)
   )(ReportReviewModel.apply)(ReportReviewModel.unapply)
 }
+
 
 /**
   * The PaymentTermsChanged handling is quite complex, with an interaction between two ConditionalTexts.
@@ -124,6 +126,7 @@ class Validations @Inject()(timeSource: TimeSource, serviceConfig: ServiceConfig
 object PaymentTermsChangedValidations {
 
   import ConditionalTextValidations._
+  import ReportConstants._
 
   private val errorMustAnswer = "error.mustanswer"
 
@@ -139,8 +142,8 @@ object PaymentTermsChangedValidations {
   }
 
   private val ptc = mapping(
-    "changed" -> conditionalText(500),
-    "notified" -> optional(yesNoText(500))
+    "changed" -> conditionalText(paymentTermsChangedWordCount),
+    "notified" -> optional(yesNoText(paymentTermsNotifiedWordCount))
   )(PaymentTermsChanged.apply)(PaymentTermsChanged.unapply)
     .transform(_.normalise, (ptc: PaymentTermsChanged) => ptc)
     .verifying(answerNotifiedIfChanged)

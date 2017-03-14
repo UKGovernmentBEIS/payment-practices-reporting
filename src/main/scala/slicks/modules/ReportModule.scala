@@ -28,13 +28,8 @@ import utils.YesNo
 trait ReportModule extends DBBinding {
   self: PgDateSupportJoda =>
 
-  val wordLength = 7
-  val longTerms = wordLength * 5000
-  val shortComment = wordLength * 500
-  val longComment = wordLength * 2000
-  val shortText = wordLength * 35
-
   import api._
+  import forms.report.ReportConstants._
 
   implicit def yesNoMapper: BaseColumnType[YesNo] = MappedColumnType.base[YesNo, Boolean](_.toBoolean, YesNo.fromBoolean)
 
@@ -84,7 +79,7 @@ trait ReportModule extends DBBinding {
 
     def retentionChargesInPast = column[YesNo]("retention_charges_in_past")
 
-    def paymentCodes = column[Option[String]]("payment_codes", O.Length(shortText))
+    def paymentCodes = column[Option[String]]("payment_codes", O.Length(paymentCodesCharCount))
 
     def * = (reportId, offerEInvoicing, offerSupplyChainFinance, retentionChargesInPolicy, retentionChargesInPast, paymentCodes) <> (OtherInfoRow.tupled, OtherInfoRow.unapply)
   }
@@ -124,21 +119,21 @@ trait ReportModule extends DBBinding {
 
     def reportIdIndex = index("paymentterms_report_idx", reportId, unique = true)
 
-    def paymentTerms = column[String]("payment_terms", O.Length(longTerms))
+    def paymentTerms = column[String]("payment_terms", O.Length(paymentTermsCharCount))
 
     def paymentPeriod = column[Int]("payment_period")
 
     def maximumContractPeriod = column[Int]("maximum_contract_period")
 
-    def maximumContractPeriodComment = column[Option[String]]("maximum_contract_period_comment", O.Length(shortComment))
+    def maximumContractPeriodComment = column[Option[String]]("maximum_contract_period_comment", O.Length(maxContractPeriodCommentCharCount))
 
-    def paymentTermsChangedComment = column[Option[String]]("payment_terms_changed_comment", O.Length(shortComment))
+    def paymentTermsChangedComment = column[Option[String]]("payment_terms_changed_comment", O.Length(paymentTermsChangedCharCount))
 
-    def paymentTermsChangedNotifiedComment = column[Option[String]]("payment_terms_changed_notified_comment", O.Length(shortComment))
+    def paymentTermsChangedNotifiedComment = column[Option[String]]("payment_terms_changed_notified_comment", O.Length(paymentTermsNotifiedCharCount))
 
-    def paymentTermsComment = column[Option[String]]("payment_terms_comment", O.Length(shortComment))
+    def paymentTermsComment = column[Option[String]]("payment_terms_comment", O.Length(paymentTermsCommentCharCount))
 
-    def disputeResolution = column[String]("dispute_resolution", O.Length(longComment))
+    def disputeResolution = column[String]("dispute_resolution", O.Length(disputeResolutionCharCount))
 
     def * = (reportId, paymentTerms, paymentPeriod, maximumContractPeriod, maximumContractPeriodComment, paymentTermsChangedComment, paymentTermsChangedNotifiedComment, paymentTermsComment, disputeResolution) <> (PaymentTermsRow.tupled, PaymentTermsRow.unapply)
   }

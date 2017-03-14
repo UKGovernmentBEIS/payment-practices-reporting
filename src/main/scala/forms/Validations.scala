@@ -18,6 +18,7 @@
 package forms
 
 import calculator.FinancialYear
+import forms.report.ReportConstants
 import org.joda.time.LocalDate
 import play.api.data.Forms._
 import play.api.data.validation._
@@ -28,7 +29,7 @@ import scala.util.Try
 
 object Validations {
 
-  val averageWordLength = 7
+  val averageWordLength = ReportConstants.averageWordLength
 
   /**
     * Very simple word-count algorithm - just split at whitespace and count the results.
