@@ -41,8 +41,6 @@ class Validations @Inject()(timeSource: TimeSource, serviceConfig: ServiceConfig
 
   def isBlank(s: String): Boolean = s.trim() === ""
 
-  val companiesHouseId: Mapping[CompaniesHouseId] = nonEmptyText(maxLength = 5).transform(s => CompaniesHouseId(s), (c: CompaniesHouseId) => c.id)
-
   val percentage = number.verifying("error.percentage", n => n >= 0 && n <= 100)
 
   private val sumTo100 = (ps: PercentageSplit) => (100 - ps.total).abs <= 2

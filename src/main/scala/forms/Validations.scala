@@ -17,6 +17,7 @@
 
 package forms
 
+import org.scalactic.TripleEquals._
 import calculator.FinancialYear
 import forms.report.ReportConstants
 import org.joda.time.LocalDate
@@ -39,14 +40,14 @@ object Validations {
 
   def minWordConstraint(words: Int): Constraint[String] = Constraint[String]("constraint.minWords", words) { s =>
     require(words >= 0, "string minWords must not be negative")
-    if (s == null) Invalid(ValidationError("error.minWords", words))
+    if (s === null) Invalid(ValidationError("error.minWords", words))
     else if (countWords(s) >= words) Valid
     else Invalid(ValidationError("error.minWords", words))
   }
 
   def maxWordConstraint(words: Int): Constraint[String] = Constraint[String]("constraint.maxWords", words) { s =>
     require(words >= 0, "string maxWords must not be negative")
-    if (s == null) Invalid(ValidationError("error.maxWords", words))
+    if (s === null) Invalid(ValidationError("error.maxWords", words))
     else if (countWords(s) <= words) Valid
     else Invalid(ValidationError("error.maxWords", words))
   }
