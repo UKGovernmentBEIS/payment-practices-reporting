@@ -183,7 +183,7 @@ function Validation(messages) {
                 var end = new Date(asInteger(endYear), asInteger(endMonth) - 1, asInteger(endDay), 0, 0, 0, 0);
                 return startBeforeEnd(start, end) || dateFuture(start) || dateFuture(end) || dateNotBeforeStartDate(serviceStartDate, end);
             }
-        }
+        };
     }
 
     /**
