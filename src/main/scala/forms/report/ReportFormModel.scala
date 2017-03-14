@@ -25,12 +25,37 @@ import utils.YesNo
 import utils.YesNo.{No, Yes}
 
 object ReportConstants {
-  val wordLength = 7
-  val longTerms = wordLength * 5000
-  val shortComment = wordLength * 500
-  val longComment = wordLength * 2000
-}
+  /**
+    * We need to translate word counts into character counts for the database. This constant
+    * defines the average word length (including whitespace)
+    */
+  val averageWordLength = 7
 
+  val longTerms = 5000
+  val longComment = 2000
+  val shortComment = 500
+
+  val paymentTermsWordCount = longTerms
+  val paymentTermsCharCount = paymentTermsWordCount * averageWordLength
+
+  val maxContractPeriodCommentWordCount = shortComment
+  val maxContractPeriodCommentCharCount = maxContractPeriodCommentWordCount * averageWordLength
+
+  val paymentTermsCommentWordCount = shortComment
+  val paymentTermsCommentCharCount = paymentTermsCommentWordCount * averageWordLength
+
+  val disputeResolutionWordCount = longComment
+  val disputeResolutionCharCount = disputeResolutionWordCount * averageWordLength
+
+  val paymentTermsChangedWordCount = shortComment
+  val paymentTermsChangedCharCount = paymentTermsChangedWordCount * averageWordLength
+
+  val paymentTermsNotifiedWordCount = shortComment
+  val paymentTermsNotifiedCharCount = paymentTermsNotifiedWordCount * averageWordLength
+
+  val paymentCodesWordCount = 35
+  val paymentCodesCharCount = paymentCodesWordCount * averageWordLength
+}
 
 case class ConditionalText(yesNo: YesNo, text: Option[String]) {
   def normalize = this match {
@@ -64,7 +89,7 @@ object PaymentHistory {
     PaymentHistory(row.averageDaysToPay, row.percentPaidLaterThanAgreedTerms, PercentageSplit(row.percentInvoicesWithin30Days, row.percentInvoicesWithin60Days, row.percentInvoicesBeyond60Days))
 }
 
-case class PaymentTermsChanged(comment: ConditionalText, notified: Option[ConditionalText]){
+case class PaymentTermsChanged(comment: ConditionalText, notified: Option[ConditionalText]) {
   /**
     * If the answer to the comment question is No then remove any answer to the Notified question
     */

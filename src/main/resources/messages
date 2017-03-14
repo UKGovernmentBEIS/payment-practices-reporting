@@ -133,3 +133,5 @@ error.endafterstart=The end date must be later than the start date
 error.notfuture=Reporting period cannot cover the future
 error.beforeservicestart=Reporting period cannot end before {0}
 error.dates.invalid=These dates are not valid
+error.maxWords=Please enter no more than {0} words
+error.minWords=Please enter at least {0} words
