@@ -80,17 +80,17 @@ object ReviewPageData extends HtmlHelpers {
   )
 
   def paymentHistoryRows(r: ReportFormModel): Seq[(String, Html)] = Seq(
-    ("Average number of days until payment", r.paymentHistory.averageDaysToPay),
-    ("Percentage of invoices paid within 30 days", r.paymentHistory.percentageSplit.percentWithin30Days),
-    ("Percentage of invoices paid within 31 to 60 days", r.paymentHistory.percentageSplit.percentWithin60Days),
-    ("Percentage of invoices paid on or after day 61", r.paymentHistory.percentageSplit.percentBeyond60Days),
-    ("Percentage of invoices not paid within agreed terms", r.paymentHistory.percentPaidLaterThanAgreedTerms)
+    ("Average number of days until payment", (r.paymentHistory.averageDaysToPay, "days")),
+    ("Percentage of invoices paid within 30 days", (r.paymentHistory.percentageSplit.percentWithin30Days, "%")),
+    ("Percentage of invoices paid within 31 to 60 days", (r.paymentHistory.percentageSplit.percentWithin60Days, "%")),
+    ("Percentage of invoices paid on or after day 61", (r.paymentHistory.percentageSplit.percentBeyond60Days, "%")),
+    ("Percentage of invoices not paid within agreed terms", (r.paymentHistory.percentPaidLaterThanAgreedTerms, "%"))
   )
 
   def paymentTermsRows(r: ReportFormModel): Seq[(String, Html)] = Seq(
-    ("Standard payment period", r.paymentTerms.paymentPeriod),
+    ("Standard payment period", (r.paymentTerms.paymentPeriod, "days")),
     ("Payment terms", r.paymentTerms.terms),
-    ("Maximum contract period in days", r.paymentTerms.maximumContractPeriod),
+    ("Maximum contract period in days", (r.paymentTerms.maximumContractPeriod, "days")),
     ("Maximum contract period: further information", r.paymentTerms.maximumContractPeriodComment.map(breakLines)),
     ("Any changes to standard payment terms", conditionalText(r.paymentTerms.paymentTermsChanged.comment)),
     ("Did you consult or notify your suppliers about changes?",
@@ -128,6 +128,8 @@ trait HtmlHelpers {
   implicit def stringToHtml(s: String): Html = HtmlFormat.escape(limitLength(s))
 
   implicit def intToHtml(i: Int): Html = Html(i.toString)
+
+  implicit def unitsToHtml(p: (Int, String)): Html = Html(s"${p._1} ${p._2}")
 
   implicit def dateToHtml(d: LocalDate): Html = Html(d.toString)
 
