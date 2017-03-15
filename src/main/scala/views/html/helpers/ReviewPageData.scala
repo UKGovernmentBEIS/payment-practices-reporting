@@ -112,16 +112,19 @@ object ReviewPageData extends HtmlHelpers {
   * Various converters to reduce boilerplate in the table and row descriptors
   */
 trait HtmlHelpers {
+  def limitLength(s: String, maxLength: Int = 1000) =
+    if (s.length <= maxLength) s else s"${s.take(maxLength)}..."
+
   def yesNo(yn: YesNo): String = yn.entryName.capitalize
 
-  def breakLines(s: String): Html = Html(HtmlFormat.escape(s).toString.replace("\n", "<br />"))
+  def breakLines(s: String): Html = Html(HtmlFormat.escape(limitLength(s)).toString.replace("\n", "<br />"))
 
   def conditionalText(ct: ConditionalText): Html = ct.yesNo match {
-    case Yes => Html(s"<strong>Yes </strong>&ndash; ${breakLines(ct.text.getOrElse(""))}")
+    case Yes => Html(s"<strong>Yes </strong>&ndash; ${breakLines(ct.text.map(limitLength(_)).getOrElse(""))}")
     case No => Html("<strong>No</strong>")
   }
 
-  implicit def stringToHtml(s: String): Html = HtmlFormat.escape(s)
+  implicit def stringToHtml(s: String): Html = HtmlFormat.escape(limitLength(s))
 
   implicit def intToHtml(i: Int): Html = Html(i.toString)
 
@@ -129,7 +132,7 @@ trait HtmlHelpers {
 
   implicit def yesNoToHtml(yn: YesNo): Html = Html(yesNo(yn))
 
-  implicit def optionToHtml(o: Option[String]): Html = Html(o.getOrElse(""))
+  implicit def optionToHtml(o: Option[String]): Html = Html(o.map(limitLength(_)).getOrElse(""))
 
   implicit def optionHtmlToHtml(o: Option[Html]): Html = o.getOrElse(Html(""))
 }
