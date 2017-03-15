@@ -129,6 +129,10 @@ trait HtmlHelpers {
 
   implicit def intToHtml(i: Int): Html = Html(i.toString)
 
+  /**
+    * Slightly hacky. Take a pair with an int and a string that contains the units (e.g. "days" or "%")
+    * and format them up. would be better to have strong types representing days and percentages.
+    */
   implicit def unitsToHtml(p: (Int, String)): Html = Html(s"${p._1} ${p._2}")
 
   implicit def dateToHtml(d: LocalDate): Html = Html(d.toString)
