@@ -88,6 +88,7 @@ object ReviewPageData extends HtmlHelpers {
   )
 
   def paymentTermsRows(r: ReportFormModel): Seq[(String, Html)] = Seq(
+    ("Standard payment period", r.paymentTerms.paymentPeriod),
     ("Payment terms", r.paymentTerms.terms),
     ("Maximum contract period in days", r.paymentTerms.maximumContractPeriod),
     ("Maximum contract period: further information", r.paymentTerms.maximumContractPeriodComment.map(breakLines)),
