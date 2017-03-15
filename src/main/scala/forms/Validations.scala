@@ -17,6 +17,7 @@
 
 package forms
 
+import org.scalactic.TripleEquals._
 import calculator.FinancialYear
 import forms.report.ReportConstants
 import org.joda.time.LocalDate
@@ -35,7 +36,7 @@ object Validations {
     * Very simple word-count algorithm - just split at whitespace and count the results.
     * I'm sure we can do better, but do we need to?
     */
-  def countWords(s: String) = s.split("\\s+").length
+  def countWords(s: String) = s.split("\\s+").count(_ !== "")
 
   def minWordConstraint(words: Int): Constraint[String] = Constraint[String]("constraint.minWords", words) { s =>
     require(words >= 0, "string minWords must not be negative")
@@ -49,11 +50,11 @@ object Validations {
 
   def words(minWords: Int = 0, maxWords: Int = Int.MaxValue): Mapping[String] = (minWords, maxWords) match {
     case (0, Int.MaxValue) => text
-    case (min, Int.MaxValue) => text.verifying(minWordConstraint(min), Constraints.minLength(min))
+    case (min, Int.MaxValue) => text.verifying(minWordConstraint(min))
     case (0, max) => text.verifying(maxWordConstraint(max), Constraints.maxLength(max * averageWordLength))
     case (min, max) =>
       text.verifying(
-        minWordConstraint(min), Constraints.minLength(min),
+        minWordConstraint(min),
         maxWordConstraint(max), Constraints.maxLength(max * averageWordLength))
   }
 
