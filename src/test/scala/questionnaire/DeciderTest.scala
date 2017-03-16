@@ -41,15 +41,26 @@ object DeciderTestData {
   val s0 = empty.copy(isCompanyOrLLP = Some(No))
   val s1 = empty.copy(isCompanyOrLLP = Some(Yes))
 
-  val s2a = s1.copy(financialYear = Some(FinancialYear.First))
+  val fy1 = s1.copy(financialYear = Some(FinancialYear.First))
 
-  val s2b = s1.copy(financialYear = Some(FinancialYear.Second))
-  val s3b = s2b.copy(companyThresholds = s2b.companyThresholds.copy(turnover = Some(Yes)))
-  val s4b = s3b.copy(companyThresholds = s3b.companyThresholds.copy(balanceSheet = Some(Yes)))
+  val fy2 = s1.copy(financialYear = Some(FinancialYear.Second))
+  val fy2Y = fy2.copy(companyThresholds = Thresholds(Some(Yes)))
+  val fy2YY = fy2Y.copy(companyThresholds = Thresholds(Some(Yes), Some(Yes)))
+  val fy2N = fy2.copy(companyThresholds = Thresholds(Some(No)))
+  val fy2NY = fy2N.copy(companyThresholds = Thresholds(Some(No), Some(Yes)))
+  val fy2NN = fy2N.copy(companyThresholds = Thresholds(Some(No), Some(No)))
+  val fy2NYN = fy2NY.copy(companyThresholds = Thresholds(Some(No), Some(Yes), Some(No)))
+  val fy2NYY = fy2NY.copy(companyThresholds = Thresholds(Some(No), Some(Yes), Some(Yes)))
 
-  val s2c = s1.copy(financialYear = Some(FinancialYear.ThirdOrLater))
-  val s3c = s2c.copy(companyThresholds = s2c.companyThresholds.copy(turnover = Some(Yes)))
-  val s4c = s3c.copy(companyThresholds = s3c.companyThresholds.copy(balanceSheet = Some(Yes)))
+  val fy3 = s1.copy(financialYear = Some(FinancialYear.ThirdOrLater))
+  val fy3Y = fy3.copy(companyThresholds = Thresholds(Some(Yes)))
+  val fy3YY = fy3Y.copy(companyThresholds = Thresholds(Some(Yes), Some(Yes)))
+  val fy3N = fy3.copy(companyThresholds = Thresholds(Some(No)))
+  val fy3NY = fy3N.copy(companyThresholds = Thresholds(Some(No), Some(Yes)))
+  val fy3NN = fy3N.copy(companyThresholds = Thresholds(Some(No), Some(No)))
+  val fy3NYN = fy3NY.copy(companyThresholds = Thresholds(Some(No), Some(Yes), Some(No)))
+  val fy3NYY = fy3NY.copy(companyThresholds = Thresholds(Some(No), Some(Yes), Some(Yes)))
+
 
   val expectedDecisions: Seq[(DecisionState, Decision)] = Seq(
     (empty, AskQuestion(Questions.isCompanyOrLLPQuestion)),
@@ -57,14 +68,28 @@ object DeciderTestData {
 
     (s1, AskQuestion(Questions.financialYearQuestion)),
 
-    (s2a, Exempt(Some("reason.firstyear"))),
+    (fy1, Exempt(Some("reason.firstyear"))),
 
-    (s2b, AskQuestion(Questions.companyTurnoverQuestionY2)),
-    (s3b, AskQuestion(Questions.companyBalanceSheetQuestionY2)),
-    (s4b, AskQuestion(Questions.hasSubsidiariesQuestion)),
+    (fy2, AskQuestion(Questions.companyTurnoverQuestionY2)),
+    (fy2Y, AskQuestion(Questions.companyBalanceSheetQuestionY2)),
+    (fy2N, AskQuestion(Questions.companyBalanceSheetQuestionY2)),
+    (fy2NY, AskQuestion(Questions.companyEmployeesQuestionY2)),
+    (fy2NN, Exempt(Some("reason.company.notlargeenough"))),
+    (fy2NYN, Exempt(Some("reason.company.notlargeenough"))),
 
-    (s2c, AskQuestion(Questions.companyTurnoverQuestionY3)),
-    (s3c, AskQuestion(Questions.companyBalanceSheetQuestionY3)),
-    (s4c, AskQuestion(Questions.hasSubsidiariesQuestion))
+    (fy2NYY, AskQuestion(Questions.hasSubsidiariesQuestion)),
+    (fy2YY, AskQuestion(Questions.hasSubsidiariesQuestion)),
+
+    (fy3, AskQuestion(Questions.companyTurnoverQuestionY3)),
+    (fy3Y, AskQuestion(Questions.companyBalanceSheetQuestionY3)),
+    (fy3N, AskQuestion(Questions.companyBalanceSheetQuestionY3)),
+    (fy3NY, AskQuestion(Questions.companyEmployeesQuestionY3)),
+    (fy3NN, Exempt(Some("reason.company.notlargeenough"))),
+    (fy3NYN, Exempt(Some("reason.company.notlargeenough"))),
+
+    (fy3NYY, AskQuestion(Questions.hasSubsidiariesQuestion)),
+    (fy3YY, AskQuestion(Questions.hasSubsidiariesQuestion))
+
+
   )
 }

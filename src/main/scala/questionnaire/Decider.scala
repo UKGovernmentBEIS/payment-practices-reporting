@@ -17,8 +17,6 @@
 
 package questionnaire
 
-import javax.inject.Inject
-
 import utils.YesNo
 
 case class DecisionState(
@@ -53,8 +51,8 @@ case object Required extends Decision
 object Decider {
 
   import FinancialYear._
-  import YesNo._
   import Questions._
+  import YesNo._
 
   def calculateDecision(state: DecisionState): Decision = state.isCompanyOrLLP match {
     case None => AskQuestion(isCompanyOrLLPQuestion)
