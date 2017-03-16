@@ -19,6 +19,7 @@ package questionnaire
 
 import org.scalatest.prop.TableDrivenPropertyChecks
 import org.scalatest.{Matchers, WordSpecLike}
+import utils.YesNo.{No, Yes}
 
 class DeciderTest extends WordSpecLike with Matchers with TableDrivenPropertyChecks {
 
@@ -38,71 +39,47 @@ object DeciderTestData {
   import utils.YesNo._
 
   val empty = DecisionState.empty
-  val s0 = empty.copy(isCompanyOrLLP = Some(No))
-  val s1 = empty.copy(isCompanyOrLLP = Some(Yes))
-
-  val fy1 = s1.copy(financialYear = Some(FinancialYear.First))
-
-  val fy2 = s1.copy(financialYear = Some(FinancialYear.Second))
-  val fy2Y = fy2.copy(companyThresholds = Thresholds(Some(Yes)))
-  val fy2YY = fy2Y.copy(companyThresholds = Thresholds(Some(Yes), Some(Yes)))
-  val fy2N = fy2.copy(companyThresholds = Thresholds(Some(No)))
-  val fy2NY = fy2N.copy(companyThresholds = Thresholds(Some(No), Some(Yes)))
-  val fy2NN = fy2N.copy(companyThresholds = Thresholds(Some(No), Some(No)))
-  val fy2NYN = fy2NY.copy(companyThresholds = Thresholds(Some(No), Some(Yes), Some(No)))
-  val fy2NYY = fy2NY.copy(companyThresholds = Thresholds(Some(No), Some(Yes), Some(Yes)))
-
-  val fy2YYn = fy2YY.copy(subsidiaries = Some(No))
-  val fy2YYy = fy2YY.copy(subsidiaries = Some(Yes))
-  val fy2YYyY = fy2YYy.copy(subsidiaryThresholds = Thresholds(Some(Yes)))
-
-  val fy3 = s1.copy(financialYear = Some(FinancialYear.ThirdOrLater))
-  val fy3Y = fy3.copy(companyThresholds = Thresholds(Some(Yes)))
-  val fy3YY = fy3Y.copy(companyThresholds = Thresholds(Some(Yes), Some(Yes)))
-  val fy3N = fy3.copy(companyThresholds = Thresholds(Some(No)))
-  val fy3NY = fy3N.copy(companyThresholds = Thresholds(Some(No), Some(Yes)))
-  val fy3NN = fy3N.copy(companyThresholds = Thresholds(Some(No), Some(No)))
-  val fy3NYN = fy3NY.copy(companyThresholds = Thresholds(Some(No), Some(Yes), Some(No)))
-  val fy3NYY = fy3NY.copy(companyThresholds = Thresholds(Some(No), Some(Yes), Some(Yes)))
-
-  val fy3YYn = fy3YY.copy(subsidiaries = Some(No))
-  val fy3YYy = fy3YY.copy(subsidiaries = Some(Yes))
-  val fy3YYyY = fy3YYy.copy(subsidiaryThresholds = Thresholds(Some(Yes)))
-
   val expectedDecisions: Seq[(DecisionState, Decision)] = Seq(
     (empty, AskQuestion(Questions.isCompanyOrLLPQuestion)),
-    (s0, Exempt(None)),
+    (empty.copy(isCompanyOrLLP = Some(No)), Exempt(None)),
+    (empty.copy(isCompanyOrLLP = Some(Yes)), AskQuestion(Questions.financialYearQuestion)),
+    (empty.copy(isCompanyOrLLP = Some(Yes)).copy(financialYear = Some(FinancialYear.First)), Exempt(Some("reason.firstyear")))
+  ) ++
+    new FYData(FinancialYear.Second, Questions.companyQuestionGroupY2, Questions.subsidiariesQuestionGroupY2).expectedDecisions ++
+    new FYData(FinancialYear.ThirdOrLater, Questions.companyQuestionGroupY3, Questions.subsidiariesQuestionGroupY3).expectedDecisions 
+}
 
-    (s1, AskQuestion(Questions.financialYearQuestion)),
 
-    (fy1, Exempt(Some("reason.firstyear"))),
+class FYData(financialYear: FinancialYear, companyQuestions: ThresholdQuestions, subsidiaryQuestions: ThresholdQuestions) {
+  val startState = DecisionState.empty.copy(isCompanyOrLLP = Some(Yes)).copy(financialYear = Some(financialYear))
+  val Y = startState.copy(companyThresholds = Thresholds(Some(Yes)))
+  val YY = Y.copy(companyThresholds = Thresholds(Some(Yes), Some(Yes)))
+  val N = startState.copy(companyThresholds = Thresholds(Some(No)))
+  val NY = N.copy(companyThresholds = Thresholds(Some(No), Some(Yes)))
+  val NN = N.copy(companyThresholds = Thresholds(Some(No), Some(No)))
+  val NYN = NY.copy(companyThresholds = Thresholds(Some(No), Some(Yes), Some(No)))
+  val NYY = NY.copy(companyThresholds = Thresholds(Some(No), Some(Yes), Some(Yes)))
 
-    (fy2, AskQuestion(Questions.companyTurnoverQuestionY2)),
-    (fy2Y, AskQuestion(Questions.companyBalanceSheetQuestionY2)),
-    (fy2N, AskQuestion(Questions.companyBalanceSheetQuestionY2)),
-    (fy2NY, AskQuestion(Questions.companyEmployeesQuestionY2)),
-    (fy2NN, Exempt(Some("reason.company.notlargeenough"))),
-    (fy2NYN, Exempt(Some("reason.company.notlargeenough"))),
+  val YYn = YY.copy(subsidiaries = Some(No))
+  val YYy = YY.copy(subsidiaries = Some(Yes))
+  val YYyY = YYy.copy(subsidiaryThresholds = Thresholds(Some(Yes)))
+  val YYyYY = YYyY.copy(subsidiaryThresholds = Thresholds(Some(Yes), Some(Yes)))
 
-    (fy2NYY, AskQuestion(Questions.hasSubsidiariesQuestion)),
-    (fy2YY, AskQuestion(Questions.hasSubsidiariesQuestion)),
+  val expectedDecisions: Seq[(DecisionState, Decision)] =
+    Seq(
+      (startState, AskQuestion(companyQuestions.turnoverQuestion)),
+      (Y, AskQuestion(companyQuestions.balanceSheetQuestion)),
+      (N, AskQuestion(companyQuestions.balanceSheetQuestion)),
+      (NY, AskQuestion(companyQuestions.employeesQuestion)),
+      (NN, Exempt(Some("reason.company.notlargeenough"))),
+      (NYN, Exempt(Some("reason.company.notlargeenough"))),
 
-    (fy2YYy, AskQuestion(Questions.subsidiaryTurnoverQuestionY2)),
-    (fy2YYn, Required),
-    (fy2YYyY, AskQuestion(Questions.subsidiaryBalanceSheetQuestionY2)),
+      (NYY, AskQuestion(Questions.hasSubsidiariesQuestion)),
+      (YY, AskQuestion(Questions.hasSubsidiariesQuestion)),
 
-    (fy3, AskQuestion(Questions.companyTurnoverQuestionY3)),
-    (fy3Y, AskQuestion(Questions.companyBalanceSheetQuestionY3)),
-    (fy3N, AskQuestion(Questions.companyBalanceSheetQuestionY3)),
-    (fy3NY, AskQuestion(Questions.companyEmployeesQuestionY3)),
-    (fy3NN, Exempt(Some("reason.company.notlargeenough"))),
-    (fy3NYN, Exempt(Some("reason.company.notlargeenough"))),
-
-    (fy3NYY, AskQuestion(Questions.hasSubsidiariesQuestion)),
-    (fy3YY, AskQuestion(Questions.hasSubsidiariesQuestion)),
-
-    (fy3YYy, AskQuestion(Questions.subsidiaryTurnoverQuestionY3)),
-    (fy3YYn, Required),
-    (fy3YYyY, AskQuestion(Questions.subsidiaryBalanceSheetQuestionY3))
-  )
+      (YYy, AskQuestion(subsidiaryQuestions.turnoverQuestion)),
+      (YYn, Required),
+      (YYyY, AskQuestion(subsidiaryQuestions.balanceSheetQuestion)),
+      (YYyYY, Required)
+    )
 }

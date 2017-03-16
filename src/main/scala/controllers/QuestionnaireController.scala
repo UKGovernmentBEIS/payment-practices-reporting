@@ -48,7 +48,7 @@ class QuestionnaireController @Inject()(summarizer: Summarizer, val appConfig: A
     val state = decisionStateMapping.bindFromRequest.fold(_ => DecisionState.empty, s => s)
 
     Decider.calculateDecision(state) match {
-      case AskQuestion(q) => Ok(page(q.textKey)(home, pages.question(q)))
+      case AskQuestion(q) => Ok(page(messages(q.textKey))(home, pages.question(q)))
       case Exempt(Some(reason)) => Redirect(routeTo.exempt()).addingToSession((exemptReasonKey, reason))
       case Exempt(None) => Redirect(routeTo.exempt()).removingFromSession(exemptReasonKey)
       case Required => Redirect(routeTo.required())

@@ -1,5 +1,5 @@
 @(question: _root_.questionnaire.Question)(implicit messages: MessagesApi)
-    @import _root_.questionnaire._
+@import _root_.questionnaire.{Question, Choice}
 
 @inlineClass(question: Question) = @{
     if(question.inline) "inline" else ""
