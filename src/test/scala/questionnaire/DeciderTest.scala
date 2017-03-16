@@ -52,6 +52,10 @@ object DeciderTestData {
   val fy2NYN = fy2NY.copy(companyThresholds = Thresholds(Some(No), Some(Yes), Some(No)))
   val fy2NYY = fy2NY.copy(companyThresholds = Thresholds(Some(No), Some(Yes), Some(Yes)))
 
+  val fy2YYn = fy2YY.copy(subsidiaries = Some(No))
+  val fy2YYy = fy2YY.copy(subsidiaries = Some(Yes))
+  val fy2YYyY = fy2YYy.copy(subsidiaryThresholds = Thresholds(Some(Yes)))
+
   val fy3 = s1.copy(financialYear = Some(FinancialYear.ThirdOrLater))
   val fy3Y = fy3.copy(companyThresholds = Thresholds(Some(Yes)))
   val fy3YY = fy3Y.copy(companyThresholds = Thresholds(Some(Yes), Some(Yes)))
@@ -61,6 +65,9 @@ object DeciderTestData {
   val fy3NYN = fy3NY.copy(companyThresholds = Thresholds(Some(No), Some(Yes), Some(No)))
   val fy3NYY = fy3NY.copy(companyThresholds = Thresholds(Some(No), Some(Yes), Some(Yes)))
 
+  val fy3YYn = fy3YY.copy(subsidiaries = Some(No))
+  val fy3YYy = fy3YY.copy(subsidiaries = Some(Yes))
+  val fy3YYyY = fy3YYy.copy(subsidiaryThresholds = Thresholds(Some(Yes)))
 
   val expectedDecisions: Seq[(DecisionState, Decision)] = Seq(
     (empty, AskQuestion(Questions.isCompanyOrLLPQuestion)),
@@ -80,6 +87,10 @@ object DeciderTestData {
     (fy2NYY, AskQuestion(Questions.hasSubsidiariesQuestion)),
     (fy2YY, AskQuestion(Questions.hasSubsidiariesQuestion)),
 
+    (fy2YYy, AskQuestion(Questions.subsidiaryTurnoverQuestionY2)),
+    (fy2YYn, Required),
+    (fy2YYyY, AskQuestion(Questions.subsidiaryBalanceSheetQuestionY2)),
+
     (fy3, AskQuestion(Questions.companyTurnoverQuestionY3)),
     (fy3Y, AskQuestion(Questions.companyBalanceSheetQuestionY3)),
     (fy3N, AskQuestion(Questions.companyBalanceSheetQuestionY3)),
@@ -88,8 +99,10 @@ object DeciderTestData {
     (fy3NYN, Exempt(Some("reason.company.notlargeenough"))),
 
     (fy3NYY, AskQuestion(Questions.hasSubsidiariesQuestion)),
-    (fy3YY, AskQuestion(Questions.hasSubsidiariesQuestion))
+    (fy3YY, AskQuestion(Questions.hasSubsidiariesQuestion)),
 
-
+    (fy3YYy, AskQuestion(Questions.subsidiaryTurnoverQuestionY3)),
+    (fy3YYn, Required),
+    (fy3YYyY, AskQuestion(Questions.subsidiaryBalanceSheetQuestionY3))
   )
 }
