@@ -29,7 +29,7 @@ case class Thresholds(turnover: Option[YesNo] = None, balanceSheet: Option[YesNo
     case (None, _, _) => Some(AskQuestion(questionGroup.turnoverQuestion))
     case (Some(_), None, _) => Some(AskQuestion(questionGroup.balanceSheetQuestion))
     case (Some(_), Some(_), None) => Some(AskQuestion(questionGroup.employeesQuestion))
-    case _ => None
+    case _ => None // all questions answered
   }
 }
 
