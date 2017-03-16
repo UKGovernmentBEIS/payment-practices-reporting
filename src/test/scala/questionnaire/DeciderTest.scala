@@ -27,21 +27,21 @@ class DeciderTest extends WordSpecLike with Matchers with TableDrivenPropertyChe
 
 
   "check decision for basic states" in {
-    val table = Table("test records", basicData: _*)
+    val table = Table("basic states", basicData: _*)
     forAll(table) { case (state, expectedDecision) =>
       Decider.calculateDecision(state) shouldBe expectedDecision
     }
   }
 
   "check decision for year 2 states" in {
-    val table = Table("test records", year2Data: _*)
+    val table = Table("year 2 states", year2Data: _*)
     forAll(table) { case (state, expectedDecision) =>
       Decider.calculateDecision(state) shouldBe expectedDecision
     }
   }
 
   "check decision for year 3 states" in {
-    val table = Table("test records", year3data: _*)
+    val table = Table("year 3 states", year3data: _*)
     forAll(table) { case (state, expectedDecision) =>
       Decider.calculateDecision(state) shouldBe expectedDecision
     }
