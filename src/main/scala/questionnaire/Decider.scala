@@ -17,8 +17,6 @@
 
 package questionnaire
 
-import javax.inject.Inject
-
 import utils.YesNo
 
 case class DecisionState(
@@ -40,7 +38,7 @@ object DecisionState {
 
 sealed trait Decision
 
-case class AskQuestion(key: String, question: Question) extends Decision
+case class AskQuestion(question: Question) extends Decision
 
 case class Exempt(reason: Option[String]) extends Decision
 
@@ -50,22 +48,22 @@ case object Required extends Decision
   * This class implements the decision tree to decide whether a business needs to report or not. This is based
   * on the legislation, which can be found here http://www.legislation.gov.uk/ukdsi/2017/9780111153598/regulation/5
   */
-class Decider @Inject()(questions: Questions) {
+object Decider {
 
   import FinancialYear._
+  import Questions._
   import YesNo._
-  import questions._
 
   def calculateDecision(state: DecisionState): Decision = state.isCompanyOrLLP match {
-    case None => AskQuestion("isCompanyOrLLP", isCompanyOrLLPQuestion)
+    case None => AskQuestion(isCompanyOrLLPQuestion)
     case Some(No) => Exempt(None)
     case Some(Yes) => checkFinancialYear(state)
   }
 
   def checkFinancialYear(state: DecisionState): Decision = state.financialYear match {
-    case None => AskQuestion("financialYear", financialYearQuestion)
+    case None => AskQuestion(financialYearQuestion)
     case Some(First) => Exempt(Some("reason.firstyear"))
-    case _ => checkCompanyThresholds(state)
+    case Some(fy) => checkCompanyThresholds(state, fy)
   }
 
   def companyQuestionGroupForFY(financialYear: FinancialYear) = financialYear match {
@@ -75,18 +73,19 @@ class Decider @Inject()(questions: Questions) {
 
   val companyNotLargeEnough = "reason.company.notlargeenough"
 
-  def checkCompanyThresholds(state: DecisionState): Decision =
-    state.companyThresholds.nextQuestion(companyQuestionGroupForFY(state.financialYear.getOrElse(Second))) match {
-      case _ if state.companyThresholds.yesCount >= 2 => checkIfSubsidiaries(state)
-      case _ if state.companyThresholds.noCount >= 2 => Exempt(Some(companyNotLargeEnough))
-      case Some(AskQuestion(key, q)) => AskQuestion(s"companyThresholds.$key", q)
-      case None => Exempt(Some(companyNotLargeEnough))
+  def checkCompanyThresholds(state: DecisionState, financialYear: FinancialYear): Decision = {
+    if (state.companyThresholds.yesCount >= 2) checkIfSubsidiaries(state, financialYear)
+    else if (state.companyThresholds.noCount >= 2) Exempt(Some(companyNotLargeEnough))
+    else state.companyThresholds.nextQuestion(companyQuestionGroupForFY(financialYear)) match {
+      case Some(aq) => aq
+      case None => ??? // impossible state!
     }
+  }
 
-  def checkIfSubsidiaries(state: DecisionState): Decision = state.subsidiaries match {
-    case None => AskQuestion("subsidiaries", hasSubsidiariesQuestion)
+  def checkIfSubsidiaries(state: DecisionState, financialYear: FinancialYear): Decision = state.subsidiaries match {
+    case None => AskQuestion(hasSubsidiariesQuestion)
     case Some(No) => Required
-    case Some(Yes) => checkSubsidiaryThresholds(state)
+    case Some(Yes) => checkSubsidiaryThresholds(state, financialYear)
   }
 
   def subsidiariesQuestionGroupForFY(financialYear: FinancialYear) = financialYear match {
@@ -96,11 +95,12 @@ class Decider @Inject()(questions: Questions) {
 
   val groupNotLargeEnough = "reason.group.notlargeenough"
 
-  def checkSubsidiaryThresholds(state: DecisionState): Decision =
-    state.subsidiaryThresholds.nextQuestion(subsidiariesQuestionGroupForFY(state.financialYear.getOrElse(Second))) match {
-      case _ if state.subsidiaryThresholds.yesCount >= 2 => Required
-      case _ if state.subsidiaryThresholds.noCount >= 2 => Exempt(Some(groupNotLargeEnough))
-      case Some(AskQuestion(key, q)) => AskQuestion(s"subsidiaryThresholds.$key", q)
-      case None => Exempt(Some(groupNotLargeEnough))
+  def checkSubsidiaryThresholds(state: DecisionState, financialYear: FinancialYear): Decision = {
+    if (state.subsidiaryThresholds.yesCount >= 2) Required
+    else if (state.subsidiaryThresholds.noCount >= 2) Exempt(Some(groupNotLargeEnough))
+    else state.subsidiaryThresholds.nextQuestion(subsidiariesQuestionGroupForFY(financialYear)) match {
+      case Some(aq) => aq
+      case None => ??? // impossible state!
     }
+  }
 }

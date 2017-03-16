@@ -24,7 +24,7 @@ import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, Controller}
 import questionnaire._
 
-class QuestionnaireController @Inject()(decider: Decider, summarizer: Summarizer, val appConfig: AppConfig)(implicit messages: MessagesApi) extends Controller with PageHelper {
+class QuestionnaireController @Inject()(summarizer: Summarizer, val appConfig: AppConfig)(implicit messages: MessagesApi) extends Controller with PageHelper {
 
   import QuestionnaireValidations._
   import controllers.routes.{QuestionnaireController => routeTo}
@@ -47,8 +47,8 @@ class QuestionnaireController @Inject()(decider: Decider, summarizer: Summarizer
   def nextQuestion = Action { implicit request =>
     val state = decisionStateMapping.bindFromRequest.fold(_ => DecisionState.empty, s => s)
 
-    decider.calculateDecision(state) match {
-      case AskQuestion(key, q) => Ok(page(q.text)(home, pages.question(key, q)))
+    Decider.calculateDecision(state) match {
+      case AskQuestion(q) => Ok(page(messages(q.textKey))(home, pages.question(q)))
       case Exempt(Some(reason)) => Redirect(routeTo.exempt()).addingToSession((exemptReasonKey, reason))
       case Exempt(None) => Redirect(routeTo.exempt()).removingFromSession(exemptReasonKey)
       case Required => Redirect(routeTo.required())

@@ -20,16 +20,16 @@ package questionnaire
 import org.scalactic.TripleEquals._
 import utils.YesNo
 
-case class Thresholds(turnover: Option[YesNo], balanceSheet: Option[YesNo], employees: Option[YesNo]) {
+case class Thresholds(turnover: Option[YesNo] = None, balanceSheet: Option[YesNo] = None, employees: Option[YesNo] = None) {
   def yesCount: Int = Seq(turnover, balanceSheet, employees).flatten.count(_ === YesNo.Yes)
 
   def noCount: Int = Seq(turnover, balanceSheet, employees).flatten.count(_ === YesNo.No)
 
   def nextQuestion(questionGroup: ThresholdQuestions): Option[AskQuestion] = (turnover, balanceSheet, employees) match {
-    case (None, _, _) => Some(AskQuestion("turnover", questionGroup.turnoverQuestion))
-    case (Some(_), None, _) => Some(AskQuestion("balanceSheet", questionGroup.balanceSheetQuestion))
-    case (Some(_), Some(_), None) => Some(AskQuestion("employees", questionGroup.employeesQuestion))
-    case _ => None
+    case (None, _, _) => Some(AskQuestion(questionGroup.turnoverQuestion))
+    case (Some(_), None, _) => Some(AskQuestion(questionGroup.balanceSheetQuestion))
+    case (Some(_), Some(_), None) => Some(AskQuestion(questionGroup.employeesQuestion))
+    case _ => None // all questions answered
   }
 }
 
