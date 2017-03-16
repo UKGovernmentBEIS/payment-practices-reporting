@@ -29,20 +29,20 @@ sealed trait Question {
 
   def fieldKey: String
 
-  def text: String
+  def textKey: String
 
-  def hintText: Option[String]
+  def hintKey: Option[String]
 
   def detailText: Option[Html]
 }
 
-case class YesNoQuestion(fieldKey: String, text: String, hintText: Option[String], detailText: Option[Html] = None) extends Question {
+case class YesNoQuestion(fieldKey: String, textKey: String, hintKey: Option[String], detailText: Option[Html] = None) extends Question {
   override def choices: Seq[Choice] = Seq(Choice("Yes", YesNo.Yes.entryName), Choice("No", YesNo.No.entryName))
 
   override def inline = true
 }
 
-case class MultipleChoiceQuestion(fieldKey: String, text: String, hintText: Option[String], choices: Seq[Choice], detailText: Option[Html] = None) extends Question {
+case class MultipleChoiceQuestion(fieldKey: String, textKey: String, hintKey: Option[String], choices: Seq[Choice], detailText: Option[Html] = None) extends Question {
   override def inline = false
 }
 

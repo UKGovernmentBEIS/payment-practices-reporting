@@ -50,11 +50,11 @@ case object Required extends Decision
   * This class implements the decision tree to decide whether a business needs to report or not. This is based
   * on the legislation, which can be found here http://www.legislation.gov.uk/ukdsi/2017/9780111153598/regulation/5
   */
-class Decider @Inject()(questions: Questions) {
+object Decider {
 
   import FinancialYear._
   import YesNo._
-  import questions._
+  import Questions._
 
   def calculateDecision(state: DecisionState): Decision = state.isCompanyOrLLP match {
     case None => AskQuestion(isCompanyOrLLPQuestion)

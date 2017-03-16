@@ -7,27 +7,27 @@ class DeciderTest extends WordSpecLike with Matchers with TableDrivenPropertyChe
 
   import DeciderTestData._
 
-  val decider = new Decider(questions)
 
   val table = Table("test records", expectedDecisions: _*)
 
   "check decision for each state" in {
     forAll(table) { case (state, expectedDecision) =>
-      decider.calculateDecision(state) shouldBe expectedDecision
+      Decider.calculateDecision(state) shouldBe expectedDecision
     }
   }
-
 }
 
 object DeciderTestData {
 
   import utils.YesNo._
 
-  val questions = new Questions()(DummyMessages)
-  private val empty = DecisionState.empty
+  val empty = DecisionState.empty
+  val s1 = empty.copy(isCompanyOrLLP = Some(Yes))
+  val s2a = s1.copy(financialYear = Some(FinancialYear.First))
 
-  val expectedDecisions: Seq[(DecisionState, AskQuestion)] = Seq(
-    (empty, AskQuestion(questions.isCompanyOrLLPQuestion)),
-    (empty.copy(isCompanyOrLLP = Some(Yes)), AskQuestion(questions.financialYearQuestion))
+  val expectedDecisions: Seq[(DecisionState, Decision)] = Seq(
+    (empty, AskQuestion(Questions.isCompanyOrLLPQuestion)),
+    (s1, AskQuestion(Questions.financialYearQuestion)),
+    (s2a, Exempt(Some("reason.firstyear")))
   )
 }

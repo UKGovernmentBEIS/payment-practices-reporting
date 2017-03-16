@@ -34,9 +34,9 @@ import questionnaire._
 import services.{CompanyDetail, CompanySearchResult, FiledReport, PagedResults}
 import utils.{SystemTimeSource, YesNo}
 
-class VisualTestController @Inject()(questions: Questions, summarizer: Summarizer, val appConfig: AppConfig)(implicit messages: MessagesApi) extends Controller with PageHelper {
+class VisualTestController @Inject()(summarizer: Summarizer, val appConfig: AppConfig)(implicit messages: MessagesApi) extends Controller with PageHelper {
 
-  import questions._
+  import Questions._
 
   val startDate = new LocalDate(2017, 1, 1)
   val endDate = new LocalDate(2017, 12, 31)
