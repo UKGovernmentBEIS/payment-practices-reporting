@@ -25,9 +25,23 @@ class DeciderTest extends WordSpecLike with Matchers with TableDrivenPropertyChe
 
   import DeciderTestData._
 
-  val table = Table("test records", expectedDecisions: _*)
 
-  "check decision for each state" in {
+  "check decision for basic states" in {
+    val table = Table("test records", basicData: _*)
+    forAll(table) { case (state, expectedDecision) =>
+      Decider.calculateDecision(state) shouldBe expectedDecision
+    }
+  }
+
+  "check decision for year 2 states" in {
+    val table = Table("test records", year2Data: _*)
+    forAll(table) { case (state, expectedDecision) =>
+      Decider.calculateDecision(state) shouldBe expectedDecision
+    }
+  }
+
+  "check decision for year 3 states" in {
+    val table = Table("test records", year3data: _*)
     forAll(table) { case (state, expectedDecision) =>
       Decider.calculateDecision(state) shouldBe expectedDecision
     }
@@ -39,14 +53,16 @@ object DeciderTestData {
   import utils.YesNo._
 
   val empty = DecisionState.empty
-  val expectedDecisions: Seq[(DecisionState, Decision)] = Seq(
+
+  val basicData: Seq[(DecisionState, Decision)] = Seq(
     (empty, AskQuestion(Questions.isCompanyOrLLPQuestion)),
     (empty.copy(isCompanyOrLLP = Some(No)), Exempt(None)),
     (empty.copy(isCompanyOrLLP = Some(Yes)), AskQuestion(Questions.financialYearQuestion)),
     (empty.copy(isCompanyOrLLP = Some(Yes)).copy(financialYear = Some(FinancialYear.First)), Exempt(Some("reason.firstyear")))
-  ) ++
-    new FYData(FinancialYear.Second, Questions.companyQuestionGroupY2, Questions.subsidiariesQuestionGroupY2).expectedDecisions ++
-    new FYData(FinancialYear.ThirdOrLater, Questions.companyQuestionGroupY3, Questions.subsidiariesQuestionGroupY3).expectedDecisions
+  )
+
+  val year2Data = new FYData(FinancialYear.Second, Questions.companyQuestionGroupY2, Questions.subsidiariesQuestionGroupY2).expectedDecisions
+  val year3data = new FYData(FinancialYear.ThirdOrLater, Questions.companyQuestionGroupY3, Questions.subsidiariesQuestionGroupY3).expectedDecisions
 }
 
 
