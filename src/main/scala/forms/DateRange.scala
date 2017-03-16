@@ -17,7 +17,6 @@
 
 package forms
 
-
 import org.joda.time.{LocalDate, Months}
 import org.scalactic.TripleEquals._
 
@@ -36,16 +35,5 @@ case class DateRange(startDate: LocalDate, endDate: LocalDate) {
       input.plusMonths(months).dayOfMonth().withMaximumValue()
     else
       input.plusMonths(months)
-  }
-
-  def splitAt(months: Int): (DateRange, Option[DateRange]) = {
-    if (monthsInRange <= months) (this, None)
-    else {
-
-      val startOfNextPeriod = addMonthsWithStickyEnd(startDate, months)
-      val firstPeriod = DateRange(startDate, startOfNextPeriod.minusDays(1))
-      val remainder = DateRange(startOfNextPeriod, endDate)
-      (firstPeriod, Some(remainder))
-    }
   }
 }
