@@ -7,7 +7,6 @@ class DeciderTest extends WordSpecLike with Matchers with TableDrivenPropertyChe
 
   import DeciderTestData._
 
-
   val table = Table("test records", expectedDecisions: _*)
 
   "check decision for each state" in {
@@ -25,9 +24,19 @@ object DeciderTestData {
   val s1 = empty.copy(isCompanyOrLLP = Some(Yes))
   val s2a = s1.copy(financialYear = Some(FinancialYear.First))
 
+  val s2b = s1.copy(financialYear = Some(FinancialYear.Second))
+  val s3b = s2b.copy(companyThresholds = Thresholds.empty.copy(turnover = Some(Yes)))
+
+  val s2c = s1.copy(financialYear = Some(FinancialYear.ThirdOrLater))
+
   val expectedDecisions: Seq[(DecisionState, Decision)] = Seq(
     (empty, AskQuestion(Questions.isCompanyOrLLPQuestion)),
     (s1, AskQuestion(Questions.financialYearQuestion)),
-    (s2a, Exempt(Some("reason.firstyear")))
+    (s2a, Exempt(Some("reason.firstyear"))),
+
+    (s2b, AskQuestion(Questions.companyTurnoverQuestionY2)),
+    (s3b, AskQuestion(Questions.companyBalanceSheetQuestionY2)),
+
+    (s2c, AskQuestion(Questions.companyTurnoverQuestionY3))
   )
 }
