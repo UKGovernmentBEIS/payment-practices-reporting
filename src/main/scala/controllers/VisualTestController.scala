@@ -132,7 +132,7 @@ class VisualTestController @Inject()(questions: Questions, summarizer: Summarize
     subsidiaryTurnoverQuestionY3,
     subsidiaryBalanceSheetQuestionY3,
     subsidiaryEmployeesQuestionY3
-  ).map(views.html.questionnaire.question("", _))
+  ).map(views.html.questionnaire.question(_))
 
   val states = Seq(
     StateSummary(None, ThresholdSummary(None, None, None), ThresholdSummary(None, None, None))

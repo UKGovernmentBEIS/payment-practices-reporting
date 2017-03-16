@@ -27,6 +27,8 @@ sealed trait Question {
 
   def inline: Boolean
 
+  def fieldKey: String
+
   def text: String
 
   def hintText: Option[String]
@@ -34,13 +36,13 @@ sealed trait Question {
   def detailText: Option[Html]
 }
 
-case class YesNoQuestion(text: String, hintText: Option[String], detailText: Option[Html] = None) extends Question {
+case class YesNoQuestion(fieldKey: String, text: String, hintText: Option[String], detailText: Option[Html] = None) extends Question {
   override def choices: Seq[Choice] = Seq(Choice("Yes", YesNo.Yes.entryName), Choice("No", YesNo.No.entryName))
 
   override def inline = true
 }
 
-case class MultipleChoiceQuestion(text: String, hintText: Option[String], choices: Seq[Choice], detailText: Option[Html] = None) extends Question {
+case class MultipleChoiceQuestion(fieldKey: String, text: String, hintText: Option[String], choices: Seq[Choice], detailText: Option[Html] = None) extends Question {
   override def inline = false
 }
 

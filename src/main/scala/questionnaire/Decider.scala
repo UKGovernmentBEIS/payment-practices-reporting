@@ -40,7 +40,7 @@ object DecisionState {
 
 sealed trait Decision
 
-case class AskQuestion(key: String, question: Question) extends Decision
+case class AskQuestion(question: Question) extends Decision
 
 case class Exempt(reason: Option[String]) extends Decision
 
@@ -57,13 +57,13 @@ class Decider @Inject()(questions: Questions) {
   import questions._
 
   def calculateDecision(state: DecisionState): Decision = state.isCompanyOrLLP match {
-    case None => AskQuestion("isCompanyOrLLP", isCompanyOrLLPQuestion)
+    case None => AskQuestion(isCompanyOrLLPQuestion)
     case Some(No) => Exempt(None)
     case Some(Yes) => checkFinancialYear(state)
   }
 
   def checkFinancialYear(state: DecisionState): Decision = state.financialYear match {
-    case None => AskQuestion("financialYear", financialYearQuestion)
+    case None => AskQuestion(financialYearQuestion)
     case Some(First) => Exempt(Some("reason.firstyear"))
     case _ => checkCompanyThresholds(state)
   }
@@ -79,12 +79,12 @@ class Decider @Inject()(questions: Questions) {
     state.companyThresholds.nextQuestion(companyQuestionGroupForFY(state.financialYear.getOrElse(Second))) match {
       case _ if state.companyThresholds.yesCount >= 2 => checkIfSubsidiaries(state)
       case _ if state.companyThresholds.noCount >= 2 => Exempt(Some(companyNotLargeEnough))
-      case Some(AskQuestion(key, q)) => AskQuestion(s"companyThresholds.$key", q)
+      case Some(aq) => aq
       case None => Exempt(Some(companyNotLargeEnough))
     }
 
   def checkIfSubsidiaries(state: DecisionState): Decision = state.subsidiaries match {
-    case None => AskQuestion("subsidiaries", hasSubsidiariesQuestion)
+    case None => AskQuestion(hasSubsidiariesQuestion)
     case Some(No) => Required
     case Some(Yes) => checkSubsidiaryThresholds(state)
   }
@@ -100,7 +100,7 @@ class Decider @Inject()(questions: Questions) {
     state.subsidiaryThresholds.nextQuestion(subsidiariesQuestionGroupForFY(state.financialYear.getOrElse(Second))) match {
       case _ if state.subsidiaryThresholds.yesCount >= 2 => Required
       case _ if state.subsidiaryThresholds.noCount >= 2 => Exempt(Some(groupNotLargeEnough))
-      case Some(AskQuestion(key, q)) => AskQuestion(s"subsidiaryThresholds.$key", q)
+      case Some(aq) => aq
       case None => Exempt(Some(groupNotLargeEnough))
     }
 }

@@ -1,4 +1,4 @@
-@(key: String, question: _root_.questionnaire.Question)
+@(question: _root_.questionnaire.Question)
     @import _root_.questionnaire._
 
 @inlineClass(question: Question) = @{
@@ -16,7 +16,7 @@
         <fieldset class='form-group @inlineClass(question)'>
         @question.choices.map { case Choice(label, value) =>
         <label class="block-label" for='@value'>
-            <input type="radio" class="form-control" id='@value' name='@key' value='@value'>@label
+            <input type="radio" class="form-control" id='@value' name='@question.fieldKey' value='@value'>@label
         </label>
         }
         </fieldset>

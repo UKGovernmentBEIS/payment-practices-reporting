@@ -26,9 +26,9 @@ case class Thresholds(turnover: Option[YesNo], balanceSheet: Option[YesNo], empl
   def noCount: Int = Seq(turnover, balanceSheet, employees).flatten.count(_ === YesNo.No)
 
   def nextQuestion(questionGroup: ThresholdQuestions): Option[AskQuestion] = (turnover, balanceSheet, employees) match {
-    case (None, _, _) => Some(AskQuestion("turnover", questionGroup.turnoverQuestion))
-    case (Some(_), None, _) => Some(AskQuestion("balanceSheet", questionGroup.balanceSheetQuestion))
-    case (Some(_), Some(_), None) => Some(AskQuestion("employees", questionGroup.employeesQuestion))
+    case (None, _, _) => Some(AskQuestion(questionGroup.turnoverQuestion))
+    case (Some(_), None, _) => Some(AskQuestion(questionGroup.balanceSheetQuestion))
+    case (Some(_), Some(_), None) => Some(AskQuestion(questionGroup.employeesQuestion))
     case _ => None
   }
 }
