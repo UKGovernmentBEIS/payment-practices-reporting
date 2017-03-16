@@ -46,7 +46,7 @@ object DeciderTestData {
     (empty.copy(isCompanyOrLLP = Some(Yes)).copy(financialYear = Some(FinancialYear.First)), Exempt(Some("reason.firstyear")))
   ) ++
     new FYData(FinancialYear.Second, Questions.companyQuestionGroupY2, Questions.subsidiariesQuestionGroupY2).expectedDecisions ++
-    new FYData(FinancialYear.ThirdOrLater, Questions.companyQuestionGroupY3, Questions.subsidiariesQuestionGroupY3).expectedDecisions 
+    new FYData(FinancialYear.ThirdOrLater, Questions.companyQuestionGroupY3, Questions.subsidiariesQuestionGroupY3).expectedDecisions
 }
 
 
@@ -63,7 +63,14 @@ class FYData(financialYear: FinancialYear, companyQuestions: ThresholdQuestions,
   val YYn = YY.copy(subsidiaries = Some(No))
   val YYy = YY.copy(subsidiaries = Some(Yes))
   val YYyY = YYy.copy(subsidiaryThresholds = Thresholds(Some(Yes)))
+  val YYyN = YYy.copy(subsidiaryThresholds = Thresholds(Some(No)))
+  val YYyNY = YYy.copy(subsidiaryThresholds = Thresholds(Some(No), Some(Yes)))
   val YYyYY = YYyY.copy(subsidiaryThresholds = Thresholds(Some(Yes), Some(Yes)))
+  val YYyYN = YYyY.copy(subsidiaryThresholds = Thresholds(Some(Yes), Some(No)))
+  val YYyYNN = YYyY.copy(subsidiaryThresholds = Thresholds(Some(Yes), Some(No), Some(No)))
+  val YYyYNY = YYyYN.copy(subsidiaryThresholds = Thresholds(Some(Yes), Some(No), Some(Yes)))
+  val YYyNYY = YYyNY.copy(subsidiaryThresholds = Thresholds(Some(No), Some(Yes), Some(Yes)))
+  val YYyNYN = YYyNY.copy(subsidiaryThresholds = Thresholds(Some(No), Some(Yes), Some(No)))
 
   val expectedDecisions: Seq[(DecisionState, Decision)] =
     Seq(
@@ -80,6 +87,11 @@ class FYData(financialYear: FinancialYear, companyQuestions: ThresholdQuestions,
       (YYy, AskQuestion(subsidiaryQuestions.turnoverQuestion)),
       (YYn, Required),
       (YYyY, AskQuestion(subsidiaryQuestions.balanceSheetQuestion)),
-      (YYyYY, Required)
+      (YYyYY, Required),
+      (YYyYN, AskQuestion(subsidiaryQuestions.employeesQuestion)),
+      (YYyYNN, Exempt(Some("reason.group.notlargeenough"))),
+      (YYyNYN, Exempt(Some("reason.group.notlargeenough"))),
+      (YYyYNY, Required),
+      (YYyNYY, Required)
     )
 }
