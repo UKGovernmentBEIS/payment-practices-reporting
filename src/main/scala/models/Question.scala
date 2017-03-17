@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package questionnaire
+package models
 
 import play.twirl.api.Html
 import utils.YesNo

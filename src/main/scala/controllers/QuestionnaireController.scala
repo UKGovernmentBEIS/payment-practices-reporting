@@ -20,6 +20,9 @@ package controllers
 import javax.inject.Inject
 
 import config.AppConfig
+import models.DecisionState
+import org.scalactic.TripleEquals._
+import play.api.data.Form
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, Controller}
 import questionnaire._
@@ -27,51 +30,23 @@ import questionnaire._
 class QuestionnaireController @Inject()(summarizer: Summarizer, val appConfig: AppConfig)(implicit messages: MessagesApi) extends Controller with PageHelper {
 
   import QuestionnaireValidations._
-  import controllers.routes.{QuestionnaireController => routeTo}
   import views.html.{questionnaire => pages}
-
-  private val exemptReasonKey = "exempt_reason"
 
   def start = Action { implicit request =>
     Ok(page("Find out if your business needs to publish reports")(home, views.html.questionnaire.start()))
-      .removing(decisionStateMapping)
-      .removingFromSession(exemptReasonKey)
-  }
-
-  def startQuestions = Action { implicit request =>
-    Redirect(controllers.routes.QuestionnaireController.nextQuestion())
-      .removing(decisionStateMapping)
-      .removingFromSession(exemptReasonKey)
   }
 
   def nextQuestion = Action { implicit request =>
-    val state = decisionStateMapping.bindFromRequest.fold(_ => DecisionState.empty, s => s)
+    val form = Form(decisionStateMapping).bindFromRequest
+    val currentState = form.fold(_ => DecisionState.empty, s => s)
+    // The form will bind the "Continue" button as a value from the request so
+    // filter it out of the data we render as hidden fields on the form.
+    val formData = form.data.filter { case (k, _) => k !== "Continue" }
 
-    Decider.calculateDecision(state) match {
-      case AskQuestion(q) => Ok(page(messages(q.textKey))(home, pages.question(q)))
-      case Exempt(Some(reason)) => Redirect(routeTo.exempt()).addingToSession((exemptReasonKey, reason))
-      case Exempt(None) => Redirect(routeTo.exempt()).removingFromSession(exemptReasonKey)
-      case Required => Redirect(routeTo.required())
+    Decider.calculateDecision(currentState) match {
+      case AskQuestion(q) => Ok(page(messages(q.textKey))(home, pages.question(q, formData)))
+      case Exempt(reason) => Ok(page("Your business does not need to publish reports")(home, pages.exempt(reason)))
+      case Required => Ok(page("Your business must publish reports")(home, pages.required(summarizer.summarize(currentState))))
     }
-  }
-
-  def postAnswer = Action(parse.urlFormEncoded) { implicit request =>
-    val priorState = decisionStateMapping.sessionState
-    val formState = decisionStateMapping.stateValues(request.body)
-    val combinedState = priorState ++ formState
-
-    decisionStateMapping.bind(combinedState).fold(
-      _ => Redirect(routeTo.nextQuestion()), // try again without modifying the session state
-      newState => Redirect(routeTo.nextQuestion()).addingToSession(decisionStateMapping.unbind(newState).toSeq: _*)
-    )
-  }
-
-  def exempt = Action(request => Ok(page("Your business does not need to publish reports")(home, pages.exempt(request.session.get(exemptReasonKey)))))
-
-  def required = Action { implicit request =>
-    val state = decisionStateMapping.bindFromRequest.fold(_ => DecisionState.empty, s => s)
-
-    val summary = summarizer.summarize(state)
-    Ok(page("Your business must publish reports")(home, pages.required(summary)))
   }
 }

@@ -20,11 +20,11 @@ package controllers
 import javax.inject.Inject
 
 import calculator.Calculator
-import config.{AppConfig, Config, ServiceConfig}
+import config.{AppConfig, ServiceConfig}
 import dbrows._
 import forms.DateRange
 import forms.report.{ReportFormModel, ReportReviewModel, Validations}
-import models.{CompaniesHouseId, ReportId}
+import models.{CompaniesHouseId, DecisionState, ReportId}
 import org.joda.time.LocalDate
 import play.api.data.Form
 import play.api.i18n.MessagesApi
@@ -132,7 +132,7 @@ class VisualTestController @Inject()(summarizer: Summarizer, val appConfig: AppC
     subsidiaryTurnoverQuestionY3,
     subsidiaryBalanceSheetQuestionY3,
     subsidiaryEmployeesQuestionY3
-  ).map(views.html.questionnaire.question(_))
+  ).map(views.html.questionnaire.question(_, Form(QuestionnaireValidations.decisionStateMapping).data))
 
   val states = Seq(
     StateSummary(None, ThresholdSummary(None, None, None), ThresholdSummary(None, None, None))

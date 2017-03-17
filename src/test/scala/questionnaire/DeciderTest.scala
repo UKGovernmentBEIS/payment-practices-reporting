@@ -17,6 +17,7 @@
 
 package questionnaire
 
+import models.{DecisionState, ThresholdQuestions}
 import org.scalatest.prop.TableDrivenPropertyChecks
 import org.scalatest.{Matchers, WordSpecLike}
 import utils.YesNo.{No, Yes}

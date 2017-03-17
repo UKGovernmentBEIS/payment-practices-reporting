@@ -20,13 +20,16 @@ package controllers
 import javax.inject.Inject
 
 import config.AppConfig
+import play.api.Logger
 import play.api.mvc.{Action, Controller}
 
 class HomeController @Inject()(val appConfig: AppConfig) extends Controller with PageHelper {
 
   private val pateTitle = "Report on payment practices"
 
-  def index = Action {
+  def index = Action { request =>
+    Logger.debug(request.host)
+    Logger.debug(request.domain)
     Ok(page(pateTitle)(views.html.index()))
   }
 

@@ -17,24 +17,8 @@
 
 package questionnaire
 
+import models.{DecisionState, Question, ThresholdQuestions}
 import utils.YesNo
-
-case class DecisionState(
-                          isCompanyOrLLP: Option[YesNo],
-                          financialYear: Option[FinancialYear],
-                          companyThresholds: Thresholds,
-                          subsidiaries: Option[YesNo],
-                          subsidiaryThresholds: Thresholds
-                        )
-
-object DecisionState {
-  val empty: DecisionState = DecisionState(None, None, Thresholds.empty, None, Thresholds.empty)
-
-  import YesNo.Yes
-
-  val secondYear: DecisionState = DecisionState(Some(Yes), Some(FinancialYear.Second), Thresholds(Some(Yes), Some(Yes), Some(Yes)), Some(Yes), Thresholds(Some(Yes), Some(Yes), Some(Yes)))
-  val thirdYear: DecisionState = DecisionState(Some(Yes), Some(FinancialYear.ThirdOrLater), Thresholds(Some(Yes), Some(Yes), Some(Yes)), Some(Yes), Thresholds(Some(Yes), Some(Yes), Some(Yes)))
-}
 
 sealed trait Decision
 

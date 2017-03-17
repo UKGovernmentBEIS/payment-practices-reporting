@@ -30,28 +30,18 @@ import play.api.mvc.{Action, Controller}
 
 class CalculatorController @Inject()(implicit messages: MessagesApi, val appConfig: AppConfig) extends Controller with PageHelper {
 
-  import forms.Validations._
-
   import CalculatorController._
 
   def calculatorPage(form: Form[DateRange]) = page("Calculate reporting periods and deadlines")(home, views.html.calculator.calculator(form))
 
   def start = Action { implicit request =>
-    Ok(calculatorPage(emptyForm)).removing(financialYear)
+    Ok(calculatorPage(emptyForm))
   }
 
-  def submit = Action { implicit request =>
+  def calculate = Action { implicit request =>
     emptyForm.bindFromRequest().fold(
       formWithErrs => BadRequest(calculatorPage(discardErrorsIfEmpty(formWithErrs))),
-      dr => Redirect(controllers.routes.CalculatorController.showAnswer())
-        .addingToSession(financialYear.unbind(FinancialYear(dr)).toSeq: _*)
-    )
-  }
-
-  def showAnswer = Action { implicit request =>
-    financialYear.bind(request.session.data).fold(
-      _ => Redirect(controllers.routes.CalculatorController.start()),
-      fy => Ok(page("Reporting periods and deadlines")(home, views.html.calculator.answer(isGroup = false, Calculator(fy), df)))
+      dr => Ok(page("Reporting periods and deadlines")(home, views.html.calculator.answer(isGroup = false, Calculator(FinancialYear(dr)), df)))
     )
   }
 }
