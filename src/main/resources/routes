@@ -8,11 +8,8 @@ GET         /wip                                                        controll
 GET         /visual-test                                                controllers.VisualTestController.show
 
 GET         /check-if-you-need-to-report                                controllers.QuestionnaireController.start
-GET         /check-if-you-need-to-report/start-questions                controllers.QuestionnaireController.startQuestions
 GET         /check-if-you-need-to-report/questions                      controllers.QuestionnaireController.nextQuestion
-POST        /check-if-you-need-to-report/questions                      controllers.QuestionnaireController.postAnswer
-GET         /check-if-you-need-to-report/exempt                         controllers.QuestionnaireController.exempt
-GET         /check-if-you-need-to-report/required                       controllers.QuestionnaireController.required
+POST        /check-if-you-need-to-report/questions                      controllers.QuestionnaireController.nextQuestion
 
 GET         /calculate-reporting-deadlines                              controllers.CalculatorController.start()
 POST        /calculate-reporting-deadlines                              controllers.CalculatorController.submit()

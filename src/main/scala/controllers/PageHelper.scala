@@ -58,23 +58,6 @@ trait PageHelper {
 
   def keysFor[T](mapping: Mapping[T]): Seq[String] = mapping.mappings.map(_.key).filterNot(_ === "")
 
-  implicit class MappingSyntax[T](mapping: Mapping[T]) {
-    def bindFromRequest(implicit request: Request[_]): Either[Seq[FormError], T] =
-      mapping.bind(request.session.data)
-
-    def sessionState(implicit request: Request[_]): Map[String, String] =
-      request.session.data.filter { case (k, _) => keysFor(mapping).contains(k) }
-
-    /**
-      * The url-encoded form values arrive in the form of a `Map[String, Seq[String]]`. For convenience,
-      * reduce this to a `Map[String, String]` (as we only expect one value per form key) and filter out
-      * keys that don't relate to the decision state to eliminate noise.
-      */
-    def stateValues(input: Map[String, Seq[String]]): Map[String, String] =
-      input.map { case (k, v) => (k, v.headOption) }
-        .collect { case (k, Some(v)) if keysFor(mapping).contains(k) => (k, v) }
-  }
-
   implicit class ResultSyntax(result: Result)(implicit request: Request[_]) {
     def removing[T](mapping: Mapping[T]) = result.removingFromSession(keysFor(mapping): _*)
   }

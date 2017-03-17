@@ -17,6 +17,8 @@
 
 package questionnaire
 
+import models.{Choice, MultipleChoiceQuestion, ThresholdQuestions, YesNoQuestion}
+
 object Questions {
   val isCompanyOrLLPQuestion = YesNoQuestion("isCompanyOrLLP", "question.iscompanyorllp", None)
   val financialYearQuestion = MultipleChoiceQuestion("financialYear", "question.financialyear", None,

@@ -1,5 +1,4 @@
-@(question: _root_.questionnaire.Question)(implicit messages: MessagesApi)
-@import _root_.questionnaire.{Question, Choice}
+@(question: Question, decisionState: Form[DecisionState])(implicit messages: MessagesApi)
 
 @inlineClass(question: Question) = @{
     if(question.inline) "inline" else ""
@@ -12,7 +11,10 @@
     </h3>
     @question.hintKey.map {key => <p class="form-hint">@messages(key)</p>}
     @question.detailText.map { text => @text <br/> }
-    <form method="POST" action="">
+    <form method="POST" action="@controllers.routes.QuestionnaireController.nextQuestion()">
+        @for((k, v) <- decisionState.data) {
+            <input type="hidden" name='@k' value="@HtmlFormat.escape(v)">
+        }
         <fieldset class='form-group @inlineClass(question)'>
         @question.choices.map { case Choice(label, value) =>
         <label class="block-label" for='@value'>

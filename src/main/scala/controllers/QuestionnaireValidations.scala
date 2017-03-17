@@ -17,9 +17,10 @@
 
 package controllers
 
+import models.DecisionState
 import play.api.data.Forms.{mapping, optional}
 import play.api.data.{Forms, Mapping}
-import questionnaire.{DecisionState, FinancialYear, Thresholds}
+import questionnaire.{FinancialYear, Thresholds}
 import utils.YesNo
 
 object QuestionnaireValidations {
