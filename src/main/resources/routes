@@ -12,8 +12,7 @@ GET         /check-if-you-need-to-report/questions                      controll
 POST        /check-if-you-need-to-report/questions                      controllers.QuestionnaireController.nextQuestion
 
 GET         /calculate-reporting-deadlines                              controllers.CalculatorController.start()
-POST        /calculate-reporting-deadlines                              controllers.CalculatorController.submit()
-GET         /calculate-reporting-deadlines/deadlines                    controllers.CalculatorController.showAnswer()
+POST        /calculate-reporting-deadlines                              controllers.CalculatorController.calculate()
 
 GET         /search-payment-practice-reports/start                      controllers.SearchController.start()
 GET         /search-payment-practice-reports                            controllers.SearchController.search(q:Option[String], page:Option[Int], items_per_page:Option[Int])

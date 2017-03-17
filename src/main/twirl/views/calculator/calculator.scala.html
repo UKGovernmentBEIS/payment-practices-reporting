@@ -3,7 +3,7 @@
 <div class="scannable-wrapper">
     <h1 class="heading-xlarge">Find out how to report</h1>
 
-    <form method="post" action="@controllers.routes.CalculatorController.submit()">
+    <form method="post" action="@controllers.routes.CalculatorController.calculate()">
         <fieldset class='@(if(dateForm.hasErrors) "error" else "")'>
             @if(dateForm.hasErrors) {
                 <span id="form-errors" class="error-message">

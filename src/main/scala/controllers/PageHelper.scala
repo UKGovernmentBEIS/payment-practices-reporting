@@ -19,8 +19,8 @@ package controllers
 
 import config.AppConfig
 import org.scalactic.TripleEquals._
-import play.api.data.{Form, FormError, Mapping}
-import play.api.mvc.{Call, Request, Result}
+import play.api.data.Form
+import play.api.mvc.Call
 import play.twirl.api.Html
 
 import scala.collection.immutable
@@ -30,11 +30,11 @@ case class Breadcrumb(href: Call, name: String)
 trait PageHelper {
   val appConfig: AppConfig
 
-  import appConfig._
+  import appConfig.config.googleAnalytics
 
   def page(title: String)(contents: Html*): Html = {
     val content = html(contents: _*)
-    views.html.templates.govukTemplateDefaults(title)(content)(config.googleAnalytics.flatMap(_.code))
+    views.html.templates.govukTemplateDefaults(title)(content)(googleAnalytics.flatMap(_.code))
   }
 
   def html(contents: Html*): Html = {
@@ -55,11 +55,4 @@ trait PageHelper {
     if (form.data.exists(_._2 !== "")) form else form.discardingErrors
 
   val todo = controllers.routes.Default.todo()
-
-  def keysFor[T](mapping: Mapping[T]): Seq[String] = mapping.mappings.map(_.key).filterNot(_ === "")
-
-  implicit class ResultSyntax(result: Result)(implicit request: Request[_]) {
-    def removing[T](mapping: Mapping[T]) = result.removingFromSession(keysFor(mapping): _*)
-  }
-
 }
