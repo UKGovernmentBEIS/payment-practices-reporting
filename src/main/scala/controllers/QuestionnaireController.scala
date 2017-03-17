@@ -19,9 +19,9 @@ package controllers
 
 import javax.inject.Inject
 
-import org.scalactic.TripleEquals._
 import config.AppConfig
 import models.DecisionState
+import org.scalactic.TripleEquals._
 import play.api.data.Form
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, Controller}
@@ -41,7 +41,7 @@ class QuestionnaireController @Inject()(summarizer: Summarizer, val appConfig: A
     val currentState = form.fold(_ => DecisionState.empty, s => s)
     // The form will bind the "Continue" button as a value from the request so
     // filter it out of the data we render as hidden fields on the form.
-    val formData = form.data.filter(_._1 !== "Continue")
+    val formData = form.data.filter { case (k, _) => k !== "Continue" }
 
     Decider.calculateDecision(currentState) match {
       case AskQuestion(q) => Ok(page(messages(q.textKey))(home, pages.question(q, formData)))
