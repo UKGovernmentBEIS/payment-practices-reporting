@@ -36,4 +36,11 @@ class HomeController @Inject()(val appConfig: AppConfig) extends Controller with
   def start = Action {
     Ok(page(pateTitle)(views.html.start()))
   }
+
+  /**
+    * See https://www.gov.uk/service-manual/technology/managing-domain-names#using-robotstxt-and-root-level-redirections
+    */
+  def robots = Action {
+    Ok("User-agent: * Disallow: /")
+  }
 }
