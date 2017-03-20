@@ -92,7 +92,8 @@ class VisualTestController @Inject()(summarizer: Summarizer, val appConfig: AppC
     val errors = Seq(
       views.html.errors.sessionTimeout(),
       views.html.errors.error404(),
-      views.html.errors.error500()
+      views.html.errors.error500(),
+      views.html.errors.forbidden403("")
     )
 
     val content: Seq[Html] = (

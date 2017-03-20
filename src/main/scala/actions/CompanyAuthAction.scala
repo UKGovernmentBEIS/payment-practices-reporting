@@ -19,11 +19,14 @@ package actions
 
 import javax.inject.Inject
 
-import org.scalactic.TripleEquals._
 import cats.data.OptionT
 import cats.instances.future._
+import config.AppConfig
+import controllers.PageHelper
 import models.CompaniesHouseId
 import org.joda.time.LocalDateTime
+import org.scalactic.TripleEquals._
+import play.api.Logger
 import play.api.libs.json.Json
 import play.api.mvc.Results._
 import play.api.mvc._
@@ -56,12 +59,22 @@ case class CompanyAuthRequest[A](sessionId: SessionId, companyDetail: CompanyDet
   * If the access token retrieved from the session has expired then this action will refresh it using
   * the oAuth2 refresh token and update the session with the new values.
   */
-class CompanyAuthAction @Inject()(SessionAction: SessionAction, sessionService: SessionService, companyAuthService: CompanyAuthService)(implicit ec: ExecutionContext) {
+class CompanyAuthAction @Inject()(
+                                   SessionAction: SessionAction,
+                                   sessionService: SessionService,
+                                   companyAuthService: CompanyAuthService,
+                                   val appConfig: AppConfig)
+                                 (implicit ec: ExecutionContext) extends PageHelper {
   def extractTime(s: String): Option[LocalDateTime] = Try(new LocalDateTime(s.toLong)).toOption
 
   def apply(expectedId: CompaniesHouseId): ActionBuilder[CompanyAuthRequest] = new ActionBuilder[CompanyAuthRequest] {
     override def invokeBlock[A](request: Request[A], block: (CompanyAuthRequest[A]) => Future[Result]) =
       (SessionAction andThen refiner(expectedId)).invokeBlock(request, block)
+  }
+
+  def forbidden(message: String) = {
+    Logger.info(s"User not authorised to access page: $message")
+    Forbidden(page("Not authorised")(home, views.html.errors.forbidden403(message)))
   }
 
   def refiner(expectedId: CompaniesHouseId): ActionRefiner[SessionRequest, CompanyAuthRequest] = new ActionRefiner[SessionRequest, CompanyAuthRequest] {
@@ -74,8 +87,8 @@ class CompanyAuthAction @Inject()(SessionAction: SessionAction, sessionService: 
 
       sessionDetails.value.map {
         case Some(car) if car.companyDetail.companiesHouseId === expectedId => Right(car)
-        case Some(car) => Left(Unauthorized("company id from session does not match id in url"))
-        case None => Left(Unauthorized("no company details found on request"))
+        case Some(car) => Left(forbidden("company id from session does not match id in url"))
+        case None => Left(forbidden("no company details found on request"))
       }
     }
   }
