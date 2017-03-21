@@ -5,8 +5,12 @@
 
 ## Configuration
 
-### Companies House API
-You'll need to obtain an API key for making calls to the Companies House API. Go to the 
+The application is designed to start up successfully even if no configuration has been provided. In this case
+the configuration system will wire in mock versions of the three external services, namely the Companies House
+Search API, the Companies House OAuth 2 api and the GOV Notify service.
+
+### Companies House Search API
+You'll need to obtain an API key for making calls to the Companies House Search API. Go to the
 Companies House [developer hub](https://developer.companieshouse.gov.uk/api/docs/),
 register an account and create a new application. One of the pieces of information
 provided is an API key. You can provide this key to the application by setting the
@@ -15,19 +19,27 @@ provided is an API key. You can provide this key to the application by setting t
 Similarly, for production, inject the api key value into the environment with that
 env variable.
 
-### Companies House oAuth2 API
+### Companies House OAuth2 API
 
-The application uses oAuth2 integration with Companies House to authorise the user for filing. The user
+The application uses OAuth2 integration with Companies House to authorise the user for filing. The user
 must be able to log in to Companies House and provide an authorisation code that grants them permissions
 to file on behalf of the company. To configure the oAuth2 integration set the following environment vars:
 
-* `API_CLIENT_ID` and `API_CLIENT_SECRET` are the credentials associated with the application registered
+* `OAUTH2_CLIENT_ID` and `OAUTH2_CLIENT_SECRET` are the credentials associated with the application registered
 with Companies House
 * `OAUTH2_CALLBACK_URL` is the absolute url of the endpoint that the oAuth2 flow will redirect back to
 after the user has logged in.
 
 _NOTE:_ the Companies House oAuth2 integration is currently still in closed alpha and you must contact
 their developer support team directly if you want to get an application registered with them.
+
+### GDS Notify API
+PPR uses the GDS Notify service to send confirmation emails when reports are filed. To
+do this it needs an API key. You can generate one by registering an account at
+https://www.notifications.service.gov.uk.
+
+Use the environment variable `GOVNOTIFY_API_KEY` to pass the key into the application and `GOVNOTIFY_TEMPLATE_ID` to
+specify the email template to use.
 
 ### Database
 In production the database configuration can be injected using the environment variables
@@ -37,13 +49,6 @@ the PostgreSQL add-on, these variables are set for you.
 In development the database details are defaulted to use a local PostgreSQL server
 running on the default port (5432) with a database name of `ppr`, a user `ppruser` and
 a password of `password`.
-
-### GDS Notify API
-PPR uses the GDS Notify service to send confirmation emails when reports are filed. To
-do this it needs an API key. You can generate one by registering an account at
-https://www.notifications.service.gov.uk.
-
-Use the environment variable `GDSNOTIFY_API_KEY` to pass the key into the application.
 
 ### Google Analytics
 
