@@ -3,17 +3,8 @@
   "scripts": {
   },
   "env": {
-    "API_CLIENT_ID": "mocked",
-    "API_CLIENT_SECRET": "mocked",
-    "API_HOST": "mocked",
     "APPLY_EVOLUTIONS": "true",
-    "APPLY_EVOLUTIONS_DOWNS": "true",
-    "COMPANIES_HOUSE_API_KEY": "mocked",
-    "GDSNOTIFY_API_KEY": "mocked",
-    "MOCK_COMPANY_AUTH": "true",
-    "MOCK_COMPANY_SEARCH": "true",
-    "MOCK_NOTIFY": "true",
-    "OAUTH2_CALLBACK_URL": "mocked"
+    "APPLY_EVOLUTIONS_DOWNS": "true"
   },
   "formation": {
   },
