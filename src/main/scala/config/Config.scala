@@ -17,7 +17,7 @@
 
 package config
 
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 
 import org.joda.time.LocalDate
 import org.joda.time.format.DateTimeFormat
@@ -66,6 +66,7 @@ case class Config(
                    printDBTables: Option[Boolean]
                  )
 
+@Singleton
 class AppConfig @Inject()(configuration: Configuration) {
   val df = DateTimeFormat.forPattern("yyyy-M-d")
 
