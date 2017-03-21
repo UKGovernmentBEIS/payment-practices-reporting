@@ -13,13 +13,11 @@
         <hr>
     </h2>
 
-
-
     <div class="notice">
         <i class="icon icon-important">
             <span class="visually-hidden">Warning</span>
         </i>
-        <strong>This information is as reported by the business, and is in their own words.</strong>
+        <strong>This information is as reported by the business, and responses are in their own words.</strong>
     </div>
 
     <h3 class="heading-medium">Payment statistics</h3>
@@ -34,18 +32,21 @@
         <li>61 days or more: <span class="datum">@report.paymentHistory.percentInvoicesBeyond60Days%</span></li>
     </ul>
 
-    <p>Invoices not paid within agreed terms: <span class="datum">@report.paymentHistory.percentPaidLaterThanAgreedTerms%</span></p>
+    <p>Invoices due but not paid within agreed terms: <span class="datum">@report.paymentHistory.percentPaidLaterThanAgreedTerms%</span></p>
 
     <h3 class="heading-medium">Payment terms</h3>
-    <h4 class="heading-small">Standard payment terms</h4>
-    <p>
-        @shared._multiline(report.paymentTerms.paymentTerms)
-    </p>
     <h4 class="heading-small">Standard payment period</h4>
     <p>
         @report.paymentTerms.paymentPeriod days
     </p>
-    <h4 class="heading-small">Maximum contractual period</h4>
+    <h4 class="heading-small">Standard payment terms</h4>
+    <p>
+        @shared._multiline(report.paymentTerms.paymentTerms)
+    </p>
+    <h4 class="heading-small">Maximum contractual payment period agreed</h4>
+    <p>
+        @(report.paymentTerms.maximumContractPeriod) days
+    </p>
     <p>
         @(report.paymentTerms.maximumContractPeriodComment.map(shared._multiline(_)))
     </p>
@@ -112,7 +113,7 @@
         @report.otherInfo.retentionChargesInPolicy.entryName.capitalize
     </p>
     <h4 class="heading-small">
-        Did this business actually do this during this reporting period?
+        During the reporting period, did the business deduct sums from payments as a charge for remaining on a supplier list?
     </h4>
     <p>
         @report.otherInfo.retentionChargesInPast.entryName.capitalize

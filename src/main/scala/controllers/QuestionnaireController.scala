@@ -43,9 +43,12 @@ class QuestionnaireController @Inject()(summarizer: Summarizer, val appConfig: A
     // filter it out of the data we render as hidden fields on the form.
     val formData = form.data.filter { case (k, _) => k !== "Continue" }
 
+    val exemptTitle = "Your business does not need to publish reports"
+
     Decider.calculateDecision(currentState) match {
       case AskQuestion(q) => Ok(page(messages(q.textKey))(home, pages.question(q, formData)))
-      case Exempt(reason) => Ok(page("Your business does not need to publish reports")(home, pages.exempt(reason)))
+      case NotACompany(reason) => Ok(page(exemptTitle)(home, pages.notACompany(reason)))
+      case Exempt(reason) => Ok(page(exemptTitle)(home, pages.exempt(reason)))
       case Required => Ok(page("Your business must publish reports")(home, pages.required(summarizer.summarize(currentState))))
     }
   }

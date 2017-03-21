@@ -46,8 +46,8 @@ class VisualTestController @Inject()(summarizer: Summarizer, val appConfig: AppC
     val index = views.html.index()
     val download = views.html.download.accessData()
     val qStart = views.html.questionnaire.start()
-    val reasons = None +: Seq("reason.firstyear", "reason.company.notlargeenough", "reason.group.notlargeenough").map(Some(_))
-    val exempts = reasons.map(views.html.questionnaire.exempt(_))
+    val reasons = Seq("reason.firstyear", "reason.company.notlargeenough", "reason.group.notlargeenough")
+    val exempts = views.html.questionnaire.notACompany("reason.notacompany") +: reasons.map(views.html.questionnaire.exempt(_))
     val requireds =
       Seq(views.html.questionnaire.required(summarizer.summarize(DecisionState.secondYear)),
         views.html.questionnaire.required(summarizer.summarize(DecisionState.thirdYear)))
