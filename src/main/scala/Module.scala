@@ -17,7 +17,7 @@
 
 import actors.ConfirmationActor
 import com.google.inject.AbstractModule
-import config.{AppConfig, MockConfig, ServiceConfig}
+import config._
 import play.api.libs.concurrent.AkkaGuiceSupport
 import play.api.{Configuration, Environment, Logger}
 import services._
@@ -30,25 +30,34 @@ class Module(environment: Environment, configuration: Configuration) extends Abs
 
     val appConfig = new AppConfig(configuration)
 
-    val mockConfig = appConfig.config.mockConfig.getOrElse(MockConfig.empty)
+    appConfig.config.companiesHouse match {
+      case Some(ch) =>
+        bind(classOf[CompaniesHouseConfig]).toInstance(ch)
+        bind(classOf[CompanySearchService]).to(classOf[CompaniesHouseSearch])
+      case None =>
+        Logger.debug("Wiring in Company Search Mock")
+        bind(classOf[CompanySearchService]).to(classOf[MockCompanySearch])
+    }
 
-    val searchImpl = if (mockConfig.mockCompanySearch.getOrElse(false)) {
-      Logger.debug("Wiring in Company Search Mock")
-      classOf[MockCompanySearch]
-    } else classOf[CompaniesHouseSearch]
-    bind(classOf[CompanySearchService]).to(searchImpl)
+    appConfig.config.oAuth match {
+      case Some(o) =>
+        bind(classOf[OAuthConfig]).toInstance(o)
+        bind(classOf[CompanyAuthService]).to(classOf[CompaniesHouseAuth])
+      case None =>
+        Logger.debug("Wiring in Company Auth Mock")
+        bind(classOf[CompanyAuthService]).to(classOf[MockCompanyAuth])
+    }
 
-    val authImpl = if (mockConfig.mockCompanyAuth.getOrElse(false)) {
-      Logger.debug("Wiring in Company Auth Mock")
-      classOf[MockCompanyAuth]
-    } else classOf[CompaniesHouseAuth]
-    bind(classOf[CompanyAuthService]).to(authImpl)
+    appConfig.config.notifyService match {
+      case Some(n) =>
+        bind(classOf[NotifyConfig]).toInstance(n)
+        bind(classOf[NotifyService]).to(classOf[NotifyServiceImpl])
 
-    val notifyImpl = if (mockConfig.mockNotify.getOrElse(false)) {
-      Logger.debug("Wiring in Notify Mock")
-      classOf[MockNotify]
-    } else classOf[NotifyServiceImpl]
-    bind(classOf[NotifyService]).to(notifyImpl)
+      case None =>
+        Logger.debug("Wiring in Notify Mock")
+        bind(classOf[NotifyService]).to(classOf[MockNotify])
+    }
+
 
     bind(classOf[DB]).asEagerSingleton()
     bindActor[ConfirmationActor]("confirmation-actor")

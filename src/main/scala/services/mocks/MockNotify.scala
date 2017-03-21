@@ -37,7 +37,7 @@ class MockNotify extends NotifyService {
       |}
     """.stripMargin
 
-  override def sendEmail(templateId: String, recipient: String, params: Map[String, String])(implicit ec: ExecutionContext): Future[SendEmailResponse] = {
+  override def sendEmail(recipient: String, params: Map[String, String])(implicit ec: ExecutionContext): Future[SendEmailResponse] = {
     Future.successful(new SendEmailResponse(json))
   }
 }

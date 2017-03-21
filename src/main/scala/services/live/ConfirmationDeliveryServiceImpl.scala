@@ -19,7 +19,6 @@ package services.live
 
 import javax.inject.Inject
 
-import config.AppConfig
 import dbrows.ConfirmationPendingRow
 import org.joda.time.LocalDateTime
 import org.joda.time.format.DateTimeFormat
@@ -30,8 +29,7 @@ import views.html.ReportNum
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class ConfirmationDeliveryServiceImpl @Inject()(confirmationRepo: ConfirmationService, notifyService: NotifyService, appConfig: AppConfig) extends ConfirmationDeliveryService {
-  val templateId = appConfig.config.notifyService.templateId
+class ConfirmationDeliveryServiceImpl @Inject()(confirmationRepo: ConfirmationService, notifyService: NotifyService) extends ConfirmationDeliveryService {
   val df = DateTimeFormat.forPattern("d MMMM YYYY")
 
   def attemptDelivery(implicit ec: ExecutionContext): Future[Option[DeliveryOutcome]] = {
@@ -42,7 +40,7 @@ class ConfirmationDeliveryServiceImpl @Inject()(confirmationRepo: ConfirmationSe
   }
 
   private def attemptToSend(confirmation: ConfirmationPendingRow, report: FiledReport)(implicit ec: ExecutionContext): Future[DeliveryOutcome] = {
-    notifyService.sendEmail(templateId, confirmation.emailAddress, buildParams(confirmation, report)).flatMap { response =>
+    notifyService.sendEmail(confirmation.emailAddress, buildParams(confirmation, report)).flatMap { response =>
       confirmationRepo.confirmationSent(report.header.id, LocalDateTime.now, response)
         .map(_ => ConfirmationSent(report.header.id))
     }.recoverWith {

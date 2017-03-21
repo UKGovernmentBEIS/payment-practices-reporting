@@ -32,23 +32,16 @@ case class NotifyConfig(
                          templateId: String
                        )
 
-case class OAuthConfig(host: String, callbackURL: String) {
+case class OAuthConfig(host: String, callbackURL: String, clientId: String, clientSecret: String) {
   val baseURI = s"https://$host"
 
   val accessTokenUri = s"$baseURI/oauth2/token"
   val authorizeSchemeUri = s"$baseURI/oauth2/authorise"
 }
 
-case class CompanySearchAPIConfig(id: String, secret: String)
+case class CompanySearchAPIConfig()
 
 case class GoogleAnalytics(code: Option[String])
-
-case class MockConfig(mockCompanySearch: Option[Boolean], mockCompanyAuth: Option[Boolean], mockNotify: Option[Boolean])
-
-
-object MockConfig {
-  val empty = MockConfig(None, None, None)
-}
 
 case class ServiceConfig(startDate: Option[LocalDate])
 
@@ -59,16 +52,14 @@ object ServiceConfig {
 
 case class Config(
                    service: Option[ServiceConfig],
-                   companiesHouse: CompaniesHouseConfig,
-                   companySearchAPI: CompanySearchAPIConfig,
-                   notifyService: NotifyConfig,
-                   oAuth: OAuthConfig,
+                   companiesHouse: Option[CompaniesHouseConfig],
+                   notifyService: Option[NotifyConfig],
+                   oAuth: Option[OAuthConfig],
                    googleAnalytics: Option[GoogleAnalytics],
                    sessionTimeoutInMinutes: Option[Int],
                    logAssets: Option[Boolean],
                    logRequests: Option[Boolean],
-                   printDBTables: Option[Boolean],
-                   mockConfig: Option[MockConfig]
+                   printDBTables: Option[Boolean]
                  )
 
 class AppConfig @Inject()(configuration: Configuration) {
