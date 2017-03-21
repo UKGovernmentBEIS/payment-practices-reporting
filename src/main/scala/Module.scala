@@ -29,9 +29,9 @@ import slicks.modules.DB
 class Module(environment: Environment, configuration: Configuration) extends AbstractModule with AkkaGuiceSupport {
   override def configure(): Unit = {
 
-    val appConfig = new AppConfig(configuration)
+    val config = new AppConfig(configuration).config
 
-    appConfig.config.companiesHouse match {
+    config.companiesHouse match {
       case Some(ch) =>
         bind(classOf[CompaniesHouseConfig]).toInstance(ch)
         bind(classOf[CompanySearchService]).to(classOf[CompaniesHouseSearch])
@@ -40,7 +40,7 @@ class Module(environment: Environment, configuration: Configuration) extends Abs
         bind(classOf[CompanySearchService]).to(classOf[MockCompanySearch])
     }
 
-    appConfig.config.oAuth match {
+    config.oAuth match {
       case Some(o) =>
         bind(classOf[OAuthConfig]).toInstance(o)
         bind(classOf[CompanyAuthService]).to(classOf[CompaniesHouseAuth])
@@ -49,7 +49,7 @@ class Module(environment: Environment, configuration: Configuration) extends Abs
         bind(classOf[CompanyAuthService]).to(classOf[MockCompanyAuth])
     }
 
-    appConfig.config.notifyService match {
+    config.notifyService match {
       case Some(n) =>
         bind(classOf[NotifyConfig]).toInstance(n)
         bind(classOf[NotifyService]).to(classOf[NotifyServiceImpl])
@@ -61,18 +61,17 @@ class Module(environment: Environment, configuration: Configuration) extends Abs
 
     bind(classOf[Int])
       .annotatedWith(Names.named("session timeout"))
-      .toInstance(appConfig.config.sessionTimeoutInMinutes.getOrElse(60))
+      .toInstance(config.sessionTimeoutInMinutes.getOrElse(60))
 
     bind(classOf[GoogleAnalyticsConfig])
-      .toInstance(appConfig.config.googleAnalytics.getOrElse(GoogleAnalyticsConfig.empty))
+      .toInstance(config.googleAnalytics.getOrElse(GoogleAnalyticsConfig.empty))
 
     bind(classOf[ServiceConfig])
-      .toInstance(appConfig.config.service.getOrElse(ServiceConfig.empty))
+      .toInstance(config.service.getOrElse(ServiceConfig.empty))
 
     bind(classOf[DB]).asEagerSingleton()
     bindActor[ConfirmationActor]("confirmation-actor")
 
     bind(classOf[SessionCleaner]).asEagerSingleton()
-
   }
 }
