@@ -21,7 +21,7 @@ import javax.inject.Inject
 
 import cats.data.OptionT
 import cats.instances.future._
-import config.AppConfig
+import config.GoogleAnalyticsConfig
 import models.{CompaniesHouseId, ReportId}
 import org.joda.time.format.DateTimeFormat
 import play.api.mvc.{Action, Controller}
@@ -33,7 +33,7 @@ import scala.concurrent.ExecutionContext
 class SearchController @Inject()(
                                   val companySearch: CompanySearchService,
                                   val reportService: ReportService,
-                                  val appConfig: AppConfig)(implicit val ec: ExecutionContext)
+                                  val googleAnalytics: GoogleAnalyticsConfig)(implicit val ec: ExecutionContext)
   extends Controller
     with PageHelper
     with SearchHelper {

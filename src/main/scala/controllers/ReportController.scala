@@ -20,7 +20,7 @@ package controllers
 import javax.inject.Inject
 
 import actions.SessionAction
-import config.AppConfig
+import config.GoogleAnalyticsConfig
 import controllers.ReportController.CodeOption.{Colleague, Register}
 import forms.Validations
 import models.CompaniesHouseId
@@ -39,7 +39,7 @@ class ReportController @Inject()(
                                   companyAuth: CompanyAuthService,
                                   val companySearch: CompanySearchService,
                                   val reportService: ReportService,
-                                  val appConfig: AppConfig
+                                  val googleAnalytics: GoogleAnalyticsConfig
                                 )(implicit val ec: ExecutionContext, messages: MessagesApi)
   extends Controller
     with PageHelper

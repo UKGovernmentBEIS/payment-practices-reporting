@@ -21,7 +21,7 @@ import javax.inject.Inject
 
 import cats.data.OptionT
 import cats.instances.future._
-import config.AppConfig
+import config.GoogleAnalyticsConfig
 import controllers.PageHelper
 import models.CompaniesHouseId
 import org.joda.time.LocalDateTime
@@ -63,7 +63,7 @@ class CompanyAuthAction @Inject()(
                                    SessionAction: SessionAction,
                                    sessionService: SessionService,
                                    companyAuthService: CompanyAuthService,
-                                   val appConfig: AppConfig)
+                                   val googleAnalytics: GoogleAnalyticsConfig)
                                  (implicit ec: ExecutionContext) extends PageHelper {
   def extractTime(s: String): Option[LocalDateTime] = Try(new LocalDateTime(s.toLong)).toOption
 

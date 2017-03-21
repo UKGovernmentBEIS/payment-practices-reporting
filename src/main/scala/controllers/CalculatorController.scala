@@ -20,7 +20,7 @@ package controllers
 import javax.inject.Inject
 
 import calculator.{Calculator, FinancialYear}
-import config.AppConfig
+import config.GoogleAnalyticsConfig
 import forms.DateRange
 import forms.Validations.dateRange
 import org.joda.time.format.DateTimeFormat
@@ -28,7 +28,7 @@ import play.api.data.Form
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, Controller}
 
-class CalculatorController @Inject()(implicit messages: MessagesApi, val appConfig: AppConfig) extends Controller with PageHelper {
+class CalculatorController @Inject()(implicit messages: MessagesApi,  val googleAnalytics: GoogleAnalyticsConfig) extends Controller with PageHelper {
 
   import CalculatorController._
 

@@ -59,16 +59,20 @@ class Module(environment: Environment, configuration: Configuration) extends Abs
         bind(classOf[NotifyService]).to(classOf[MockNotify])
     }
 
-
     bind(classOf[Int])
       .annotatedWith(Names.named("session timeout"))
       .toInstance(appConfig.config.sessionTimeoutInMinutes.getOrElse(60))
+
+    bind(classOf[GoogleAnalyticsConfig])
+      .toInstance(appConfig.config.googleAnalytics.getOrElse(GoogleAnalyticsConfig.empty))
+
+    bind(classOf[ServiceConfig])
+      .toInstance(appConfig.config.service.getOrElse(ServiceConfig.empty))
 
     bind(classOf[DB]).asEagerSingleton()
     bindActor[ConfirmationActor]("confirmation-actor")
 
     bind(classOf[SessionCleaner]).asEagerSingleton()
 
-    bind(classOf[ServiceConfig]).toInstance(appConfig.config.service.getOrElse(ServiceConfig.empty))
   }
 }

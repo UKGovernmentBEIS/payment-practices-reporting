@@ -41,7 +41,11 @@ case class OAuthConfig(host: String, callbackURL: String, clientId: String, clie
 
 case class CompanySearchAPIConfig()
 
-case class GoogleAnalytics(code: Option[String])
+case class GoogleAnalyticsConfig(code: Option[String])
+
+object GoogleAnalyticsConfig {
+  val empty = GoogleAnalyticsConfig(None)
+}
 
 case class ServiceConfig(startDate: Option[LocalDate])
 
@@ -55,7 +59,7 @@ case class Config(
                    companiesHouse: Option[CompaniesHouseConfig],
                    notifyService: Option[NotifyConfig],
                    oAuth: Option[OAuthConfig],
-                   googleAnalytics: Option[GoogleAnalytics],
+                   googleAnalytics: Option[GoogleAnalyticsConfig],
                    sessionTimeoutInMinutes: Option[Int],
                    logAssets: Option[Boolean],
                    logRequests: Option[Boolean],
@@ -78,7 +82,7 @@ class AppConfig @Inject()(configuration: Configuration) {
   val companiesHouse: Option[CompaniesHouseConfig] = load[CompaniesHouseConfig]("companiesHouse")
   val notifyService: Option[NotifyConfig] = load[NotifyConfig]("notifyService")
   val oAuth: Option[OAuthConfig] = load[OAuthConfig]("oAuth")
-  val googleAnalytics: Option[GoogleAnalytics] = load[GoogleAnalytics]("googleAnalytics")
+  val googleAnalytics: Option[GoogleAnalyticsConfig] = load[GoogleAnalyticsConfig]("googleAnalytics")
   val sessionTimeoutInMinutes: Option[Int] = load[Int]("sessionTimeoutInMinutes")
   val logAssets: Option[Boolean] = load[Boolean]("logAssets")
   val logRequests: Option[Boolean] = load[Boolean]("logRequests")

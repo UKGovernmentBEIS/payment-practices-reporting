@@ -17,7 +17,7 @@
 
 import javax.inject._
 
-import config.AppConfig
+import config.GoogleAnalyticsConfig
 import controllers.PageHelper
 import org.scalactic.TripleEquals._
 import play.api._
@@ -30,7 +30,7 @@ import scala.concurrent.Future
 
 @Singleton
 class ErrorHandler @Inject()(
-                              val appConfig: AppConfig,
+                              val googleAnalytics: GoogleAnalyticsConfig,
                               env: Environment,
                               conf: Configuration,
                               sourceMapper: OptionalSourceMapper,

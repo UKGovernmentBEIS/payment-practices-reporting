@@ -20,7 +20,7 @@ package controllers
 import javax.inject.Inject
 
 import calculator.Calculator
-import config.{AppConfig, ServiceConfig}
+import config.{GoogleAnalyticsConfig, ServiceConfig}
 import dbrows._
 import forms.DateRange
 import forms.report.{ReportFormModel, ReportReviewModel, Validations}
@@ -34,7 +34,11 @@ import questionnaire._
 import services.{CompanyDetail, CompanySearchResult, FiledReport, PagedResults}
 import utils.{SystemTimeSource, YesNo}
 
-class VisualTestController @Inject()(summarizer: Summarizer, val appConfig: AppConfig)(implicit messages: MessagesApi) extends Controller with PageHelper {
+class VisualTestController @Inject()(
+                                      summarizer: Summarizer,
+                                      serviceConfig: ServiceConfig,
+                                      val googleAnalytics: GoogleAnalyticsConfig
+                                    )(implicit messages: MessagesApi) extends Controller with PageHelper {
 
   import Questions._
 
@@ -80,7 +84,7 @@ class VisualTestController @Inject()(summarizer: Summarizer, val appConfig: AppC
     val emptyReport: Form[ReportFormModel] = Form(reportValidations.reportFormModel)
     val emptyReview: Form[ReportReviewModel] = Form(reportValidations.reportReviewModel)
     val header = h1(s"Publish a report for:<br>$companyName")
-    val serviceStartDate = appConfig.config.service.flatMap(_.startDate).getOrElse(ServiceConfig.defaultServiceStartDate)
+    val serviceStartDate = serviceConfig.startDate.getOrElse(ServiceConfig.defaultServiceStartDate)
 
     val publish = Seq(
       views.html.report.file(header, emptyReport, id, df, serviceStartDate),

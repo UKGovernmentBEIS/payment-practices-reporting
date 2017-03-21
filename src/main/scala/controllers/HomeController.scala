@@ -19,11 +19,11 @@ package controllers
 
 import javax.inject.Inject
 
-import config.AppConfig
+import config.GoogleAnalyticsConfig
 import play.api.Logger
 import play.api.mvc.{Action, Controller}
 
-class HomeController @Inject()(val appConfig: AppConfig) extends Controller with PageHelper {
+class HomeController @Inject()(val googleAnalytics: GoogleAnalyticsConfig) extends Controller with PageHelper {
 
   private val pateTitle = "Report on payment practices"
 
