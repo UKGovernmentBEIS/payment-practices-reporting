@@ -57,7 +57,7 @@ object DeciderTestData {
 
   val basicData: Seq[(DecisionState, Decision)] = Seq(
     (empty, AskQuestion(Questions.isCompanyOrLLPQuestion)),
-    (empty.copy(isCompanyOrLLP = Some(No)), NotACompany),
+    (empty.copy(isCompanyOrLLP = Some(No)), NotACompany("reason.notacompany")),
     (empty.copy(isCompanyOrLLP = Some(Yes)), AskQuestion(Questions.financialYearQuestion)),
     (empty.copy(isCompanyOrLLP = Some(Yes)).copy(financialYear = Some(FinancialYear.First)), Exempt("reason.firstyear"))
   )
