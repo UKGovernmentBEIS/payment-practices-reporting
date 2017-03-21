@@ -17,7 +17,8 @@
 
 import actors.ConfirmationActor
 import com.google.inject.AbstractModule
-import config.{AppConfig, MockConfig, ServiceConfig}
+import com.google.inject.name.Names
+import config._
 import play.api.libs.concurrent.AkkaGuiceSupport
 import play.api.{Configuration, Environment, Logger}
 import services._
@@ -28,33 +29,49 @@ import slicks.modules.DB
 class Module(environment: Environment, configuration: Configuration) extends AbstractModule with AkkaGuiceSupport {
   override def configure(): Unit = {
 
-    val appConfig = new AppConfig(configuration)
+    val config = new AppConfig(configuration).config
 
-    val mockConfig = appConfig.config.mockConfig.getOrElse(MockConfig.empty)
+    config.companiesHouse match {
+      case Some(ch) =>
+        bind(classOf[CompaniesHouseConfig]).toInstance(ch)
+        bind(classOf[CompanySearchService]).to(classOf[CompaniesHouseSearch])
+      case None =>
+        Logger.debug("Wiring in Company Search Mock")
+        bind(classOf[CompanySearchService]).to(classOf[MockCompanySearch])
+    }
 
-    val searchImpl = if (mockConfig.mockCompanySearch.getOrElse(false)) {
-      Logger.debug("Wiring in Company Search Mock")
-      classOf[MockCompanySearch]
-    } else classOf[CompaniesHouseSearch]
-    bind(classOf[CompanySearchService]).to(searchImpl)
+    config.oAuth match {
+      case Some(o) =>
+        bind(classOf[OAuthConfig]).toInstance(o)
+        bind(classOf[CompanyAuthService]).to(classOf[CompaniesHouseAuth])
+      case None =>
+        Logger.debug("Wiring in Company Auth Mock")
+        bind(classOf[CompanyAuthService]).to(classOf[MockCompanyAuth])
+    }
 
-    val authImpl = if (mockConfig.mockCompanyAuth.getOrElse(false)) {
-      Logger.debug("Wiring in Company Auth Mock")
-      classOf[MockCompanyAuth]
-    } else classOf[CompaniesHouseAuth]
-    bind(classOf[CompanyAuthService]).to(authImpl)
+    config.notifyService match {
+      case Some(n) =>
+        bind(classOf[NotifyConfig]).toInstance(n)
+        bind(classOf[NotifyService]).to(classOf[NotifyServiceImpl])
 
-    val notifyImpl = if (mockConfig.mockNotify.getOrElse(false)) {
-      Logger.debug("Wiring in Notify Mock")
-      classOf[MockNotify]
-    } else classOf[NotifyServiceImpl]
-    bind(classOf[NotifyService]).to(notifyImpl)
+      case None =>
+        Logger.debug("Wiring in Notify Mock")
+        bind(classOf[NotifyService]).to(classOf[MockNotify])
+    }
+
+    bind(classOf[Int])
+      .annotatedWith(Names.named("session timeout"))
+      .toInstance(config.sessionTimeoutInMinutes.getOrElse(60))
+
+    bind(classOf[GoogleAnalyticsConfig])
+      .toInstance(config.googleAnalytics.getOrElse(GoogleAnalyticsConfig.empty))
+
+    bind(classOf[ServiceConfig])
+      .toInstance(config.service.getOrElse(ServiceConfig.empty))
 
     bind(classOf[DB]).asEagerSingleton()
     bindActor[ConfirmationActor]("confirmation-actor")
 
     bind(classOf[SessionCleaner]).asEagerSingleton()
-
-    bind(classOf[ServiceConfig]).toInstance(appConfig.config.service.getOrElse(ServiceConfig.empty))
   }
 }

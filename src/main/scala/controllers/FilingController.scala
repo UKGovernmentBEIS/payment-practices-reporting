@@ -21,7 +21,7 @@ import javax.inject.{Inject, Named}
 
 import actions.{CompanyAuthAction, CompanyAuthRequest}
 import akka.actor.ActorRef
-import config.{AppConfig, ServiceConfig}
+import config.{GoogleAnalyticsConfig, ServiceConfig}
 import forms.report.{ReportFormModel, ReportReviewModel, Validations}
 import models.{CompaniesHouseId, ReportId}
 import org.joda.time.format.DateTimeFormat
@@ -40,7 +40,8 @@ class FilingController @Inject()(
                                   reportValidations: Validations,
                                   companyAuth: CompanyAuthService,
                                   CompanyAuthAction: CompanyAuthAction,
-                                  val appConfig: AppConfig,
+                                  serviceConfig: ServiceConfig,
+                                  val googleAnalytics: GoogleAnalyticsConfig,
                                   @Named("confirmation-actor") confirmationActor: ActorRef
                                 )(implicit ec: ExecutionContext, messages: MessagesApi) extends Controller with PageHelper {
 
@@ -50,7 +51,7 @@ class FilingController @Inject()(
   val emptyReview: Form[ReportReviewModel] = Form(reportValidations.reportReviewModel)
   private val reviewPageTitle = "Review your report"
   val df = DateTimeFormat.forPattern("d MMMM YYYY")
-  val serviceStartDate = appConfig.config.service.flatMap(_.startDate).getOrElse(ServiceConfig.defaultServiceStartDate)
+  val serviceStartDate = serviceConfig.startDate.getOrElse(ServiceConfig.defaultServiceStartDate)
 
   def reportPageHeader(implicit request: CompanyAuthRequest[_]): Html = h1(s"Publish a report for:<br>${request.companyDetail.companyName}")
 

@@ -20,7 +20,7 @@ package services.live
 import java.util.Base64
 import javax.inject.Inject
 
-import config.AppConfig
+import config.CompaniesHouseConfig
 import models.CompaniesHouseId
 import play.api.Logger
 import play.api.libs.ws.WSClient
@@ -28,14 +28,12 @@ import services._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class CompaniesHouseSearch @Inject()(val ws: WSClient, appConfig: AppConfig)(implicit val ec: ExecutionContext)
+class CompaniesHouseSearch @Inject()(val ws: WSClient, config: CompaniesHouseConfig)(implicit val ec: ExecutionContext)
   extends RestService with CompanySearchService {
 
   import CompaniesHouseModels._
 
-  import appConfig.config
-
-  private val basicAuth = "Basic " + new String(Base64.getEncoder.encode(config.companiesHouse.apiKey.getBytes))
+  private val basicAuth = "Basic " + new String(Base64.getEncoder.encode(config.apiKey.getBytes))
 
   def targetScope(companiesHouseId: CompaniesHouseId): String = s"https://api.companieshouse.gov.uk/company/${companiesHouseId.id}"
 

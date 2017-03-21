@@ -17,7 +17,7 @@
 
 package controllers
 
-import config.AppConfig
+import config.GoogleAnalyticsConfig
 import org.scalactic.TripleEquals._
 import play.api.data.Form
 import play.api.mvc.Call
@@ -28,13 +28,11 @@ import scala.collection.immutable
 case class Breadcrumb(href: Call, name: String)
 
 trait PageHelper {
-  val appConfig: AppConfig
-
-  import appConfig.config.googleAnalytics
+  def googleAnalytics: GoogleAnalyticsConfig
 
   def page(title: String)(contents: Html*): Html = {
     val content = html(contents: _*)
-    views.html.templates.govukTemplateDefaults(title)(content)(googleAnalytics.flatMap(_.code))
+    views.html.templates.govukTemplateDefaults(title)(content)(googleAnalytics.code)
   }
 
   def html(contents: Html*): Html = {

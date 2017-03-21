@@ -52,7 +52,7 @@ class SessionAction @Inject()(sessionService: SessionService)(implicit ec: Execu
   private def retrieveOrCreateSessionId[A](request: Request[A], sessionIdKey: String): Future[SessionId] = {
     request.session.get(sessionIdKey) match {
       case Some(id) => Future.successful(SessionId(id))
-      case None => sessionService.newSession()
+      case None => sessionService.newSession
     }
   }
 

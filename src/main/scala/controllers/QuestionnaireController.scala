@@ -19,7 +19,7 @@ package controllers
 
 import javax.inject.Inject
 
-import config.AppConfig
+import config.GoogleAnalyticsConfig
 import models.DecisionState
 import org.scalactic.TripleEquals._
 import play.api.data.Form
@@ -27,7 +27,7 @@ import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, Controller}
 import questionnaire._
 
-class QuestionnaireController @Inject()(summarizer: Summarizer, val appConfig: AppConfig)(implicit messages: MessagesApi) extends Controller with PageHelper {
+class QuestionnaireController @Inject()(summarizer: Summarizer, val googleAnalytics: GoogleAnalyticsConfig)(implicit messages: MessagesApi) extends Controller with PageHelper {
 
   import QuestionnaireValidations._
   import views.html.{questionnaire => pages}

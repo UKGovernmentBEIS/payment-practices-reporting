@@ -19,7 +19,7 @@ package services.live
 
 import javax.inject.Inject
 
-import config.AppConfig
+import config.OAuthConfig
 import models.CompaniesHouseId
 import org.joda.time.LocalDateTime
 import org.scalactic.TripleEquals._
@@ -34,10 +34,8 @@ case class AccessTokenResponse(access_token: String, expires_in: Int, refresh_to
 
 case class RefreshTokenResponse(access_token: String, expires_in: Int)
 
-class CompaniesHouseAuth @Inject()(val ws: WSClient, appConfig: AppConfig)(implicit val ec: ExecutionContext)
+class CompaniesHouseAuth @Inject()(val ws: WSClient, config: OAuthConfig)(implicit val ec: ExecutionContext)
   extends RestService with CompanyAuthService {
-
-  import appConfig.config
 
   val clientIdParam = "client_id"
   val clientSecretParam = "client_secret"
@@ -70,13 +68,13 @@ class CompaniesHouseAuth @Inject()(val ws: WSClient, appConfig: AppConfig)(impli
     getOpt[Email](url, bearerAuth(token)).map(_.map(_.email))
   }
 
-  override def authoriseUrl(companiesHouseId: CompaniesHouseId) = config.oAuth.authorizeSchemeUri
+  override def authoriseUrl(companiesHouseId: CompaniesHouseId) = config.authorizeSchemeUri
 
   override def authoriseParams(companiesHouseId: CompaniesHouseId) = {
 
     Map(
-      clientIdParam -> Seq(config.companySearchAPI.id),
-      redirectUriParam -> Seq(config.oAuth.callbackURL),
+      clientIdParam -> Seq(config.clientId),
+      redirectUriParam -> Seq(config.callbackURL),
       scopeParam -> Seq(targetScope(companiesHouseId)),
       stateParam -> Seq(companiesHouseId.id),
       responseTypeParam -> Seq("code")
@@ -84,8 +82,8 @@ class CompaniesHouseAuth @Inject()(val ws: WSClient, appConfig: AppConfig)(impli
   }
 
   val clientDetails = Map(
-    clientIdParam -> config.companySearchAPI.id,
-    clientSecretParam -> config.companySearchAPI.secret
+    clientIdParam -> config.clientId,
+    clientSecretParam -> config.clientSecret
   )
 
   implicit val atrFormat = Json.format[AccessTokenResponse]
@@ -94,7 +92,7 @@ class CompaniesHouseAuth @Inject()(val ws: WSClient, appConfig: AppConfig)(impli
     (clientDetails ++ ps).map { case (k, v) => k -> Seq(v) }
 
   private[services] def call(params: Seq[(String, String)]): Future[WSResponse] = {
-    ws.url(config.oAuth.accessTokenUri).withMethod("POST").withBody(mkParams(params)).execute()
+    ws.url(config.accessTokenUri).withMethod("POST").withBody(mkParams(params)).execute()
   }
 
   def convertCode(code: String): Future[OAuthToken] = {
@@ -104,7 +102,7 @@ class CompaniesHouseAuth @Inject()(val ws: WSClient, appConfig: AppConfig)(impli
     val params = Seq(
       grantTypeParam -> "authorization_code",
       codeParam -> code,
-      redirectUriParam -> config.oAuth.callbackURL
+      redirectUriParam -> config.callbackURL
     )
 
     call(params).map { response =>
@@ -132,8 +130,8 @@ class CompaniesHouseAuth @Inject()(val ws: WSClient, appConfig: AppConfig)(impli
     val url = "https://account.companieshouse.gov.uk/oauth2/token"
 
     val body = Map(
-      clientIdParam -> config.companySearchAPI.id,
-      clientSecretParam -> config.companySearchAPI.secret,
+      clientIdParam -> config.clientId,
+      clientSecretParam -> config.clientSecret,
       grantTypeParam -> "refresh_token",
       refreshTokenParam -> oAuthToken.refreshToken
     ).map { case (k, v) => (k, Seq(v)) }
