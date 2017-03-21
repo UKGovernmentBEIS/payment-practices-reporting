@@ -21,7 +21,7 @@ import javax.inject.Inject
 
 import org.joda.time.LocalDate
 import org.joda.time.format.DateTimeFormat
-import play.api.Configuration
+import play.api.{Configuration, Logger}
 
 import scala.util.Try
 
@@ -63,8 +63,6 @@ case class Config(
                  )
 
 class AppConfig @Inject()(configuration: Configuration) {
-
-
   val df = DateTimeFormat.forPattern("yyyy-M-d")
 
   import pureconfig._
@@ -87,4 +85,6 @@ class AppConfig @Inject()(configuration: Configuration) {
   val printDBTables: Option[Boolean] = load[Boolean]("printDBTables")
 
   val config = Config(service, companiesHouse, notifyService, oAuth, googleAnalytics, sessionTimeoutInMinutes, logAssets, logRequests, printDBTables)
+
+  Logger.debug(s"Config is $config")
 }

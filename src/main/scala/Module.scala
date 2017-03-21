@@ -17,6 +17,7 @@
 
 import actors.ConfirmationActor
 import com.google.inject.AbstractModule
+import com.google.inject.name.Names
 import config._
 import play.api.libs.concurrent.AkkaGuiceSupport
 import play.api.{Configuration, Environment, Logger}
@@ -58,6 +59,10 @@ class Module(environment: Environment, configuration: Configuration) extends Abs
         bind(classOf[NotifyService]).to(classOf[MockNotify])
     }
 
+
+    bind(classOf[Int])
+      .annotatedWith(Names.named("session timeout"))
+      .toInstance(appConfig.config.sessionTimeoutInMinutes.getOrElse(60))
 
     bind(classOf[DB]).asEagerSingleton()
     bindActor[ConfirmationActor]("confirmation-actor")
