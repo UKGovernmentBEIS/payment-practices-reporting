@@ -71,7 +71,7 @@ object ReviewPageData extends HtmlHelpers {
   def group3(r: ReportFormModel) = otherInfoRows(r)
 
   def topLevelInfo(companyName: String, report: ReportFormModel): Seq[(String, Html)] = Seq(
-    ("Company", companyName)
+    ("Company or limited liability partnership", companyName)
   )
 
   def reportingDateRows(r: ReportFormModel): Seq[(String, Html)] = Seq(
@@ -89,7 +89,7 @@ object ReviewPageData extends HtmlHelpers {
 
   def paymentTermsRows(r: ReportFormModel): Seq[(String, Html)] = Seq(
     ("Standard payment period", (r.paymentTerms.paymentPeriod, "days")),
-    ("Payment terms", r.paymentTerms.terms),
+    ("Standard payment terms", r.paymentTerms.terms),
     ("Maximum contract period in days", (r.paymentTerms.maximumContractPeriod, "days")),
     ("Maximum contract period: further information", r.paymentTerms.maximumContractPeriodComment.map(breakLines)),
     ("Any changes to standard payment terms", conditionalText(r.paymentTerms.paymentTermsChanged.comment)),
@@ -104,7 +104,7 @@ object ReviewPageData extends HtmlHelpers {
     ("Do you offer offer supply chain finance?", r.offerSupplyChainFinancing),
     ("Do you have a policy of deducting sums from payments as a charge for remaining on a supplier list?", r.retentionChargesInPolicy),
     ("In this reporting period, have you deducted sums from payments as a charge for remaining on a supplier list?", r.retentionChargesInPast),
-    ("Are you a member of a code of practice for payment?", conditionalText(r.hasPaymentCodes))
+    ("Are you a member of a code of conduct or standards on payment practices?", conditionalText(r.hasPaymentCodes))
   )
 
 }

@@ -1,34 +1,42 @@
-@(isGroup:Boolean, calculator: _root_.calculator.Calculator, df: org.joda.time.format.DateTimeFormatter)
+@(isGroup: Boolean, calculator: _root_.calculator.Calculator, df: org.joda.time.format.DateTimeFormatter)
 
-@import utils.Ordinals
+    @import utils.Ordinals
 
 <div class="scannable-wrapper">
     <h1 class="heading-xlarge">Find out how to report</h1>
 
     <h3 class="heading-medium underline">Your reporting periods and deadlines</h3>
     @if(calculator.isFuture) {
-    <p>
-        You told us that your financial year runs from <span id="financial-year-start" class="nowrap">@df.print(calculator.financialYear.dates.startDate)</span>
-            to <span id="financial-year-end" class="nowrap">@df.print(calculator.financialYear.dates.endDate)</span>.
-            <span id="no-need-to-report">You don't need to report for that year, as it started before the regulations came into force on 6 April 2017.</span>
-    </p>
-    <p>
-        If your financial year end stays the same,
-        @(calculator.reportingPeriods.length match{ case 1 => "this is your first reporting period" case n => "these are your next " + n + " reporting periods"}):
-    </p>
-    } else {
-    <p>
-        You told us that your financial year runs from <span id="financial-year-start" class="nowrap">@df.print(calculator.financialYear.dates.startDate)</span>
-            to <span id="financial-year-end" class="nowrap">@df.print(calculator.financialYear.dates.endDate)</span>.
-            @(calculator.reportingPeriods.length match{ case 1 => "This is your reporting period" case n => "These are your reporting periods"}):
-    </p>
-    }
-    @for((x,i) <- calculator.reportingPeriods.zipWithIndex) {
-        <h3 class="bold-medium">Your @(Ordinals.forNumber(i+1)) report:</h3>
         <p>
-            <span class="bold-small"><span id="period-start-@(i+1)" class="nowrap">@df.print(x.dateRange.startDate)</span> to <span id="period-end-@(i+1)" class="nowrap">@df.print(x.dateRange.endDate)</span></span>
+            You told us that your financial year runs from <span id="financial-year-start" class="nowrap">@df.print(calculator.financialYear.dates.startDate)</span>
+            to <span id="financial-year-end" class="nowrap">@df.print(calculator.financialYear.dates.endDate)</span>.
+            <span id="no-need-to-report">
+                You don't need to report for that year, as it started before the regulations came into force on 6 April 2017.</span>
+        </p>
+        <p>
+            If your financial year end stays the same,
+            @(calculator.reportingPeriods.length match {
+                case 1 => "this is your first reporting period"
+                case n => "these are your next " + n + " reporting periods"
+            }):
+        </p>
+    } else {
+        <p>
+            You told us that your financial year runs from <span id="financial-year-start" class="nowrap">@df.print(calculator.financialYear.dates.startDate)</span>
+            to <span id="financial-year-end" class="nowrap">@df.print(calculator.financialYear.dates.endDate)</span>.
+            @(calculator.reportingPeriods.length match {
+                case 1 => "This is your reporting period"
+                case n => "These are your reporting periods"
+            }):
+        </p>
+    }
+    @for((x, i) <- calculator.reportingPeriods.zipWithIndex) {
+        <h3 class="bold-medium">Your @(Ordinals.forNumber(i + 1)) report:</h3>
+        <p>
+            <span class="bold-small"><span id="period-start-@(i + 1)" class="nowrap">@df.print(x.dateRange.startDate)</span>
+                to <span id="period-end-@(i + 1)" class="nowrap">@df.print(x.dateRange.endDate)</span></span>
             <br>
-            You must publish this report by <span id="deadline-@(i+1)" class="bold-small nowrap">@df.print(x.filingDeadline)</span>
+            You must publish this report by <span id="deadline-@(i + 1)" class="bold-small nowrap">@df.print(x.filingDeadline)</span>
         </p>
     }
 
@@ -37,14 +45,16 @@
             <span class="visually-hidden">Warning</span>
         </i>
         <strong>Each report must be approved by a named company director, or, if your business is a limited liability
-            partnership, by a named designated member.
-            They must be complete and accurate. If not, the business and every director or designated member may be liable on prosecution to a fine.</strong>
+            partnership, by a named designated member. They must be complete and accurate. If not, the business and
+            every director or designated member may be liable on prosecution to a fine.</strong>
     </div>
 
-    @if(isGroup){
-        <p class="panel">You told us that your business is part of a group. Other companies within the group may also need to report.</p>
+    @if(isGroup) {
+        <p class="panel">
+            You told us that your business is part of a group. Other companies within the group may also need to report.</p>
     } else {
-        <p class="panel">If your business is part of a group, other companies within the group may also need to report.</p>
+        <p class="panel">
+            If your business is part of a group, other companies within the group may also need to report.</p>
     }
 
 
@@ -54,15 +64,13 @@
     <h3 class="heading-medium underline">What you need to report</h3>
 
     <h4 class="heading-small">Start and end date of reporting period</h4>
-        These are shown above, under 'Your reporting periods and deadlines'.
+    These are shown above, under 'Your reporting periods and deadlines'.
 
 
     <h4 class="heading-small">Average time to pay in days</h4>
-        Of all the payments you made in the reporting period, the average time it took to pay.
-            Only include payments that you have made during the reporting period.
-            A payment is counted as 'made' when it is available to the supplier,
-            (for example, when it clears their bank account) unless
-            delayed by unforeseen circumstances.
+    Of all the payments you made in the reporting period, the average time it took to pay.
+    Only include payments that you have made under qualifying contracts during the reporting period.
+
 
     <h4 class="heading-small">Percentage of invoices paid</h4>
     <ul class="list list-bullet">
@@ -71,65 +79,72 @@
         <li>in 61 days or more</li>
     </ul>
 
-    <p>Only include payments that you have made during the reporting period.</p>
+    <p>Only include payments that you have made under qualifying contracts during the reporting period.</p>
 
     <h4 class="heading-small">Percentage of invoices due which weren’t paid within the agreed period</h4>
     This relates to the number of invoices, not their value. Count all invoices where the contractually agreed
     date for payment was within the reporting period. This includes unpaid and disputed invoices.
 
-
+    <h4 class="heading-small">Standard payment period</h4>
+    This is your standard contractual payment period in days.
 
     <h4 class="heading-small">Standard payment terms</h4>
-        This must include a description of your standard payment terms.
-            If you have different terms for different types of supplier, you should explain them.
-            Most businesses write a couple of paragraphs here.
-
-    <h4 class="heading-small">Standard payment period</h4>
-        This is your standard contractual payment period in days.
+    This must include a description of your standard payment terms.
+    If you have different terms for different types of supplier or product, you should explain them.
+    If you do not use standard payment terms you must describe your most frequently used payment terms.
+    As well as describing you standard or most frequently used payment terms, can can also include a link to your
+    payment terms on your own website if you want to.
 
     <h4 class="heading-small">Your maximum contractual payment period</h4>
-        This is the longest payment period agreed with a supplier in a contract signed during the reporting period.
-            You can just put the number of days, or you can add an explanation.
-
+    This is the longest payment period agreed with a supplier in a contract signed during the reporting period.
+    You must enter the number of days. There is also an optional box if you would like to add more information.
 
     <h4 class="heading-small">Changes to your standard terms</h4>
-        If you changed your standard terms during the reporting period, include details of exactly what has changed:
-            be sure to include the 'before' and 'after' situation. You must also state whether you consulted or notified
-            suppliers about any changes, and how you did this. Most businesses write a couple of paragraphs here.
-
+    If you changed your standard terms during the reporting period, include details of exactly what has changed:
+    be sure to include the 'before' and 'after' situation. You must also state whether you consulted or notified
+    suppliers about any changes, and how you did this.
 
     <h4 class="heading-small">Your dispute resolution process</h4>
-        Describe how you respond to complaints from suppliers, and how you resolve payment disputes. Most businesses write a couple of paragraphs here.
+    Describe how you respond to complaints from suppliers, and how you resolve payment disputes.
 
 
-    <h4 class="heading-small">Does your business offer e-invoicing?</h4>
-        This is where suppliers can electronically submit and track invoices. It's not just allowing suppliers to email you an invoice.
+    <h4 class="heading-small">Does your business offer e-invoicing for qualifying contracts?</h4>
+    This is where suppliers can electronically submit and track invoices. It's not just allowing suppliers to email you an invoice.
+    This is a 'Yes' or 'No' question.
 
 
     <h4 class="heading-small">Does your business offer supply chain finance options?</h4>
-        This is where you have an arrangement where a supplier who has submitted an invoice can be paid by a third-party
-            finance provider earlier than the agreed payment date. Your business would then pay the finance provider the invoiced sum by the payment date.
-            <br>You can give more details about this in your information about your standard payment terms, but you don't have to.
+    This is where you have an arrangement where a supplier who has submitted an invoice can be paid by a third-party
+    finance provider earlier than the agreed payment date. Your business would then pay the finance provider the invoiced sum by the payment date.
+    This is a 'Yes' or 'No' question.
+    <br>
+    You can give more details about this in your information about your standard payment terms, but you don't have to.
 
+    <h4 class="heading-small">
+        Under its payment practices and policies, can your business deduct sums from payments under qualifying contracts as a charge for remaining on a supplier list?</h4>
+    This is about what is possible under your policies.
+    This is a 'Yes' or 'No' question.
 
-    <h4 class="heading-small">Under its payment practices and policies, can your business deduct sums from payments as a charge for remaining on a supplier list?</h4>
-        Answer 'Yes' or 'No'
-
-    <h4 class="heading-small">Did the business do this during this reporting period?</h4>
-        You must answer this even if you answered 'no' to the above question.
+    <h4 class="heading-small">In this reporting period, has your business deducted sums from payments as a charge for remaining on a supplier list?</h4>
+    This question is about whether your business did this in the reporting period.
+    You must answer this even if you answered 'no' to the above question.
 
     <h4 class="heading-small">Has your business signed up to a code of conduct or standards on payment practices?</h4>
-        For example, the Prompt Payment Code
+    For example, the Prompt Payment Code
+    This is a 'Yes' or 'No' question.
+    If the answer is 'Yes', you will be asked the name of the code of conduct or standards that you are part of.
 
     <h3 class="heading-medium underline">Before you can publish</h3>
 
     <p>
-        The person publishing the report needs to have a <a href="https://beta.companieshouse.gov.uk/" rel="external">Companies House</a>
-            authentication code (This is the same code you'd use to file your annual accounts online.
-            It is sent to your company's registered office by post, so allow plenty of time for delivery.
+        The person publishing the report needs to have a <a href="https://beta.companieshouse.gov.uk/" rel="external">
+        Companies House</a>
+        authentication code (This is the same code you'd use to file your annual accounts online.
+        It is sent to your company's registered office by post, so allow plenty of time for delivery.
     </p>
 
     <p>
-        Once you have all the information you can <a href="@controllers.routes.ReportController.search(None, None, None)">publish a report</a>.
+        Once you have all the information you can <a href="@controllers.routes.ReportController.search(None, None, None)">
+        publish a report</a>.
     </p>
 </div>
