@@ -45,6 +45,7 @@ class QuestionnaireController @Inject()(summarizer: Summarizer, val appConfig: A
 
     Decider.calculateDecision(currentState) match {
       case AskQuestion(q) => Ok(page(messages(q.textKey))(home, pages.question(q, formData)))
+      case NotACompany => Ok(page("Your business does not need to publish reports")(home, pages.notACompany("reason.notacompany")))
       case Exempt(reason) => Ok(page("Your business does not need to publish reports")(home, pages.exempt(reason)))
       case Required => Ok(page("Your business must publish reports")(home, pages.required(summarizer.summarize(currentState))))
     }

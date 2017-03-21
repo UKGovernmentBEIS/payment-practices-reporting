@@ -26,6 +26,8 @@ case class AskQuestion(question: Question) extends Decision
 
 case class Exempt(reason: Option[String]) extends Decision
 
+case object NotACompany extends Decision
+
 case object Required extends Decision
 
 /**
@@ -40,7 +42,7 @@ object Decider {
 
   def calculateDecision(state: DecisionState): Decision = state.isCompanyOrLLP match {
     case None => AskQuestion(isCompanyOrLLPQuestion)
-    case Some(No) => Exempt(None)
+    case Some(No) => NotACompany
     case Some(Yes) => checkFinancialYear(state)
   }
 
