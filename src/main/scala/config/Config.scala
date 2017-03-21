@@ -64,12 +64,27 @@ case class Config(
 
 class AppConfig @Inject()(configuration: Configuration) {
 
+
   val df = DateTimeFormat.forPattern("yyyy-M-d")
 
   import pureconfig._
   import ConfigConvert._
 
-  implicit val localDateConvert = ConfigConvert.stringConvert[LocalDate](s => Try(df.parseLocalDate(s)), df.print(_))
+  private def load[T: ConfigConvert](path: String): Option[T] = Try {
+    loadConfig[T](configuration.underlying, path).toOption
+  }.toOption.flatten
 
-  lazy val config: Config = loadConfig[Config](configuration.underlying).get
+  implicit val localDateConvert: ConfigConvert[LocalDate] = ConfigConvert.stringConvert[LocalDate](s => Try(df.parseLocalDate(s)), df.print(_))
+
+  val service: Option[ServiceConfig] = load[ServiceConfig]("service")
+  val companiesHouse: Option[CompaniesHouseConfig] = load[CompaniesHouseConfig]("companiesHouse")
+  val notifyService: Option[NotifyConfig] = load[NotifyConfig]("notifyService")
+  val oAuth: Option[OAuthConfig] = load[OAuthConfig]("oAuth")
+  val googleAnalytics: Option[GoogleAnalytics] = load[GoogleAnalytics]("googleAnalytics")
+  val sessionTimeoutInMinutes: Option[Int] = load[Int]("sessionTimeoutInMinutes")
+  val logAssets: Option[Boolean] = load[Boolean]("logAssets")
+  val logRequests: Option[Boolean] = load[Boolean]("logRequests")
+  val printDBTables: Option[Boolean] = load[Boolean]("printDBTables")
+
+  val config = Config(service, companiesHouse, notifyService, oAuth, googleAnalytics, sessionTimeoutInMinutes, logAssets, logRequests, printDBTables)
 }
