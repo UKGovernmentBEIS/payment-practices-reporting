@@ -24,7 +24,7 @@ sealed trait Decision
 
 case class AskQuestion(question: Question) extends Decision
 
-case class Exempt(reason: Option[String]) extends Decision
+case class Exempt(reason: String) extends Decision
 
 case object NotACompany extends Decision
 
@@ -48,7 +48,7 @@ object Decider {
 
   def checkFinancialYear(state: DecisionState): Decision = state.financialYear match {
     case None => AskQuestion(financialYearQuestion)
-    case Some(First) => Exempt(Some("reason.firstyear"))
+    case Some(First) => Exempt("reason.firstyear")
     case Some(fy) => checkCompanyThresholds(state, fy)
   }
 
@@ -63,7 +63,7 @@ object Decider {
     state.companyThresholds,
     companyQuestions(financialYear),
     checkIfSubsidiaries(state, financialYear),
-    Exempt(Some(companyNotLargeEnough)))
+    Exempt(companyNotLargeEnough))
 
 
   def checkIfSubsidiaries(state: DecisionState, financialYear: FinancialYear): Decision = state.subsidiaries match {
@@ -83,7 +83,7 @@ object Decider {
     state.subsidiaryThresholds,
     subsidiariesQuestions(financialYear),
     Required,
-    Exempt(Some(groupNotLargeEnough)))
+    Exempt(groupNotLargeEnough))
 
   private def decideThresholds(answers: Thresholds, questions: ThresholdQuestions, yesesHaveIt: => Decision, noesHaveIt: => Decision) = {
     answers match {

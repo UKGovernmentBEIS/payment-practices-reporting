@@ -57,9 +57,9 @@ object DeciderTestData {
 
   val basicData: Seq[(DecisionState, Decision)] = Seq(
     (empty, AskQuestion(Questions.isCompanyOrLLPQuestion)),
-    (empty.copy(isCompanyOrLLP = Some(No)), Exempt(None)),
+    (empty.copy(isCompanyOrLLP = Some(No)), NotACompany),
     (empty.copy(isCompanyOrLLP = Some(Yes)), AskQuestion(Questions.financialYearQuestion)),
-    (empty.copy(isCompanyOrLLP = Some(Yes)).copy(financialYear = Some(FinancialYear.First)), Exempt(Some("reason.firstyear")))
+    (empty.copy(isCompanyOrLLP = Some(Yes)).copy(financialYear = Some(FinancialYear.First)), Exempt("reason.firstyear"))
   )
 
   val year2Data = new FYData(FinancialYear.Second, Questions.companyQuestionGroupY2, Questions.subsidiariesQuestionGroupY2).expectedDecisions
@@ -95,8 +95,8 @@ class FYData(financialYear: FinancialYear, companyQuestions: ThresholdQuestions,
       (Y, AskQuestion(companyQuestions.balanceSheetQuestion)),
       (N, AskQuestion(companyQuestions.balanceSheetQuestion)),
       (NY, AskQuestion(companyQuestions.employeesQuestion)),
-      (NN, Exempt(Some("reason.company.notlargeenough"))),
-      (NYN, Exempt(Some("reason.company.notlargeenough"))),
+      (NN, Exempt("reason.company.notlargeenough")),
+      (NYN, Exempt("reason.company.notlargeenough")),
 
       (NYY, AskQuestion(Questions.hasSubsidiariesQuestion)),
       (YY, AskQuestion(Questions.hasSubsidiariesQuestion)),
@@ -106,8 +106,8 @@ class FYData(financialYear: FinancialYear, companyQuestions: ThresholdQuestions,
       (YYyY, AskQuestion(subsidiaryQuestions.balanceSheetQuestion)),
       (YYyYY, Required),
       (YYyYN, AskQuestion(subsidiaryQuestions.employeesQuestion)),
-      (YYyYNN, Exempt(Some("reason.group.notlargeenough"))),
-      (YYyNYN, Exempt(Some("reason.group.notlargeenough"))),
+      (YYyYNN, Exempt("reason.group.notlargeenough")),
+      (YYyNYN, Exempt("reason.group.notlargeenough")),
       (YYyYNY, Required),
       (YYyNYY, Required)
     )
