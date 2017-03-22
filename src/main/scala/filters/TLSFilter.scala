@@ -48,7 +48,7 @@ class TLSFilter @Inject()(env: Environment)(implicit val mat: Materializer, ec: 
   private def urlFor(rh: RequestHeader) = {
     rh.uri.trim match {
       case "" | "/" => s"https://${rh.host}"
-      case uri => s"https://${rh.host}/${uri}"
+      case uri => s"https://${rh.host}$uri"
     }
   }
 }
