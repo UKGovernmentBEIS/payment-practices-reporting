@@ -58,9 +58,9 @@ object ReviewPageData extends HtmlHelpers {
     * the content of the various groups.
     */
   def groups(companyName: String, report: ReportFormModel): Seq[TableDescriptor] = Seq(
-    "check-answers" -> group1(companyName, report),
+    "check-answers check-answers-essay" -> group1(companyName, report),
     "check-answers check-answers-essay" -> group2(report),
-    "check-answers" -> group3(report)
+    "check-answers check-answers-essay" -> group3(report)
   )
 
   def group1(companyName: String, report: ReportFormModel): Seq[RowDescriptor] =
