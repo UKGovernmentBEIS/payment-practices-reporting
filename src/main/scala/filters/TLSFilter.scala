@@ -31,13 +31,24 @@ class TLSFilter @Inject()(env: Environment)(implicit val mat: Materializer, ec: 
   import play.api.mvc.Results._
 
   override def apply(next: (RequestHeader) => Future[Result])(rh: RequestHeader): Future[Result] = {
-    if ((env.mode !== Mode.Prod) || rh.secure) next(rh)
+    if ((env.mode !== Mode.Prod) || rh.secure || forwardedFromHttps(rh)) next(rh)
     else {
-      val url = rh.uri.trim match {
-        case "" | "/" => s"https://${rh.host}"
-        case uri => s"https://${rh.host}/${uri}"
-      }
+      val url = urlFor(rh)
       Future.successful(MovedPermanently(url))
+    }
+  }
+
+  def forwardedFromHttps(rh:RequestHeader):Boolean = {
+    rh.headers.get("X-Forwarded-Proto") match {
+      case Some("https") => true
+      case _ => false
+    }
+  }
+
+  private def urlFor(rh: RequestHeader) = {
+    rh.uri.trim match {
+      case "" | "/" => s"https://${rh.host}"
+      case uri => s"https://${rh.host}/${uri}"
     }
   }
 }
