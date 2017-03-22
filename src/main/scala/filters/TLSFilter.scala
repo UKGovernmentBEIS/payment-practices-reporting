@@ -38,14 +38,14 @@ class TLSFilter @Inject()(env: Environment)(implicit val mat: Materializer, ec: 
     }
   }
 
-  def forwardedFromHttps(rh:RequestHeader):Boolean = {
+  def forwardedFromHttps(rh: RequestHeader): Boolean = {
     rh.headers.get("X-Forwarded-Proto") match {
       case Some("https") => true
       case _ => false
     }
   }
 
-  private def urlFor(rh: RequestHeader) = {
+  private def urlFor(rh: RequestHeader): String = {
     rh.uri.trim match {
       case "" | "/" => s"https://${rh.host}"
       case uri => s"https://${rh.host}$uri"
