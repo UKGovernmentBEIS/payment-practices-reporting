@@ -27,12 +27,17 @@ import play.api.{Environment, Mode}
 import scala.concurrent.{ExecutionContext, Future}
 
 class TLSFilter @Inject()(env: Environment)(implicit val mat: Materializer, ec: ExecutionContext) extends Filter {
+
   import play.api.mvc.Results._
 
   override def apply(next: (RequestHeader) => Future[Result])(rh: RequestHeader): Future[Result] = {
     if ((env.mode !== Mode.Prod) || rh.secure) next(rh)
     else {
-      Future.successful(MovedPermanently(s"https://${rh.host}/${rh.uri}"))
+      val url = rh.uri.trim match {
+        case "" | "/" => s"https://${rh.host}"
+        case uri => s"https://${rh.host}/${uri}"
+      }
+      Future.successful(MovedPermanently(url))
     }
   }
 }
