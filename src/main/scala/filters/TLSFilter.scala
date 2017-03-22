@@ -19,14 +19,20 @@ package filters
 
 import javax.inject.Inject
 
-import play.api.http.DefaultHttpFilters
+import akka.stream.Materializer
+import org.scalactic.TripleEquals._
+import play.api.mvc.{Filter, RequestHeader, Result}
+import play.api.{Environment, Mode}
 
-/**
-  * This provides the wiring for the application's filters and is used in
-  * the play configuration.
-  */
-class Filters @Inject()(
-                         tls: TLSFilter,
-                         log: LoggingFilter,
-                         rest: RestErrorFilter
-                       ) extends DefaultHttpFilters(log, tls, rest)
+import scala.concurrent.{ExecutionContext, Future}
+
+class TLSFilter @Inject()(env: Environment)(implicit val mat: Materializer, ec: ExecutionContext) extends Filter {
+  import play.api.mvc.Results._
+
+  override def apply(next: (RequestHeader) => Future[Result])(rh: RequestHeader): Future[Result] = {
+    if ((env.mode !== Mode.Prod) || rh.secure) next(rh)
+    else {
+      Future.successful(MovedPermanently(s"https://${rh.host}/${rh.uri}"))
+    }
+  }
+}
