@@ -49,7 +49,13 @@ class DateFieldsSpec extends WordSpecLike with Matchers with EitherValues {
       dateFromFields.bind(Map("day" -> "1", "month" -> "10", "year" -> "2017")).right.value shouldBe new LocalDate(2017, 10, 1)
     }
 
-    "reject an invalid set of date fields" in {
+    "reject invalid date fields" in {
+      val errors = List(FormError("", List("error.date")))
+
+      dateFromFields.bind(Map("day" -> "", "month" -> "13", "year" -> "2017")).left.value shouldBe errors
+    }
+
+    "reject an set of numeric date fields that do not represent a valid date" in {
       val errors = List(FormError("", List("error.date")))
 
       dateFromFields.bind(Map("day" -> "1", "month" -> "13", "year" -> "2017")).left.value shouldBe errors

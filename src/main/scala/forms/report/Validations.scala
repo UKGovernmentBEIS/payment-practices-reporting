@@ -21,7 +21,6 @@ import javax.inject.Inject
 
 import config.ServiceConfig
 import forms.DateRange
-import models.CompaniesHouseId
 import org.joda.time.LocalDate
 import org.joda.time.format.DateTimeFormat
 import org.scalactic.TripleEquals._
@@ -150,11 +149,15 @@ object PaymentTermsChangedValidations {
     def keyFor(baseKey: String, subKey: String) = if (baseKey === "") subKey else s"$baseKey.$subKey"
 
     errs.map {
-      case FormError(k, messages, args) if messages.headOption.contains(errorMustAnswer) => FormError(keyFor(k, "notified.yesNo"), messages, args)
-      case FormError(k, messages, args) if messages.headOption.contains(errorNotifiedTextRequired) =>
+      case FormError(k, messages, args) if messages.headOption.contains(errorMustAnswer) =>
+        FormError(keyFor(k, "notified.yesNo"), messages, args)
 
+      case FormError(k, messages, args) if messages.headOption.contains(errorNotifiedTextRequired) =>
         FormError(keyFor(k, "notified.text"), Seq(errorRequired), args)
-      case FormError(k, messages, args) if k === keyFor(key, "notified") => FormError(keyFor(k, "text"), messages, args)
+
+      case FormError(k, messages, args) if k === keyFor(key, "notified") =>
+        FormError(keyFor(k, "text"), messages, args)
+
       case e => e
     }
   }

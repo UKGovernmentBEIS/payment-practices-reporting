@@ -4,6 +4,24 @@
 
 <div class="scannable-wrapper">
 
+    @if(form.hasErrors) {
+        <div class="error-summary" role="group" aria-labelledby="error-summary-heading" tabindex="-1">
+            <h1 class="heading-medium error-summary-heading" id="error-summary-heading">
+                The form contains invalid entries
+            </h1>
+
+            <p>
+                Please correct the errors shown below.
+            </p>
+            <ul class="error-summary-list">
+            @form.errors.map { err =>
+                <li><a href="#@err.key">@messages(err.message)</a></li>
+            }
+            </ul>
+
+        </div>
+    }
+
     @header
 
     <div class="notice">
@@ -14,23 +32,6 @@
     </div>
 
     @shared._coverageInformation()
-
-    @if(form.hasErrors) {
-        <div class="error-summary" role="group" aria-labelledby="error-summary-heading" tabindex="-1">
-            <h1 class="heading-medium error-summary-heading" id="error-summary-heading">
-                The form contains invalid entries
-            </h1>
-
-            <p>
-                Please correct the errors shown below.
-            </p>
-            @*<p>*@
-            @* @form.errors.map { err =>*@
-                @*<br>@err*@
-            @*}*@
-            @*</p>*@
-        </div>
-    }
 
     <form action="@routes.FilingController.postForm(companyId)" method="POST" id="file-report">
         <p class="small-aside">
@@ -46,24 +47,5 @@
         <input type="submit" class="button" name="Continue" value="Continue">
     </form>
 
-    <script type="text/javascript" src='@routes.Assets.at("javascripts/disclosure.js")'></script>
-    <script type="text/javascript">
-            $(document).ready(function() { gradualDisclosure() });
-    </script>
-    <script type="text/javascript" src='@routes.Assets.at("javascripts/validation.js")'></script>
-    <script type="text/javascript">
-            $(document).ready(function() {
-                var messageTable = {
-                    integer: "@messages("error.number")",
-                    nonnegative: "@messages("error.min", 0)",
-                    percentagebounds: "@messages("error.percentage")",
-                    sumto100: "@messages("error.sumto100")",
-                    date: "@messages("error.date")",
-                    future: "Reporting period cannot cover the future",
-                    startbeforeend: "@messages("error.endafterstart")",
-                    beforeservicestart: "@messages("error.beforeservicestart", df.print(serviceStartDate))"
-                };
-                validationPlumbing(messageTable, new Date(@serviceStartDate.getYear, @(serviceStartDate.getMonthOfYear - 1), @serviceStartDate.getDayOfMonth));
-            });
-    </script>
+    @_scripts(df, serviceStartDate)
 </div>
