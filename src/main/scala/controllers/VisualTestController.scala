@@ -137,7 +137,7 @@ class VisualTestController @Inject()(
     subsidiaryTurnoverQuestionY3,
     subsidiaryBalanceSheetQuestionY3,
     subsidiaryEmployeesQuestionY3
-  ).map(views.html.questionnaire.question(_, Form(QuestionnaireValidations.decisionStateMapping).data))
+  ).map(views.html.questionnaire.question(_, Form(QuestionnaireValidations.decisionStateMapping).data, None))
 
   val states = Seq(
     StateSummary(None, ThresholdSummary(None, None, None), ThresholdSummary(None, None, None))
