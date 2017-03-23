@@ -59,8 +59,8 @@ class Validations @Inject()(timeSource: TimeSource, serviceConfig: ServiceConfig
 
 
   val paymentTerms: Mapping[PaymentTerms] = mapping(
-    "terms" -> words(1, paymentTermsWordCount),
     "paymentPeriod" -> number(min = 0),
+    "terms" -> words(1, paymentTermsWordCount),
     "maximumContractPeriod" -> number(min = 0),
     "maximumContractPeriodComment" -> optional(words(1, maxContractPeriodCommentWordCount)),
     "paymentTermsChanged" -> paymentTermsChanged,
@@ -95,11 +95,11 @@ class Validations @Inject()(timeSource: TimeSource, serviceConfig: ServiceConfig
     "reportDates" -> reportDates,
     "paymentHistory" -> paymentHistory,
     "paymentTerms" -> paymentTerms,
-    "paymentCodes" -> conditionalText(paymentCodesWordCount),
     "offerEInvoicing" -> yesNo,
     "offerSupplyChainFinancing" -> yesNo,
     "retentionChargesInPolicy" -> yesNo,
-    "retentionChargesInPast" -> yesNo
+    "retentionChargesInPast" -> yesNo,
+    "paymentCodes" -> conditionalText(paymentCodesWordCount)
   )(ReportFormModel.apply)(ReportFormModel.unapply)
 
   val reportReviewModel = mapping(

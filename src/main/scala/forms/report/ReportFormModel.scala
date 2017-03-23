@@ -100,8 +100,8 @@ case class PaymentTermsChanged(comment: ConditionalText, notified: Option[Condit
 }
 
 case class PaymentTerms(
-                         terms: String,
                          paymentPeriod: Int,
+                         terms: String,
                          maximumContractPeriod: Int,
                          maximumContractPeriodComment: Option[String],
                          paymentTermsChanged: PaymentTermsChanged,
@@ -111,7 +111,7 @@ case class PaymentTerms(
 
 object PaymentTerms {
   def apply(row: PaymentTermsRow): PaymentTerms =
-    PaymentTerms(row.paymentTerms, row.paymentPeriod, row.maximumContractPeriod, row.maximumContractPeriodComment,
+    PaymentTerms(row.paymentPeriod, row.paymentTerms, row.maximumContractPeriod, row.maximumContractPeriodComment,
       pt(row),
       row.paymentTermsChangedComment,
       row.disputeResolution
@@ -131,11 +131,11 @@ case class ReportFormModel(
                             reportDates: DateRange,
                             paymentHistory: PaymentHistory,
                             paymentTerms: PaymentTerms,
-                            hasPaymentCodes: ConditionalText,
                             offerEInvoicing: YesNo,
                             offerSupplyChainFinancing: YesNo,
                             retentionChargesInPolicy: YesNo,
-                            retentionChargesInPast: YesNo
+                            retentionChargesInPast: YesNo,
+                            hasPaymentCodes: ConditionalText
                           )
 
 object ReportFormModel {
@@ -144,11 +144,11 @@ object ReportFormModel {
       DateRange(filed.period.startDate, filed.period.endDate),
       PaymentHistory(filed.paymentHistory),
       PaymentTerms(filed.paymentTerms),
-      ConditionalText(filed.otherInfo.paymentCodes),
       filed.otherInfo.offerEInvoicing,
       filed.otherInfo.offerSupplyChainFinance,
       filed.otherInfo.retentionChargesInPolicy,
-      filed.otherInfo.retentionChargesInPast
+      filed.otherInfo.retentionChargesInPast,
+      ConditionalText(filed.otherInfo.paymentCodes)
     )
   }
 
