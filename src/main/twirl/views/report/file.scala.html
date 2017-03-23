@@ -1,6 +1,6 @@
 @import org.joda.time.format.DateTimeFormatter
 @import org.joda.time.LocalDate
-@(header:Html, form: Form[forms.report.ReportFormModel], companyId: CompaniesHouseId, df: DateTimeFormatter, serviceStartDate: LocalDate)(implicit messages: MessagesApi)
+@(header:Html, form: Form[forms.report.ReportFormModel], companyId: CompaniesHouseId, df: DateTimeFormatter, serviceStartDate: LocalDate)(implicit messages: MessagesApi, lang: Lang)
 
 <div class="scannable-wrapper">
 
@@ -15,7 +15,7 @@
             </p>
             <ul class="error-summary-list">
             @form.errors.map { err =>
-                <li><a href="#@err.key">@messages(err.message)</a></li>
+                <li><a href="#@err.key">@errorLinkText(err)</a></li>
             }
             </ul>
 
