@@ -65,15 +65,15 @@ field.paymentHistory.averageDaysToPay.hint=Of the payments you have made under q
 field.paymentHistory.percentPaidBeyondAgreedTerms.label=Percentage of invoices not paid within agreed terms
 field.paymentHistory.percentPaidBeyondAgreedTerms.hint=This relates to the number of invoices, not their value.
 
-field.paymentHistory.percentageSplit.percentWithin30Days.name=percentage of invoices paid between day 1 and day 30
+field.paymentHistory.percentageSplit.percentWithin30Days.name=Percentage of invoices paid between day 1 and day 30
 field.paymentHistory.percentageSplit.percentWithin30Days.label=A) Percentage of invoices paid between day 1 and day 30 (inclusive)
 field.paymentHistory.percentageSplit.percentWithin30Days.hint=
 
-field.paymentHistory.percentageSplit.percentWithin60Days.name=percentage of invoices paid between day 31 and day 60
+field.paymentHistory.percentageSplit.percentWithin60Days.name=Percentage of invoices paid between day 31 and day 60
 field.paymentHistory.percentageSplit.percentWithin60Days.label=B) Percentage of invoices paid between day 31 and day 60 (inclusive)
 field.paymentHistory.percentageSplit.percentWithin60Days.hint=
 
-field.paymentHistory.percentageSplit.percentBeyond60Days.name=percentage of invoices paid on or after day 61
+field.paymentHistory.percentageSplit.percentBeyond60Days.name=Percentage of invoices paid on or after day 61
 field.paymentHistory.percentageSplit.percentBeyond60Days.label=C) Percentage of invoices paid on or after day 61
 field.paymentHistory.percentageSplit.percentBeyond60Days.hint=
 
@@ -136,7 +136,7 @@ error.sumto100=Figures A, B and C do not add up to 100
 error.sumto100.description=Figures A, B and C do not add up to 100
 
 error.number=Please enter a whole number
-error.number.description=Please enter a value for "{0}"
+error.number.description=Please provide an answer for "{0}"
 
 error.min=Please enter {0} or greater
 error.max=Please enter {0} or less
