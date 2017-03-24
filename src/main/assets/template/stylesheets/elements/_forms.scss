@@ -145,33 +145,29 @@ textarea {
   @include core-19;
   width: 100%;
 
-  padding: 4px;
-  background-color: $white;
-  border: 2px solid $grey-1;
+  padding: 5px 4px 4px;
+  // setting any background-color makes text invisible when changing colours to dark backgrounds in Firefox (https://bugzilla.mozilla.org/show_bug.cgi?id=1335476)
+  // as background-color and color need to always be set together, color should not be set either
+  border: 2px solid $text-colour;
 
-}
-
-// Radio buttons
-.form-radio {
-  display: block;
-  margin: 10px 0;
-
-  input {
-    vertical-align: middle;
-    margin: -4px 5px 0 0;
+  // TODO: Remove 50% width set for tablet and up
+  // !! BREAKING CHANGE !!
+  @include media(tablet) {
+    width: 50%;
   }
+
 }
 
-// Checkboxes
-.form-checkbox {
-  display: block;
-  margin: $gutter-half 0;
-
-  input {
-    vertical-align: middle;
-    margin: -2px 5px 0 0;
-  }
+// Allow a qualifying element, remove rounded corners from inputs and textareas
+// scss-lint:disable QualifyingElement
+input.form-control,
+textarea.form-control {
+  // Remove inner shadow
+  -webkit-appearance: none;
+  // Remove rounded corners
+  border-radius: 0;
 }
+// scss-lint:enable QualifyingElement
 
 
 // 6. Form control widths
