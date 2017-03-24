@@ -9,25 +9,33 @@
         <p class="lede">If you don’t have a Companies House authentication code, you have two options.</p>
         <h3 class="heading-medium">Select an option</h3>
         <form action="@routes.CoHoCodeController.codeOptions(id)" method="POST">
-            <fieldset class="form-group">
-                <div class="multiple-choice">
-                    <input type="radio" name="nextstep" id="nextstep_colleague" value="@Colleague.entryName">
-                    <label for="nextstep_colleague">
-                        <span class="bold-small">Get a colleague who has an authentication code to publish the report</span>
-                        <br>
-                        <span>This kind of account is normally used to file Annual Reports with Companies House.</span>
-                    </label>
-                </div>
-                <div class="multiple-choice">
-                    <input type="radio" name="nextstep" id="nextstep_register" value="@Register.entryName">
-                    <label for="nextstep_register">
-                        <span class="bold-small">Request a new authentication code with Companies House</span>
-                        <br>
-                        <span>
-                            The code will be sent to your company’s registered office by post, so allow plenty of time for delivery.</span>
-                    </label>
-                </div>
-            </fieldset>
+            <div class="form-group @errorClass(form("nextstep"))">
+                <fieldset class="form-group">
+                    <legend>
+                    @form("nextstep").error.map { err =>
+                        <span class="error-message"> @messages(err.message)</span>
+                    }
+                    </legend>
+                    <div class="multiple-choice">
+                        <input type="radio" name="nextstep" id="nextstep_colleague" value="@Colleague.entryName">
+                        <label for="nextstep_colleague">
+                            <span class="bold-small">
+                                Get a colleague who has an authentication code to publish the report</span>
+                            <br>
+                            <span>This kind of account is normally used to file Annual Reports with Companies House.</span>
+                        </label>
+                    </div>
+                    <div class="multiple-choice">
+                        <input type="radio" name="nextstep" id="nextstep_register" value="@Register.entryName">
+                        <label for="nextstep_register">
+                            <span class="bold-small">Request a new authentication code with Companies House</span>
+                            <br>
+                            <span>
+                                The code will be sent to your company’s registered office by post, so allow plenty of time for delivery.</span>
+                        </label>
+                    </div>
+                </fieldset>
+            </div>
             <input type="submit" class="button" value="Continue">
         </form>
     </div>
