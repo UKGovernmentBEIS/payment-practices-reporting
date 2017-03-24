@@ -22,7 +22,7 @@ import javax.inject.Inject
 import config.GoogleAnalyticsConfig
 import models.{DecisionState, Question}
 import org.scalactic.TripleEquals._
-import play.api.data.Form
+import play.api.data.{Form, FormError}
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, Controller}
 import questionnaire._
@@ -51,7 +51,8 @@ class QuestionnaireController @Inject()(summarizer: Summarizer, val googleAnalyt
     val exemptTitle = "Your business does not need to publish reports"
 
     Decider.calculateDecision(currentState) match {
-      case AskQuestion(q) => Ok(page(messages(q.textKey))(home, pages.question(q, formData, questionError(q, form("question-key").value))))
+      case AskQuestion(q) =>
+        Ok(page(messages(q.textKey))(home, pages.question(q, formData, questionError(q, form("question-key").value))))
       case NotACompany(reason) => Ok(page(exemptTitle)(home, pages.notACompany(reason)))
       case Exempt(reason) => Ok(page(exemptTitle)(home, pages.exempt(reason)))
       case Required => Ok(page("Your business must publish reports")(home, pages.required(summarizer.summarize(currentState))))
@@ -63,8 +64,8 @@ class QuestionnaireController @Inject()(summarizer: Summarizer, val googleAnalyt
     * was posted without an answer (i.e. the user did not select a choice), in which case we should
     * show an error message when we re-display the form.
     */
-  private def questionError(q: Question, questionKey: Option[String]): Option[String] = questionKey.flatMap {
-    case k if k === q.fieldKey => Some("error.needchoicetocontinue")
+  private def questionError(q: Question, questionKey: Option[String]): Option[FormError] = questionKey.flatMap {
+    case k if k === q.fieldKey => Some(FormError(k, "error.needchoicetocontinue"))
     case _ => None
   }
 }

@@ -1,39 +1,56 @@
-@(question: Question, currentState: Map[String, String], error: Option[String])(implicit messages: MessagesApi)
+@(question: Question, currentState: Map[String, String], error: Option[FormError])(implicit messages: MessagesApi)
 
 @inlineClass(question: Question) = @{
     if(question.inline) "inline" else ""
 }
+<div id="contentStart">
+    @error.map { e =>
+        <div class="error-summary" role="group" aria-labelledby="error-summary-heading" tabindex="-1">
+            <h1 class="heading-medium error-summary-heading" id="error-summary-heading">
+                The form contains invalid entries
+            </h1>
 
-<div id="contentStart" class="scannable-wrapper">
-    <h1 class="heading-xlarge">Find out if your business needs to report</h1>
-    <h3 class="heading-medium">
-    @messages(question.textKey)
-    </h3>
-    @question.hintKey.map { key => <p class="form-hint">@messages(key)</p> }
+            <p>
+                Please correct the errors shown below.
+            </p>
+            <ul class="error-summary-list">
+                <li><a href="#question">@errorLinkText(e)</a></li>
+            </ul>
+    }
 
-    @question.detailText.map { text => @text <br/> }
+</div>
 
-    <form method="POST" action="@controllers.routes.QuestionnaireController.nextQuestion()">
-        @for((k, v) <- currentState) {
-            <input type="hidden" name='@k' value="@HtmlFormat.escape(v)">
-        }
+    <div class="scannable-wrapper">
+        <h1 class="heading-xlarge">Find out if your business needs to report</h1>
+        <h3 class="heading-medium">
+        @messages(question.textKey)
+        </h3>
+        @question.hintKey.map { key => <p class="form-hint">@messages(key)</p> }
 
-        <input type="hidden" name="question-key" value="@question.fieldKey">
+        @question.detailText.map { text => @text <br/> }
 
-        <div class="form-group">
-            <fieldset class='@inlineClass(question) @error.map(_ => "error")'>
-                <label class="form-label">
-                @error.map { e => <span id="error-@question.fieldKey" class="error-message">@messages(e)</span> }
-                </label>
+        <form method="POST" action="@controllers.routes.QuestionnaireController.nextQuestion()">
+            @for((k, v) <- currentState) {
+                <input type="hidden" name='@k' value="@HtmlFormat.escape(v)">
+            }
 
-                @question.choices.map { case Choice(label, value) =>
-                <div class="multiple-choice">
-                    <input type="radio" id='@value' name='@question.fieldKey' value='@value'>
-                    <label for='@value'>@messages(label)</label>
-                </div>
-                }
-            </fieldset>
-        </div>
-        <input type="submit" class="button" name="Continue" value="Continue">
-    </form>
+            <input type="hidden" name="question-key" value="@question.fieldKey">
+
+            <div class="form-group" id="question">
+                <fieldset class='@inlineClass(question) @error.map(_ => "error")'>
+                    <label class="form-label">
+                    @error.map { e => <span id="error-@question.fieldKey" class="error-message">@messages(e.message)</span> }
+                    </label>
+
+                    @question.choices.map { case Choice(label, value) =>
+                    <div class="multiple-choice">
+                        <input type="radio" id='@value' name='@question.fieldKey' value='@value'>
+                        <label for='@value'>@messages(label)</label>
+                    </div>
+                    }
+                </fieldset>
+            </div>
+            <input type="submit" class="button" name="Continue" value="Continue">
+        </form>
+    </div>
 </div>
