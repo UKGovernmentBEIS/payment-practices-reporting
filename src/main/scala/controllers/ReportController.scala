@@ -71,15 +71,15 @@ class ReportController @Inject()(
     }
   }
 
+  val hasAccountChoice = Form(single("account" -> Validations.yesNo))
+
   def preLogin(companiesHouseId: CompaniesHouseId) = Action { implicit request =>
-    Ok(page(signInPageTitle)(home, pages.preLogin(companiesHouseId))).removingFromSession(SessionAction.sessionIdKey)
+    Ok(page(signInPageTitle)(home, pages.preLogin(companiesHouseId, hasAccountChoice))).removingFromSession(SessionAction.sessionIdKey)
   }
 
   def login(companiesHouseId: CompaniesHouseId) = Action { implicit request =>
-    val hasAccountChoice = Form(single("account" -> Validations.yesNo))
-
     hasAccountChoice.bindFromRequest().fold(
-      errs => BadRequest(page(signInPageTitle)(home, pages.preLogin(companiesHouseId))),
+      errs => BadRequest(page(signInPageTitle)(home, pages.preLogin(companiesHouseId, errs))),
       hasAccount =>
         if (hasAccount === YesNo.Yes) Redirect(companyAuth.authoriseUrl(companiesHouseId), companyAuth.authoriseParams(companiesHouseId))
         else Redirect(routes.CoHoCodeController.code(companiesHouseId))

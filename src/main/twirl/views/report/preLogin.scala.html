@@ -1,26 +1,35 @@
-@(company: models.CompaniesHouseId)
+@(company: models.CompaniesHouseId, form: Form[utils.YesNo])(implicit messages: MessagesApi, lang: Lang)
+<div id="contentStart">
+    @shared._errorBox(form)
 
-<div id="contentStart" class="scannable-wrapper">
-    <h1 class="heading-xlarge">Sign in using your Companies House account</h1>
-    <p class="panel">You need a Companies House online account and authentication code to verify your identity.</p>
-    <p class="bold-medium">Do you have a Companies House account and an authentication code?</p>
-    <p class="form-hint">
-        If you’re not sure, this is the code you use to submit your Annual Return and Annual Report on the Companies House website.</p>
+    <div class="scannable-wrapper">
+        <h1 class="heading-xlarge">Sign in using your Companies House account</h1>
+        <p class="panel">You need a Companies House online account and authentication code to verify your identity.</p>
+        <p class="bold-medium">Do you have a Companies House account and an authentication code?</p>
+        <p class="form-hint">
+            If you’re not sure, this is the code you use to submit your Annual Return and Annual Report on the Companies House website.</p>
 
-    <form action="@routes.ReportController.login(company)" method="POST">
-        <fieldset class="inline">
-            <div class="multiple-choice">
-                <input type="radio" name="account" id="account-yes" value="yes">
-                <label for="account-yes">Yes</label>
+        <form action="@routes.ReportController.login(company)" method="POST">
+            <div class="form-group @errorClass(form(""))" id="account">
+                <legend>
+                @form("account").error.map { err =>
+                    <span class="error-message"> @messages(err.message)</span>
+                }
+                </legend>
+                <fieldset class="inline">
+                    <div class="multiple-choice">
+                        <input type="radio" name="account" id="account-yes" value="yes">
+                        <label for="account-yes">Yes</label>
+                    </div>
+                    <div class="multiple-choice">
+                        <input type="radio" name="account" id="account-no" value="no">
+                        <label for="account-no">No</label>
+                    </div>
+                </fieldset>
             </div>
-            <div class="multiple-choice">
-                <input type="radio" name="account" id="account-no" value="no">
-                <label for="account-no">No</label>
-            </div>
-        </fieldset>
-
-        <p>
-            <input id="continue-button" type="submit" class="button" value="Continue">
-        </p>
-    </form>
+            <p>
+                <input id="continue-button" type="submit" class="button" value="Continue">
+            </p>
+        </form>
+    </div>
 </div>
