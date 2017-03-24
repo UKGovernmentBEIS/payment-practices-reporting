@@ -1,6 +1,5 @@
-@import org.joda.time.format.DateTimeFormatter
-@import org.joda.time.LocalDate
 @(df: DateTimeFormatter, serviceStartDate: LocalDate)(implicit messages: MessagesApi)
+
 <script type="text/javascript" src='@routes.Assets.at("javascripts/disclosure.js")'></script>
 <script type="text/javascript">
             $(document).ready(function() { gradualDisclosure() });

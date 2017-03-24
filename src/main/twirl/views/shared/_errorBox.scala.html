@@ -1,0 +1,19 @@
+@(form: Form[_])(implicit messages: MessagesApi, lang: Lang)
+
+@if(form.hasErrors) {
+    <div class="error-summary" role="group" aria-labelledby="error-summary-heading" tabindex="-1">
+        <h1 class="heading-medium error-summary-heading" id="error-summary-heading">
+            The form contains invalid entries
+        </h1>
+
+        <p>
+            Please correct the errors shown below.
+        </p>
+        <ul class="error-summary-list">
+        @form.errors.map { err =>
+            <li><a href="#@err.key">@errorLinkText(err)</a></li>
+        }
+        </ul>
+
+    </div>
+}
