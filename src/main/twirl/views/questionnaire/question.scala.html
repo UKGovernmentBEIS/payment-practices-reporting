@@ -28,7 +28,7 @@
 
                 @question.choices.map { case Choice(label, value) =>
                 <div class="multiple-choice">
-                    <input type="radio" id='@question.fieldKey-@value' name='@question.fieldKey' value='@value'>
+                    <input type="radio" id='@value' name='@question.fieldKey' value='@value'>
                     <label for='@value'>@messages(label)</label>
                 </div>
                 }
