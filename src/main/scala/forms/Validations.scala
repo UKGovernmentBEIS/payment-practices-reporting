@@ -32,6 +32,8 @@ object Validations {
 
   val averageWordLength = ReportConstants.averageWordLength
 
+  private val errorDate = "error.date"
+
   /**
     * Very simple word-count algorithm - just split at whitespace and count the results.
     * I'm sure we can do better, but do we need to?
@@ -63,14 +65,14 @@ object Validations {
     "month" -> number,
     "year" -> number
   )(DateFields.apply)(DateFields.unapply)
-    .verifying("error.date", fields => validateDate(fields))
+    .verifying(errorDate, fields => validateDate(fields))
 
   private val dff: Mapping[LocalDate] = dateFields.transform(fieldsToDate, dateToFields)
 
   val dateFromFields = AdjustErrors(dff) { (key, errs) =>
     // We don't care what the specific errors were, just raise an error against
     // the whole date structure
-    if (errs.isEmpty) errs else List(FormError(key, List("error.date")))
+    if (errs.isEmpty) errs else List(FormError(key, List(errorDate)))
   }
 
   private def validateDate(fields: DateFields): Boolean = Try(fieldsToDate(fields)).isSuccess
