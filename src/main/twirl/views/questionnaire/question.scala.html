@@ -10,22 +10,30 @@
     @messages(question.textKey)
     </h3>
     @question.hintKey.map { key => <p class="form-hint">@messages(key)</p> }
+
     @question.detailText.map { text => @text <br/> }
+
     <form method="POST" action="@controllers.routes.QuestionnaireController.nextQuestion()">
         @for((k, v) <- currentState) {
             <input type="hidden" name='@k' value="@HtmlFormat.escape(v)">
         }
+
         <input type="hidden" name="question-key" value="@question.fieldKey">
-        <fieldset class='form-group @inlineClass(question) @error.map(_=>"error")'>
-            <label class="form-label">
-            @error.map { e => <span id="error-@question.fieldKey" class="error-message">@messages(e)</span> }
-            </label>
-            @question.choices.map { case Choice(label, value) =>
-            <label class="block-label" for='@value'>
-                <input type="radio" class="form-control" id='@value' name='@question.fieldKey' value='@value'>@messages(label)
-            </label>
-            }
-        </fieldset>
+
+        <div class="form-group">
+            <fieldset class='@inlineClass(question) @error.map(_ => "error")'>
+                <label class="form-label">
+                @error.map { e => <span id="error-@question.fieldKey" class="error-message">@messages(e)</span> }
+                </label>
+
+                @question.choices.map { case Choice(label, value) =>
+                <div class="multiple-choice">
+                    <input type="radio" id='@question.fieldKey-@value' name='@question.fieldKey' value='@value'>
+                    <label for='@value'>@messages(label)</label>
+                </div>
+                }
+            </fieldset>
+        </div>
         <input type="submit" class="button" name="Continue" value="Continue">
     </form>
 </div>

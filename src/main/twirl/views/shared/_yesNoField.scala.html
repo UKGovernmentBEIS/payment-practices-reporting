@@ -1,7 +1,7 @@
 @(form: Form[_], fieldName: String)(implicit messages: MessagesApi)
 
 <div class="form-group @errorClass(form(fieldName))">
-    <fieldset>
+    <fieldset class="inline">
         <legend id="@fieldName">
             <span class="form-label-bold">@messages(s"field.$fieldName.label")</span>
             <span id="error-@fieldName" class="error-message">@errorMessage(form(fieldName))</span>
