@@ -1,49 +1,49 @@
 @(
         review: Form[forms.report.ReportReviewModel],
         report: forms.report.ReportFormModel,
-        id:CompaniesHouseId,
+        id: CompaniesHouseId,
         companyName: String,
         df: org.joda.time.format.DateTimeFormatter,
         mapping: Mapping[forms.report.ReportFormModel])(implicit messagesApi: MessagesApi)
 
     @import helpers.ReviewPageData
-@import shared._textField
+    @import shared._textField
 
-<h1 class="heading-xlarge">Check your report before publishing</h1>
-<div class="notice">
-    <i class="icon icon-important"><span class="visually-hidden">Warning</span></i>
-    <strong>If your report is incorrect or misleading, you could face prosecution and a fine.</strong>
-</div>
-
-@if(review.hasErrors) {
-    <div class="error-summary" role="group" aria-labelledby="error-summary-heading" tabindex="-1">
-        <h1 class="heading-medium error-summary-heading" id="error-summary-heading">
-            You need to confirm this report before publishing it
-        </h1>
-        <p>Please confirm this report by ticking the checkbox below and providing the name of a director who has approved the report.</p>
+<div id="contentStart" class="scannable-wrapper">
+    <h1 class="heading-xlarge">Check your report before publishing</h1>
+    <div class="notice">
+        <i class="icon icon-important"><span class="visually-hidden">Warning</span></i>
+        <strong>If your report is incorrect or misleading, you could face prosecution and a fine.</strong>
     </div>
-    @review.errors.map { e =>
-      @e
-    }
-}
 
-@for((cssClass, rows) <- ReviewPageData.groups(companyName, report)) {
-    <table class="@cssClass">
-    @for((name, value) <- rows) {
-        <tr>
-            <td class="key-column"> @name</td>
-            <td>@value</td>
-        </tr>
-    }
-    </table>
-}
-
-<form action="@routes.FilingController.postReview(id)" method="POST">
-    @for((k, v) <- mapping.unbind(report)) {
-        <input type="hidden" name='@k' value="@HtmlFormat.escape(v)">
+    @if(review.hasErrors) {
+        <div class="error-summary" role="group" aria-labelledby="error-summary-heading" tabindex="-1">
+            <h1 class="heading-medium error-summary-heading" id="error-summary-heading">
+                You need to confirm this report before publishing it
+            </h1>
+            <p>Please confirm this report by ticking the checkbox below and providing the name of a director who has approved the report.</p>
+        </div>
+        @review.errors.map { e =>
+            @e
+        }
     }
 
-    <div class="scannable-wrapper">
+    @for((cssClass, rows) <- ReviewPageData.groups(companyName, report)) {
+        <table class="@cssClass">
+        @for((name, value) <- rows) {
+            <tr>
+                <td class="key-column"> @name</td>
+                <td>@value</td>
+            </tr>
+        }
+        </table>
+    }
+
+    <form action="@routes.FilingController.postReview(id)" method="POST">
+        @for((k, v) <- mapping.unbind(report)) {
+            <input type="hidden" name='@k' value="@HtmlFormat.escape(v)">
+        }
+
         @_textField(review, "confirmedBy")
         <fieldset class='confirmation form-group'>
             <h3 class="bold-medium">Confirm this statement then publish your report</h3>
@@ -58,5 +58,6 @@
         </fieldset>
         <input type="submit" class="button" value="Publish your report">
         <input type="submit" name="revise" class="button button-secondary" value="Revise">
-    </div>
-</form>
+
+    </form>
+</div>

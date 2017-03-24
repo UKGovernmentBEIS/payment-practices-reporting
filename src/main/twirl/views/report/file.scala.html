@@ -2,7 +2,7 @@
 @import org.joda.time.LocalDate
 @(header:Html, form: Form[forms.report.ReportFormModel], companyId: CompaniesHouseId, df: DateTimeFormatter, serviceStartDate: LocalDate)(implicit messages: MessagesApi, lang: Lang)
 
-<div class="scannable-wrapper">
+<div id="contentStart" class="scannable-wrapper">
 
     @if(form.hasErrors) {
         <div class="error-summary" role="group" aria-labelledby="error-summary-heading" tabindex="-1">

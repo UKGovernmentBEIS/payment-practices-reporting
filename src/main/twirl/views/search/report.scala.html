@@ -2,7 +2,7 @@
 @import services.FiledReport
 @(report: FiledReport, df: DateTimeFormatter)
 
-<div class="scannable-wrapper">
+<div id="contentStart" class="scannable-wrapper">
     <h1 class="heading-xlarge"> @report.header.companyName
     <p class="small-aside">Company number: @report.header.companyId.id</p>
     </h1>
