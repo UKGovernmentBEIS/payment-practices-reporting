@@ -1,5 +1,9 @@
 @(form: Form[_], fieldName: String)(implicit messages: MessagesApi)
 
+@checked(value: String) = @{
+    if(form(fieldName).value.contains(value)) "checked='checked'" else ""
+}
+
 <div class="form-group @errorClass(form(fieldName))">
     <fieldset class="inline">
         <legend id="@fieldName">
@@ -8,12 +12,12 @@
         </legend>
 
         <div class="multiple-choice">
-            <input id="@fieldName-yes" name="@fieldName" type="radio" value="yes" @(if(form(fieldName).value.contains("yes")) "checked='checked'")>
+            <input id="@fieldName-yes" name="@fieldName" type="radio" value="yes" @checked("yes")>
             <label for="@fieldName-yes"> Yes </label>
         </div>
 
         <div class="multiple-choice">
-            <input id="@fieldName-no" name="@fieldName" type="radio" value="no" @(if(form(fieldName).value.contains("no")) "checked='checked'")>
+            <input id="@fieldName-no" name="@fieldName" type="radio" value="no" @checked("no")>
             <label for="@fieldName-no"> No </label>
         </div>
     </fieldset>

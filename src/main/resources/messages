@@ -165,3 +165,4 @@ error.minWords=Please answer this question
 error.minWords.description=Please provide an answer for "{1}"
 
 error.needchoicetocontinue=You need to choose an option to continue.
+error.needchoicetocontinue.description=You need to choose an option to continue.
