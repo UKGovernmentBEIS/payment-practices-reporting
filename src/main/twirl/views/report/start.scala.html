@@ -1,4 +1,4 @@
-@(companyName:String, companyId:CompaniesHouseId)
+@(companyName: String, companyId: CompaniesHouseId)
 
 <div id="contentStart" class="scannable-wrapper">
     <h1 class="heading-xlarge">Publish a report for:<br>@companyName</h1>
@@ -7,17 +7,21 @@
         <i class="icon icon-important">
             <span class="visually-hidden">Warning</span>
         </i>
-        <strong>
+        <strong class="bold-small">
             You could be prosecuted and fined if you publish a false or misleading report.
         </strong>
     </div>
 
-    <a id="start-button" href="@routes.ReportController.preLogin(companyId)" class="button button-start">Publish a payment report</a>
+    <p>
+        <a id="start-button" href="@routes.ReportController.preLogin(companyId)" class="button button-start">
+            Publish a payment report</a>
+    </p>
 
     <h2 class="heading-small">Before you start</h2>
-	<p>You need to:</p>
+    <p>You need to:</p>
     <ul class="list list-bullet">
-        <li>have an online <a rel="external" href="https://beta.companieshouse.gov.uk/signin">account with Companies House</a> and an authentication code to publish reports for your business</li>
+        <li>have an online <a rel="external" href="https://beta.companieshouse.gov.uk/signin">
+            account with Companies House</a> and an authentication code to publish reports for your business</li>
         <li><a href="@routes.QuestionnaireController.start()">prepare your report data</a> in advance</li>
     </ul>
 </div>
