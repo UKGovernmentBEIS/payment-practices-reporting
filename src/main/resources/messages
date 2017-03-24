@@ -125,6 +125,9 @@ field.paymentCodes.text.hint=
 field.confirmedBy.label=Enter the name of the director who approved this report
 field.confirmedBy.hint=
 
+field.startDate.name=Start date
+field.endDate.name=End date
+
 # Various error codes
 error.required=Please answer this question
 error.required.description=Please provide an answer for "{0}"

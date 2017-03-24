@@ -1,6 +1,6 @@
 @(prefix: String, day: Option[String], month: Option[String], year: Option[String])
 
-<div class="form-date">
+<div class="form-date" id="@prefix">
     @defining(prefix + ".day") { fieldName =>
         <div class="form-group form-group-day">
             <label class="form-label" for='@fieldName'>Day</label>
