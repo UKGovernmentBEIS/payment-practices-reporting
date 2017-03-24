@@ -1,4 +1,5 @@
 GET         /assets/*file                                               controllers.Assets.at(path="/public", file)
+GET         /public/*file                                               controllers.Assets.at(path="/public", file)
 
 GET         /                                                           controllers.HomeController.index()
 

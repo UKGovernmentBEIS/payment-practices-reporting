@@ -1,8 +1,17 @@
 @(value: String, searchLink: String)
-<div class="search-input-wrapper">
-    <form method="GET" action=@searchLink class="searchfield" role="search">
-        <label class="hidden" for="site-search-text">Enter company number or business name</label>
-        <input autocomplete="off" name="q" id="site-search-text" title="Search" value="@value" placeholder="Start here..." autofocus="autofocus" class="search-input js-search-focus focus" type="search">
-        <button type="submit" id="search-submit" class="search-submit" aria-label="Search">Search</button>
+
+<main id="content" role="main" class="search no-results-form">
+    <form method="GET" action="@searchLink" class="search-header" role="search">
+        <div class="searchfield">
+            <fieldset class="search-input">
+                <label class="hidden" for="site-search-text">Enter company number or business name</label>
+                <input autocomplete="off" name="q" id="site-search-text" title="Search" value="@value">
+            </fieldset>
+            <fieldset class="search-submit">
+                <button type="submit" id="search-submit" class="button" aria-label="Search">
+                    Search
+                </button>
+            </fieldset>
+        </div>
     </form>
-</div>
+</main>
