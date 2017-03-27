@@ -26,11 +26,8 @@
     <meta charset="utf-8" />
     <title>@title.getOrElse("GOV.UK - The best place to find government services and information")</title>
 
-      <link href="@controllers.routes.Assets.at("stylesheets/application.css")" media="screen" rel="stylesheet" type="text/css" />
-      <!--[if gt IE 8]><!--><link href="@controllers.routes.Assets.at("stylesheets/govuk-template.css")" media="screen" rel="stylesheet" type="text/css" /><!--<![endif]-->
-    <!--[if IE 6]><link href="@controllers.routes.Assets.at("stylesheets/govuk-template-ie6.css")" media="screen" rel="stylesheet" type="text/css" /><![endif]-->
-    <!--[if IE 7]><link href="@controllers.routes.Assets.at("stylesheets/govuk-template-ie7.css")" media="screen" rel="stylesheet" type="text/css" /><![endif]-->
-    <!--[if IE 8]><link href="@controllers.routes.Assets.at("stylesheets/govuk-template-ie8.css")" media="screen" rel="stylesheet" type="text/css" /><![endif]-->
+      @ieStyles("application")
+      @ieStyles("govuk-template")
     <link href="@controllers.routes.Assets.at("stylesheets/govuk-template-print.css")" media="print" rel="stylesheet" type="text/css" />
     <link href="@controllers.routes.Assets.at("stylesheets/main.css")" media="screen" rel="stylesheet" type="text/css" />
     <link href="@controllers.routes.Assets.at("stylesheets/vendor/jquery/jquery-ui.min.css")" media="screen" rel="stylesheet" type="text/css" />

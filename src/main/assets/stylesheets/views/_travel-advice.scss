@@ -1,0 +1,349 @@
+.travel-container {
+  .list {
+    ul {
+      @include inline-block;
+      padding-left: 0;
+      width: 100%;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 20px;
+    }
+    ul.countries {
+      li {
+        width: 49%;
+        float: left;
+        margin-right: 1%;
+      }
+    }
+  }
+
+  .section-wrap {
+    padding: 0 0 0;
+    display: table-row;
+
+    @include media-down(tablet) {
+      display:block;
+      border-bottom: 1px solid $border-colour;
+    }
+
+    @include ie-lte(7) {
+      display:block;
+      border-bottom: 1px solid $border-colour;
+    }
+
+    section {
+      width:50%;
+      vertical-align:bottom;
+      display:table-cell;
+      border-bottom: 1px solid $border-colour;
+
+      @include media-down(tablet) {
+        display:block;
+        border-bottom: none;
+        width:100%;
+      }
+
+      @include ie-lte(7) {
+        display:block;
+        border-bottom: none;
+      }
+
+    }
+
+  }
+
+  .subscriptions {
+    text-align:right;
+
+    @include ie-lte(7) {
+      text-align:left;
+    }
+    ul li:first-child {
+      margin-right: 0.3em;
+    }
+  }
+}
+
+.travel-advice {
+    main {
+        @include ie-lte(8) {
+          width: 960px;
+        }
+    }
+
+    .full-width .page-header div {
+      margin-right: 0em;
+    }
+
+    .list {
+      ul {
+        padding-left: 0;
+      }
+      ul.countries {
+        li {
+          a {
+            margin-right: 10px;
+
+          }
+          color: $grey-1;
+        }
+      }
+
+      li {
+        list-style: none;
+        padding-left: 0;
+
+        @include media(mobile) {
+          margin-left: 0;
+        }
+
+        .meta{
+          @include core-16;
+          color: $grey-1;
+
+        }
+      }
+    }
+
+    #country-filter {
+      h1 {
+        @include inline-block;
+        @include core-27;
+        font-weight: 600;
+        margin: 0 0 0.4em 0;
+
+        @include ie-lte(7) {
+          margin-right: 5.85em;
+        }
+
+        @include ie-lte(6) {
+          margin-right: 1.3em;
+        }
+      }
+
+      form {
+        @include core-19;
+
+        display: none;
+        margin: 0 0 1em 0;
+
+        .js-enabled & {
+          display: block;
+        }
+
+        fieldset {
+          label {
+            position: absolute;
+            left: -9999em;
+          }
+
+          input {
+            display: block;
+            border-color: #A6AAAC;
+            margin: 0;
+          }
+        }
+      }
+  }
+
+  .country-metadata {
+    padding: 0;
+    margin: 0;
+    color: $secondary-text-colour;
+
+    li {
+      @include core-16;
+
+      list-style: none;
+      padding: 0;
+      .label {
+        @include inline-block;
+        width: 7em;
+      }
+      p {
+        @include core-16;
+        // margin-top: 0.5em;
+      }
+    }
+  }
+
+  .meta-data .print-link {
+    margin: 1em 0;
+  }
+
+
+ .subscriptions  {
+
+    @include media(desktop){
+      ul li:first-child {
+        margin-right: 0;
+        margin-left: 0;
+      }
+    }
+
+    p {
+      @include inline-block;
+      margin-right: 0.5em;
+      font-weight: 700;
+    }
+
+    @include media-down(tablet) {
+      // float: none;
+      text-align: left;
+      width: auto;
+      padding-top: 0;
+
+
+    }
+
+    ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      @include inline-block;
+
+      li {
+        margin-bottom: 0.25em;
+        text-align: left;
+        display: inline;
+      }
+
+      li:first-child {
+        margin-right:1.5em;
+      }
+
+      @include ie(6) {
+        list-style-image: none;
+      }
+
+      a {
+        text-decoration: none;
+        font-weight: 700;
+        padding-left: 28px;
+        height: 16px;
+        background-position: 0 50%;
+        background-repeat: no-repeat;
+
+        &.feed {
+          background-image: image-url("travel-advice/feed-icon-black.png");
+        }
+
+        &.email-alerts {
+          background-image: image-url("travel-advice/mail-icon.png");
+          @include device-pixel-ratio() {
+            background-image: image-url("travel-advice/mail-icon-x2.png");
+            background-size: 20px 14px;
+          }
+        }
+      }
+    }
+  }
+
+
+  aside {
+    .page-navigation {
+
+      li {
+        list-style:none;
+        margin-left: 0;
+      }
+
+      @include media(mobile) {
+        li,
+        ol[start] li,
+        li a,
+        li span {
+          margin-left: 0;
+        }
+
+        li.active {
+          border-top: solid 1px #a1acb2;
+          margin: 0;
+          padding: 1em;
+        }
+
+        li a {
+          padding-left: 1em;
+        }
+
+        li span {
+          display: block;
+          padding: 0;
+          border-top: none;
+        }
+      }
+    }
+    .subscriptions  {
+      p {
+        @include core-19;
+        font-weight: 700;
+        margin: 0;
+        margin-right: 0.5em;
+
+      }
+
+      a {
+        @include core-19;
+        font-weight: 700;
+      }
+
+      padding-top: 2em;
+      clear: left;
+      float: none;
+      text-align: left;
+      width: auto;
+
+      @include media-down(mobile) {
+        padding-left: 1em;
+      }
+    }
+  }
+
+  &#wrapper .article-container .subscriptions a:hover {
+    color: #2E8ACA;
+  }
+
+  .countries-wrapper {
+    padding-top: 2em;
+
+    & > .countries {
+        @include media(desktop){
+        display: block;
+        width:30%;
+        float:left;
+        margin-bottom: 42px;
+      }
+      h1 {
+        margin-bottom: 0.3em;
+      }
+    }
+
+    .countries-list {
+      @include media(desktop){
+        width: 70%;
+        float:left;
+        margin-bottom: 42px;
+      }
+    }
+
+    h1 {
+      @include core-19;
+      margin-top: 0;
+    }
+
+    p.country-count {
+      margin: 0;
+      span.js-filter-count {
+        @include core-80;
+        font-weight: 700;
+      }
+    }
+
+    h2 {
+      @include core-80;
+      font-weight: 700;
+      margin-top: 0.4em;
+      padding-top: 0;
+      margin-bottom: 0;
+    }
+  }
+}

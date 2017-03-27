@@ -1,0 +1,44 @@
+.transaction-done {
+  #organ-donor-registration-promotion {
+    padding-bottom: 5px;
+    margin-bottom: 30px;
+  }
+
+  .satisfaction-survey {
+      border-top: 1px solid #d5d5d5;
+  }
+
+  .satisfaction-survey-heading {
+     margin-bottom: 30px;
+  }
+
+  form {
+    @include core-19;
+
+    legend {
+      width: 100%;
+    }
+
+    input {
+      margin-right: 0.5em;
+      vertical-align: 2px;
+      background: #f8f8f8;
+      }
+
+    label {
+      float: none;
+      width: auto;
+      text-align: left;
+    }
+
+    textarea {
+      display:block;
+      @include core-19;
+      margin: 0 0 1em 0;
+      background-color: #f8f8f8;
+      border: 1px inset #bfc1c3;
+      padding: 0.25em 0 0.25em 0.4em;
+      width:95%;
+    }
+  }
+}

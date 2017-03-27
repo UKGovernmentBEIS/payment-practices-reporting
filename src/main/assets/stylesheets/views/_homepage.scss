@@ -1,0 +1,662 @@
+// Remove search from the top bar as we have one in the content.
+body.homepage {
+  #global-header-bar {
+    display: none;
+  }
+  #wrapper,
+  #content {
+    margin: 0;
+    width: auto; // needed for IE overides
+    max-width: 100%;
+  }
+}
+
+@mixin campaign-styles($background, $foreground) {
+  background: $background;
+
+  h1,
+  p,
+  a {
+    color: $foreground;
+  }
+}
+
+#campaign {
+  &.black {
+    @include campaign-styles($black, $white);
+  }
+
+  &.red {
+    @include campaign-styles($red, $white);
+  }
+
+  &.green {
+    @include campaign-styles($turquoise, $white);
+  }
+
+  border: 5px solid $white;
+  border-width: 5px 0;
+
+  .campaign-inner {
+    @extend %contain-floats;
+    @extend %site-width-container;
+    position: relative;
+    padding: 15px 0;
+
+    h1 {
+      @include bold-48;
+    }
+
+    p {
+      @include media(tablet) {
+        width: 66.66%; // this is the same as .welcome-text
+        float: left;
+      }
+    }
+
+    a {
+      // this is the same as .content-links
+      @include media(tablet) {
+        position: absolute;
+        bottom: 1em;
+        left: 66.66%;
+        width: 33.33%;
+        padding: 0 10px;
+        display: block;
+      }
+      @include core-19;
+    }
+  }
+}
+
+#homepage-promo-banner {
+  background: $light-blue-25;
+
+  .banner-message {
+    @extend %site-width-container;
+
+    p {
+      margin: 0;
+      padding: $gutter-two-thirds 0;
+
+      @include core-19;
+
+      @include media(tablet) {
+        padding: $gutter 0;
+      }
+
+      @include media(desktop) {
+        max-width: 66%;
+      }
+
+      strong {
+        display: block;
+        @include bold-24;
+        margin-bottom: $gutter-half;
+      }
+    }
+  }
+}
+
+.root-index {
+  // Generic objects for the homepage
+  .inner-block {
+    @include media(tablet){
+      margin: 0 30px;
+      &.floated-children {
+        margin: 0 15px;
+      }
+    }
+  }
+
+  .floated-inner-block {
+    margin: 0 15px;
+  }
+
+  section {
+    clear: both;
+  }
+
+  hr {
+    margin: 30px 15px 15px;
+    clear: both;
+    border: 5px solid $black;
+    border-width: 5px 0 0;
+
+    @include media(tablet){
+      margin: 60px 30px 30px;
+    }
+  }
+
+  .single-column-heading {
+    @include media(desktop){
+      width: 33.33%;
+      float: left;
+    }
+    h2 {
+      @include core-36;
+      font-weight: bold;
+      padding: 0 15px;
+      margin: 0 0 10px;
+    }
+  }
+
+  .promo-image {
+    margin-right: 0;
+    margin-bottom: 30px;
+    min-height: 0;
+    position: static;
+
+    @include media(tablet){
+      width: 33.33%;
+      float: left;
+    }
+    .promo-content {
+      padding: 0 15px;
+      > a {
+        display: block;
+      }
+    }
+    img {
+      width: 100%;
+      height: auto;
+      display: block;
+      margin-bottom: 15px;
+    }
+    h3 {
+      @include core-24;
+      font-weight: bold;
+      margin: 5px 0;
+    }
+    p {
+      @include core-16;
+      margin: 0;
+    }
+
+    .promo-text-cta a {
+      display: block;
+      margin-bottom: 15px;
+      padding: 1.5em .75em 2em;
+
+      color: $white;
+      background: $homepage-top-colour;
+      text-align: center;
+      text-decoration: none;
+
+      @include bold-19;
+
+      .main-text{
+        display: block;
+        margin-top: 15px;
+        @include bold-36;
+      }
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+
+  .homepage-top {
+    @extend %contain-floats;
+    text-align: center;
+    background: $homepage-top-colour;
+    color: $white;
+
+    .homepage-top-inner {
+      position: relative;
+      overflow: hidden;
+      max-width: 1020px;
+      margin: 0 auto;
+      text-align: left;
+      @include ie-lte(8){
+        width: 1020px;
+      }
+    }
+  }
+
+  .welcome-block {
+    .welcome-text {
+      @include media(tablet){
+        width: 66.66%;
+      }
+    }
+    .content-links {
+      @include media(tablet){
+        position: absolute;
+        top: 0;
+        left: 66%;
+        width: 33.33%;
+      }
+    }
+
+    h1 {
+      @include core-48;
+      font-weight: bold;
+      padding: 25px 0 15px;
+    }
+    p {
+      margin: 0;
+
+      &.simpler {
+        font-weight: bold;
+        margin-bottom: 20px;
+      }
+    }
+    form#header-search {
+      @extend %contain-floats;
+      margin-bottom: 30px;
+
+      .search-input-wrapper {
+        float: left;
+        width: 100%;
+
+        .search-input {
+          width: 100%;
+          margin: 0.5em 0;
+          padding: 6px;
+
+          @include core-19($line-height: (28 / 19), $line-height-640: (28 / 16));
+        }
+      }
+
+      .submit {
+        float: left;
+        padding: 6px;
+        background: $black;
+        color: $white;
+        border: 0;
+      }
+
+      // IE6 + IE7 always get the simplest version, regardless of whether
+      // javascript is enabled
+      @if ($is-ie == false) or ($ie-version >= 8) {
+        $search-button-size: 40px;
+
+        .search-input-wrapper {
+          @include box-sizing(border-box);
+
+          padding-right: $search-button-size;
+          margin-right: -$search-button-size;
+
+          .search-input {
+            @include box-sizing(border-box);
+            @include appearance(none);
+
+            position: relative;
+            height: $search-button-size;
+            margin: 0;
+
+            border: 0;
+            outline-offset: 0;
+          }
+        }
+
+        .submit {
+          @include box-sizing(border-box);
+          height: $search-button-size;
+          width: $search-button-size;
+
+          cursor: pointer;
+
+          overflow: hidden;
+          text-indent: -5000px;
+          background: $black image-url("homepage/search-button.png") no-repeat 2px 50%;
+
+          @include device-pixel-ratio() {
+            background-size: 52.5px 35px;
+            background-position: 115% 50%;
+          }
+
+          &:hover {
+            background-color: lighten($black, 5%);
+          }
+
+          &:focus {
+            z-index: 15;
+            position: relative;
+          }
+
+          @include border-radius(0);
+        }
+
+        // If JS is enabled, and browser is not IE6 or IE7, position label
+        // as a placeholder
+        .js-enabled & {
+          position: relative;
+          background: $white;
+
+          // Absolutely position the label behind the input
+          label {
+            @include core-19($line-height: 40px, $line-height-640: 40px);
+            position: absolute;
+            left: 0;
+            top: 1px;
+            z-index: 5;
+
+            text-indent: 15px;
+
+            color: $secondary-text-colour;
+          }
+
+          // Input is transparent and sits above the label
+          .search-input {
+            position: relative;
+            z-index: 10;
+
+            // Internet Explorer does not play well with "empty" elements. The
+            // label behind the text box becomes selectable (i.e. it acts as if
+            // the input is not there.) Setting a background image fixes it.
+            // http://stackoverflow.com/questions/2098714/input-boxes-with-transparent-background-are-not-clickable-in-ie8
+            // http://stackoverflow.com/questions/9109911/ie-z-index-trouble-on-element-with-transparent-background
+            background: transparent url('data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==');
+
+            // Javascript adds a confusingly named `focus` class to the input
+            // when it contains text. We use this to set the background to
+            // white, hiding the label.
+            &:focus,
+            &.focus {
+              background: $white;
+            }
+          }
+        }
+      }
+    }
+    .content-links-inner {
+      padding-bottom: 20px;
+
+      @include media(tablet){
+        background: $black;
+        padding: 15px 20px 5px;
+        margin-top: 30px;
+        min-height: 20em;
+        @include ie-lte(7){
+          margin-bottom: 0;
+        }
+        @include ie(6) {
+          height: 20em;
+        }
+      }
+
+      h2 {
+        @include core-14;
+        margin: 0;
+        @include media($min-width: 1010px){
+          margin: 5px 0 0;
+        }
+      }
+      ul {
+        margin: 0;
+        padding: 0;
+        @include media($min-width: 1010px){
+          margin: 10px 0 0;
+        }
+      }
+      li {
+        @include bold-16;
+        list-style: none;
+        margin: 5px 0;
+      }
+      a {
+        &:link,
+        &:visited {
+          color: $white;
+        }
+
+        &:active,
+        &:hover {
+          color: darken($white, 20%);
+        }
+
+        &:focus {
+          // Manually fix the most embarassing :focus contast issue, needs a wider fix
+          color: $black;
+        }
+      }
+    }
+  }
+  .homepage-content {
+    @extend %contain-floats;
+    text-align: center;
+
+    .homepage-content-inner {
+      max-width: 1020px;
+      margin: 0 auto;
+      text-align: left;
+      @include ie-lte(8){
+        width: 1020px;
+      }
+    }
+  }
+  .services-block {
+    padding-top: 15px;
+    @include media(tablet){
+      padding-top: 30px;
+    }
+
+    .two-column-heading {
+      @include media(tablet){
+        width: 66.66%;
+        float: left;
+      }
+      h2 {
+        @include core-36;
+        font-weight: bold;
+        padding: 0 15px;
+        margin: 20px 0 0;
+        @include media(tablet){
+          margin: 15px 0 25px;
+        }
+      }
+    }
+    .replaces {
+      @extend %contain-floats;
+
+      @include media(tablet){
+        padding-top: 10px;
+        width: 33.33%;
+        float: right;
+      }
+      p {
+        @include core-14;
+        padding: 0 15px;
+        margin: 0;
+        color: $secondary-text-colour;
+      }
+      ul {
+        margin: 0;
+        padding: 0 15px;
+      }
+      li {
+        line-height: 30px;
+        display: block;
+        float: left;
+        padding-right: 10px;
+        img {
+          vertical-align: bottom;
+        }
+      }
+    }
+    .categories-lists {
+      @extend %contain-floats;
+      clear: both;
+    }
+    .categories-list {
+      margin: 0;
+      padding: 10px 0 0;
+      @include media(tablet){
+        float: left;
+        width: $one-third;
+      }
+
+      li {
+        margin: 0 0 15px;
+        padding: 0;
+        list-style: none;
+
+        h3, p {
+          margin: 0;
+          padding: 0 15px;
+        }
+        h3 {
+          @include core-19;
+          font-weight: bold;
+        }
+        p {
+          @include core-16;
+          min-height: 40px;
+        }
+      }
+    }
+  }
+
+  .departments-and-policy {
+    .departments-intro {
+      @include media(desktop){
+        width: 66.66%;
+        float: left;
+      }
+      p {
+        @include core-24;
+        margin: 10px 0 20px;
+      }
+    }
+    .large-numbers {
+      clear: both;
+      @extend %contain-floats;
+      @include media(tablet){
+        padding: 0 0 30px 0;
+        float: left;
+        width: 33.33%;
+      }
+
+      ol {
+        margin: 0;
+        padding: 0;
+        @include ie-lte(7){
+          width: 988px; // because 990px/4 is not a round number
+        }
+      }
+      li {
+        list-style: none;
+        margin: 20px 0;
+
+        a {
+          padding: 0 15px;
+          display: block;
+          text-decoration: none;
+          line-height: 1.25;
+          overflow: hidden;
+        }
+        strong {
+          // Manually setting font-size rather than using the mixins size so we
+          // because the layout doesnt really work otherwise
+          font-size: 53px;
+          line-height: (55 / 53);
+          font-weight: bold;
+          display: block;
+
+          @include media(desktop){
+            font-size: 80px;
+            line-height: (80 / 80);
+          }
+        }
+        &:first-child {
+          margin-top: 10px;
+        }
+      }
+    }
+    .departments-promo-sections {
+      @extend %contain-floats;
+      clear: both;
+      padding: 0;
+    }
+  }
+
+  .popular-content {
+    @extend %contain-floats;
+    margin-bottom: 60px;
+
+    .promo-image {
+      @include media(tablet){
+        width: 50%;
+      }
+      @include media(desktop){
+        width: 33.33%;
+      }
+
+      a.callout {
+        display: block;
+        background-color: $turquoise;
+        color: $white;
+        font-weight: bold;
+        text-decoration: none;
+        text-align: center;
+        margin-bottom: 15px;
+
+
+        p {
+          @include core-16;
+          font-weight:700;
+          padding-top: 1.25em;
+          padding-bottom: 1.25em;
+          margin-left: 2em;
+          margin-right: 2em;
+        }
+
+        span {
+          @include heading-48;
+          font-weight:700;
+          display: block;
+          margin: 0.25em 0 0.25em 0;
+          padding:0;
+
+          &:hover {
+            text-decoration: underline;
+          }
+
+          @include media(desktop) {
+            @include core-36;
+            font-weight:700;
+            margin:0;
+          }
+        }
+      }
+    }
+
+
+    .most-active {
+      @include media(tablet){
+        width: 50%;
+        float: left;
+      }
+      @include media(desktop){
+        width: 33.33%;
+      }
+      h3 {
+        @include core-24;
+        font-weight: bold;
+        margin: 0;
+        padding: 0 0 5px;
+      }
+      .most-active-content {
+        margin: 0;
+        padding: 0 0 15px;
+      }
+      li {
+        list-style: none;
+        margin: 0;
+        padding: 5px 0 0;
+        @include core-19;
+        a {
+          font-weight: bold;
+        }
+        span {
+          display: inline-block;
+          min-width: 25px;
+        }
+      }
+    }
+  }
+}
