@@ -23,14 +23,16 @@ import forms.report.ReportConstants
 import org.joda.time.LocalDate
 import play.api.data.Forms._
 import play.api.data.validation._
-import play.api.data.{Forms, Mapping}
-import utils.YesNo
+import play.api.data.{FormError, Forms, Mapping}
+import utils.{AdjustErrors, YesNo}
 
 import scala.util.Try
 
 object Validations {
 
   val averageWordLength = ReportConstants.averageWordLength
+
+  private val errorDate = "error.date"
 
   /**
     * Very simple word-count algorithm - just split at whitespace and count the results.
@@ -58,25 +60,31 @@ object Validations {
         maxWordConstraint(max), Constraints.maxLength(max * averageWordLength))
   }
 
-  val dateFields: Mapping[DateFields] = mapping(
+  private[forms] val dateFields: Mapping[DateFields] = mapping(
     "day" -> number,
     "month" -> number,
     "year" -> number
   )(DateFields.apply)(DateFields.unapply)
-    .verifying("error.date", fields => validateFields(fields))
+    .verifying(errorDate, fields => validateDate(fields))
 
-  val dateFromFields: Mapping[LocalDate] = dateFields.transform(toDate, fromDate)
+  private val dff: Mapping[LocalDate] = dateFields.transform(fieldsToDate, dateToFields)
 
-  private def validateFields(fields: DateFields): Boolean = Try(toDate(fields)).isSuccess
+  val dateFromFields = AdjustErrors(dff) { (key, errs) =>
+    // We don't care what the specific errors were, just raise an error against
+    // the whole date structure
+    if (errs.isEmpty) errs else List(FormError(key, List(errorDate)))
+  }
+
+  private def validateDate(fields: DateFields): Boolean = Try(fieldsToDate(fields)).isSuccess
 
   /**
     * Warning: Will throw an exception if the fields don't constitute a valid date. This is provided
     * to support the `.transform` call below on the basis that the fields themselves will have already
     * been verified with `validateFields`
     */
-  private def toDate(fields: DateFields): LocalDate = new LocalDate(fields.year, fields.month, fields.day)
+  private def fieldsToDate(fields: DateFields): LocalDate = new LocalDate(fields.year, fields.month, fields.day)
 
-  private def fromDate(date: LocalDate): DateFields = DateFields(date.getDayOfMonth, date.getMonthOfYear, date.getYear)
+  private def dateToFields(date: LocalDate): DateFields = DateFields(date.getDayOfMonth, date.getMonthOfYear, date.getYear)
 
   val dateRange: Mapping[DateRange] = mapping(
     "startDate" -> dateFromFields,

@@ -1,0 +1,33 @@
+// BASE Stylesheet
+
+// govuk_frontend_toolkit mixins
+@import "colours";
+@import "conditionals";
+@import "css3";
+@import "device-pixels";
+@import "grid_layout";
+@import "measurements";
+@import "shims";
+@import "typography";
+@import "design-patterns/media-player";
+@import "design-patterns/buttons";
+
+@import "views/search";
+
+@import "ppc/ppc";
+
+// View stylesheets
+//@import "views/campaigns";
+//@import "views/completed-transaction";
+//@import "views/homepage";
+//@import "views/tour";
+//@import "views/travel-advice";
+//@import "views/help";
+//@import "views/checkbox-filter";
+//@import "views/report-child-abuse";
+//@import "views/local-authority";
+
+// exceptional format overrides
+//@import "views/jobsearch";
+//@import "views/location_form";
+//@import "views/local-transaction";

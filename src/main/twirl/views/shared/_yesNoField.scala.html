@@ -1,16 +1,24 @@
 @(form: Form[_], fieldName: String)(implicit messages: MessagesApi)
 
-<fieldset class="form-group inline @errorClass(form(fieldName))">
-    <label class="form-label">
-        <span class="bold-medium">@messages(s"field.$fieldName.label")</span>
-        <span id="error-@fieldName" class="error-message">@errorMessage(form(fieldName))</span>
-    </label>
-    <label class="block-label" for="@fieldName-yes">
-        <input id="@fieldName-yes" name="@fieldName" type="radio" value="yes" @{if (form(fieldName).value.contains("yes")) "checked='checked'"}>
-        Yes
-    </label>
-    <label class="block-label" for="@fieldName-no">
-        <input id="@fieldName-no" name="@fieldName" type="radio" value="no" @{if (form(fieldName).value.contains("no")) "checked='checked'"}>
-        No
-    </label>
-</fieldset>
+@checked(value: String) = @{
+    if(form(fieldName).value.contains(value)) "checked='checked'" else ""
+}
+
+<div class="form-group @errorClass(form(fieldName))">
+    <fieldset class="inline">
+        <legend id="@fieldName">
+            <span class="form-label-bold">@messages(s"field.$fieldName.label")</span>
+            <span id="error-@fieldName" class="error-message">@errorMessage(form(fieldName))</span>
+        </legend>
+
+        <div class="multiple-choice">
+            <input id="@fieldName-yes" name="@fieldName" type="radio" value="yes" @checked("yes")>
+            <label for="@fieldName-yes"> Yes </label>
+        </div>
+
+        <div class="multiple-choice">
+            <input id="@fieldName-no" name="@fieldName" type="radio" value="no" @checked("no")>
+            <label for="@fieldName-no"> No </label>
+        </div>
+    </fieldset>
+</div>

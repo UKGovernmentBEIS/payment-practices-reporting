@@ -58,7 +58,11 @@ routesImport ++= Seq(
   "models._"
 )
 
-TwirlKeys.templateImports += "views.html.FieldHelpers._"
+TwirlKeys.templateImports ++= Seq(
+  "views.html.FieldHelpers._",
+  "org.joda.time._",
+  "org.joda.time.format.DateTimeFormatter"
+)
 
 javaOptions := Seq(
   "-Dconfig.file=src/main/resources/development.application.conf",

@@ -2,7 +2,7 @@
 @import services.FiledReport
 @(report: FiledReport, df: DateTimeFormatter)
 
-<div class="scannable-wrapper">
+<div id="contentStart" class="scannable-wrapper">
     <h1 class="heading-xlarge"> @report.header.companyName
     <p class="small-aside">Company number: @report.header.companyId.id</p>
     </h1>
@@ -19,6 +19,9 @@
         </i>
         <strong>This information is as reported by the business, and responses are in their own words.</strong>
     </div>
+
+    <h3 class="heading-medium">This report was filed on @df.print(report.header.createdAt)</h3>
+    <p>and approved by @report.filing.approvedBy</p>
 
     <h3 class="heading-medium">Payment statistics</h3>
     <p>Average time taken to pay invoices: <span class="datum">@report.paymentHistory.averageDaysToPay days</span></p>
@@ -118,4 +121,5 @@
     <p>
         @report.otherInfo.retentionChargesInPast.entryName.capitalize
     </p>
+
 </div>

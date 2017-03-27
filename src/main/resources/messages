@@ -56,6 +56,7 @@ summary.subsidiaries.employees.y3=had an average of more than 250 employees duri
 # Messages for the report form
 
 field.reportDates.startDate.label=Start date of reporting period
+
 field.reportDates.endDate.label=End date of reporting period
 
 field.paymentHistory.averageDaysToPay.label=Average time to pay in days
@@ -64,12 +65,15 @@ field.paymentHistory.averageDaysToPay.hint=Of the payments you have made under q
 field.paymentHistory.percentPaidBeyondAgreedTerms.label=Percentage of invoices not paid within agreed terms
 field.paymentHistory.percentPaidBeyondAgreedTerms.hint=This relates to the number of invoices, not their value.
 
+field.paymentHistory.percentageSplit.percentWithin30Days.name=Percentage of invoices paid between day 1 and day 30
 field.paymentHistory.percentageSplit.percentWithin30Days.label=A) Percentage of invoices paid between day 1 and day 30 (inclusive)
 field.paymentHistory.percentageSplit.percentWithin30Days.hint=
 
+field.paymentHistory.percentageSplit.percentWithin60Days.name=Percentage of invoices paid between day 31 and day 60
 field.paymentHistory.percentageSplit.percentWithin60Days.label=B) Percentage of invoices paid between day 31 and day 60 (inclusive)
 field.paymentHistory.percentageSplit.percentWithin60Days.hint=
 
+field.paymentHistory.percentageSplit.percentBeyond60Days.name=Percentage of invoices paid on or after day 61
 field.paymentHistory.percentageSplit.percentBeyond60Days.label=C) Percentage of invoices paid on or after day 61
 field.paymentHistory.percentageSplit.percentBeyond60Days.hint=
 
@@ -121,18 +125,47 @@ field.paymentCodes.text.hint=
 field.confirmedBy.label=Enter the name of the director who approved this report
 field.confirmedBy.hint=
 
+field.startDate.name=Start date
+field.endDate.name=End date
+
 # Various error codes
 error.required=Please answer this question
+error.required.description=Please provide an answer for "{0}"
+
 error.date=This date is not valid
+error.date.description={0} is not valid
+
 error.sumto100=Figures A, B and C do not add up to 100
+error.sumto100.description=Figures A, B and C do not add up to 100
+
 error.number=Please enter a whole number
+error.number.description=Please provide an answer for "{0}"
+
 error.min=Please enter {0} or greater
 error.max=Please enter {0} or less
+
 error.percentage=This should be a number between 0 and 100
+error.percentage.description={0} should be a number between 0 and 100
+
 error.mustanswer=Please answer this question
+error.mustanswer.description=Please provide an answer for "{0}"
+
 error.endafterstart=The end date must be later than the start date
+error.endafterstart.description=The end date must be later than the start date
+
 error.notfuture=Reporting period cannot cover the future
+error.notfuture.description=Reporting period cannot cover the future
+
 error.beforeservicestart=Reporting period cannot end before {0}
+error.beforeservicestart.description=Reporting period cannot end before {0}
+
 error.dates.invalid=These dates are not valid
+
 error.maxWords=Please enter no more than {0} words
+error.maxWords.description=Please enter no more than {0} words for {1}
+
 error.minWords=Please answer this question
+error.minWords.description=Please provide an answer for "{1}"
+
+error.needchoicetocontinue=You need to choose an option to continue.
+error.needchoicetocontinue.description=You need to choose an option to continue.

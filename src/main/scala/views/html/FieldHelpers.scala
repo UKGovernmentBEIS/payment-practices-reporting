@@ -17,13 +17,22 @@
 
 package views.html
 
-import play.api.data.Field
-import play.api.i18n.MessagesApi
+import play.api.data.{Field, FormError}
+import play.api.i18n.{Lang, MessagesApi}
 
 object FieldHelpers {
   def errorMessage(field: Field)(implicit messages: MessagesApi) =
     field.error.map(e => messages(e.message, e.args: _*))
 
   def errorClass(field: Field) = if (field.hasErrors) "error" else ""
+
+  def messageFor(key: String)(implicit messages: MessagesApi, lang: Lang): Option[String] =
+    if (messages.isDefinedAt(key)) Some(messages(key)) else None
+
+  def errorLinkText(err: FormError)(implicit messages: MessagesApi, lang: Lang): String = {
+    val fieldName = messageFor(s"field.${err.key}.name").orElse(messageFor(s"field.${err.key}.label")).getOrElse(err.key)
+    val args = err.args ++ Seq(fieldName)
+    messages(s"${err.message}.description", args:_*)
+  }
 
 }

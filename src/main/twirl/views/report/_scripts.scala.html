@@ -1,0 +1,22 @@
+@(df: DateTimeFormatter, serviceStartDate: LocalDate)(implicit messages: MessagesApi)
+
+<script type="text/javascript" src='@routes.Assets.at("javascripts/disclosure.js")'></script>
+<script type="text/javascript">
+            $(document).ready(function() { gradualDisclosure() });
+    </script>
+<script type="text/javascript" src='@routes.Assets.at("javascripts/validation.js")'></script>
+<script type="text/javascript">
+            $(document).ready(function() {
+                var messageTable = {
+                    integer: "@messages("error.number")",
+                    nonnegative: "@messages("error.min", 0)",
+                    percentagebounds: "@messages("error.percentage")",
+                    sumto100: "@messages("error.sumto100")",
+                    date: "@messages("error.date")",
+                    future: "Reporting period cannot cover the future",
+                    startbeforeend: "@messages("error.endafterstart")",
+                    beforeservicestart: "@messages("error.beforeservicestart", df.print(serviceStartDate))"
+                };
+                validationPlumbing(messageTable, new Date(@serviceStartDate.getYear, @(serviceStartDate.getMonthOfYear - 1), @serviceStartDate.getDayOfMonth));
+            });
+    </script>

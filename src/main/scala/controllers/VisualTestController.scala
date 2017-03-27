@@ -22,11 +22,12 @@ import javax.inject.Inject
 import calculator.Calculator
 import config.{GoogleAnalyticsConfig, ServiceConfig}
 import dbrows._
-import forms.DateRange
+import forms.{DateRange, Validations}
 import forms.report.{ReportFormModel, ReportReviewModel, Validations}
 import models.{CompaniesHouseId, DecisionState, ReportId}
 import org.joda.time.LocalDate
 import play.api.data.Form
+import play.api.data.Forms.single
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, Controller}
 import play.twirl.api.Html
@@ -73,7 +74,7 @@ class VisualTestController @Inject()(
     )
     val companies = Seq(views.html.search.company(CompanyDetail(id, companyName), PagedResults(Seq(healthyReport, healthyReport, healthyReport), 25, 1, 100), _ => "", df))
     val start = Seq(views.html.report.start(companyName, id))
-    val signIn = Seq(views.html.report.preLogin(id))
+    val signIn = Seq(views.html.report.preLogin(id, Form(single("account" -> Validations.yesNo))))
     val options = Seq(
       views.html.report.companiesHouseOptions(companyName, id),
       views.html.report.askColleague(companyName, id),
@@ -137,7 +138,7 @@ class VisualTestController @Inject()(
     subsidiaryTurnoverQuestionY3,
     subsidiaryBalanceSheetQuestionY3,
     subsidiaryEmployeesQuestionY3
-  ).map(views.html.questionnaire.question(_, Form(QuestionnaireValidations.decisionStateMapping).data))
+  ).map(views.html.questionnaire.question(_, Form(QuestionnaireValidations.decisionStateMapping).data, None))
 
   val states = Seq(
     StateSummary(None, ThresholdSummary(None, None, None), ThresholdSummary(None, None, None))

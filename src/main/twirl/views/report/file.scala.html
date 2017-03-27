@@ -1,69 +1,35 @@
-@import org.joda.time.format.DateTimeFormatter
-@import org.joda.time.LocalDate
-@(header:Html, form: Form[forms.report.ReportFormModel], companyId: CompaniesHouseId, df: DateTimeFormatter, serviceStartDate: LocalDate)(implicit messages: MessagesApi)
+@(header: Html, form: Form[forms.report.ReportFormModel], companyId: CompaniesHouseId, df: DateTimeFormatter, serviceStartDate: LocalDate)(implicit messages: MessagesApi, lang: Lang)
 
-<div class="scannable-wrapper">
+<div id=contentStart">
+    @shared._errorBox(form)
 
-    @header
+    <div class="scannable-wrapper">
+        @header
 
-    <div class="notice">
-        <i class="icon icon-important">
-            <span class="visually-hidden">Warning</span>
-        </i>
-        <strong><a href="@routes.QuestionnaireController.start()">You should prepare</a> before filling in this form.</strong>
-    </div>
-
-    @shared._coverageInformation()
-
-    @if(form.hasErrors) {
-        <div class="error-summary" role="group" aria-labelledby="error-summary-heading" tabindex="-1">
-            <h1 class="heading-medium error-summary-heading" id="error-summary-heading">
-                The form contains invalid entries
-            </h1>
-
-            <p>
-                Please correct the errors shown below.
-            </p>
-            @*<p>*@
-            @* @form.errors.map { err =>*@
-                @*<br>@err*@
-            @*}*@
-            @*</p>*@
+        <div class="notice">
+            <i class="icon icon-important">
+                <span class="visually-hidden">Warning</span>
+            </i>
+            <strong><a target="_blank" href="@routes.QuestionnaireController.start()">You should prepare</a>
+                before filling in this form.</strong>
         </div>
-    }
 
-    <form action="@routes.FilingController.postForm(companyId)" method="POST" id="file-report">
-        <p class="small-aside">
-            Companies House number: @companyId.id
-        </p>
+        @shared._coverageInformation()
 
-        @_reportingPeriod(form)
-        @_paymentStatistics(form)
-        @_paymentTerms(form)
-        @_disputeResolution(form)
-        @_otherPaymentInfo(form)
+        <form action="@routes.FilingController.postForm(companyId)" method="POST" id="file-report">
+            <p class="small-aside">
+                Companies House number: @companyId.id
+            </p>
 
-        <input type="submit" class="button" name="Continue" value="Continue">
-    </form>
+            @report._reportingPeriod(form)
+            @report._paymentStatistics(form)
+            @report._paymentTerms(form)
+            @report._disputeResolution(form)
+            @report._otherPaymentInfo(form)
 
-    <script type="text/javascript" src='@routes.Assets.at("javascripts/disclosure.js")'></script>
-    <script type="text/javascript">
-            $(document).ready(function() { gradualDisclosure() });
-    </script>
-    <script type="text/javascript" src='@routes.Assets.at("javascripts/validation.js")'></script>
-    <script type="text/javascript">
-            $(document).ready(function() {
-                var messageTable = {
-                    integer: "@messages("error.number")",
-                    nonnegative: "@messages("error.min", 0)",
-                    percentagebounds: "@messages("error.percentage")",
-                    sumto100: "@messages("error.sumto100")",
-                    date: "@messages("error.date")",
-                    future: "Reporting period cannot cover the future",
-                    startbeforeend: "@messages("error.endafterstart")",
-                    beforeservicestart: "@messages("error.beforeservicestart", df.print(serviceStartDate))"
-                };
-                validationPlumbing(messageTable, new Date(@serviceStartDate.getYear, @(serviceStartDate.getMonthOfYear - 1), @serviceStartDate.getDayOfMonth));
-            });
-    </script>
+            <input type="submit" class="button" name="Continue" value="Continue">
+        </form>
+
+        @report._scripts(df, serviceStartDate)
+    </div>
 </div>

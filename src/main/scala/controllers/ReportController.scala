@@ -21,19 +21,17 @@ import javax.inject.Inject
 
 import actions.SessionAction
 import config.GoogleAnalyticsConfig
-import controllers.ReportController.CodeOption.{Colleague, Register}
 import forms.Validations
 import models.CompaniesHouseId
 import org.scalactic.TripleEquals._
 import play.api.data.Forms._
 import play.api.data._
 import play.api.i18n.MessagesApi
-import play.api.mvc.{Action, Controller, Result}
-import play.twirl.api.Html
+import play.api.mvc.{Action, Controller}
 import services.{ReportService, _}
 import utils.YesNo
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 class ReportController @Inject()(
                                   companyAuth: CompanyAuthService,
@@ -43,7 +41,8 @@ class ReportController @Inject()(
                                 )(implicit val ec: ExecutionContext, messages: MessagesApi)
   extends Controller
     with PageHelper
-    with SearchHelper {
+    with SearchHelper
+    with CompanyHelper {
 
   import views.html.{report => pages}
 
@@ -72,30 +71,19 @@ class ReportController @Inject()(
     }
   }
 
+  val hasAccountChoice = Form(single("account" -> Validations.yesNo))
+
   def preLogin(companiesHouseId: CompaniesHouseId) = Action { implicit request =>
-    Ok(page(signInPageTitle)(home, pages.preLogin(companiesHouseId))).removingFromSession(SessionAction.sessionIdKey)
+    Ok(page(signInPageTitle)(home, pages.preLogin(companiesHouseId, hasAccountChoice))).removingFromSession(SessionAction.sessionIdKey)
   }
 
   def login(companiesHouseId: CompaniesHouseId) = Action { implicit request =>
-    val hasAccountChoice = Form(single("account" -> Validations.yesNo))
-
     hasAccountChoice.bindFromRequest().fold(
-      errs => BadRequest(page(signInPageTitle)(home, pages.preLogin(companiesHouseId))),
+      errs => BadRequest(page(signInPageTitle)(home, pages.preLogin(companiesHouseId, errs))),
       hasAccount =>
         if (hasAccount === YesNo.Yes) Redirect(companyAuth.authoriseUrl(companiesHouseId), companyAuth.authoriseParams(companiesHouseId))
-        else Redirect(routes.ReportController.code(companiesHouseId))
+        else Redirect(routes.CoHoCodeController.code(companiesHouseId))
     )
-  }
-
-  def withCompany(companiesHouseId: CompaniesHouseId)(body: CompanyDetail => Html): Future[Result] = {
-    companySearch.find(companiesHouseId).map {
-      case Some(co) => Ok(body(co))
-      case None => BadRequest(s"Unknown company id ${companiesHouseId.id}")
-    }
-  }
-
-  def code(companiesHouseId: CompaniesHouseId) = Action.async {
-    withCompany(companiesHouseId)(co => page("If you don't have a Companies House authentication code")(home, pages.companiesHouseOptions(co.companyName, companiesHouseId)))
   }
 
   def colleague(companiesHouseId: CompaniesHouseId) = Action.async {
@@ -106,35 +94,8 @@ class ReportController @Inject()(
     withCompany(companiesHouseId)(co => page("Request an authentication code")(home, pages.requestAccessCode(co.companyName, companiesHouseId)))
   }
 
-  def codeOptions(companiesHouseId: CompaniesHouseId) = Action { implicit request =>
-    import ReportController.CodeOption
-
-    def resultFor(codeOption: CodeOption) = codeOption match {
-      case Colleague => Redirect(routes.ReportController.colleague(companiesHouseId))
-      case Register => Redirect(routes.ReportController.register(companiesHouseId))
-    }
-
-    val form = Form(single("nextstep" -> Forms.of[CodeOption]))
-
-    form.bindFromRequest().fold(errs => BadRequest(s"Invalid option"), resultFor)
+  def applyForAuthCode(companiesHouseId: CompaniesHouseId) = Action {
+    Redirect(companyAuth.authoriseUrl(companiesHouseId), companyAuth.authoriseParams(companiesHouseId))
   }
 }
 
-object ReportController {
-
-  import enumeratum.EnumEntry.Lowercase
-  import enumeratum._
-  import utils.EnumFormatter
-
-  sealed trait CodeOption extends EnumEntry with Lowercase
-
-  object CodeOption extends Enum[CodeOption] with EnumFormatter[CodeOption] {
-    override def values = findValues
-
-    case object Colleague extends CodeOption
-
-    case object Register extends CodeOption
-
-  }
-
-}

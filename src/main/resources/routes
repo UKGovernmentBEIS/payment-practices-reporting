@@ -1,4 +1,5 @@
 GET         /assets/*file                                               controllers.Assets.at(path="/public", file)
+GET         /public/*file                                               controllers.Assets.at(path="/public", file)
 
 GET         /                                                           controllers.HomeController.index()
 
@@ -28,10 +29,11 @@ GET         /report-payment-practices                                   controll
 GET         /report-payment-practices/company/:id/start                 controllers.ReportController.start(id:CompaniesHouseId)
 GET         /report-payment-practices/company/:id/pre-login             controllers.ReportController.preLogin(id:CompaniesHouseId)
 POST        /report-payment-practices/company/:id/login                 controllers.ReportController.login(id:CompaniesHouseId)
-GET         /report-payment-practices/company/:id/code                  controllers.ReportController.code(id:CompaniesHouseId)
-POST        /report-payment-practices/company/:id/code-options          controllers.ReportController.codeOptions(id:CompaniesHouseId)
+GET         /report-payment-practices/company/:id/code                  controllers.CoHoCodeController.code(id:CompaniesHouseId)
+POST        /report-payment-practices/company/:id/code                  controllers.CoHoCodeController.codeOptions(id:CompaniesHouseId)
 GET         /report-payment-practices/company/:id/colleague             controllers.ReportController.colleague(id:CompaniesHouseId)
 GET         /report-payment-practices/company/:id/register              controllers.ReportController.register(id:CompaniesHouseId)
+GET         /report-payment-practices/company/:id/apply-for-code        controllers.ReportController.applyForAuthCode(id:CompaniesHouseId)
 GET         /report-payment-practices/company/:id/file                  controllers.FilingController.file(id:CompaniesHouseId)
 POST        /report-payment-practices/company/:id/file                  controllers.FilingController.postForm(id:CompaniesHouseId)
 POST        /report-payment-practices/company/:id/review                controllers.FilingController.postReview(id:CompaniesHouseId)
