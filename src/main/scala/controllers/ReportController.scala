@@ -86,15 +86,16 @@ class ReportController @Inject()(
     )
   }
 
-
-
-
   def colleague(companiesHouseId: CompaniesHouseId) = Action.async {
     withCompany(companiesHouseId)(co => page("If you want a colleague to publish a report")(home, pages.askColleague(co.companyName, companiesHouseId)))
   }
 
   def register(companiesHouseId: CompaniesHouseId) = Action.async {
     withCompany(companiesHouseId)(co => page("Request an authentication code")(home, pages.requestAccessCode(co.companyName, companiesHouseId)))
+  }
+
+  def applyForAuthCode(companiesHouseId: CompaniesHouseId) = Action {
+    Redirect(companyAuth.authoriseUrl(companiesHouseId), companyAuth.authoriseParams(companiesHouseId))
   }
 }
 
