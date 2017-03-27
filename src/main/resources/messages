@@ -6,24 +6,24 @@ reason.group.notlargeenough=You should check at the beginning of every financial
 reason.notacompany=This is because you told us it is not a UK incorporated company or a UK registered LLP.
 
 question.iscompanyorllp=Is your business a company incorporated in the UK or a limited liability partnership registered in the UK?
-question.financialyear=Which financial year is your business currently in?
+question.financialyear=Is your business in its first, second or third or later financial year?
 choice.first=First year
 choice.second=Second year
 choice.third=Third year or later
 
 question.hassubsidiaries=Does your business have subsidiaries?
 
-hint.turnover=
+hint.turnover=If your business'' financial year is not 12 months, the thresholds must be proportionally adjusted.
 hint.balance=
-hint.employees=Calculate how many people were employed for each month, even if they were employees for a single day in that month. Then add together the monthly totals and divide by the number of months.
+hint.employees=Calculate how many people were employed for each month, even if they were only employed for a single day in that month. Then add together the monthly totals and divide by the number of months in the financial year.
 
-question.company.turnover.y2=For your last financial year, did your business have a turnover of more than £36 million on its balance sheet date?
-question.company.balance.y2=For your last financial year, did your business have a balance sheet total greater than £18 million on its balance sheet date?
-question.company.employees.y2=Did your business have an average of more than 250 employees during its last financial year?
+question.company.turnover.y2=For its last financial year, did your business have a turnover of more than £36 million on its balance sheet date?
+question.company.balance.y2=For its last financial year, did your business have a balance sheet total greater than £18 million on its balance sheet date?
+question.company.employees.y2=Did your business have an average of more than 250 employees for its last financial year?
 
-question.company.turnover.y3=For the last two financial years, did your business have a turnover of more than £36 million on its balance sheet dates?
-question.company.balance.y3=For the last two financial years, did your business have a balance sheet total greater than £18 million at its balance sheet dates?
-question.company.employees.y3=Did your business have an average of more than 250 employees during its last 2 financial years?
+question.company.turnover.y3=For the last two financial years, did your business have a turnover of more than £36 million on both of its balance sheet dates?
+question.company.balance.y3=For the last two financial years, did your business have a balance sheet total greater than £18 million on both of its balance sheet dates?
+question.company.employees.y3=Did your business have an average of more than 250 employees for both of its last 2 financial years?
 
 hint.subsidiaries=''Net'' here means after any set-offs and other adjustments to exclude group transactions. ''Gross'' means without those set-offs and adjustments.
 
@@ -39,17 +39,17 @@ summary.iscompanyorllp=is a company incorporated in the UK or limited liability 
 
 summary.company.turnover.y2=had a turnover of more than £36 million on its last balance sheet date
 summary.company.balance.y2=had more than £18 million balance sheet total on its last balance sheet date
-summary.company.employees.y2=had an average of more than 250 employees during its last financial year
+summary.company.employees.y2=had an average of more than 250 employees for its last financial year
 
 summary.company.turnover.y3=had a turnover of more than £36 million on its last 2 balance sheet dates
 summary.company.balance.y3=had more than £18 million balance sheet total on its last 2 balance sheet dates
-summary.company.employees.y3=had an average of more than 250 employees during both of its last 2 financial years
+summary.company.employees.y3=had an average of more than 250 employees for both of its last 2 financial years
 
-summary.subsidiaries.turnover.y2=had a total turnover of at least £36 million net or £43.2 million gross on their last balance sheet date
-summary.subsidiaries.balance.y2=had a combined balance sheet total of £18 million net or £21.6 million gross on their last balance sheet date
+summary.subsidiaries.turnover.y2=had a combined turnover of at least £36 million net or £43.2 million gross on the last balance sheet date
+summary.subsidiaries.balance.y2=had a combined balance sheet total of £18 million net or £21.6 million gross on the last balance sheet date
 summary.subsidiaries.employees.y2=had an average of more than 250 employees during their last financial year
 
-summary.subsidiaries.turnover.y3=had a total turnover of at least £36 million net or £43.2 million gross on both of their last 2 balance sheet dates
+summary.subsidiaries.turnover.y3=had a combined turnover of at least £36 million net or £43.2 million gross on both of their last 2 balance sheet dates
 summary.subsidiaries.balance.y3=had a combined balance sheet total of £18 million net or £21.6 million gross on both of their last 2 balance sheet dates
 summary.subsidiaries.employees.y3=had an average of more than 250 employees during both of their last 2 financial years
 
