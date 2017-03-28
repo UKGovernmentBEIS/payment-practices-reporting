@@ -75,12 +75,12 @@ object ReviewPageData extends HtmlHelpers {
   )
 
   def reportingDateRows(r: ReportFormModel): Seq[(String, Html)] = Seq(
-    "Start date" -> df.print(r.reportDates.startDate),
-    "End date" -> df.print(r.reportDates.endDate)
+    "Start date of reporting period" -> df.print(r.reportDates.startDate),
+    "End date of reporting period" -> df.print(r.reportDates.endDate)
   )
 
   def paymentHistoryRows(r: ReportFormModel): Seq[(String, Html)] = Seq(
-    ("Average number of days until payment", (r.paymentHistory.averageDaysToPay, "days")),
+    ("Average number of days for making payment", (r.paymentHistory.averageDaysToPay, "days")),
     ("Percentage of invoices paid within 30 days", (r.paymentHistory.percentageSplit.percentWithin30Days, "%")),
     ("Percentage of invoices paid within 31 to 60 days", (r.paymentHistory.percentageSplit.percentWithin60Days, "%")),
     ("Percentage of invoices paid on or after day 61", (r.paymentHistory.percentageSplit.percentBeyond60Days, "%")),
@@ -90,11 +90,11 @@ object ReviewPageData extends HtmlHelpers {
   def paymentTermsRows(r: ReportFormModel): Seq[(String, Html)] = Seq(
     ("Standard payment period", (r.paymentTerms.paymentPeriod, "days")),
     ("Standard payment terms", r.paymentTerms.terms),
-    ("Maximum contract period in days", (r.paymentTerms.maximumContractPeriod, "days")),
-    ("Maximum contract period: further information", r.paymentTerms.maximumContractPeriodComment.map(breakLines)),
     ("Any changes to standard payment terms", conditionalText(r.paymentTerms.paymentTermsChanged.comment)),
     ("Did you consult or notify your suppliers about changes?",
       r.paymentTerms.paymentTermsChanged.notified.map(conditionalText)),
+    ("Maximum contract period in days", (r.paymentTerms.maximumContractPeriod, "days")),
+    ("Maximum contract period: further information", r.paymentTerms.maximumContractPeriodComment.map(breakLines)),
     ("Further remarks about your payment terms", r.paymentTerms.paymentTermsComment.map(breakLines)),
     ("Your dispute resolution process", breakLines(r.paymentTerms.disputeResolution))
   )
@@ -102,8 +102,8 @@ object ReviewPageData extends HtmlHelpers {
   def otherInfoRows(r: ReportFormModel): Seq[(String, Html)] = Seq(
     ("Do you offer e-invoicing?", r.offerEInvoicing),
     ("Do you offer offer supply chain finance?", r.offerSupplyChainFinancing),
-    ("Do you have a policy of deducting sums from payments as a charge for remaining on a supplier list?", r.retentionChargesInPolicy),
-    ("In this reporting period, have you deducted sums from payments as a charge for remaining on a supplier list?", r.retentionChargesInPast),
+    ("Do you have a policy of deducting sums from payments under qualifying contracts as a charge for remaining on a supplier list?", r.retentionChargesInPolicy),
+    ("In this reporting period, have you deducted any sum from payments under qualifying contracts as a charge for remaining on a supplier list?", r.retentionChargesInPast),
     ("Are you a member of a code of conduct or standards on payment practices?", conditionalText(r.hasPaymentCodes))
   )
 

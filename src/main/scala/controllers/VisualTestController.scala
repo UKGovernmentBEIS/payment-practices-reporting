@@ -22,8 +22,8 @@ import javax.inject.Inject
 import calculator.Calculator
 import config.{GoogleAnalyticsConfig, ServiceConfig}
 import dbrows._
-import forms.{DateRange, Validations}
 import forms.report.{ReportFormModel, ReportReviewModel, Validations}
+import forms.{DateRange, Validations}
 import models.{CompaniesHouseId, DecisionState, ReportId}
 import org.joda.time.LocalDate
 import play.api.data.Form
@@ -123,7 +123,7 @@ class VisualTestController @Inject()(
         ++ review
         ++ published
         ++ errors
-      ).zipWithIndex.flatMap { case (x, i) => Seq(Html(s"<hr/>screen ${i + 1}"), x) }
+      ).zipWithIndex.flatMap { case (x, i) => Seq(Html(s"<hr id='${i + 1}' />screen ${i + 1}"), x) }
     Ok(page("Visual test of all pages")(content: _*))
   }
 

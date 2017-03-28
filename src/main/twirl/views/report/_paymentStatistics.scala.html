@@ -14,9 +14,9 @@
 
 @_numberField(form, "paymentHistory.averageDaysToPay", Some("days"))
 
-<div class="form-group @errorClass("paymentHistory.percentageSplit")" style="margin-bottom:15px;">
+<div class="form-group @errorClass("paymentHistory.percentageSplit")">
     <label class="form-label">
-        <span class="bold-medium">Split of invoices paid in the reporting period</span>
+        <span class="bold-medium">Split of payments made under qualifying contracts in the reporting period</span>
         <span class="form-hint">Figures A, B and C should add up to 100%</span>
         <span class="error-message">@errorMessage("paymentHistory.percentageSplit")</span>
     </label>
