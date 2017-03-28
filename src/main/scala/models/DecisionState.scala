@@ -20,6 +20,11 @@ package models
 import questionnaire.{FinancialYear, Thresholds}
 import utils.YesNo
 
+/**
+  * This models the set of answers that have been provided to the questionnaire questions. It is used by
+  * the `Decider` to decide on the next action to take (ask another question or show a result) and by
+  * the `Summarizer` to decide which reason messages to show the user when they need to report.
+  */
 case class DecisionState(
                           isCompanyOrLLP: Option[YesNo],
                           financialYear: Option[FinancialYear],
@@ -30,9 +35,4 @@ case class DecisionState(
 
 object DecisionState {
   val empty: DecisionState = models.DecisionState(None, None, Thresholds.empty, None, Thresholds.empty)
-
-  import YesNo.Yes
-
-  val secondYear: DecisionState = models.DecisionState(Some(Yes), Some(FinancialYear.Second), Thresholds(Some(Yes), Some(Yes), Some(Yes)), Some(Yes), Thresholds(Some(Yes), Some(Yes), Some(Yes)))
-  val thirdYear: DecisionState = models.DecisionState(Some(Yes), Some(FinancialYear.ThirdOrLater), Thresholds(Some(Yes), Some(Yes), Some(Yes)), Some(Yes), Thresholds(Some(Yes), Some(Yes), Some(Yes)))
 }
