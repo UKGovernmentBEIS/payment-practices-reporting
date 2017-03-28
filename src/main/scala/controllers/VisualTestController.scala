@@ -22,8 +22,8 @@ import javax.inject.Inject
 import calculator.Calculator
 import config.{GoogleAnalyticsConfig, ServiceConfig}
 import dbrows._
-import forms.{DateRange, Validations}
 import forms.report.{ReportFormModel, ReportReviewModel, Validations}
+import forms.{DateRange, Validations}
 import models.{CompaniesHouseId, DecisionState, ReportId}
 import org.joda.time.LocalDate
 import play.api.data.Form
@@ -33,6 +33,7 @@ import play.api.mvc.{Action, Controller}
 import play.twirl.api.Html
 import questionnaire._
 import services.{CompanyDetail, CompanySearchResult, FiledReport, PagedResults}
+import utils.YesNo.Yes
 import utils.{SystemTimeSource, YesNo}
 
 class VisualTestController @Inject()(
@@ -53,9 +54,13 @@ class VisualTestController @Inject()(
     val qStart = views.html.questionnaire.start()
     val reasons = Seq("reason.firstyear", "reason.company.notlargeenough", "reason.group.notlargeenough")
     val exempts = views.html.questionnaire.notACompany("reason.notacompany") +: reasons.map(views.html.questionnaire.exempt(_))
+
+    val secondYear: DecisionState = models.DecisionState(Some(Yes), Some(FinancialYear.Second), Thresholds(Some(Yes), Some(Yes), Some(Yes)), Some(Yes), Thresholds(Some(Yes), Some(Yes), Some(Yes)))
+    val thirdYear: DecisionState = models.DecisionState(Some(Yes), Some(FinancialYear.ThirdOrLater), Thresholds(Some(Yes), Some(Yes), Some(Yes)), Some(Yes), Thresholds(Some(Yes), Some(Yes), Some(Yes)))
+
     val requireds =
-      Seq(views.html.questionnaire.required(summarizer.summarize(DecisionState.secondYear)),
-        views.html.questionnaire.required(summarizer.summarize(DecisionState.thirdYear)))
+      Seq(views.html.questionnaire.required(summarizer.summarize(secondYear)),
+        views.html.questionnaire.required(summarizer.summarize(thirdYear)))
     val calcs = Seq(
       views.html.calculator.calculator(CalculatorController.emptyForm),
       views.html.calculator.calculator(CalculatorController.emptyForm.bind(Map[String, String]())))
@@ -118,7 +123,7 @@ class VisualTestController @Inject()(
         ++ review
         ++ published
         ++ errors
-      ).zipWithIndex.flatMap { case (x, i) => Seq(Html(s"<hr/>screen ${i + 1}"), x) }
+      ).zipWithIndex.flatMap { case (x, i) => Seq(Html(s"<hr id='${i + 1}' />screen ${i + 1}"), x) }
     Ok(page("Visual test of all pages")(content: _*))
   }
 

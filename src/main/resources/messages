@@ -6,24 +6,24 @@ reason.group.notlargeenough=You should check at the beginning of every financial
 reason.notacompany=This is because you told us it is not a UK incorporated company or a UK registered LLP.
 
 question.iscompanyorllp=Is your business a company incorporated in the UK or a limited liability partnership registered in the UK?
-question.financialyear=Which financial year is your business currently in?
+question.financialyear=Is your business in its first, second or third or later financial year?
 choice.first=First year
 choice.second=Second year
 choice.third=Third year or later
 
 question.hassubsidiaries=Does your business have subsidiaries?
 
-hint.turnover=
+hint.turnover=If your business'' financial year is not 12 months, the thresholds must be proportionally adjusted.
 hint.balance=
-hint.employees=Calculate how many people were employed for each month, even if they were employees for a single day in that month. Then add together the monthly totals and divide by the number of months.
+hint.employees=Calculate how many people were employed for each month, even if they were only employed for a single day in that month. Then add together the monthly totals and divide by the number of months in the financial year.
 
-question.company.turnover.y2=For your last financial year, did your business have a turnover of more than £36 million on its balance sheet date?
-question.company.balance.y2=For your last financial year, did your business have a balance sheet total greater than £18 million on its balance sheet date?
-question.company.employees.y2=Did your business have an average of more than 250 employees during its last financial year?
+question.company.turnover.y2=For its last financial year, did your business have a turnover of more than £36 million on its balance sheet date?
+question.company.balance.y2=For its last financial year, did your business have a balance sheet total greater than £18 million on its balance sheet date?
+question.company.employees.y2=Did your business have an average of more than 250 employees for its last financial year?
 
-question.company.turnover.y3=For the last two financial years, did your business have a turnover of more than £36 million on its balance sheet dates?
-question.company.balance.y3=For the last two financial years, did your business have a balance sheet total greater than £18 million at its balance sheet dates?
-question.company.employees.y3=Did your business have an average of more than 250 employees during its last 2 financial years?
+question.company.turnover.y3=For the last two financial years, did your business have a turnover of more than £36 million on both of its balance sheet dates?
+question.company.balance.y3=For the last two financial years, did your business have a balance sheet total greater than £18 million on both of its balance sheet dates?
+question.company.employees.y3=Did your business have an average of more than 250 employees for both of its last 2 financial years?
 
 hint.subsidiaries=''Net'' here means after any set-offs and other adjustments to exclude group transactions. ''Gross'' means without those set-offs and adjustments.
 
@@ -39,17 +39,17 @@ summary.iscompanyorllp=is a company incorporated in the UK or limited liability 
 
 summary.company.turnover.y2=had a turnover of more than £36 million on its last balance sheet date
 summary.company.balance.y2=had more than £18 million balance sheet total on its last balance sheet date
-summary.company.employees.y2=had an average of more than 250 employees during its last financial year
+summary.company.employees.y2=had an average of more than 250 employees for its last financial year
 
 summary.company.turnover.y3=had a turnover of more than £36 million on its last 2 balance sheet dates
 summary.company.balance.y3=had more than £18 million balance sheet total on its last 2 balance sheet dates
-summary.company.employees.y3=had an average of more than 250 employees during both of its last 2 financial years
+summary.company.employees.y3=had an average of more than 250 employees for both of its last 2 financial years
 
-summary.subsidiaries.turnover.y2=had a total turnover of at least £36 million net or £43.2 million gross on their last balance sheet date
-summary.subsidiaries.balance.y2=had a combined balance sheet total of £18 million net or £21.6 million gross on their last balance sheet date
+summary.subsidiaries.turnover.y2=had a combined turnover of at least £36 million net or £43.2 million gross on the last balance sheet date
+summary.subsidiaries.balance.y2=had a combined balance sheet total of £18 million net or £21.6 million gross on the last balance sheet date
 summary.subsidiaries.employees.y2=had an average of more than 250 employees during their last financial year
 
-summary.subsidiaries.turnover.y3=had a total turnover of at least £36 million net or £43.2 million gross on both of their last 2 balance sheet dates
+summary.subsidiaries.turnover.y3=had a combined turnover of at least £36 million net or £43.2 million gross on both of their last 2 balance sheet dates
 summary.subsidiaries.balance.y3=had a combined balance sheet total of £18 million net or £21.6 million gross on both of their last 2 balance sheet dates
 summary.subsidiaries.employees.y3=had an average of more than 250 employees during both of their last 2 financial years
 
@@ -62,37 +62,37 @@ field.reportDates.endDate.label=End date of reporting period
 field.paymentHistory.averageDaysToPay.label=Average time to pay in days
 field.paymentHistory.averageDaysToPay.hint=Of the payments you have made under qualifying contracts in the reporting period, the average time it took to pay.
 
-field.paymentHistory.percentPaidBeyondAgreedTerms.label=Percentage of invoices not paid within agreed terms
+field.paymentHistory.percentPaidBeyondAgreedTerms.label=Percentage of payments due in the reporting period which have not been paid within the agreed period
 field.paymentHistory.percentPaidBeyondAgreedTerms.hint=This relates to the number of invoices, not their value.
 
-field.paymentHistory.percentageSplit.percentWithin30Days.name=Percentage of invoices paid between day 1 and day 30
+field.paymentHistory.percentageSplit.percentWithin30Days.name=Percentage of payments made between day 1 and day 30
 field.paymentHistory.percentageSplit.percentWithin30Days.label=A) Percentage of invoices paid between day 1 and day 30 (inclusive)
 field.paymentHistory.percentageSplit.percentWithin30Days.hint=
 
-field.paymentHistory.percentageSplit.percentWithin60Days.name=Percentage of invoices paid between day 31 and day 60
+field.paymentHistory.percentageSplit.percentWithin60Days.name=Percentage of payments made between day 31 and day 60
 field.paymentHistory.percentageSplit.percentWithin60Days.label=B) Percentage of invoices paid between day 31 and day 60 (inclusive)
 field.paymentHistory.percentageSplit.percentWithin60Days.hint=
 
-field.paymentHistory.percentageSplit.percentBeyond60Days.name=Percentage of invoices paid on or after day 61
+field.paymentHistory.percentageSplit.percentBeyond60Days.name=Percentage of payments made on or after day 61
 field.paymentHistory.percentageSplit.percentBeyond60Days.label=C) Percentage of invoices paid on or after day 61
 field.paymentHistory.percentageSplit.percentBeyond60Days.hint=
 
 field.paymentTerms.terms.label=Describe your standard payment terms
-field.paymentTerms.terms.hint=
+field.paymentTerms.terms.hint=This is your business’s standard terms relating to payment for qualifying contracts. This includes (if applicable) your standard payment terms for different types of qualifying contract. If you do not use standard terms then you should use the most frequently used payment terms for qualifying contracts, including for different types of qualifying contract. As well as briefly describing your terms, you could also include a link to your website if the full terms can be found there.
 
-field.paymentTerms.paymentPeriod.label=Enter your standard payment period
-field.paymentTerms.paymentPeriod.hint=
+field.paymentTerms.paymentPeriod.label=Enter your standard payment period in days
+field.paymentTerms.paymentPeriod.hint=The standard payment period is the contractual length of time for your business to make payments, as set out in the standard payment terms for qualifying contracts. If your business does not have standard terms, the standard payment period will be the contractual payment period in your business’s most commonly used terms for the reporting period. And if your business uses different terms for different types of qualifying contract, you must give the periods for the different contract types, as set out in the standard or most frequently used terms for each contract type.
 
 field.paymentTerms.maximumContractPeriod.label=Enter your maximum contractual payment period
-field.paymentTerms.maximumContractPeriod.hint=For qualifying contracts only.
+field.paymentTerms.maximumContractPeriod.hint=The maximum payment period is the longest period for payment that your business has agreed to, in a qualifying contract entered in the reporting period.
 
 field.paymentTerms.maximumContractPeriodComment.label=Optional: any further information about your maximum contractual payment period
-field.paymentTerms.maximumContractPeriodComment.hint=
+field.paymentTerms.maximumContractPeriodComment.hint=For example, if you have different payment periods, depending on the product, company size or any other variation, then you could give the maximum period for each type.
 
 field.paymentTerms.paymentTermsChanged.changed.yesNo.label=Were there any changes to your standard payment terms in the reporting period?
-field.paymentTerms.paymentTermsChanged.changed.yesNo.hint=
+field.paymentTerms.paymentTermsChanged.changed.yesNo.hint=For example, a business may start the reporting period with a 60-day payment period in their standard contract, but change this to 30-days three months into the reporting period.
 field.paymentTerms.paymentTermsChanged.changed.text.label=If so, explain what the changes were
-field.paymentTerms.paymentTermsChanged.changed.text.hint=
+field.paymentTerms.paymentTermsChanged.changed.text.hint=Describe your dispute resolution process for qualifying contracts How do you resolve disputes and complaints with your suppliers about payments?\n\nThis helps suppliers know who to contact and to understand the process they need to follow to resolve a dispute or concern.\n\nThis may be a detailed process, or simply an explanation that a complaint or concern will be considered by a particular department or job title, the usual timescale and next steps.\n\nIf your business has a dispute resolution process already published on their website, you could include a hyperlink here alongside an explanation of the process.
 
 field.paymentTerms.paymentTermsChanged.notified.yesNo.label=If there were changes, did you consult or notify suppliers before you made these changes?
 field.paymentTerms.paymentTermsChanged.notified.yesNo.hint=
@@ -106,10 +106,10 @@ field.paymentTerms.disputeResolution.label=Describe your dispute resolution proc
 field.paymentTerms.disputeResolution.hint=How do you resolve disputes and complaints with your suppliers about payments?
 
 field.offerEInvoicing.label=Does your business offer e-invoicing?
-field.offerEInvoicing.hint=This is where your suppliers can electronically submit and track invoices. It''s not just allowing suppliers to email you an invoice.
+field.offerEInvoicing.hint=You must state whether your business'' payment practices and policies provide for invoices to be submitted and tracked electronically, such as with invoice document management systems software.\n\nInvoice document management systems software allows documents to be electronically exchanged, and means a more streamlined process with less manual intervention. This can make the process of payment faster for the supplier.
 
 field.offerSupplyChainFinancing.label=Does your business offer supply chain finance options?
-field.offerSupplyChainFinancing.hint=This is where you have an arrangement where a supplier who has submitted an invoice can be paid by a third-party finance provider earlier than the agreed payment date.
+field.offerSupplyChainFinancing.hint=You must state whether your business'' payment practices and policies include an arrangement under which a supplier which has submitted an invoice can receive payment of the invoiced sum from a finance provider earlier than the agreed payment date, with the large business paying the invoiced sum to the finance provider.
 
 field.retentionChargesInPolicy.label=Under its payment practices and policies, can your business deduct sums from payments as a charge for remaining on a supplier list?
 field.retentionChargesInPolicy.hint=
@@ -118,7 +118,7 @@ field.retentionChargesInPast.label=In this reporting period, has your business d
 field.retentionChargesInPast.hint=
 
 field.paymentCodes.yesNo.label=Is your business a member of a code of conduct or standards on payment practices?
-field.paymentCodes.yesNo.hint=
+field.paymentCodes.yesNo.hint=A payment code is a voluntary initiative, where signatories agree to undertake certain behaviours as a mark of good practice. For example, signatories to the Prompt Payment Code must commit to paying 95% of their invoices within 60 days.
 field.paymentCodes.text.label=If so, enter the name of the code of practice
 field.paymentCodes.text.hint=
 

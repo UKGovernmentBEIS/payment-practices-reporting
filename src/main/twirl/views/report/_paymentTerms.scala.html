@@ -6,9 +6,6 @@
 @_numberField(form, "paymentTerms.paymentPeriod", Some("days"))
 @_textBox(form, "paymentTerms.terms")
 
-@_numberField(form, "paymentTerms.maximumContractPeriod", Some("days"))
-@_textBox(form, "paymentTerms.maximumContractPeriodComment")
-
 @_yesNoField(form, "paymentTerms.paymentTermsChanged.changed.yesNo")
 
 <div class="panel" id="show-if-payment-changes">
@@ -18,5 +15,8 @@
     @_textBox(form, "paymentTerms.paymentTermsChanged.notified.text")
     </div>
 </div>
+
+@_numberField(form, "paymentTerms.maximumContractPeriod", Some("days"))
+@_textBox(form, "paymentTerms.maximumContractPeriodComment")
 
 @_textBox(form, "paymentTerms.paymentTermsComment")
