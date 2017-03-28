@@ -143,3 +143,5 @@ trait HtmlHelpers {
 
   implicit def optionHtmlToHtml(o: Option[Html]): Html = o.getOrElse(Html(""))
 }
+
+object HtmlHelpers extends HtmlHelpers
