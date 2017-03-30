@@ -28,8 +28,6 @@ class HomeController @Inject()(val pageConfig: PageConfig) extends Controller wi
   private val pateTitle = "Report on payment practices"
 
   def index = Action { implicit request =>
-    Logger.debug(request.host)
-    Logger.debug(request.domain)
     Ok(page(pateTitle)(views.html.index()))
   }
 
