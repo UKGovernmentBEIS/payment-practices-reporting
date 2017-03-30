@@ -20,9 +20,12 @@ package controllers
 import javax.inject.Inject
 
 import actions.SessionAction
-import config.GoogleAnalyticsConfig
+import cats.data.OptionT
+import cats.instances.future._
+import config.PageConfig
 import forms.Validations
-import models.CompaniesHouseId
+import models.{CompaniesHouseId, ReportId}
+import org.joda.time.format.DateTimeFormat
 import org.scalactic.TripleEquals._
 import play.api.data.Forms._
 import play.api.data._
@@ -37,7 +40,7 @@ class ReportController @Inject()(
                                   companyAuth: CompanyAuthService,
                                   val companySearch: CompanySearchService,
                                   val reportService: ReportService,
-                                  val googleAnalytics: GoogleAnalyticsConfig
+                                  val pageConfig: PageConfig
                                 )(implicit val ec: ExecutionContext, messages: MessagesApi)
   extends Controller
     with PageHelper
@@ -57,14 +60,14 @@ class ReportController @Inject()(
 
   def pageLink(query: Option[String], itemsPerPage: Option[Int], pageNumber: Int) = routes.ReportController.search(query, Some(pageNumber), itemsPerPage).url
 
-  def search(query: Option[String], pageNumber: Option[Int], itemsPerPage: Option[Int]) = Action.async {
+  def search(query: Option[String], pageNumber: Option[Int], itemsPerPage: Option[Int]) = Action.async { implicit request =>
     def resultsPage(q: String, results: Option[PagedResults[CompanySearchResult]], countMap: Map[CompaniesHouseId, Int]) =
       page(searchPageTitle)(home, searchHeader, views.html.search.search(q, results, countMap, searchLink, companyLink, pageLink(query, itemsPerPage, _)))
 
     doSearch(query, pageNumber, itemsPerPage, resultsPage).map(Ok(_))
   }
 
-  def start(companiesHouseId: CompaniesHouseId) = Action.async { request =>
+  def start(companiesHouseId: CompaniesHouseId) = Action.async { implicit request =>
     companySearch.find(companiesHouseId).map {
       case Some(co) => Ok(page(publishTitle(co.companyName))(home, pages.start(co.companyName, co.companiesHouseId)))
       case None => NotFound(s"Could not find a company with id ${companiesHouseId.id}")
@@ -86,16 +89,32 @@ class ReportController @Inject()(
     )
   }
 
-  def colleague(companiesHouseId: CompaniesHouseId) = Action.async {
+  def colleague(companiesHouseId: CompaniesHouseId) = Action.async { implicit request =>
     withCompany(companiesHouseId)(co => page("If you want a colleague to publish a report")(home, pages.askColleague(co.companyName, companiesHouseId)))
   }
 
-  def register(companiesHouseId: CompaniesHouseId) = Action.async {
+  def register(companiesHouseId: CompaniesHouseId) = Action.async { implicit request =>
     withCompany(companiesHouseId)(co => page("Request an authentication code")(home, pages.requestAccessCode(co.companyName, companiesHouseId)))
   }
 
-  def applyForAuthCode(companiesHouseId: CompaniesHouseId) = Action {
+  def applyForAuthCode(companiesHouseId: CompaniesHouseId) = Action { implicit request =>
     Redirect(companyAuth.authoriseUrl(companiesHouseId), companyAuth.authoriseParams(companiesHouseId))
+  }
+
+  val df = DateTimeFormat.forPattern("d MMMM YYYY")
+
+  def view(reportId: ReportId) = Action.async { implicit request =>
+    val f = for {
+      report <- OptionT(reportService.findFiled(reportId))
+    } yield {
+      val crumbs = breadcrumbs(homeBreadcrumb)
+      Ok(page(s"Payment practice report for ${report.header.companyName}")(crumbs, views.html.search.report(report, df)))
+    }
+
+    f.value.map {
+      case Some(ok) => ok
+      case None => NotFound
+    }
   }
 }
 

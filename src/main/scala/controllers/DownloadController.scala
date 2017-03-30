@@ -21,19 +21,19 @@ import javax.inject.Inject
 
 import akka.stream.scaladsl.{Concat, Source}
 import akka.util.ByteString
-import config.GoogleAnalyticsConfig
+import config.PageConfig
 import org.joda.time.LocalDate
 import play.api.http.HttpEntity
 import play.api.mvc.{Action, Controller, ResponseHeader, Result}
 import services.{FiledReport, ReportService}
 
-class DownloadController @Inject()(reportRepo: ReportService, val googleAnalytics: GoogleAnalyticsConfig) extends Controller with PageHelper {
+class DownloadController @Inject()(reportRepo: ReportService, val pageConfig: PageConfig) extends Controller with PageHelper {
 
-  def show = Action {
+  def show = Action { implicit request =>
     Ok(page("Export data for published reports")(home, views.html.download.accessData()))
   }
 
-  def export = Action { request =>
+  def export = Action { implicit request =>
     val disposition = ("Content-Disposition", "attachment;filename=payment-practices.csv")
 
     val publisher = reportRepo.list(LocalDate.now().minusMonths(24))

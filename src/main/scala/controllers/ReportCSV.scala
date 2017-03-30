@@ -58,6 +58,7 @@ object ReportCSV {
     ("Filing date", _.filing.filingDate),
     ("Company", _.header.companyName),
     ("Company number", _.header.companyId.id),
+    ("Approved by", _.filing.approvedBy),
     ("Average time to pay", _.paymentHistory.averageDaysToPay),
     ("% Invoices paid late", _.paymentHistory.percentPaidLaterThanAgreedTerms),
     ("% Invoices paid within 30 days", _.paymentHistory.percentInvoicesWithin30Days),
@@ -67,14 +68,10 @@ object ReportCSV {
     ("Supply-chain financing offered", _.otherInfo.offerSupplyChainFinance),
     ("Policy covers charges for remaining on supplier list", _.otherInfo.retentionChargesInPolicy),
     ("Charges have been made for remaining on supplier list", _.otherInfo.retentionChargesInPast),
-    ("Payment terms", _.paymentTerms.paymentTermsComment),
+    ("Payment period", _.paymentTerms.paymentPeriod),
     ("Maximum Contract Length", _.paymentTerms.maximumContractPeriod),
     ("Payment terms have changed", _.paymentTerms.paymentTermsChangedComment.isDefined),
-    ("Payment terms have changed: comments", _.paymentTerms.paymentTermsChangedComment),
     ("Suppliers notified of changes", _.paymentTerms.paymentTermsChangedNotifiedComment.isDefined),
-    ("Suppliers notified of changes: comments", _.paymentTerms.paymentTermsChangedNotifiedComment),
-    ("Further remarks on payment terms", _.paymentTerms.paymentTermsComment),
-    ("Dispute resolution facilities", _.paymentTerms.disputeResolution),
     ("Participates in payment codes", _.otherInfo.paymentCodes.isDefined),
     ("Payment codes", _.otherInfo.paymentCodes))
 }

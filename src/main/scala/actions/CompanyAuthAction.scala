@@ -21,7 +21,7 @@ import javax.inject.Inject
 
 import cats.data.OptionT
 import cats.instances.future._
-import config.GoogleAnalyticsConfig
+import config.{GoogleAnalyticsConfig, PageConfig}
 import controllers.PageHelper
 import models.CompaniesHouseId
 import org.joda.time.LocalDateTime
@@ -63,7 +63,7 @@ class CompanyAuthAction @Inject()(
                                    SessionAction: SessionAction,
                                    sessionService: SessionService,
                                    companyAuthService: CompanyAuthService,
-                                   val googleAnalytics: GoogleAnalyticsConfig)
+                                   val pageConfig: PageConfig)
                                  (implicit ec: ExecutionContext) extends PageHelper {
   def extractTime(s: String): Option[LocalDateTime] = Try(new LocalDateTime(s.toLong)).toOption
 
@@ -72,7 +72,7 @@ class CompanyAuthAction @Inject()(
       (SessionAction andThen refiner(expectedId)).invokeBlock(request, block)
   }
 
-  def forbidden(message: String) = {
+  def forbidden(message: String)(implicit request: RequestHeader) = {
     Logger.info(s"User not authorised to access page: $message")
     Forbidden(page("Not authorised")(home, views.html.errors.forbidden403(message)))
   }
@@ -80,6 +80,7 @@ class CompanyAuthAction @Inject()(
   def refiner(expectedId: CompaniesHouseId): ActionRefiner[SessionRequest, CompanyAuthRequest] = new ActionRefiner[SessionRequest, CompanyAuthRequest] {
 
     override protected def refine[A](request: SessionRequest[A]): Future[Either[Result, CompanyAuthRequest[A]]] = {
+      implicit val rh: RequestHeader = request
       val sessionDetails = for {
         sessionDetails <- OptionT(sessionService.get[SessionDetails](request.sessionId))
         freshToken <- OptionT.liftF(freshenToken(request.sessionId, sessionDetails.oAuthToken))

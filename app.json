@@ -4,7 +4,8 @@
   },
   "env": {
     "APPLY_EVOLUTIONS": "true",
-    "APPLY_EVOLUTIONS_DOWNS": "true"
+    "APPLY_EVOLUTIONS_DOWNS": "true",
+    "SERVICE_START_DATE":"2017-1-1"
   },
   "formation": {
   },

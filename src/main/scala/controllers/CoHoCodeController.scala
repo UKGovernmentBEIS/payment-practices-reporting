@@ -19,25 +19,25 @@ package controllers
 
 import javax.inject.Inject
 
-import config.GoogleAnalyticsConfig
+import config.PageConfig
 import controllers.CoHoCodeController.CodeOption.{Colleague, Register}
 import models.CompaniesHouseId
 import play.api.data.Forms.single
 import play.api.data.{Form, FormError, Forms}
-import play.api.i18n.{Lang, MessagesApi}
-import play.api.mvc.{Action, Controller, Result}
+import play.api.i18n.MessagesApi
+import play.api.mvc.{Action, Controller, RequestHeader, Result}
 import play.twirl.api.Html
 import services.{CompanyAuthService, CompanySearchService, ReportService}
 import utils.AdjustErrors
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class CoHoCodeController  @Inject()(
-                                     companyAuth: CompanyAuthService,
-                                     val companySearch: CompanySearchService,
-                                     val reportService: ReportService,
-                                     val googleAnalytics: GoogleAnalyticsConfig
-                                   )(implicit val ec: ExecutionContext, messages: MessagesApi)
+class CoHoCodeController @Inject()(
+                                    companyAuth: CompanyAuthService,
+                                    val companySearch: CompanySearchService,
+                                    val reportService: ReportService,
+                                    val pageConfig: PageConfig
+                                  )(implicit val ec: ExecutionContext, messages: MessagesApi)
   extends Controller
     with PageHelper
     with SearchHelper
@@ -46,7 +46,8 @@ class CoHoCodeController  @Inject()(
   import CoHoCodeController._
   import views.html.{report => pages}
 
-  private def codePage(companiesHouseId: CompaniesHouseId, form: Form[CodeOption] = emptyForm, foundResult: Html => Result = Ok(_))(implicit messages: MessagesApi, lang: Lang) =
+  private def codePage(companiesHouseId: CompaniesHouseId, form: Form[CodeOption] = emptyForm, foundResult: Html => Result = Ok(_))
+                      (implicit messages: MessagesApi, rh: RequestHeader) =
     withCompany(companiesHouseId, foundResult) { co =>
       page("If you don't have a Companies House authentication code")(home, pages.companiesHouseOptions(co.companyName, companiesHouseId, form))
     }

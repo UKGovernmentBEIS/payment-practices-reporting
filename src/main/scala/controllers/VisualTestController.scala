@@ -20,7 +20,7 @@ package controllers
 import javax.inject.Inject
 
 import calculator.Calculator
-import config.{GoogleAnalyticsConfig, ServiceConfig}
+import config.{PageConfig, ServiceConfig}
 import dbrows._
 import forms.report.{ReportFormModel, ReportReviewModel, Validations}
 import forms.{DateRange, Validations}
@@ -39,7 +39,7 @@ import utils.{SystemTimeSource, YesNo}
 class VisualTestController @Inject()(
                                       summarizer: Summarizer,
                                       serviceConfig: ServiceConfig,
-                                      val googleAnalytics: GoogleAnalyticsConfig
+                                      val pageConfig: PageConfig
                                     )(implicit messages: MessagesApi) extends Controller with PageHelper {
 
   import Questions._

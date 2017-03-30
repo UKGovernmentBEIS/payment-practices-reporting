@@ -21,7 +21,7 @@ import javax.inject.{Inject, Named}
 
 import actions.{CompanyAuthAction, CompanyAuthRequest}
 import akka.actor.ActorRef
-import config.{GoogleAnalyticsConfig, ServiceConfig}
+import config.{PageConfig, ServiceConfig}
 import forms.report.{ReportFormModel, ReportReviewModel, Validations}
 import models.{CompaniesHouseId, ReportId}
 import org.joda.time.format.DateTimeFormat
@@ -41,7 +41,7 @@ class FilingController @Inject()(
                                   companyAuth: CompanyAuthService,
                                   CompanyAuthAction: CompanyAuthAction,
                                   serviceConfig: ServiceConfig,
-                                  val googleAnalytics: GoogleAnalyticsConfig,
+                                  val pageConfig: PageConfig,
                                   @Named("confirmation-actor") confirmationActor: ActorRef
                                 )(implicit ec: ExecutionContext, messages: MessagesApi) extends Controller with PageHelper {
 
@@ -103,7 +103,8 @@ class FilingController @Inject()(
   }
 
   private def createReport(companiesHouseId: CompaniesHouseId, report: ReportFormModel, review: ReportReviewModel)(implicit request: CompanyAuthRequest[_]): Future[ReportId] = {
-    val urlFunction: ReportId => String = (id: ReportId) => controllers.routes.SearchController.view(id).absoluteURL()
+
+    val urlFunction: ReportId => String = (id: ReportId) => controllers.routes.ReportController.view(id).absoluteURL()
     for {
       reportId <- reports.create(review.confirmedBy, companiesHouseId, request.companyDetail.companyName, report, review, request.emailAddress, urlFunction)
       _ <- Future.successful(confirmationActor ! 'poll)

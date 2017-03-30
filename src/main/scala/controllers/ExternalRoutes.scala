@@ -17,30 +17,28 @@
 
 package controllers
 
-import javax.inject.Inject
+import config.RoutesConfig
 
-import config.PageConfig
-import play.api.Logger
-import play.api.mvc.{Action, Controller}
+trait ExternalRouter {
+  def root: String
 
-class HomeController @Inject()(val pageConfig: PageConfig) extends Controller with PageHelper {
+  def search(): String
+}
 
-  private val pateTitle = "Report on payment practices"
+class ExternalRoutes(routesConfig: RoutesConfig) {
+  val HerokuPattern = "beis-ppr-(.*)".r
 
-  def index = Action { implicit request =>
-    Logger.debug(request.host)
-    Logger.debug(request.domain)
-    Ok(page(pateTitle)(views.html.index()))
-  }
+  private val searchPath = "search"
 
-  def start = Action { implicit request =>
-    Ok(page(pateTitle)(views.html.start()))
-  }
+  def apply(requestHostname: String) = new ExternalRouter {
+    override val root = routesConfig.searchHost match {
+      case Some(hostname) => s"https://$hostname"
+      case None => requestHostname match {
+        case HerokuPattern(environment) => s"https://beis-spp-$environment"
+        case _ => s"http://localhost:9001"
+      }
+    }
 
-  /**
-    * See https://www.gov.uk/service-manual/technology/managing-domain-names#using-robotstxt-and-root-level-redirections
-    */
-  def robots = Action {
-    Ok("User-agent: * Disallow: /")
+    override def search(): String = s"$root/$searchPath"
   }
 }
