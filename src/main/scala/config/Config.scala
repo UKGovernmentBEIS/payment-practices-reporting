@@ -54,7 +54,11 @@ object ServiceConfig {
   val defaultServiceStartDate = new LocalDate(2017, 4, 6)
 }
 
-case class RoutesConfig(searchHost: String)
+case class RoutesConfig(searchHost: Option[String])
+
+object RoutesConfig {
+  val empty = RoutesConfig(None)
+}
 
 case class PageConfig(googleAnalytics: GoogleAnalyticsConfig, searchConfig: RoutesConfig)
 
@@ -95,7 +99,7 @@ class AppConfig @Inject()(configuration: Configuration) {
   val googleAnalytics: GoogleAnalyticsConfig = load[GoogleAnalyticsConfig]("googleAnalytics").getOrElse(GoogleAnalyticsConfig(None))
   val routesConfig: Option[RoutesConfig] = load[RoutesConfig]("externalRouter")
 
-  val pageConfig = PageConfig(googleAnalytics, routesConfig.getOrElse(RoutesConfig("localhost:9001")))
+  val pageConfig = PageConfig(googleAnalytics, routesConfig.getOrElse(RoutesConfig.empty))
 
   val config = Config(service, companiesHouse, notifyService, oAuth, sessionTimeoutInMinutes, logAssets, logRequests, printDBTables, pageConfig)
 
