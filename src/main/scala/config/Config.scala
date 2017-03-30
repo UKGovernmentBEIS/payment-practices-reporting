@@ -95,7 +95,7 @@ class AppConfig @Inject()(configuration: Configuration) {
   val googleAnalytics: GoogleAnalyticsConfig = load[GoogleAnalyticsConfig]("googleAnalytics").getOrElse(GoogleAnalyticsConfig(None))
   val routesConfig: Option[RoutesConfig] = load[RoutesConfig]("externalRouter")
 
-  val pageConfig = PageConfig(googleAnalytics, routesConfig.getOrElse(RoutesConfig("http://localhost:9001")))
+  val pageConfig = PageConfig(googleAnalytics, routesConfig.getOrElse(RoutesConfig("localhost:9001")))
 
   val config = Config(service, companiesHouse, notifyService, oAuth, sessionTimeoutInMinutes, logAssets, logRequests, printDBTables, pageConfig)
 

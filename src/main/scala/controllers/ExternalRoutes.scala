@@ -33,7 +33,8 @@ class ExternalRoutes (searchConfig: RoutesConfig) {
   def apply(hostname: String) = new ExternalRouter {
     val root = hostname match {
       case HerokuPattern(environment) => s"https://beis-spp-$environment"
-      case _ => searchConfig.searchHost
+      case _ if searchConfig.searchHost.startsWith("localhost") => s"http://${searchConfig.searchHost}"
+      case _ => s"https://${searchConfig.searchHost}"
     }
 
     override def search(): String = s"$root/$searchPath"
