@@ -21,7 +21,7 @@ import javax.inject.Inject
 
 import cats.data.OptionT
 import cats.instances.future._
-import config.{GoogleAnalyticsConfig, PageConfig}
+import config.PageConfig
 import controllers.PageHelper
 import models.CompaniesHouseId
 import org.joda.time.LocalDateTime

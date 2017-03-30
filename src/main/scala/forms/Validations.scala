@@ -17,10 +17,10 @@
 
 package forms
 
-import org.scalactic.TripleEquals._
 import calculator.FinancialYear
 import forms.report.ReportConstants
 import org.joda.time.LocalDate
+import org.scalactic.TripleEquals._
 import play.api.data.Forms._
 import play.api.data.validation._
 import play.api.data.{FormError, Forms, Mapping}

@@ -17,7 +17,7 @@
 
 import javax.inject._
 
-import config.{GoogleAnalyticsConfig, PageConfig}
+import config.PageConfig
 import controllers.PageHelper
 import org.scalactic.TripleEquals._
 import play.api._
