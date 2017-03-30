@@ -20,12 +20,12 @@ package actions
 import javax.inject.Inject
 
 import play.api.mvc.Results.Redirect
-import play.api.mvc.{ActionBuilder, Request, Result}
+import play.api.mvc.{ActionBuilder, Request, Result, WrappedRequest}
 import services.{SessionId, SessionService}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-case class SessionRequest[A](sessionId: SessionId, request: Request[A])
+case class SessionRequest[A](sessionId: SessionId, request: Request[A]) extends WrappedRequest[A](request)
 
 /**
   * This action checks for a `sessionId` attribute on the Play session. If none is found then an id is created (as a UUID).
@@ -36,6 +36,7 @@ case class SessionRequest[A](sessionId: SessionId, request: Request[A])
   * session has timed out and the user is redirected to an appropriate error page.
   */
 class SessionAction @Inject()(sessionService: SessionService)(implicit ec: ExecutionContext) extends ActionBuilder[SessionRequest] {
+
   import SessionAction.sessionIdKey
 
   override def invokeBlock[A](request: Request[A], block: (SessionRequest[A]) => Future[Result]): Future[Result] = {

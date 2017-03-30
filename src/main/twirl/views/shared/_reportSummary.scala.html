@@ -3,7 +3,7 @@
 @(report: FiledReport, companiesHouseIdentifier: String, df: DateTimeFormatter)
 <li class="searchresult">
     <h2 class="heading-medium">
-        <a href="@routes.SearchController.view(report.header.id)">
+        <a href="@routes.ReportController.view(report.header.id)">
             <span class="nowrap">@df.print(report.period.startDate)</span> to <span class="nowrap">@df.print(report.period.endDate)</span>
         </a>
     </h2>

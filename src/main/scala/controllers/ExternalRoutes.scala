@@ -17,30 +17,16 @@
 
 package controllers
 
-import javax.inject.Inject
+import config.SearchConfig
 
-import config.GoogleAnalyticsConfig
-import play.api.Logger
-import play.api.mvc.{Action, Controller}
+trait ExternalRoutes {
+  def search(): String
+}
 
-class HomeController @Inject()(val googleAnalytics: GoogleAnalyticsConfig) extends Controller with PageHelper {
+object ExternalRoutes {
+  def forHost(host: String): ExternalRoutes = new ExternalRoutes {
+    val router = SearchConfig.fromHostname(host)
 
-  private val pateTitle = "Report on payment practices"
-
-  def index = Action { implicit request =>
-    Logger.debug(request.host)
-    Logger.debug(request.domain)
-    Ok(page(pateTitle)(views.html.index()))
-  }
-
-  def start = Action { implicit request =>
-    Ok(page(pateTitle)(views.html.start()))
-  }
-
-  /**
-    * See https://www.gov.uk/service-manual/technology/managing-domain-names#using-robotstxt-and-root-level-redirections
-    */
-  def robots = Action {
-    Ok("User-agent: * Disallow: /")
+    override def search(): String = router.searchUrl
   }
 }

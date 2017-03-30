@@ -29,11 +29,11 @@ import services.{FiledReport, ReportService}
 
 class DownloadController @Inject()(reportRepo: ReportService, val googleAnalytics: GoogleAnalyticsConfig) extends Controller with PageHelper {
 
-  def show = Action {
+  def show = Action { implicit request =>
     Ok(page("Export data for published reports")(home, views.html.download.accessData()))
   }
 
-  def export = Action { request =>
+  def export = Action { implicit request =>
     val disposition = ("Content-Disposition", "attachment;filename=payment-practices.csv")
 
     val publisher = reportRepo.list(LocalDate.now().minusMonths(24))

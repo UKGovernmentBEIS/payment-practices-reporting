@@ -72,7 +72,7 @@ class CompanyAuthAction @Inject()(
       (SessionAction andThen refiner(expectedId)).invokeBlock(request, block)
   }
 
-  def forbidden(message: String) = {
+  def forbidden(message: String)(implicit request: RequestHeader) = {
     Logger.info(s"User not authorised to access page: $message")
     Forbidden(page("Not authorised")(home, views.html.errors.forbidden403(message)))
   }
@@ -80,6 +80,7 @@ class CompanyAuthAction @Inject()(
   def refiner(expectedId: CompaniesHouseId): ActionRefiner[SessionRequest, CompanyAuthRequest] = new ActionRefiner[SessionRequest, CompanyAuthRequest] {
 
     override protected def refine[A](request: SessionRequest[A]): Future[Either[Result, CompanyAuthRequest[A]]] = {
+      implicit val rh: RequestHeader = request
       val sessionDetails = for {
         sessionDetails <- OptionT(sessionService.get[SessionDetails](request.sessionId))
         freshToken <- OptionT.liftF(freshenToken(request.sessionId, sessionDetails.oAuthToken))

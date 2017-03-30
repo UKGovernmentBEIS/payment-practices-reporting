@@ -20,19 +20,29 @@ package controllers
 import config.GoogleAnalyticsConfig
 import org.scalactic.TripleEquals._
 import play.api.data.Form
-import play.api.mvc.Call
+import play.api.mvc.{Call, RequestHeader}
 import play.twirl.api.Html
 
 import scala.collection.immutable
 
 case class Breadcrumb(href: Call, name: String)
 
+case class PageContext(googleAnalyticsConfig: GoogleAnalyticsConfig, externalRoutes: ExternalRoutes)
+
 trait PageHelper {
   def googleAnalytics: GoogleAnalyticsConfig
 
-  def page(title: String)(contents: Html*): Html = {
+  implicit def er(implicit request: RequestHeader): ExternalRoutes = {
+    ExternalRoutes.forHost(request.host)
+  }
+
+  implicit def pc(implicit externalRoutes: ExternalRoutes): PageContext = {
+    PageContext(googleAnalytics, externalRoutes)
+  }
+
+  def page(title: String)(contents: Html*)(implicit pageContext: PageContext): Html = {
     val content = html(contents: _*)
-    views.html.templates.govukTemplateDefaults(title)(content)(googleAnalytics.code)
+    views.html.templates.govukTemplateDefaults(title)(content)(pageContext)
   }
 
   def html(contents: Html*): Html = {

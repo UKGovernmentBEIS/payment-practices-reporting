@@ -1,3 +1,5 @@
+@(externalRoutes: ExternalRoutes)
+
 <div class="footer-categories">
     <div class="footer-explore grid-row">
         <div class="column-half">
@@ -5,7 +7,7 @@
                 Read reports
             </h3>
             <ul class="list">
-                <li><a href="@controllers.routes.SearchController.search(None, None, None)">Search for a report</a></li>
+                <li><a href="@externalRoutes.search()">Search for a report</a></li>
             </ul>
         </div>
         <div class="column-half">

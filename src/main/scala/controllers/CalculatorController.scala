@@ -26,13 +26,13 @@ import forms.Validations.dateRange
 import org.joda.time.format.DateTimeFormat
 import play.api.data.Form
 import play.api.i18n.MessagesApi
-import play.api.mvc.{Action, Controller}
+import play.api.mvc.{Action, Controller, RequestHeader}
 
-class CalculatorController @Inject()(implicit messages: MessagesApi,  val googleAnalytics: GoogleAnalyticsConfig) extends Controller with PageHelper {
+class CalculatorController @Inject()(implicit messages: MessagesApi, val googleAnalytics: GoogleAnalyticsConfig) extends Controller with PageHelper {
 
   import CalculatorController._
 
-  def calculatorPage(form: Form[DateRange]) = page("Calculate reporting periods and deadlines")(home, views.html.calculator.calculator(form))
+  def calculatorPage(form: Form[DateRange])(implicit rh: RequestHeader) = page("Calculate reporting periods and deadlines")(home, views.html.calculator.calculator(form))
 
   def start = Action { implicit request =>
     Ok(calculatorPage(emptyForm))

@@ -1,4 +1,4 @@
-@(htmlTitle: String)(content: Html)(gaCode: Option[String])
+@(htmlTitle: String)(content: Html)(implicit pageContext: PageContext)
 
 @head = {
 }
@@ -13,7 +13,7 @@
     bodyEnd = HtmlFormat.empty,
     insideHeader = HtmlFormat.empty,
     afterHeader = HtmlFormat.empty,
-    footerTop = shared._footer(),
+    footerTop = shared._footer(pageContext.externalRoutes),
     footerLinks = HtmlFormat.empty,
     headerClass = Html("with-proposition"),
     propositionHeader = Html("<div class=\"header-proposition\"><div class=\"content\"><nav id=\"proposition-menu\"><a id=\"proposition-name\" href=\"/\">"
@@ -43,7 +43,7 @@
         </div>
         @content
     </main>
-    @gaCode.map { code =>
+    @pageContext.googleAnalyticsConfig.code.map { code =>
         <script>
                 (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
                             (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
