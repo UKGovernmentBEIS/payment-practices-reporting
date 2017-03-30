@@ -63,8 +63,7 @@ class Module(environment: Environment, configuration: Configuration) extends Abs
       .annotatedWith(Names.named("session timeout"))
       .toInstance(config.sessionTimeoutInMinutes.getOrElse(60))
 
-    bind(classOf[GoogleAnalyticsConfig])
-      .toInstance(config.googleAnalytics.getOrElse(GoogleAnalyticsConfig.empty))
+    bind(classOf[PageConfig]).toInstance(config.pageConfig)
 
     bind(classOf[ServiceConfig])
       .toInstance(config.service.getOrElse(ServiceConfig.empty))

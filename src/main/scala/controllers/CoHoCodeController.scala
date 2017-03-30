@@ -19,12 +19,12 @@ package controllers
 
 import javax.inject.Inject
 
-import config.GoogleAnalyticsConfig
+import config.PageConfig
 import controllers.CoHoCodeController.CodeOption.{Colleague, Register}
 import models.CompaniesHouseId
 import play.api.data.Forms.single
 import play.api.data.{Form, FormError, Forms}
-import play.api.i18n.{Lang, MessagesApi}
+import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, Controller, RequestHeader, Result}
 import play.twirl.api.Html
 import services.{CompanyAuthService, CompanySearchService, ReportService}
@@ -36,7 +36,7 @@ class CoHoCodeController @Inject()(
                                     companyAuth: CompanyAuthService,
                                     val companySearch: CompanySearchService,
                                     val reportService: ReportService,
-                                    val googleAnalytics: GoogleAnalyticsConfig
+                                    val pageConfig: PageConfig
                                   )(implicit val ec: ExecutionContext, messages: MessagesApi)
   extends Controller
     with PageHelper

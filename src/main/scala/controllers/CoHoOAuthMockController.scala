@@ -23,7 +23,7 @@ import actions.CompanyAuthAction.{companyDetailsKey, emailAddressKey, oAuthToken
 import actions.SessionAction
 import cats.data.OptionT
 import cats.instances.future._
-import config.GoogleAnalyticsConfig
+import config.PageConfig
 import models.CompaniesHouseId
 import org.joda.time.LocalDateTime
 import play.api.mvc.{Action, Controller}
@@ -36,7 +36,7 @@ class CoHoOAuthMockController @Inject()(
                                          companyAuth: CompanyAuthService,
                                          sessionService: SessionService,
                                          SessionAction: SessionAction,
-                                         val googleAnalytics: GoogleAnalyticsConfig)
+                                         val pageConfig: PageConfig)
                                        (implicit ec: ExecutionContext) extends Controller with PageHelper {
 
   def login(companiesHouseId: CompaniesHouseId) = Action {

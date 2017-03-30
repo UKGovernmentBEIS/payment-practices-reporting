@@ -17,16 +17,25 @@
 
 package controllers
 
-import config.SearchConfig
+import javax.inject.Inject
 
-trait ExternalRoutes {
+import config.RoutesConfig
+
+trait ExternalRouter {
   def search(): String
 }
 
-object ExternalRoutes {
-  def forHost(host: String): ExternalRoutes = new ExternalRoutes {
-    val router = SearchConfig.fromHostname(host)
+class ExternalRoutes (searchConfig: RoutesConfig) {
+  val HerokuPattern = "beis-ppr-(.*)".r
 
-    override def search(): String = router.searchUrl
+  private val searchPath = "search"
+
+  def apply(hostname: String) = new ExternalRouter {
+    val root = hostname match {
+      case HerokuPattern(environment) => s"https://beis-spp-$environment"
+      case _ => searchConfig.searchHost
+    }
+
+    override def search(): String = s"$root/$searchPath"
   }
 }

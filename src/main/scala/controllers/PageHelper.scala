@@ -17,7 +17,7 @@
 
 package controllers
 
-import config.GoogleAnalyticsConfig
+import config.{GoogleAnalyticsConfig, PageConfig}
 import org.scalactic.TripleEquals._
 import play.api.data.Form
 import play.api.mvc.{Call, RequestHeader}
@@ -27,17 +27,18 @@ import scala.collection.immutable
 
 case class Breadcrumb(href: Call, name: String)
 
-case class PageContext(googleAnalyticsConfig: GoogleAnalyticsConfig, externalRoutes: ExternalRoutes)
+case class PageContext(googleAnalyticsConfig: GoogleAnalyticsConfig, externalRouter: ExternalRouter)
 
 trait PageHelper {
-  def googleAnalytics: GoogleAnalyticsConfig
+  def pageConfig: PageConfig
 
-  implicit def er(implicit request: RequestHeader): ExternalRoutes = {
-    ExternalRoutes.forHost(request.host)
+
+  implicit def er(implicit request: RequestHeader): ExternalRouter = {
+    new ExternalRoutes(pageConfig.searchConfig).apply(request.host)
   }
 
-  implicit def pc(implicit externalRoutes: ExternalRoutes): PageContext = {
-    PageContext(googleAnalytics, externalRoutes)
+  implicit def pc(implicit externalRouter: ExternalRouter): PageContext = {
+    PageContext(pageConfig.googleAnalytics, externalRouter)
   }
 
   def page(title: String)(contents: Html*)(implicit pageContext: PageContext): Html = {

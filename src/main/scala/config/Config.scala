@@ -54,16 +54,20 @@ object ServiceConfig {
   val defaultServiceStartDate = new LocalDate(2017, 4, 6)
 }
 
+case class RoutesConfig(searchHost: String)
+
+case class PageConfig(googleAnalytics: GoogleAnalyticsConfig, searchConfig: RoutesConfig)
+
 case class Config(
                    service: Option[ServiceConfig],
                    companiesHouse: Option[CompaniesHouseConfig],
                    notifyService: Option[NotifyConfig],
                    oAuth: Option[OAuthConfig],
-                   googleAnalytics: Option[GoogleAnalyticsConfig],
                    sessionTimeoutInMinutes: Option[Int],
                    logAssets: Option[Boolean],
                    logRequests: Option[Boolean],
-                   printDBTables: Option[Boolean]
+                   printDBTables: Option[Boolean],
+                   pageConfig: PageConfig
                  )
 
 @Singleton
@@ -83,13 +87,17 @@ class AppConfig @Inject()(configuration: Configuration) {
   val companiesHouse: Option[CompaniesHouseConfig] = load[CompaniesHouseConfig]("companiesHouse")
   val notifyService: Option[NotifyConfig] = load[NotifyConfig]("notifyService")
   val oAuth: Option[OAuthConfig] = load[OAuthConfig]("oAuth")
-  val googleAnalytics: Option[GoogleAnalyticsConfig] = load[GoogleAnalyticsConfig]("googleAnalytics")
   val sessionTimeoutInMinutes: Option[Int] = load[Int]("sessionTimeoutInMinutes")
   val logAssets: Option[Boolean] = load[Boolean]("logAssets")
   val logRequests: Option[Boolean] = load[Boolean]("logRequests")
   val printDBTables: Option[Boolean] = load[Boolean]("printDBTables")
 
-  val config = Config(service, companiesHouse, notifyService, oAuth, googleAnalytics, sessionTimeoutInMinutes, logAssets, logRequests, printDBTables)
+  val googleAnalytics: GoogleAnalyticsConfig = load[GoogleAnalyticsConfig]("googleAnalytics").getOrElse(GoogleAnalyticsConfig(None))
+  val routesConfig: Option[RoutesConfig] = load[RoutesConfig]("externalRouter")
+
+  val pageConfig = PageConfig(googleAnalytics, routesConfig.getOrElse(RoutesConfig("http://localhost:9001")))
+
+  val config = Config(service, companiesHouse, notifyService, oAuth, sessionTimeoutInMinutes, logAssets, logRequests, printDBTables, pageConfig)
 
   Logger.debug(s"Config is $config")
 }
