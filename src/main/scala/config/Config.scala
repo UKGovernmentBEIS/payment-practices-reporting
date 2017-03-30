@@ -21,7 +21,7 @@ import javax.inject.{Inject, Singleton}
 
 import org.joda.time.LocalDate
 import org.joda.time.format.DateTimeFormat
-import play.api.{Configuration, Logger}
+import play.api.Configuration
 
 import scala.util.Try
 
@@ -102,6 +102,4 @@ class AppConfig @Inject()(configuration: Configuration) {
   val pageConfig = PageConfig(googleAnalytics, routesConfig.getOrElse(RoutesConfig.empty))
 
   val config = Config(service, companiesHouse, notifyService, oAuth, sessionTimeoutInMinutes, logAssets, logRequests, printDBTables, pageConfig)
-
-  Logger.debug(s"Config is $config")
 }

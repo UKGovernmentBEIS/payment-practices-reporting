@@ -50,7 +50,6 @@ class VisualTestController @Inject()(
   def show = Action { implicit request =>
     val df = CalculatorController.df
     val index = views.html.index()
-    val download = views.html.download.accessData()
     val qStart = views.html.questionnaire.start()
     val reasons = Seq("reason.firstyear", "reason.company.notlargeenough", "reason.group.notlargeenough")
     val exempts = views.html.questionnaire.notACompany("reason.notacompany") +: reasons.map(views.html.questionnaire.exempt(_))
@@ -107,7 +106,7 @@ class VisualTestController @Inject()(
     )
 
     val content: Seq[Html] = (
-      Seq(index, download, qStart)
+      Seq(index, qStart)
         ++ questionPages
         ++ exempts
         ++ requireds

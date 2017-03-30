@@ -17,10 +17,6 @@ POST        /decide/questions                               controllers.Question
 GET         /deadlines                                      controllers.CalculatorController.start()
 POST        /deadlines                                      controllers.CalculatorController.calculate()
 
-
-GET         /download-payment-practice-data                 controllers.DownloadController.show
-GET         /download-payment-practice-data/export          controllers.DownloadController.export
-
 GET         /publish                                        controllers.ReportController.search(q:Option[String], page:Option[Int], items_per_page:Option[Int])
 GET         /publish/company/:id/start                      controllers.ReportController.start(id:CompaniesHouseId)
 GET         /publish/company/:id/pre-login                  controllers.ReportController.preLogin(id:CompaniesHouseId)
