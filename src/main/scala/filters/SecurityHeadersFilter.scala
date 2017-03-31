@@ -22,7 +22,7 @@ import javax.inject.Inject
 import akka.stream.Materializer
 import org.scalactic.TripleEquals._
 import play.api.mvc.{Filter, RequestHeader, Result}
-import play.api.{Environment, Logger, Mode}
+import play.api.{Environment, Mode}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -30,7 +30,6 @@ class SecurityHeadersFilter @Inject()(env: Environment)(implicit val mat: Materi
 
   override def apply(next: (RequestHeader) => Future[Result])(rh: RequestHeader): Future[Result] = {
     if (env.mode === Mode.Prod) {
-      Logger.debug("adding security headers")
       next(rh).map { result =>
         result.withHeaders(
           "X-XSS-Protection" -> "1; mode=block",
@@ -40,7 +39,6 @@ class SecurityHeadersFilter @Inject()(env: Environment)(implicit val mat: Materi
         )
       }
     } else {
-      Logger.debug("not adding security headers")
       next(rh)
     }
 
