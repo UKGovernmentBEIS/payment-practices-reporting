@@ -18,6 +18,7 @@
                     <div class="form-group">
                         <fieldset class='@(if(dateForm.hasErrors) "error" else "")'>
                             <p class="heading-small">What is the start date of your financial year?</p>
+                            <p class="form-hint">This could be your current financial year, or a future financial year.</p>
                             @dateForm.error("startDate").map { err =>
                                 <span id="error-startDate" class="error-message">@messages(err.message)</span>
                             }

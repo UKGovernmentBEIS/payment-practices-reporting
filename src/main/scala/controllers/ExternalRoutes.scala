@@ -23,12 +23,15 @@ trait ExternalRouter {
   def root: String
 
   def search(): String
+
+  def download(): String
 }
 
 class ExternalRoutes(routesConfig: RoutesConfig) {
   val HerokuPattern = "beis-ppr-(.*)".r
 
   private val searchPath = "search"
+  private val downloadPath = "export"
 
   def apply(requestHostname: String) = new ExternalRouter {
     override val root = routesConfig.searchHost match {
@@ -40,5 +43,7 @@ class ExternalRoutes(routesConfig: RoutesConfig) {
     }
 
     override def search(): String = s"$root/$searchPath"
+
+    override def download(): String = s"$root/$downloadPath"
   }
 }

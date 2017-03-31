@@ -19,26 +19,26 @@
     <div class="panel left-align">
         <h3 class="bold-medium">You need to report on your payment practices and performance.</h3>
 
-    <p>
-        This is because you told us that your business is a company incorporated in the UK or limited liability partnership registered in the UK and:
-    </p>
-
-    <ul class="list list-bullet">
-    @messageGroup1.map { s =>
-        <li class="reason">@s</li>
-    }
-    </ul>
-
-    @if(messageGroup2.nonEmpty) {
         <p>
-            You also told us that your business has subsidiaries and that together the group:
+            This is because you told us that your business is a company incorporated in the UK or limited liability partnership registered in the UK and:
         </p>
+
         <ul class="list list-bullet">
-        @messageGroup2.map { s =>
+        @messageGroup1.map { s =>
             <li class="reason">@s</li>
         }
         </ul>
-    }
+
+        @if(messageGroup2.nonEmpty) {
+            <p>
+                You also told us that your business has subsidiaries and that together the group:
+            </p>
+            <ul class="list list-bullet">
+            @messageGroup2.map { s =>
+                <li class="reason">@s</li>
+            }
+            </ul>
+        }
     </div>
     <form method="GET" action="@routes.CalculatorController.start()">
         <input type="submit" class="button button-start" value="Find out how to report">
@@ -51,10 +51,18 @@
     <details>
         <summary>What if my financial year is not 12 months?</summary>
         <div>
-            <p>If you have shortened your accounting period to 9 months or less, you will only need to report once for that
-                financial year. If you have extended your accounting period to more than 15 months, you will need to report 3
+            <p>
+                If your financial year is shorter or longer than twelve months by a few days or weeks, your second
+                reporting period in a financial year may be slightly shorter or longer than six months as it will cover
+                the remainder of the financial year. There are different rules if your financial year is 9 months or
+                less or more than 15 months.
+            </p>
+            <p>
+                If you have shortened your accounting period to 9 months or less, you will only need to report once for that
+                financial year. If you have extended your accounting reference period to more than 15 months, you will need to report 3
                 times, with the second report covering months 7 to 12 of your financial year, and the third report covering
-                the remainder of the financial year.</p>
+                the remainder of the financial year.
+            </p>
         </div>
     </details>
 </div>
