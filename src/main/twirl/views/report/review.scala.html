@@ -6,58 +6,49 @@
         df: org.joda.time.format.DateTimeFormatter,
         mapping: Mapping[forms.report.ReportFormModel])(implicit messagesApi: MessagesApi)
 
-    @import helpers.ReviewPageData
-    @import shared._textField
+    @checked(field: Field) = @{
+        if(field.value.contains("true")) "checked" else ""
+    }
 
-<div id="contentStart" class="scannable-wrapper">
-    <h1 class="heading-xlarge">Check your report before publishing</h1>
-    <div class="notice">
-        <i class="icon icon-important"><span class="visually-hidden">Warning</span></i>
-        <strong>If your report is incorrect or misleading, you could face prosecution and a fine.</strong>
-    </div>
-
-    @if(review.hasErrors) {
-        <div class="error-summary" role="group" aria-labelledby="error-summary-heading" tabindex="-1">
-            <h1 class="heading-medium error-summary-heading" id="error-summary-heading">
-                You need to confirm this report before publishing it
-            </h1>
-            <p>Please confirm this report by ticking the checkbox below and providing the name of a director who has approved the report.</p>
+    <div id="contentStart">
+        <h1 class="heading-xlarge">Check your report before publishing</h1>
+        <div class="notice">
+            <i class="icon icon-important"><span class="visually-hidden">Warning</span></i>
+            <strong>If your report is incorrect or misleading, you could face prosecution and a fine.</strong>
         </div>
-        @review.errors.map { e =>
-            @e
-        }
-    }
 
-    @for((cssClass, rows) <- ReviewPageData.groups(companyName, report)) {
-        <table class="@cssClass">
-        @for((name, value) <- rows) {
-            <tr>
-                <td class="key-column"> @name</td>
-                <td>@value</td>
-            </tr>
-        }
-        </table>
-    }
+        @shared._errorBox(review)
 
-    <form action="@routes.FilingController.postReview(id)" method="POST">
-        @for((k, v) <- mapping.unbind(report)) {
-            <input type="hidden" name='@k' value="@HtmlFormat.escape(v)">
-        }
+        <div class="scannable-wrapper">
 
-        @_textField(review, "confirmedBy")
-        <fieldset class='confirmation form-group'>
-            <h3 class="bold-medium">Confirm this statement then publish your report</h3>
+            @for((cssClass, rows) <- helpers.ReviewPageData.groups(companyName, report)) {
+                <table class="@cssClass">
+                @for((name, value) <- rows) {
+                    <tr>
+                        <td class="key-column"> @name</td>
+                        <td>@value</td>
+                    </tr>
+                }
+                </table>
+            }
 
-            <span class="error-message">You must tick the checkbox to proceed.</span>
+        <form action="@routes.FilingController.postReview(id)" method="POST">
+            @for((k, v) <- mapping.unbind(report)) {
+                <input type="hidden" name='@k' value="@HtmlFormat.escape(v)">
+            }
 
-            <label class="block-label" for="confirmed">
-                <input type="checkbox" name="confirmed" id="confirmed" value="true">
-                I confirm that the information provided in this report is accurate and has been approved by a director of my company or a designated member of my limited liability partnership.
-            </label>
+            @shared._textField(review, "confirmedBy")
+            <fieldset class='confirmation form-group'>
+                <h3 class="bold-medium">Confirm this statement then publish your report</h3>
+                <span id="error-confirmed" class="error-message">@errorMessage(review("confirmed"))</span>
+                <label class="block-label" for="confirmed">
+                    <input type="checkbox" name="confirmed" id="confirmed" value="true" @checked(review("confirmed"))>
+                    I confirm that the information provided in this report is accurate and has been approved by a director of my company or a designated member of my limited liability partnership.
+                </label>
+            </fieldset>
+            <input type="submit" class="button" value="Publish your report">
+            <input type="submit" name="revise" class="button button-secondary" value="Revise">
 
-        </fieldset>
-        <input type="submit" class="button" value="Publish your report">
-        <input type="submit" name="revise" class="button button-secondary" value="Revise">
-
-    </form>
-</div>
+            </form>
+        </div>
+    </div>

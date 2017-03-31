@@ -103,8 +103,8 @@ class Validations @Inject()(timeSource: TimeSource, serviceConfig: ServiceConfig
   )(ReportFormModel.apply)(ReportFormModel.unapply)
 
   val reportReviewModel = mapping(
-    "confirmed" -> boolean,
-    "confirmedBy" -> nonEmptyText(maxLength = 255)
+    "confirmedBy" -> nonEmptyText(maxLength = 255),
+  "confirmed" -> checked("error.confirm")
   )(ReportReviewModel.apply)(ReportReviewModel.unapply)
 }
 

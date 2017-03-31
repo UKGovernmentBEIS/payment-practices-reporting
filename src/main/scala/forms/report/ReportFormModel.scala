@@ -155,8 +155,8 @@ object ReportFormModel {
 }
 
 case class ReportReviewModel(
-                              confirmed: Boolean,
-                              confirmedBy: String
+                              confirmedBy: String,
+                              confirmed: Boolean
                             )
 
 

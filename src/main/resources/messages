@@ -169,3 +169,6 @@ error.minWords.description=Please provide an answer for "{1}"
 
 error.needchoicetocontinue=You need to choose an option to continue.
 error.needchoicetocontinue.description=You need to choose an option to continue.
+
+error.confirm=You must tick this checkbox to proceed.
+error.confirm.description=You must tick this checkbox to proceed.
