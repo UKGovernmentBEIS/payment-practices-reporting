@@ -54,13 +54,19 @@ object ServiceConfig {
   val defaultServiceStartDate = new LocalDate(2017, 4, 6)
 }
 
+case class SurveyMonkeyConfig(feedbackFormCode: Option[String])
+
+object SurveyMonkeyConfig {
+  val empty = SurveyMonkeyConfig(None)
+}
+
 case class RoutesConfig(searchHost: Option[String])
 
 object RoutesConfig {
   val empty = RoutesConfig(None)
 }
 
-case class PageConfig(googleAnalytics: GoogleAnalyticsConfig, searchConfig: RoutesConfig)
+case class PageConfig(googleAnalytics: GoogleAnalyticsConfig, searchConfig: RoutesConfig, surveyMonkeyConfig: SurveyMonkeyConfig)
 
 case class Config(
                    service: Option[ServiceConfig],
@@ -97,9 +103,10 @@ class AppConfig @Inject()(configuration: Configuration) {
   val printDBTables: Option[Boolean] = load[Boolean]("printDBTables")
 
   val googleAnalytics: GoogleAnalyticsConfig = load[GoogleAnalyticsConfig]("googleAnalytics").getOrElse(GoogleAnalyticsConfig(None))
-  val routesConfig: Option[RoutesConfig] = load[RoutesConfig]("externalRouter")
+  val routesConfig: RoutesConfig = load[RoutesConfig]("externalRouter").getOrElse(RoutesConfig.empty)
+  val surveyMonkeyConfig: SurveyMonkeyConfig = load[SurveyMonkeyConfig]("surveyMonkey").getOrElse(SurveyMonkeyConfig.empty)
 
-  val pageConfig = PageConfig(googleAnalytics, routesConfig.getOrElse(RoutesConfig.empty))
+  val pageConfig = PageConfig(googleAnalytics, routesConfig, surveyMonkeyConfig)
 
   val config = Config(service, companiesHouse, notifyService, oAuth, sessionTimeoutInMinutes, logAssets, logRequests, printDBTables, pageConfig)
 }

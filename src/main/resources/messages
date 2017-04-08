@@ -142,7 +142,9 @@ error.number=Please enter a whole number
 error.number.description=Please provide an answer for "{0}"
 
 error.min=Please enter {0} or greater
+error.min.description=Please enter {0} or greater
 error.max=Please enter {0} or less
+error.max.description=Please enter {0} or less
 
 error.percentage=This should be a number between 0 and 100
 error.percentage.description={0} should be a number between 0 and 100
