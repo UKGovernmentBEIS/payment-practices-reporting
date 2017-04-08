@@ -113,7 +113,9 @@ class FilingController @Inject()(
 
   def showConfirmation(reportId: ReportId) = Action.async { implicit request =>
     reports.findFiled(reportId).map {
-      case Some(report) => Ok(page(s"You have published a report for ${report.header.companyName}")(home, pages.filingSuccess(reportId, report.filing.confirmationEmailAddress)))
+      case Some(report) => Ok(
+        page(s"You have published a report for ${report.header.companyName}")
+        (home, pages.filingSuccess(reportId, report.filing.confirmationEmailAddress, pageConfig.surveyMonkeyConfig)))
       case None => BadRequest(s"Could not find a report with id ${reportId.id}")
     }
   }

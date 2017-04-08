@@ -20,7 +20,7 @@ package controllers
 import javax.inject.Inject
 
 import calculator.Calculator
-import config.{PageConfig, ServiceConfig}
+import config.{PageConfig, ServiceConfig, SurveyMonkeyConfig}
 import dbrows._
 import forms.report.{ReportFormModel, ReportReviewModel, Validations}
 import forms.{DateRange, Validations}
@@ -97,7 +97,7 @@ class VisualTestController @Inject()(
       views.html.report.file(header, emptyReport.fillAndValidate(ReportFormModel(unhealthyReport)), id, df, serviceStartDate)
     )
     val review = Seq(views.html.report.review(emptyReview, ReportFormModel(healthyReport), id, companyName, df, reportValidations.reportFormModel))
-    val published = Seq(views.html.report.filingSuccess(reportId, "foobar@example.com"))
+    val published = Seq(views.html.report.filingSuccess(reportId, "foobar@example.com", pageConfig.surveyMonkeyConfig))
     val errors = Seq(
       views.html.errors.sessionTimeout(),
       views.html.errors.error404(),

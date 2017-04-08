@@ -1,4 +1,4 @@
-@(reportId: ReportId, email: String)
+@(reportId: ReportId, email: String, surveyMonkeyConfig: config.SurveyMonkeyConfig)
 
 <div id="contentStart" class="scannable-wrapper">
     <div class="govuk-box-highlight">
@@ -15,8 +15,10 @@
         You can view your published report <a href="@routes.ReportController.view(reportId)">here</a>.
     </p>
 
-    <h3 class="heading-medium">Help us improve this service</h3>
-    <p>
-        Please <a rel="external" href="https://www.surveymonkey.co.uk/r/FCWW3MX">complete our feedback form.</a>
-    </p>
+    @surveyMonkeyConfig.feedbackFormCode.map { code =>
+        <h3 class="heading-medium">Help us improve this service</h3>
+        <p>
+            Please <a rel="external" href="https://www.surveymonkey.co.uk/r/@helper.urlEncode(code)">complete our feedback form.</a>
+        </p>
+    }
 </div>
