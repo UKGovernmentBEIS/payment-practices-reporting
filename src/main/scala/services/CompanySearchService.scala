@@ -23,7 +23,7 @@ import play.api.libs.json.Json
 
 import scala.concurrent.Future
 
-case class CompanySearchResult(companiesHouseId: CompaniesHouseId, companyName: String, companyAddress: String)
+case class CompanySearchResult(companiesHouseId: CompaniesHouseId, companyName: String, companyAddress: Option[String])
 
 case class CompanyDetail(companiesHouseId: CompaniesHouseId, companyName: String)
 
