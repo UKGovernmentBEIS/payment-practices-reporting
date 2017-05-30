@@ -160,7 +160,8 @@ class VisualTestController @Inject()(
     ReportPeriodRow(reportId, startDate, endDate, Yes),
     PaymentTermsRow(reportId, "payment terms", 30, 30, Some("Maximum period is very fair"), Some("Payment terms have changed"), Some("We told everyone"), Some("Other comments"), "Dispute resolution process is the best"),
     PaymentHistoryRow(reportId, 30, 10, 33, 33, 33),
-    OtherInfoRow(reportId, No, Yes, No, Yes, Some("Payment Practice Code")),
+    OtherInfoRow(reportId, No, Yes, No, Yes),
+    PaymentCodesRow(reportId, Some("Payment Practice Code")),
     FilingRow(reportId, LocalDate.now, "The big boss", "bigboss@thebigcompany.com")
   )
 
@@ -169,7 +170,8 @@ class VisualTestController @Inject()(
     ReportPeriodRow(reportId, startDate.plusYears(1), endDate.plusYears(1), Yes),
     PaymentTermsRow(reportId, "payment terms", -1, 200, Some("Maximum period is very fair"), Some("Payment terms have changed"), Some("We told everyone"), Some("Other comments"), "Dispute resolution process is the best"),
     PaymentHistoryRow(reportId, -1, 200, 20, 33, 33),
-    OtherInfoRow(reportId, No, Yes, No, Yes, Some("Payment Practice Code")),
+    OtherInfoRow(reportId, No, Yes, No, Yes),
+    PaymentCodesRow(reportId, Some("Payment Practice Code")),
     FilingRow(reportId, LocalDate.now, "The big boss", "bigboss@thebigcompany.com")
   )
 

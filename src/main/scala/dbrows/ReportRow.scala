@@ -70,9 +70,13 @@ case class OtherInfoRow(
                          offerEInvoicing: YesNo,
                          offerSupplyChainFinance: YesNo,
                          retentionChargesInPolicy: YesNo,
-                         retentionChargesInPast: YesNo,
-                         paymentCodes: Option[String]
+                         retentionChargesInPast: YesNo
                        )
+
+case class PaymentCodesRow(
+                            reportId: ReportId,
+                            paymentCodes: Option[String]
+                          )
 
 case class PaymentHistoryRow(
                               reportId: ReportId,

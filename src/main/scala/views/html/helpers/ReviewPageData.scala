@@ -64,13 +64,13 @@ object ReviewPageData extends HtmlHelpers {
   )
 
   def group1(companyName: String, reportingPeriod: ReportingPeriodFormModel, report: ReportFormModel): Seq[RowDescriptor] =
-    topLevelInfo(companyName, report) ++ reportingDateRows(reportingPeriod) ++ paymentHistoryRows(report)
+    topLevelInfo(companyName) ++ reportingDateRows(reportingPeriod) ++ paymentHistoryRows(report)
 
   def group2(r: ReportFormModel) = paymentTermsRows(r)
 
   def group3(r: ReportFormModel) = otherInfoRows(r)
 
-  def topLevelInfo(companyName: String, report: ReportFormModel): Seq[(String, Html)] = Seq(
+  def topLevelInfo(companyName: String): Seq[(String, Html)] = Seq(
     ("Company or limited liability partnership", companyName)
   )
 

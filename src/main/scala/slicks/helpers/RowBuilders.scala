@@ -54,9 +54,11 @@ trait RowBuilders {
       report.offerEInvoicing,
       report.offerSupplyChainFinancing,
       report.retentionChargesInPolicy,
-      report.retentionChargesInPast,
-      report.hasPaymentCodes.text
+      report.retentionChargesInPast
     )
+
+  def buildPaymentCodesRow(report: ReportFormModel, reportId: ReportId): PaymentCodesRow =
+    PaymentCodesRow(reportId, report.hasPaymentCodes.text)
 
   def buildFilingRow(review: ReportReviewModel, reportId: ReportId, confirmationEmail:String): FilingRow =
     FilingRow(reportId, new LocalDate(), review.confirmedBy, confirmationEmail)

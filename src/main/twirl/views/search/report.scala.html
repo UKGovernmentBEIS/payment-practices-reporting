@@ -92,7 +92,7 @@
     <span class="form-hint">
         For example, signatories to The Prompt Payment Code must commit to paying 95% of their invoices within 60 days.</span>
     <p>
-    @report.otherInfo.paymentCodes.map { text =>
+    @report.paymentCodes.paymentCodes.map { text =>
     <strong>Yes </strong> &ndash; @shared._multiline(text)
     }.getOrElse {
         <strong>No</strong>

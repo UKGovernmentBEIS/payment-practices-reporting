@@ -33,6 +33,7 @@ case class Report(
                    paymentTerms: Option[PaymentTermsRow],
                    paymentHistory: Option[PaymentHistoryRow],
                    otherInfo: Option[OtherInfoRow],
+                   paymentCodes: Option[PaymentCodesRow],
                    filing: Option[FilingRow]) {
   /**
     * If this report has been completed and filed then return Some `FiledReport`
@@ -43,8 +44,9 @@ case class Report(
     terms <- paymentTerms
     hist <- paymentHistory
     other <- otherInfo
+    codes <- paymentCodes
     f <- filing
-  } yield FiledReport(header, p, terms, hist, other, f)
+  } yield FiledReport(header, p, terms, hist, other, codes, f)
 
   def isFiled: Boolean = filed.isDefined
 }
@@ -55,6 +57,7 @@ case class FiledReport(
                         paymentTerms: PaymentTermsRow,
                         paymentHistory: PaymentHistoryRow,
                         otherInfo: OtherInfoRow,
+                        paymentCodes: PaymentCodesRow,
                         filing: FilingRow
                       )
 

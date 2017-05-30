@@ -62,12 +62,25 @@ trait ReportModule extends DBBinding {
     def offerSupplyChainFinance = column[YesNo]("offer_supply_chain_finance")
     def retentionChargesInPolicy = column[YesNo]("retention_charges_in_policy")
     def retentionChargesInPast = column[YesNo]("retention_charges_in_past")
-    def paymentCodes = column[Option[String]]("payment_codes", O.Length(paymentCodesCharCount))
 
-    def * = (reportId, offerEInvoicing, offerSupplyChainFinance, retentionChargesInPolicy, retentionChargesInPast, paymentCodes) <> (OtherInfoRow.tupled, OtherInfoRow.unapply)
+    def * = (reportId, offerEInvoicing, offerSupplyChainFinance, retentionChargesInPolicy, retentionChargesInPast) <> (OtherInfoRow.tupled, OtherInfoRow.unapply)
   }
 
   lazy val otherInfoTable = TableQuery[OtherInfoTable]
+
+  type PaymentCodesQuery = Query[PaymentCodesTable, PaymentCodesRow, Seq]
+
+  class PaymentCodesTable(tag: Tag) extends Table[PaymentCodesRow](tag, "payment_codes") {
+    def reportId = column[ReportId](reportIdColumnName, O.Length(IdType.length))
+    def reportIdFK = foreignKey("paymentcodes_report_fk", reportId, reportHeaderTable)(_.id, onDelete = ForeignKeyAction.Cascade)
+    def reportIdIndex = index("paymentcodes_report_idx", reportId, unique = true)
+
+    def paymentCodes = column[Option[String]]("payment_codes", O.Length(paymentCodesCharCount))
+
+    def * = (reportId, paymentCodes) <> (PaymentCodesRow.tupled, PaymentCodesRow.unapply)
+  }
+
+  lazy val paymentCodesTable = TableQuery[PaymentCodesTable]
 
   type PaymentHistoryQuery = Query[PaymentHistoryTable, PaymentHistoryRow, Seq]
 
@@ -143,6 +156,7 @@ trait ReportModule extends DBBinding {
       paymentTermsTable.schema ++
       paymentHistoryTable.schema ++
       otherInfoTable.schema ++
+      paymentCodesTable.schema ++
       filingTable.schema
 }
 

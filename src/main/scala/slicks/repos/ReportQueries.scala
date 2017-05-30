@@ -37,9 +37,10 @@ trait ReportQueries {
       .joinLeft(paymentTermsTable).on(_._1.id === _.reportId)
       .joinLeft(paymentHistoryTable).on(_._1._1.id === _.reportId)
       .joinLeft(otherInfoTable).on(_._1._1._1.id === _.reportId)
-      .joinLeft(filingTable).on(_._1._1._1._1.id === _.reportId)
+      .joinLeft(paymentCodesTable).on(_._1._1._1._1.id === _.reportId)
+      .joinLeft(filingTable).on(_._1._1._1._1._1.id === _.reportId)
       .map {
-        case (((((header, period), terms), history), other), filing) => (header, period, terms, history, other, filing)
+        case ((((((header, period), terms), history), other), codes), filing) => (header, period, terms, history, other, codes, filing)
       }
   }
 
@@ -55,8 +56,9 @@ trait ReportQueries {
       terms <- paymentTermsTable if terms.reportId === header.id
       history <- paymentHistoryTable if history.reportId === header.id
       other <- otherInfoTable if other.reportId === header.id
+      codes <- paymentCodesTable if codes.reportId === header.id
       filing <- filingTable if filing.reportId === header.id
-    } yield (header, period, terms, history, other, filing)
+    } yield (header, period, terms, history, other, codes, filing)
   }
 
   val filedReportQueryC = Compiled(filedReportQuery)

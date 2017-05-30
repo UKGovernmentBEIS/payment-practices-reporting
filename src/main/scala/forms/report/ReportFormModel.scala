@@ -151,7 +151,7 @@ object ReportFormModel {
       filed.otherInfo.offerSupplyChainFinance,
       filed.otherInfo.retentionChargesInPolicy,
       filed.otherInfo.retentionChargesInPast,
-      ConditionalText(filed.otherInfo.paymentCodes)
+      ConditionalText(filed.paymentCodes.paymentCodes)
     )
   }
 

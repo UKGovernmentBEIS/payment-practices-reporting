@@ -6,8 +6,10 @@ create table "payment_terms" ("report_id" BIGINT NOT NULL,"payment_terms" VARCHA
 create unique index "paymentterms_report_idx" on "payment_terms" ("report_id");
 create table "payment_history" ("report_id" BIGINT NOT NULL,"average_days_to_pay" INTEGER NOT NULL,"percent_paid_later_than_agreed_terms" INTEGER NOT NULL,"percent_invoices_within30days" INTEGER NOT NULL,"percent_invoices_within60days" INTEGER NOT NULL,"percent_invoices_beyond60days" INTEGER NOT NULL);
 create unique index "paymenthistory_report_idx" on "payment_history" ("report_id");
-create table "other_info" ("report_id" BIGINT NOT NULL,"offer_einvoicing" BOOLEAN NOT NULL,"offer_supply_chain_finance" BOOLEAN NOT NULL,"retention_charges_in_policy" BOOLEAN NOT NULL,"retention_charges_in_past" BOOLEAN NOT NULL,"payment_codes" VARCHAR(245));
+create table "other_info" ("report_id" BIGINT NOT NULL,"offer_einvoicing" BOOLEAN NOT NULL,"offer_supply_chain_finance" BOOLEAN NOT NULL,"retention_charges_in_policy" BOOLEAN NOT NULL,"retention_charges_in_past" BOOLEAN NOT NULL);
 create unique index "otherinfo_report_idx" on "other_info" ("report_id");
+create table "payment_codes" ("report_id" BIGINT NOT NULL,"payment_codes" VARCHAR(245));
+create unique index "paymentcodes_report_idx" on "payment_codes" ("report_id");
 create table "filing" ("report_id" BIGINT NOT NULL,"filing_date" date NOT NULL,"approved_by" VARCHAR(255) NOT NULL,"confirmation_email_address" VARCHAR(255) NOT NULL);
 create unique index "filing_report_idx" on "filing" ("report_id");
 create table "confirmation_pending" ("report_id" BIGINT NOT NULL,"email_address" VARCHAR(255) NOT NULL,"url" VARCHAR(255) NOT NULL,"retry_count" INTEGER NOT NULL,"last_error_status" INTEGER,"last_error_text" VARCHAR(2048),"locked_at" timestamp);
@@ -21,6 +23,7 @@ alter table "report_period" add constraint "reportperiod_report_fk" foreign key(
 alter table "payment_terms" add constraint "paymentterms_report_fk" foreign key("report_id") references "report_header"("id") on update NO ACTION on delete CASCADE;
 alter table "payment_history" add constraint "paymenthistory_report_fk" foreign key("report_id") references "report_header"("id") on update NO ACTION on delete CASCADE;
 alter table "other_info" add constraint "otherinfo_report_fk" foreign key("report_id") references "report_header"("id") on update NO ACTION on delete CASCADE;
+alter table "payment_codes" add constraint "paymentcodes_report_fk" foreign key("report_id") references "report_header"("id") on update NO ACTION on delete CASCADE;
 alter table "filing" add constraint "filing_report_fk" foreign key("report_id") references "report_header"("id") on update NO ACTION on delete CASCADE;
 alter table "confirmation_pending" add constraint "confirmationpending_report_fk" foreign key("report_id") references "report_header"("id") on update NO ACTION on delete CASCADE;
 alter table "confirmation_sent" add constraint "confirmationsent_report_fk" foreign key("report_id") references "report_header"("id") on update NO ACTION on delete CASCADE;
@@ -31,6 +34,7 @@ alter table "confirmation_failed" drop constraint "confirmationfailed_report_fk"
 alter table "confirmation_sent" drop constraint "confirmationsent_report_fk";
 alter table "confirmation_pending" drop constraint "confirmationpending_report_fk";
 alter table "filing" drop constraint "filing_report_fk";
+alter table "payment_codes" drop constraint "paymentcodes_report_fk";
 alter table "other_info" drop constraint "otherinfo_report_fk";
 alter table "payment_history" drop constraint "paymenthistory_report_fk";
 alter table "payment_terms" drop constraint "paymentterms_report_fk";
@@ -40,6 +44,7 @@ drop table "confirmation_failed";
 drop table "confirmation_sent";
 drop table "confirmation_pending";
 drop table "filing";
+drop table "payment_codes";
 drop table "other_info";
 drop table "payment_history";
 drop table "payment_terms";
