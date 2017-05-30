@@ -17,7 +17,7 @@
 
 package views.html.helpers
 
-import forms.report.{ConditionalText, ReportFormModel}
+import forms.report.{ConditionalText, ReportFormModel, ReportingPeriodFormModel}
 import org.joda.time.LocalDate
 import org.joda.time.format.DateTimeFormat
 import play.twirl.api.{Html, HtmlFormat}
@@ -57,14 +57,14 @@ object ReviewPageData extends HtmlHelpers {
     * The review page can be reconfigured by changing this list of tables or by changing
     * the content of the various groups.
     */
-  def groups(companyName: String, report: ReportFormModel): Seq[TableDescriptor] = Seq(
-    "check-answers check-answers-essay" -> group1(companyName, report),
+  def groups(companyName: String, reportingPeriod: ReportingPeriodFormModel, report: ReportFormModel): Seq[TableDescriptor] = Seq(
+    "check-answers check-answers-essay" -> group1(companyName, reportingPeriod, report),
     "check-answers check-answers-essay" -> group2(report),
     "check-answers check-answers-essay" -> group3(report)
   )
 
-  def group1(companyName: String, report: ReportFormModel): Seq[RowDescriptor] =
-    topLevelInfo(companyName, report) ++ reportingDateRows(report) ++ paymentHistoryRows(report)
+  def group1(companyName: String, reportingPeriod: ReportingPeriodFormModel, report: ReportFormModel): Seq[RowDescriptor] =
+    topLevelInfo(companyName, report) ++ reportingDateRows(reportingPeriod) ++ paymentHistoryRows(report)
 
   def group2(r: ReportFormModel) = paymentTermsRows(r)
 
@@ -74,7 +74,7 @@ object ReviewPageData extends HtmlHelpers {
     ("Company or limited liability partnership", companyName)
   )
 
-  def reportingDateRows(r: ReportFormModel): Seq[(String, Html)] = Seq(
+  def reportingDateRows(r: ReportingPeriodFormModel): Seq[(String, Html)] = Seq(
     "Start date of reporting period" -> df.print(r.reportDates.startDate),
     "End date of reporting period" -> df.print(r.reportDates.endDate)
   )

@@ -19,7 +19,7 @@ package controllers
 
 import javax.inject.Inject
 
-import config.PageConfig
+import config.{PageConfig, ServiceConfig}
 import models.{DecisionState, Question}
 import org.scalactic.TripleEquals._
 import play.api.data.{Form, FormError}
@@ -27,7 +27,10 @@ import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, Controller}
 import questionnaire._
 
-class QuestionnaireController @Inject()(summarizer: Summarizer, val pageConfig: PageConfig)(implicit messages: MessagesApi) extends Controller with PageHelper {
+class QuestionnaireController @Inject()(summarizer: Summarizer,
+                                        val pageConfig: PageConfig,
+                                        val serviceConfig: ServiceConfig)
+                                       (implicit messages: MessagesApi) extends Controller with PageHelper {
 
   import QuestionnaireValidations._
   import views.html.{questionnaire => pages}

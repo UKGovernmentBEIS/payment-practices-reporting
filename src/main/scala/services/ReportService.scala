@@ -19,7 +19,7 @@ package services
 
 import com.google.inject.ImplementedBy
 import dbrows._
-import forms.report.{ReportFormModel, ReportReviewModel}
+import forms.report.{ReportFormModel, ReportReviewModel, ReportingPeriodFormModel}
 import models.{CompaniesHouseId, ReportId}
 import org.joda.time.LocalDate
 import org.reactivestreams.Publisher
@@ -79,6 +79,7 @@ trait ReportService {
               confirmedBy: String,
               companiesHouseId: CompaniesHouseId,
               companyName: String,
+              reportingPeriod: ReportingPeriodFormModel,
               reportFormModel: ReportFormModel,
               review: ReportReviewModel,
               confirmationEmailAddress: String,

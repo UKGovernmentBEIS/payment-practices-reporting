@@ -1,12 +1,12 @@
 # --- !Ups
 create table "report_header" ("id" BIGSERIAL NOT NULL PRIMARY KEY,"company_name" VARCHAR(255) NOT NULL,"company_id" VARCHAR(255) NOT NULL,"created_at" date NOT NULL,"updated_at" date NOT NULL);
-create table "report_period" ("report_id" BIGINT NOT NULL,"start_date" date NOT NULL,"end_date" date NOT NULL);
+create table "report_period" ("report_id" BIGINT NOT NULL,"start_date" date NOT NULL,"end_date" date NOT NULL,"has_qualifying_contracts" BOOLEAN NOT NULL);
 create unique index "reportperiod_report_idx" on "report_period" ("report_id");
 create table "payment_terms" ("report_id" BIGINT NOT NULL,"payment_terms" VARCHAR(35000) NOT NULL,"payment_period" INTEGER NOT NULL,"maximum_contract_period" INTEGER NOT NULL,"maximum_contract_period_comment" VARCHAR(3500),"payment_terms_changed_comment" VARCHAR(3500),"payment_terms_changed_notified_comment" VARCHAR(3500),"payment_terms_comment" VARCHAR(3500),"dispute_resolution" VARCHAR(14000) NOT NULL);
 create unique index "paymentterms_report_idx" on "payment_terms" ("report_id");
 create table "payment_history" ("report_id" BIGINT NOT NULL,"average_days_to_pay" INTEGER NOT NULL,"percent_paid_later_than_agreed_terms" INTEGER NOT NULL,"percent_invoices_within30days" INTEGER NOT NULL,"percent_invoices_within60days" INTEGER NOT NULL,"percent_invoices_beyond60days" INTEGER NOT NULL);
 create unique index "paymenthistory_report_idx" on "payment_history" ("report_id");
-create table "other_info" ("report_id" BIGINT NOT NULL,"offer_einvoicing" BOOLEAN NOT NULL,"offer_supply_chain_finance" BOOLEAN NOT NULL,"retention_charges_in_policy" BOOLEAN NOT NULL,"retention_charges_in_past" BOOLEAN NOT NULL,"payment_codes" VARCHAR(255));
+create table "other_info" ("report_id" BIGINT NOT NULL,"offer_einvoicing" BOOLEAN NOT NULL,"offer_supply_chain_finance" BOOLEAN NOT NULL,"retention_charges_in_policy" BOOLEAN NOT NULL,"retention_charges_in_past" BOOLEAN NOT NULL,"payment_codes" VARCHAR(245));
 create unique index "otherinfo_report_idx" on "other_info" ("report_id");
 create table "filing" ("report_id" BIGINT NOT NULL,"filing_date" date NOT NULL,"approved_by" VARCHAR(255) NOT NULL,"confirmation_email_address" VARCHAR(255) NOT NULL);
 create unique index "filing_report_idx" on "filing" ("report_id");

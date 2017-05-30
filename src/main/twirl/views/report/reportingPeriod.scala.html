@@ -1,14 +1,14 @@
 @(
         header: Html,
+        reportingPeriodForm: Form[forms.report.ReportingPeriodFormModel],
         reportForm: Form[forms.report.ReportFormModel],
-        reportingPeriod: Form[forms.report.ReportingPeriodFormModel],
         companyId: CompaniesHouseId,
         df: DateTimeFormatter,
         serviceStartDate: LocalDate
 )(implicit messages: MessagesApi, lang: Lang)
 
 <div id=contentStart">
-    @shared._errorBox(reportForm)
+    @shared._errorBox(reportingPeriodForm)
 
 <div class="scannable-wrapper">
     @header
@@ -25,8 +25,8 @@
     @shared._coverageInformation()
     @shared._day1Calculation()
 
-    <form action="@routes.FilingController.postForm(companyId)" method="POST" id="file-report">
-        @for((k, v) <- reportingPeriod.data) {
+    <form action="@routes.ReportingPeriodController.post(companyId)" method="POST" id="file-report">
+        @for((k, v) <- reportForm.data) {
             <input type="hidden" name='@k' value="@HtmlFormat.escape(v)">
         }
 
@@ -34,10 +34,7 @@
             Companies House number: @companyId.id
         </p>
 
-        @report._paymentStatistics(reportForm)
-        @report._paymentTerms(reportForm)
-        @report._disputeResolution(reportForm)
-        @report._otherPaymentInfo(reportForm)
+        @report._reportingPeriod(reportingPeriodForm)
 
         <input type="submit" class="button" name="Continue" value="Continue">
     </form>

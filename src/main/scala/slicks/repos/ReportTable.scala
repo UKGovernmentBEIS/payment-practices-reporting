@@ -21,7 +21,7 @@ import javax.inject.Inject
 
 import com.github.tminglei.slickpg.PgDateSupportJoda
 import dbrows._
-import forms.report.{ReportFormModel, ReportReviewModel}
+import forms.report.{ReportFormModel, ReportReviewModel, ReportingPeriodFormModel}
 import models.{CompaniesHouseId, ReportId}
 import org.joda.time.LocalDate
 import org.reactivestreams.Publisher
@@ -30,6 +30,7 @@ import services.{FiledReport, Report, ReportService}
 import slicks.DBBinding
 import slicks.helpers.RowBuilders
 import slicks.modules.{ConfirmationModule, ReportModule}
+import utils.YesNo
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -42,6 +43,7 @@ class ReportTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(implic
     with PgDateSupportJoda
     with RowBuilders {
 
+  val db = dbConfigProvider.get.db
   import api._
 
   def reportByIdQ(id: Rep[ReportId]) = reportQuery.filter(_._1.id === id)
@@ -83,6 +85,7 @@ class ReportTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(implic
                        confirmedBy: String,
                        companiesHouseId: CompaniesHouseId,
                        companyName: String,
+                       reportingPeriod:ReportingPeriodFormModel,
                        report: ReportFormModel,
                        review: ReportReviewModel,
                        confirmationEmailAddress: String,
@@ -92,7 +95,7 @@ class ReportTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(implic
 
     (reportHeaderTable.returning(reportHeaderTable.map(_.id)) += header).flatMap { reportId =>
       for {
-        _ <- reportPeriodTable += buildPeriodRow(report, reportId)
+        _ <- reportPeriodTable += buildPeriodRow(reportingPeriod, reportId)
         _ <- paymentTermsTable += buildPaymentTermsRow(report, reportId)
         _ <- paymentHistoryTable += buildPaymentHistoryRow(report, reportId)
         _ <- otherInfoTable += buildOtherInfoRow(report, reportId)

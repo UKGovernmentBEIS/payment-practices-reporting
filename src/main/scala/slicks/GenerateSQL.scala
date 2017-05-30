@@ -15,35 +15,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package slicks.modules
+package slicks
 
-import javax.inject.Inject
+import com.github.tminglei.slickpg.PgPlayJsonSupport
+import slicks.modules.{ConfirmationModule, ReportModule, SessionModule}
 
-import com.github.tminglei.slickpg.{ExPostgresDriver, PgDateSupportJoda, PgPlayJsonSupport}
-import config.AppConfig
-import play.api.db.slick.DatabaseConfigProvider
 
-/**
-  * This is a helper class that pulls together all the database modules so that we can generate
-  * the sql to create and drop the tables.
-  */
-
-class DB @Inject()(override val dbConfigProvider: DatabaseConfigProvider, appConfig: AppConfig)
-  extends ReportModule
-    with ConfirmationModule
-    with SessionModule
-    with ExPostgresDriver
-    with PgDateSupportJoda
-    with PgPlayJsonSupport {
+object GenerateSQL extends DBBinding
+  with ReportModule
+  with ConfirmationModule
+  with SessionModule
+  with PgPlayJsonSupport {
 
   override def pgjson: String = "jsonb"
 
-  import appConfig.config
-
-  if (config.printDBTables.getOrElse(false)) {
+  def main(args: Array[String]): Unit = {
     println("# --- !Ups")
     schema.createStatements.foreach(s => println(s"$s;"))
-    println
+    println("")
     println("# --- !Downs")
     schema.dropStatements.foreach(s => println(s"$s;"))
   }

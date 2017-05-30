@@ -37,6 +37,7 @@ class ConfirmationTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(
     with ReportModule
     with ReportQueries {
 
+  val db = dbConfigProvider.get.db
   import api._
 
   override def findUnconfirmedAndLock(): Future[Option[(ConfirmationPendingRow, FiledReport)]] = db.run {

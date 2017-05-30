@@ -1,17 +1,20 @@
-@(form: Form[forms.report.ReportFormModel])(implicit messages: MessagesApi)
+@(form: Form[forms.report.ReportingPeriodFormModel])(implicit messages: MessagesApi)
 
-@import shared._dateField
-@error = @{
+    @import shared.{_dateField, _yesNoField}
+
+@dateErrors = @{
     form.error("reportDates")
 }
-@errorClass = @{
-    if(error.isDefined) "error" else ""
+@dateErrorClass = @{
+    if(dateErrors.isDefined) "error" else ""
 }
 
 <h2 class="heading-large">Reporting period</h2>
 
-<div class="form-group @errorClass" id="reportDates">
-    @error.map { e => <span class="error-message">@messages(e.message, e.args:_*)</span> }
+<div class="form-group @dateErrorClass" id="reportDates">
+    @dateErrors.map { e => <span class="error-message">@messages(e.message, e.args: _*)</span> }
     @_dateField(form, "reportDates.startDate")
     @_dateField(form, "reportDates.endDate")
 </div>
+
+@_yesNoField(form, "hasQualifyingContracts")

@@ -1,10 +1,11 @@
 @(
         review: Form[forms.report.ReportReviewModel],
         report: forms.report.ReportFormModel,
+        reportingPeriod: forms.report.ReportingPeriodFormModel,
         id: CompaniesHouseId,
         companyName: String,
         df: org.joda.time.format.DateTimeFormatter,
-        mapping: Mapping[forms.report.ReportFormModel])(implicit messagesApi: MessagesApi)
+        validations: forms.report.Validations)(implicit messagesApi: MessagesApi)
 
     @checked(field: Field) = @{
         if(field.value.contains("true")) "checked" else ""
@@ -21,7 +22,7 @@
 
         <div class="scannable-wrapper">
 
-            @for((cssClass, rows) <- helpers.ReviewPageData.groups(companyName, report)) {
+            @for((cssClass, rows) <- helpers.ReviewPageData.groups(companyName, reportingPeriod, report)) {
                 <table class="@cssClass">
                 @for((name, value) <- rows) {
                     <tr>
@@ -33,7 +34,10 @@
             }
 
         <form action="@routes.FilingController.postReview(id)" method="POST">
-            @for((k, v) <- mapping.unbind(report)) {
+            @for((k, v) <- validations.reportFormModel.unbind(report)) {
+                <input type="hidden" name='@k' value="@HtmlFormat.escape(v)">
+            }
+            @for((k, v) <- validations.reportingPeriodFormModel.unbind(reportingPeriod)) {
                 <input type="hidden" name='@k' value="@HtmlFormat.escape(v)">
             }
 

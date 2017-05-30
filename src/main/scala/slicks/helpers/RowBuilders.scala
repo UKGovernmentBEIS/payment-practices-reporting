@@ -18,12 +18,13 @@
 package slicks.helpers
 
 import dbrows._
-import forms.report.{ReportFormModel, ReportReviewModel}
+import forms.report.{ReportFormModel, ReportReviewModel, ReportingPeriodFormModel}
 import models.ReportId
 import org.joda.time.LocalDate
 
 trait RowBuilders {
-  def buildPeriodRow(report: ReportFormModel, reportId: ReportId) = ReportPeriodRow(reportId, report.reportDates.startDate, report.reportDates.endDate)
+  def buildPeriodRow(reportingPeriod: ReportingPeriodFormModel, reportId: ReportId) =
+    ReportPeriodRow(reportId, reportingPeriod.reportDates.startDate, reportingPeriod.reportDates.endDate, reportingPeriod.hasQualifyingContracts)
 
   def buildPaymentTermsRow(report: ReportFormModel, reportId: ReportId) =
     PaymentTermsRow(

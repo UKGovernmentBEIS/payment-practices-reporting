@@ -23,15 +23,15 @@ import slick.backend.DatabaseConfig
 
 trait DBBinding extends ExPostgresDriver with PgDateSupportJoda {
 
-  def dbConfigProvider: DatabaseConfigProvider
+  //def dbConfigProvider: DatabaseConfigProvider
 
-  lazy val dbConfig: DatabaseConfig[ExPostgresDriver] = dbConfigProvider.get[ExPostgresDriver]
+  //lazy val dbConfig: DatabaseConfig[ExPostgresDriver] = dbConfigProvider.get[ExPostgresDriver]
 
   lazy val driver = new ExPostgresDriver with PgPlayJsonSupport with PgDateSupportJoda {
     override val pgjson = "jsonb"
   }
 
-  lazy val db: driver.api.Database = dbConfig.db
+  //lazy val db: driver.api.Database = dbConfig.db
 
   override val api = new API with DateTimeImplicits
 

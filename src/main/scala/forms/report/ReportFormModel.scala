@@ -127,8 +127,12 @@ object PaymentTerms {
   }
 }
 
+case class ReportingPeriodFormModel(
+                                     reportDates: DateRange,
+                                     hasQualifyingContracts: YesNo
+                                   )
+
 case class ReportFormModel(
-                            reportDates: DateRange,
                             paymentHistory: PaymentHistory,
                             paymentTerms: PaymentTerms,
                             offerEInvoicing: YesNo,
@@ -141,7 +145,6 @@ case class ReportFormModel(
 object ReportFormModel {
   def apply(filed: FiledReport): ReportFormModel = {
     ReportFormModel(
-      DateRange(filed.period.startDate, filed.period.endDate),
       PaymentHistory(filed.paymentHistory),
       PaymentTerms(filed.paymentTerms),
       filed.otherInfo.offerEInvoicing,

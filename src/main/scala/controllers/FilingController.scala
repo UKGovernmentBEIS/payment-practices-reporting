@@ -22,9 +22,8 @@ import javax.inject.{Inject, Named}
 import actions.{CompanyAuthAction, CompanyAuthRequest}
 import akka.actor.ActorRef
 import config.{PageConfig, ServiceConfig}
-import forms.report.{ReportFormModel, ReportReviewModel, Validations}
+import forms.report.{ReportFormModel, ReportReviewModel, ReportingPeriodFormModel, Validations}
 import models.{CompaniesHouseId, ReportId}
-import org.joda.time.format.DateTimeFormat
 import play.api.data.Form
 import play.api.data.Forms.{single, _}
 import play.api.i18n.MessagesApi
@@ -35,62 +34,76 @@ import services._
 import scala.concurrent.{ExecutionContext, Future}
 
 class FilingController @Inject()(
-                                  notifyService: NotifyService,
                                   reports: ReportService,
-                                  reportValidations: Validations,
+                                  validations: Validations,
                                   companyAuth: CompanyAuthService,
                                   CompanyAuthAction: CompanyAuthAction,
-                                  serviceConfig: ServiceConfig,
+                                  val serviceConfig: ServiceConfig,
                                   val pageConfig: PageConfig,
                                   @Named("confirmation-actor") confirmationActor: ActorRef
                                 )(implicit ec: ExecutionContext, messages: MessagesApi) extends Controller with PageHelper {
 
   import views.html.{report => pages}
 
-  val emptyReport: Form[ReportFormModel] = Form(reportValidations.reportFormModel)
-  val emptyReview: Form[ReportReviewModel] = Form(reportValidations.reportReviewModel)
+  val emptyReportingPeriod: Form[ReportingPeriodFormModel] = Form(validations.reportingPeriodFormModel)
+  val emptyReport: Form[ReportFormModel] = Form(validations.reportFormModel)
+  val emptyReview: Form[ReportReviewModel] = Form(validations.reportReviewModel)
   private val reviewPageTitle = "Review your report"
-  val df = DateTimeFormat.forPattern("d MMMM YYYY")
-  val serviceStartDate = serviceConfig.startDate.getOrElse(ServiceConfig.defaultServiceStartDate)
+
 
   def reportPageHeader(implicit request: CompanyAuthRequest[_]): Html = h1(s"Publish a report for:<br>${request.companyDetail.companyName}")
 
   private def publishTitle(companyName: String) = s"Publish a report for $companyName"
 
   def file(companiesHouseId: CompaniesHouseId) = CompanyAuthAction(companiesHouseId) { implicit request =>
-    Ok(page(publishTitle(request.companyDetail.companyName))(home, pages.file(reportPageHeader, emptyReport, companiesHouseId, df, serviceStartDate)))
+    Ok(page(publishTitle(request.companyDetail.companyName))(home, pages.file(reportPageHeader, emptyReport, emptyReportingPeriod, companiesHouseId, df, serviceStartDate)))
   }
 
   def postForm(companiesHouseId: CompaniesHouseId) = CompanyAuthAction(companiesHouseId)(parse.urlFormEncoded) { implicit request =>
-    emptyReport.bindFromRequest().fold(
-      errs => BadRequest(page(publishTitle(request.companyDetail.companyName))(home, pages.file(reportPageHeader, errs, companiesHouseId, df, serviceStartDate))),
-      report => Ok(page(reviewPageTitle)(home, pages.review(emptyReview, report, companiesHouseId, request.companyDetail.companyName, df, reportValidations.reportFormModel)))
+    val reportingPeriodForm = emptyReportingPeriod.bindForm
+    val reportForm = emptyReport.bindForm
+
+    reportingPeriodForm.fold(
+      errs => BadRequest(page(publishTitle(request.companyDetail.companyName))(home, pages.reportingPeriod(reportPageHeader, errs, reportForm, companiesHouseId, df, serviceStartDate))),
+      reportingPeriod => reportForm.fold(
+        errs => BadRequest(page(publishTitle(request.companyDetail.companyName))(home, pages.file(reportPageHeader, errs, reportingPeriodForm, companiesHouseId, df, serviceStartDate))),
+        report => Ok(page(reviewPageTitle)(home,
+          pages.review(emptyReview, report, reportingPeriod, companiesHouseId, request.companyDetail.companyName, df, validations)
+        ))
+      )
     )
   }
 
   def postReview(companiesHouseId: CompaniesHouseId) = CompanyAuthAction(companiesHouseId).async(parse.urlFormEncoded) { implicit request =>
-    val revise = Form(single("revise" -> text)).bindFromRequest().value.contains("Revise")
+    val revise: Boolean = Form(single("revise" -> text)).bindForm.value.contains("Revise")
+    val title = publishTitle(request.companyDetail.companyName)
 
     // Re-capture the values for the report itself. In theory these values should always be valid
     // (as we only send the user to the review page if they are) but if somehow they aren't then
     // send the user back to the report form to fix them.
-    emptyReport.bindFromRequest().fold(
-      errs => Future.successful(BadRequest(page(publishTitle(request.companyDetail.companyName))(home, pages.file(reportPageHeader, errs, companiesHouseId, df, serviceStartDate)))),
-      report =>
-        if (revise) Future.successful(Ok(page(publishTitle(request.companyDetail.companyName))(home, pages.file(reportPageHeader, emptyReport.fill(report), companiesHouseId, df, serviceStartDate))))
-        else checkConfirmation(companiesHouseId, report)
+    val reportForm = emptyReport.bindForm
+    val reportingPeriodForm = emptyReportingPeriod.bindForm
+
+    reportingPeriodForm.fold(
+      errs => Future.successful(BadRequest(page(title)(home, pages.file(reportPageHeader, reportForm, errs, companiesHouseId, df, serviceStartDate)))),
+      reportingPeriod => reportForm.fold(
+        errs => Future.successful(BadRequest(page(title)(home, pages.file(reportPageHeader, errs, reportingPeriodForm, companiesHouseId, df, serviceStartDate)))),
+        report =>
+          if (revise) Future.successful(Ok(page(title)(home, pages.reportingPeriod(reportPageHeader, reportingPeriodForm, reportForm, companiesHouseId, df, serviceStartDate))))
+          else checkConfirmation(companiesHouseId, reportingPeriod, report)
+      )
     )
   }
 
-  private def checkConfirmation(companiesHouseId: CompaniesHouseId, report: ReportFormModel)(implicit request: CompanyAuthRequest[_]): Future[Result] = {
-    emptyReview.bindFromRequest().fold(
-      errs => Future.successful(BadRequest(page(reviewPageTitle)(home, pages.review(errs, report, companiesHouseId, request.companyDetail.companyName, df, reportValidations.reportFormModel)))),
+  private def checkConfirmation(companiesHouseId: CompaniesHouseId, reportingPeriod: ReportingPeriodFormModel, report: ReportFormModel)(implicit request: CompanyAuthRequest[Map[String, Seq[String]]]): Future[Result] = {
+    emptyReview.bindForm.fold(
+      errs => Future.successful(BadRequest(page(reviewPageTitle)(home, pages.review(errs, report, reportingPeriod, companiesHouseId, request.companyDetail.companyName, df, validations)))),
       review => {
         if (review.confirmed) verifyingOAuthScope(companiesHouseId, request.oAuthToken) {
-          createReport(companiesHouseId, report, review).map(rId => Redirect(controllers.routes.FilingController.showConfirmation(rId)))
+          createReport(companiesHouseId, reportingPeriod, report, review).map(rId => Redirect(controllers.routes.FilingController.showConfirmation(rId)))
         }
         else
-          Future.successful(BadRequest(page(reviewPageTitle)(home, pages.review(emptyReview.fill(review), report, companiesHouseId, request.companyDetail.companyName, df, reportValidations.reportFormModel))))
+          Future.successful(BadRequest(page(reviewPageTitle)(home, pages.review(emptyReview.fill(review), report, reportingPeriod, companiesHouseId, request.companyDetail.companyName, df, validations))))
       }
     )
   }
@@ -102,11 +115,11 @@ class FilingController @Inject()(
     }
   }
 
-  private def createReport(companiesHouseId: CompaniesHouseId, report: ReportFormModel, review: ReportReviewModel)(implicit request: CompanyAuthRequest[_]): Future[ReportId] = {
+  private def createReport(companiesHouseId: CompaniesHouseId, reportingPeriod: ReportingPeriodFormModel, report: ReportFormModel, review: ReportReviewModel)(implicit request: CompanyAuthRequest[_]): Future[ReportId] = {
 
     val urlFunction: ReportId => String = (id: ReportId) => controllers.routes.ReportController.view(id).absoluteURL()
     for {
-      reportId <- reports.create(review.confirmedBy, companiesHouseId, request.companyDetail.companyName, report, review, request.emailAddress, urlFunction)
+      reportId <- reports.create(review.confirmedBy, companiesHouseId, request.companyDetail.companyName, reportingPeriod, report, review, request.emailAddress, urlFunction)
       _ <- Future.successful(confirmationActor ! 'poll)
     } yield reportId
   }

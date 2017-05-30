@@ -20,10 +20,11 @@ package controllers
 import javax.inject.Inject
 
 import actions.SessionAction
-import config.PageConfig
+import config.{PageConfig, ServiceConfig}
 import play.api.mvc.{Action, Controller}
 
-class ErrorController @Inject()(val pageConfig: PageConfig) extends Controller with PageHelper {
+class ErrorController @Inject()(val pageConfig: PageConfig,
+                                val serviceConfig: ServiceConfig) extends Controller with PageHelper {
 
   def sessionTimeout = Action { implicit request =>
     Unauthorized(page("Your session timed out")(home, views.html.errors.sessionTimeout())).removingFromSession(SessionAction.sessionIdKey)

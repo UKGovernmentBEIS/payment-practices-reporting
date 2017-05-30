@@ -49,7 +49,8 @@ case class FilingRow(
 case class ReportPeriodRow(
                             reportId: ReportId,
                             startDate: LocalDate,
-                            endDate: LocalDate
+                            endDate: LocalDate,
+                            hasQualifyingContracts: YesNo
                           )
 
 case class PaymentTermsRow(

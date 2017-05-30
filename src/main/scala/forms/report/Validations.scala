@@ -91,8 +91,12 @@ class Validations @Inject()(timeSource: TimeSource, serviceConfig: ServiceConfig
       .verifying("error.notfuture", dr => !now().isBefore(dr.endDate))
       .verifying(serviceStartConstraint)
 
-  val reportFormModel = mapping(
+  val reportingPeriodFormModel = mapping(
     "reportDates" -> reportDates,
+    "hasQualifyingContracts" -> yesNo
+  )(ReportingPeriodFormModel.apply)(ReportingPeriodFormModel.unapply)
+
+  val reportFormModel = mapping(
     "paymentHistory" -> paymentHistory,
     "paymentTerms" -> paymentTerms,
     "offerEInvoicing" -> yesNo,

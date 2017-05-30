@@ -41,6 +41,7 @@ class SessionTable @Inject()(val dbConfigProvider: DatabaseConfigProvider, timeS
     with PgPlayJsonSupport
     with RowBuilders {
 
+  val db = dbConfigProvider.get.db
   import api._
 
   override def pgjson: String = "jsonb"

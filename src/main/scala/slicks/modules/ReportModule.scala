@@ -32,29 +32,19 @@ trait ReportModule extends DBBinding {
   import forms.report.ReportConstants._
 
   implicit def yesNoMapper: BaseColumnType[YesNo] = MappedColumnType.base[YesNo, Boolean](_.toBoolean, YesNo.fromBoolean)
-
   implicit def reportIdMapper: BaseColumnType[ReportId] = MappedColumnType.base[ReportId, Long](_.id, ReportId)
-
   implicit def companiesHouseIdMapper: BaseColumnType[CompaniesHouseId] = MappedColumnType.base[CompaniesHouseId, String](_.id, CompaniesHouseId)
-
 
   type FilingQuery = Query[FilingTable, FilingRow, Seq]
 
   val reportIdColumnName = "report_id"
 
   class FilingTable(tag: Tag) extends Table[FilingRow](tag, "filing") {
-    def reportId = {
-      column[ReportId](reportIdColumnName, O.Length(IdType.length))
-    }
-
+    def reportId = column[ReportId](reportIdColumnName, O.Length(IdType.length))
     def reportIdFK = foreignKey("filing_report_fk", reportId, reportHeaderTable)(_.id, onDelete = ForeignKeyAction.Cascade)
-
     def reportIdIndex = index("filing_report_idx", reportId, unique = true)
-
     def filingDate = column[LocalDate]("filing_date")
-
     def approvedBy = column[String]("approved_by", O.Length(255))
-
     def confirmationEmailAddress = column[String]("confirmation_email_address", O.Length(255))
 
     def * = (reportId, filingDate, approvedBy, confirmationEmailAddress) <> (FilingRow.tupled, FilingRow.unapply)
@@ -66,19 +56,12 @@ trait ReportModule extends DBBinding {
 
   class OtherInfoTable(tag: Tag) extends Table[OtherInfoRow](tag, "other_info") {
     def reportId = column[ReportId](reportIdColumnName, O.Length(IdType.length))
-
     def reportIdFK = foreignKey("otherinfo_report_fk", reportId, reportHeaderTable)(_.id, onDelete = ForeignKeyAction.Cascade)
-
     def reportIdIndex = index("otherinfo_report_idx", reportId, unique = true)
-
     def offerEInvoicing = column[YesNo]("offer_einvoicing")
-
     def offerSupplyChainFinance = column[YesNo]("offer_supply_chain_finance")
-
     def retentionChargesInPolicy = column[YesNo]("retention_charges_in_policy")
-
     def retentionChargesInPast = column[YesNo]("retention_charges_in_past")
-
     def paymentCodes = column[Option[String]]("payment_codes", O.Length(paymentCodesCharCount))
 
     def * = (reportId, offerEInvoicing, offerSupplyChainFinance, retentionChargesInPolicy, retentionChargesInPast, paymentCodes) <> (OtherInfoRow.tupled, OtherInfoRow.unapply)
@@ -90,19 +73,12 @@ trait ReportModule extends DBBinding {
 
   class PaymentHistoryTable(tag: Tag) extends Table[PaymentHistoryRow](tag, "payment_history") {
     def reportId = column[ReportId](reportIdColumnName, O.Length(IdType.length))
-
     def reportIdFK = foreignKey("paymenthistory_report_fk", reportId, reportHeaderTable)(_.id, onDelete = ForeignKeyAction.Cascade)
-
     def reportIdIndex = index("paymenthistory_report_idx", reportId, unique = true)
-
     def averageDaysToPay = column[Int]("average_days_to_pay")
-
     def percentPaidLaterThanAgreedTerms = column[Int]("percent_paid_later_than_agreed_terms")
-
     def percentInvoicesWithin30Days = column[Int]("percent_invoices_within30days")
-
     def percentInvoicesWithin60Days = column[Int]("percent_invoices_within60days")
-
     def percentInvoicesBeyond60Days = column[Int]("percent_invoices_beyond60days")
 
     def * = (reportId, averageDaysToPay, percentPaidLaterThanAgreedTerms, percentInvoicesWithin30Days, percentInvoicesWithin60Days, percentInvoicesBeyond60Days) <> (PaymentHistoryRow.tupled, PaymentHistoryRow.unapply)
@@ -114,25 +90,15 @@ trait ReportModule extends DBBinding {
 
   class PaymentTermsTable(tag: Tag) extends Table[PaymentTermsRow](tag, "payment_terms") {
     def reportId = column[ReportId](reportIdColumnName, O.Length(IdType.length))
-
     def reportIdFK = foreignKey("paymentterms_report_fk", reportId, reportHeaderTable)(_.id, onDelete = ForeignKeyAction.Cascade)
-
     def reportIdIndex = index("paymentterms_report_idx", reportId, unique = true)
-
     def paymentTerms = column[String]("payment_terms", O.Length(paymentTermsCharCount))
-
     def paymentPeriod = column[Int]("payment_period")
-
     def maximumContractPeriod = column[Int]("maximum_contract_period")
-
     def maximumContractPeriodComment = column[Option[String]]("maximum_contract_period_comment", O.Length(maxContractPeriodCommentCharCount))
-
     def paymentTermsChangedComment = column[Option[String]]("payment_terms_changed_comment", O.Length(paymentTermsChangedCharCount))
-
     def paymentTermsChangedNotifiedComment = column[Option[String]]("payment_terms_changed_notified_comment", O.Length(paymentTermsNotifiedCharCount))
-
     def paymentTermsComment = column[Option[String]]("payment_terms_comment", O.Length(paymentTermsCommentCharCount))
-
     def disputeResolution = column[String]("dispute_resolution", O.Length(disputeResolutionCharCount))
 
     def * = (reportId, paymentTerms, paymentPeriod, maximumContractPeriod, maximumContractPeriodComment, paymentTermsChangedComment, paymentTermsChangedNotifiedComment, paymentTermsComment, disputeResolution) <> (PaymentTermsRow.tupled, PaymentTermsRow.unapply)
@@ -144,16 +110,13 @@ trait ReportModule extends DBBinding {
 
   class ReportPeriodTable(tag: Tag) extends Table[ReportPeriodRow](tag, "report_period") {
     def reportId = column[ReportId](reportIdColumnName, O.Length(IdType.length))
-
     def reportIdFK = foreignKey("reportperiod_report_fk", reportId, reportHeaderTable)(_.id, onDelete = ForeignKeyAction.Cascade)
-
     def reportIdIndex = index("reportperiod_report_idx", reportId, unique = true)
-
     def startDate = column[LocalDate]("start_date")
-
     def endDate = column[LocalDate]("end_date")
+    def hasQualifyingContracts = column[YesNo]("has_qualifying_contracts")
 
-    def * = (reportId, startDate, endDate) <> (ReportPeriodRow.tupled, ReportPeriodRow.unapply)
+    def * = (reportId, startDate, endDate, hasQualifyingContracts) <> (ReportPeriodRow.tupled, ReportPeriodRow.unapply)
   }
 
   lazy val reportPeriodTable = TableQuery[ReportPeriodTable]
@@ -162,14 +125,11 @@ trait ReportModule extends DBBinding {
 
   class ReportHeaderTable(tag: Tag) extends Table[ReportHeaderRow](tag, "report_header") {
     def id = column[ReportId]("id", O.Length(IdType.length), O.PrimaryKey, O.AutoInc)
-
     def companyName = column[String]("company_name", O.Length(255))
-
     def companyId = column[CompaniesHouseId]("company_id", O.Length(255))
-
     def createdAt = column[LocalDate]("created_at")
-
     def updatedAt = column[LocalDate]("updated_at")
+
 
     def * = (id, companyName, companyId, createdAt, updatedAt) <> (ReportHeaderRow.tupled, ReportHeaderRow.unapply)
   }

@@ -26,12 +26,15 @@ POST        /publish/company/:id/code                       controllers.CoHoCode
 GET         /publish/company/:id/colleague                  controllers.ReportController.colleague(id:CompaniesHouseId)
 GET         /publish/company/:id/register                   controllers.ReportController.register(id:CompaniesHouseId)
 GET         /publish/company/:id/apply-for-code             controllers.ReportController.applyForAuthCode(id:CompaniesHouseId)
-GET         /publish/company/:id/file                       controllers.FilingController.file(id:CompaniesHouseId)
+GET         /publish/company/:id/file                       controllers.ReportingPeriodController.start(id:CompaniesHouseId)
 POST        /publish/company/:id/file                       controllers.FilingController.postForm(id:CompaniesHouseId)
 POST        /publish/company/:id/review                     controllers.FilingController.postReview(id:CompaniesHouseId)
 GET         /publish/:reportId/success                      controllers.FilingController.showConfirmation(reportId:ReportId)
 GET         /report/:reportId                               controllers.ReportController.view(reportId: ReportId)
 GET         /publish/error/:id                              controllers.FilingController.invalidScope(id:CompaniesHouseId)
+
+#GET         /publish/company/:id/reportingPeriod            controllers.ReportingPeriodController.start(id:CompaniesHouseId)
+POST        /publish/company/:id/reportingPeriod            controllers.ReportingPeriodController.post(id:CompaniesHouseId)
 
 GET         /report-payment-practices/claim-callback        controllers.OAuth2Controller.claimCallback(code: Option[String], state: Option[String], error:Option[String], errorDescription:Option[String], errorCode:Option[String])
 

@@ -23,7 +23,7 @@ import actions.CompanyAuthAction.{companyDetailsKey, emailAddressKey, oAuthToken
 import actions.SessionAction
 import cats.data.OptionT
 import cats.instances.future._
-import config.PageConfig
+import config.{PageConfig, ServiceConfig}
 import models.CompaniesHouseId
 import org.joda.time.LocalDateTime
 import play.api.mvc.{Action, Controller}
@@ -36,7 +36,8 @@ class CoHoOAuthMockController @Inject()(
                                          companyAuth: CompanyAuthService,
                                          sessionService: SessionService,
                                          SessionAction: SessionAction,
-                                         val pageConfig: PageConfig)
+                                         val pageConfig: PageConfig,
+                                         val serviceConfig: ServiceConfig)
                                        (implicit ec: ExecutionContext) extends Controller with PageHelper {
 
   def login(companiesHouseId: CompaniesHouseId) = Action {
@@ -63,7 +64,7 @@ class CoHoOAuthMockController @Inject()(
       _ <- OptionT.liftF(sessionService.put(request.sessionId, oAuthTokenKey, ref))
       _ <- OptionT.liftF(sessionService.put(request.sessionId, companyDetailsKey, companyDetail))
       _ <- OptionT.liftF(sessionService.put(request.sessionId, emailAddressKey, emailAddress))
-    } yield Redirect(controllers.routes.FilingController.file(companiesHouseId))
+    } yield Redirect(controllers.routes.ReportingPeriodController.start(companiesHouseId))
 
     f.value.map {
       case Some(result) => result

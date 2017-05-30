@@ -22,7 +22,7 @@ import javax.inject.Inject
 import actions.SessionAction
 import cats.data.OptionT
 import cats.instances.future._
-import config.PageConfig
+import config.{PageConfig, ServiceConfig}
 import forms.Validations
 import models.{CompaniesHouseId, ReportId}
 import org.joda.time.format.DateTimeFormat
@@ -40,7 +40,8 @@ class ReportController @Inject()(
                                   companyAuth: CompanyAuthService,
                                   val companySearch: CompanySearchService,
                                   val reportService: ReportService,
-                                  val pageConfig: PageConfig
+                                  val pageConfig: PageConfig,
+                                  val serviceConfig: ServiceConfig
                                 )(implicit val ec: ExecutionContext, messages: MessagesApi)
   extends Controller
     with PageHelper
@@ -100,8 +101,6 @@ class ReportController @Inject()(
   def applyForAuthCode(companiesHouseId: CompaniesHouseId) = Action { implicit request =>
     Redirect(companyAuth.authoriseUrl(companiesHouseId), companyAuth.authoriseParams(companiesHouseId))
   }
-
-  val df = DateTimeFormat.forPattern("d MMMM YYYY")
 
   def view(reportId: ReportId) = Action.async { implicit request =>
     val f = for {
