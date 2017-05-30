@@ -1,10 +1,11 @@
 @(
         header: Html,
         reportForm: Form[forms.report.ReportFormModel],
-        reportingPeriod: Form[forms.report.ReportingPeriodFormModel],
+        reportingPeriod: forms.report.ReportingPeriodFormModel,
         companyId: CompaniesHouseId,
         df: DateTimeFormatter,
-        serviceStartDate: LocalDate
+        serviceStartDate: LocalDate,
+        validations: forms.report.Validations
 )(implicit messages: MessagesApi, lang: Lang)
 
 <div id=contentStart">
@@ -13,20 +14,22 @@
 <div class="scannable-wrapper">
     @header
 
-    <div class="notice">
-        <i class="icon icon-important">
-            <span class="visually-hidden">Warning</span>
-        </i>
-        <strong><a target="_blank" href="@routes.QuestionnaireController.start()">You should prepare</a>
-            before filling in this form.</strong>
-    </div>
-    <p/>
+    @if(reportingPeriod.hasQualifyingContracts.toBoolean) {
+        <div class="notice">
+            <i class="icon icon-important">
+                <span class="visually-hidden">Warning</span>
+            </i>
+            <strong><a target="_blank" href="@routes.QuestionnaireController.start()">You should prepare</a>
+                before filling in this form.</strong>
+        </div>
+        <p></p>
 
-    @shared._coverageInformation()
-    @shared._day1Calculation()
+
+        @shared._day1Calculation()
+    }
 
     <form action="@routes.FilingController.postForm(companyId)" method="POST" id="file-report">
-        @for((k, v) <- reportingPeriod.data) {
+        @for((k, v) <- validations.reportingPeriodFormModel.unbind(reportingPeriod)) {
             <input type="hidden" name='@k' value="@HtmlFormat.escape(v)">
         }
 
@@ -34,10 +37,13 @@
             Companies House number: @companyId.id
         </p>
 
-        @report._paymentStatistics(reportForm)
-        @report._paymentTerms(reportForm)
-        @report._disputeResolution(reportForm)
-        @report._otherPaymentInfo(reportForm)
+        @if(reportingPeriod.hasQualifyingContracts.toBoolean) {
+            @report._paymentStatistics(reportForm)
+            @report._paymentTerms(reportForm)
+            @report._disputeResolution(reportForm)
+            @report._otherPaymentInfo(reportForm)
+        }
+        @report._paymentCodes(reportForm)
 
         <input type="submit" class="button" name="Continue" value="Continue">
     </form>

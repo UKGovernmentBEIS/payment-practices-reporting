@@ -94,9 +94,9 @@ class VisualTestController @Inject()(
     val serviceStartDate = serviceConfig.startDate.getOrElse(ServiceConfig.defaultServiceStartDate)
 
     val publish = Seq(
-      views.html.report.file(header, emptyReport, emptyReportingPeriod, id, df, serviceStartDate),
-      views.html.report.file(header, emptyReport.fill(ReportFormModel(healthyReport)), emptyReportingPeriod, id, df, serviceStartDate),
-      views.html.report.file(header, emptyReport.fillAndValidate(ReportFormModel(unhealthyReport)), emptyReportingPeriod, id, df, serviceStartDate)
+      views.html.report.file(header, emptyReport, dummyReportingPeriod, id, df, serviceStartDate, reportValidations),
+      views.html.report.file(header, emptyReport.fill(ReportFormModel(healthyReport)), dummyReportingPeriod, id, df, serviceStartDate, reportValidations),
+      views.html.report.file(header, emptyReport.fillAndValidate(ReportFormModel(unhealthyReport)), dummyReportingPeriod, id, df, serviceStartDate, reportValidations)
     )
 
     val review = Seq(views.html.report.review(emptyReview, ReportFormModel(healthyReport), dummyReportingPeriod, id, companyName, df, reportValidations))

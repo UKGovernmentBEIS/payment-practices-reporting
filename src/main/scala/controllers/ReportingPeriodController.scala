@@ -34,7 +34,7 @@ import scala.concurrent.ExecutionContext
 
 class ReportingPeriodController @Inject()(
                                            reports: ReportService,
-                                           reportValidations: Validations,
+                                           validations: Validations,
                                            companyAuth: CompanyAuthService,
                                            CompanyAuthAction: CompanyAuthAction,
                                            val serviceConfig: ServiceConfig,
@@ -44,8 +44,8 @@ class ReportingPeriodController @Inject()(
 
   import views.html.{report => pages}
 
-  val emptyReportingPeriod: Form[ReportingPeriodFormModel] = Form(reportValidations.reportingPeriodFormModel)
-  val emptyReport: Form[ReportFormModel] = Form(reportValidations.reportFormModel)
+  val emptyReportingPeriod: Form[ReportingPeriodFormModel] = Form(validations.reportingPeriodFormModel)
+  val emptyReport: Form[ReportFormModel] = Form(validations.reportFormModel)
 
   def reportPageHeader(implicit request: CompanyAuthRequest[_]): Html = h1(s"Publish a report for:<br>${request.companyDetail.companyName}")
   private def publishTitle(companyName: String) = s"Publish a report for $companyName"
@@ -66,7 +66,7 @@ class ReportingPeriodController @Inject()(
 
     reportingPeriodForm.fold(
       errs => BadRequest(page(title)(home, pages.reportingPeriod(reportPageHeader, errs, reportForm, companiesHouseId, df, serviceStartDate))),
-      _ => Ok(page(title)(home, pages.file(reportPageHeader, reportForm, reportingPeriodForm, companiesHouseId, df, serviceStartDate)))
+      reportingPeriod => Ok(page(title)(home, pages.file(reportPageHeader, reportForm, reportingPeriod, companiesHouseId, df, serviceStartDate, validations)))
     )
   }
 }

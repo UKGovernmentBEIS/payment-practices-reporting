@@ -33,7 +33,6 @@ GET         /publish/:reportId/success                      controllers.FilingCo
 GET         /report/:reportId                               controllers.ReportController.view(reportId: ReportId)
 GET         /publish/error/:id                              controllers.FilingController.invalidScope(id:CompaniesHouseId)
 
-#GET         /publish/company/:id/reportingPeriod            controllers.ReportingPeriodController.start(id:CompaniesHouseId)
 POST        /publish/company/:id/reportingPeriod            controllers.ReportingPeriodController.post(id:CompaniesHouseId)
 
 GET         /report-payment-practices/claim-callback        controllers.OAuth2Controller.claimCallback(code: Option[String], state: Option[String], error:Option[String], errorDescription:Option[String], errorCode:Option[String])

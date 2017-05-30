@@ -55,10 +55,6 @@ class FilingController @Inject()(
 
   private def publishTitle(companyName: String) = s"Publish a report for $companyName"
 
-  def file(companiesHouseId: CompaniesHouseId) = CompanyAuthAction(companiesHouseId) { implicit request =>
-    Ok(page(publishTitle(request.companyDetail.companyName))(home, pages.file(reportPageHeader, emptyReport, emptyReportingPeriod, companiesHouseId, df, serviceStartDate)))
-  }
-
   def postForm(companiesHouseId: CompaniesHouseId) = CompanyAuthAction(companiesHouseId)(parse.urlFormEncoded) { implicit request =>
     val reportingPeriodForm = emptyReportingPeriod.bindForm
     val reportForm = emptyReport.bindForm
@@ -66,7 +62,7 @@ class FilingController @Inject()(
     reportingPeriodForm.fold(
       errs => BadRequest(page(publishTitle(request.companyDetail.companyName))(home, pages.reportingPeriod(reportPageHeader, errs, reportForm, companiesHouseId, df, serviceStartDate))),
       reportingPeriod => reportForm.fold(
-        errs => BadRequest(page(publishTitle(request.companyDetail.companyName))(home, pages.file(reportPageHeader, errs, reportingPeriodForm, companiesHouseId, df, serviceStartDate))),
+        errs => BadRequest(page(publishTitle(request.companyDetail.companyName))(home, pages.file(reportPageHeader, errs, reportingPeriod, companiesHouseId, df, serviceStartDate, validations))),
         report => Ok(page(reviewPageTitle)(home,
           pages.review(emptyReview, report, reportingPeriod, companiesHouseId, request.companyDetail.companyName, df, validations)
         ))
@@ -85,9 +81,9 @@ class FilingController @Inject()(
     val reportingPeriodForm = emptyReportingPeriod.bindForm
 
     reportingPeriodForm.fold(
-      errs => Future.successful(BadRequest(page(title)(home, pages.file(reportPageHeader, reportForm, errs, companiesHouseId, df, serviceStartDate)))),
+      errs => Future.successful(BadRequest(page(title)(home, pages.reportingPeriod(reportPageHeader, errs, reportForm, companiesHouseId, df, serviceStartDate)))),
       reportingPeriod => reportForm.fold(
-        errs => Future.successful(BadRequest(page(title)(home, pages.file(reportPageHeader, errs, reportingPeriodForm, companiesHouseId, df, serviceStartDate)))),
+        errs => Future.successful(BadRequest(page(title)(home, pages.file(reportPageHeader, errs, reportingPeriod, companiesHouseId, df, serviceStartDate, validations)))),
         report =>
           if (revise) Future.successful(Ok(page(title)(home, pages.reportingPeriod(reportPageHeader, reportingPeriodForm, reportForm, companiesHouseId, df, serviceStartDate))))
           else checkConfirmation(companiesHouseId, reportingPeriod, report)
