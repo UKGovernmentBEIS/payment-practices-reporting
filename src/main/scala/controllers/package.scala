@@ -17,6 +17,7 @@
 
 import play.api.data.Form
 import play.api.mvc.Request
+import org.scalactic.TripleEquals._
 
 package object controllers {
   implicit class FormBindingSyntax[T](form: Form[T]) {
@@ -34,7 +35,7 @@ package object controllers {
       */
     def bindForm(implicit request: Request[Map[String, Seq[String]]]): Form[T] = {
       val filteredData = request.body.filter { case (k, v) =>
-        form.mapping.mappings.exists(m => m.key == k)
+        form.mapping.mappings.exists(m => m.key === k)
       }
       form.bindFromRequest(filteredData)
     }
