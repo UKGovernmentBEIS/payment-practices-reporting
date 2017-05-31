@@ -17,17 +17,16 @@
 
 package slicks.modules
 
-import com.github.tminglei.slickpg.PgDateSupportJoda
+
 import com.wellfactored.slickgen.IdType
 import dbrows.{ConfirmationFailedRow, ConfirmationPendingRow, ConfirmationSentRow}
 import models.ReportId
 import org.joda.time.LocalDateTime
-import slicks.DBBinding
 
-trait ConfirmationModule extends DBBinding {
-  self: ReportModule with PgDateSupportJoda =>
+trait ConfirmationModule  {
+  self: CoreModule with ReportModule =>
 
-  import api._
+  import profile.api._
 
   type ConfirmationFailedQuery = Query[ConfirmationFailedTable, ConfirmationFailedRow, Seq]
 
@@ -98,6 +97,4 @@ trait ConfirmationModule extends DBBinding {
   }
 
   lazy val confirmationPendingTable = TableQuery[ConfirmationPendingTable]
-
-  override def schema = super.schema ++ confirmationPendingTable.schema ++ confirmationSentTable.schema ++ confirmationFailedTable.schema
 }

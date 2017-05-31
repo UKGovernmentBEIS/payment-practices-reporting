@@ -20,30 +20,29 @@ package slicks.repos
 import javax.inject.Inject
 
 import dbrows._
-import forms.DateRange
-import forms.report.{ConditionalText, PaymentTerms, PaymentTermsChanged}
 import models.ReportId
 import org.joda.time.LocalDateTime
-import play.api.db.slick.DatabaseConfigProvider
-import services.{ConfirmationService, LongForm, Report}
+import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfig}
+import services.{ConfirmationService, Report}
 import slick.dbio.Effect.Write
-import slicks.modules.{ConfirmationModule, ReportModule}
+import slick.jdbc.JdbcProfile
+import slicks.modules.{ConfirmationModule, CoreModule, ReportModule}
 import uk.gov.service.notify.{NotificationClientException, SendEmailResponse}
 import utils.{NotificationClientErrorProcessing, PermanentFailure, TransientFailure}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class ConfirmationTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(implicit ec: ExecutionContext)
+class ConfirmationTable @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit ec: ExecutionContext)
   extends ConfirmationService
+    with CoreModule
     with ConfirmationModule
     with ReportModule
-    with ReportQueries {
+    with ReportQueries
+    with HasDatabaseConfig[JdbcProfile] {
 
-  val db = dbConfigProvider.get.db
+  override lazy val dbConfig = dbConfigProvider.get[JdbcProfile]
 
-  import api._
-
-
+  import profile.api._
 
   override def findUnconfirmedAndLock(): Future[Option[(ConfirmationPendingRow, Report)]] = db.run {
     val lockTimeout = LocalDateTime.now().minusSeconds(30)

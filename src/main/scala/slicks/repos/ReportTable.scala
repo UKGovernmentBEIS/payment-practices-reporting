@@ -19,31 +19,30 @@ package slicks.repos
 
 import javax.inject.Inject
 
-import com.github.tminglei.slickpg.PgDateSupportJoda
 import forms.report.{LongFormModel, PaymentCodesFormModel, ReportReviewModel, ReportingPeriodFormModel}
 import models.{CompaniesHouseId, ReportId}
 import org.joda.time.LocalDate
 import org.reactivestreams.Publisher
-import play.api.db.slick.DatabaseConfigProvider
+import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfig}
 import services.{CompanyDetail, Report, ReportService}
-import slicks.DBBinding
+import slick.jdbc.JdbcProfile
 import slicks.helpers.RowBuilders
-import slicks.modules.{ConfirmationModule, ReportModule}
+import slicks.modules.{ConfirmationModule, CoreModule, ReportModule}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class ReportTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(implicit ec: ExecutionContext)
-  extends DBBinding
+class ReportTable @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit ec: ExecutionContext)
+  extends CoreModule
     with ReportService
     with ReportModule
     with ConfirmationModule
     with ReportQueries
-    with PgDateSupportJoda
-    with RowBuilders {
+    with RowBuilders
+    with HasDatabaseConfig[JdbcProfile] {
 
-  val db = dbConfigProvider.get.db
+  override lazy val dbConfig = dbConfigProvider.get[JdbcProfile]
 
-  import api._
+  import profile.api._
 
   def reportByIdQ(reportId: Rep[ReportId]) = reportQuery.filter(_._1.reportId === reportId)
 

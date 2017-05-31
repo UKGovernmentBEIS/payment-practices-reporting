@@ -17,17 +17,28 @@
 
 package slicks
 
-import com.github.tminglei.slickpg.PgPlayJsonSupport
-import slicks.modules.{ConfirmationModule, ReportModule, SessionModule}
+import slick.jdbc.PostgresProfile
+import slicks.modules.{ConfirmationModule, CoreModule, ReportModule, SessionModule}
 
 
-object GenerateSQL extends DBBinding
-  with ReportModule
-  with ConfirmationModule
-  with SessionModule
-  with PgPlayJsonSupport {
+object GenerateSQL
+  extends ReportModule
+    with ConfirmationModule
+    with SessionModule
+    with CoreModule {
 
-  override def pgjson: String = "jsonb"
+  override val profile = PostgresProfile
+
+  import profile.api._
+
+  val schema =
+    shortFormTable.schema ++
+      longFormTable.schema ++
+      confirmationPendingTable.schema ++
+      confirmationSentTable.schema ++
+      confirmationFailedTable.schema ++
+      sessionTable.schema
+
 
   def main(args: Array[String]): Unit = {
     println("# --- !Ups")
@@ -36,4 +47,5 @@ object GenerateSQL extends DBBinding
     println("# --- !Downs")
     schema.dropStatements.foreach(s => println(s"$s;"))
   }
+
 }

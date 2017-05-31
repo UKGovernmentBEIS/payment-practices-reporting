@@ -17,14 +17,12 @@
 
 package slicks.repos
 
-import services.Report
-import slicks.DBBinding
-import slicks.modules.ReportModule
+import slicks.modules.{CoreModule, ReportModule}
 
 trait ReportQueries {
-  self: DBBinding with ReportModule =>
+  self: CoreModule with ReportModule =>
 
-  import api._
+  import profile.api._
 
   /**
     * This is quite an awkward query expression. The purpose is to select all report headers and, at

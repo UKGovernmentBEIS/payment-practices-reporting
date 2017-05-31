@@ -14,7 +14,7 @@
 <div class="scannable-wrapper">
     @header
 
-    <form action="@routes.FilingController.postShortForm(companyId)" method="POST" id="longForm-report">
+    <form action="@routes.FilingController.postShortForm(companyId)" method="POST" id="file-report">
         @for((k, v) <- validations.reportingPeriodFormModel.unbind(reportingPeriod)) {
             <input type="hidden" name='@k' value="@HtmlFormat.escape(v)">
         }

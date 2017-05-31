@@ -17,18 +17,16 @@
 
 package slicks.modules
 
-import com.github.tminglei.slickpg.PgPlayJsonSupport
+
 import dbrows.SessionRow
 import org.joda.time.LocalDateTime
 import play.api.libs.json.JsObject
 import services.SessionId
-import slicks.DBBinding
-import slicks.helpers.PlayJsonMappers
 
-trait SessionModule extends DBBinding with PlayJsonMappers {
-  self: PgPlayJsonSupport =>
+trait SessionModule  {
+  self: CoreModule =>
 
-  import api._
+  import profile.api._
 
   type SessionQuery = Query[SessionTable, SessionRow, Seq]
 
@@ -46,5 +44,4 @@ trait SessionModule extends DBBinding with PlayJsonMappers {
 
   lazy val sessionTable = TableQuery[SessionTable]
 
-  override def schema = super.schema ++ sessionTable.schema
 }

@@ -20,31 +20,28 @@ package slicks.repos
 import java.util.UUID
 import javax.inject.{Inject, Named}
 
-import com.github.tminglei.slickpg.{PgDateSupportJoda, PgPlayJsonSupport}
 import dbrows.SessionRow
 import play.api.Logger
-import play.api.db.slick.DatabaseConfigProvider
+import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfig}
 import play.api.libs.json.{JsObject, _}
 import services.{SessionId, SessionService}
-import slicks.DBBinding
+import slick.jdbc.JdbcProfile
 import slicks.helpers.RowBuilders
-import slicks.modules.SessionModule
+import slicks.modules.{CoreModule, SessionModule}
 import utils.TimeSource
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class SessionTable @Inject()(val dbConfigProvider: DatabaseConfigProvider, timeSource: TimeSource, @Named("session timeout") sessionTimeoutInMinutes: Int)(implicit ec: ExecutionContext)
-  extends DBBinding
+class SessionTable @Inject()(dbConfigProvider: DatabaseConfigProvider, timeSource: TimeSource, @Named("session timeout") sessionTimeoutInMinutes: Int)(implicit ec: ExecutionContext)
+  extends CoreModule
     with SessionService
     with SessionModule
-    with PgDateSupportJoda
-    with PgPlayJsonSupport
-    with RowBuilders {
+    with RowBuilders
+    with HasDatabaseConfig[JdbcProfile] {
 
-  val db = dbConfigProvider.get.db
-  import api._
+  override lazy val dbConfig = dbConfigProvider.get[JdbcProfile]
 
-  override def pgjson: String = "jsonb"
+  import profile.api._
 
   def sessionQ(sessionId: Rep[SessionId]) = sessionTable.filter(s => s.id === sessionId && s.expiresAt >= timeSource.now())
 

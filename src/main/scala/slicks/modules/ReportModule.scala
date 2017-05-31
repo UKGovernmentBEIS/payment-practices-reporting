@@ -17,19 +17,18 @@
 
 package slicks.modules
 
-import com.github.tminglei.slickpg.PgDateSupportJoda
+
 import com.wellfactored.slickgen.IdType
 import dbrows._
 import models.{CompaniesHouseId, ReportId}
 import org.joda.time.LocalDate
-import slicks.DBBinding
 import utils.YesNo
 
-trait ReportModule extends DBBinding {
-  self: PgDateSupportJoda =>
+trait ReportModule  {
+  self: CoreModule =>
 
-  import api._
   import forms.report.ReportConstants._
+  import profile.api._
 
   implicit def yesNoMapper: BaseColumnType[YesNo] = MappedColumnType.base[YesNo, Boolean](_.toBoolean, YesNo.fromBoolean)
   implicit def reportIdMapper: BaseColumnType[ReportId] = MappedColumnType.base[ReportId, Long](_.id, ReportId)
@@ -69,8 +68,8 @@ trait ReportModule extends DBBinding {
 
   class LongFormTable(tag: Tag) extends Table[LongFormRow](tag, "long_form") {
     def reportId = column[ReportId](reportIdColumnName, O.Length(IdType.length))
-    def reportIdFK = foreignKey("longForm_report_fk", reportId, shortFormTable)(_.reportId, onDelete = ForeignKeyAction.Cascade)
-    def reportIdIndex = index("longForm_report_idx", reportId, unique = true)
+    def reportIdFK = foreignKey("long_form_report_fk", reportId, shortFormTable)(_.reportId, onDelete = ForeignKeyAction.Cascade)
+    def reportIdIndex = index("long_form_report_idx", reportId, unique = true)
 
 
     def paymentTerms = column[String]("payment_terms", O.Length(paymentTermsCharCount))
@@ -116,11 +115,6 @@ trait ReportModule extends DBBinding {
 
   lazy val longFormTable = TableQuery[LongFormTable]
 
-
-  override def schema =
-    super.schema ++
-      shortFormTable.schema ++
-      longFormTable.schema
 }
 
 
