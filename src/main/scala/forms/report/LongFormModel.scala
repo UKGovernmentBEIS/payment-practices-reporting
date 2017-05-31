@@ -20,7 +20,7 @@ package forms.report
 import dbrows.LongFormRow
 import forms.DateRange
 import org.scalactic.TripleEquals._
-import services.LongForm
+import services.{LongForm, Report}
 import utils.YesNo
 import utils.YesNo.{No, Yes}
 
@@ -136,7 +136,7 @@ case class ReportingPeriodFormModel(
                                      hasQualifyingContracts: YesNo
                                    )
 
-case class ShortFormModel(
+case class PaymentCodesFormModel(
                            paymentCodes: ConditionalText
                          )
 
@@ -146,20 +146,18 @@ case class LongFormModel(
                           offerEInvoicing: YesNo,
                           offerSupplyChainFinancing: YesNo,
                           retentionChargesInPolicy: YesNo,
-                          retentionChargesInPast: YesNo,
-                          paymentCodes: ConditionalText
+                          retentionChargesInPast: YesNo
                         )
 
 object LongFormModel {
-  def apply(report: LongForm, paymentCodes: ConditionalText): LongFormModel = {
+  def apply(report: LongForm): LongFormModel = {
     LongFormModel(
       report.paymentHistory,
       report.paymentTerms,
       report.offerEInvoicing,
       report.offerSupplyChainFinance,
       report.retentionChargesInPolicy,
-      report.retentionChargesInPast,
-      paymentCodes
+      report.retentionChargesInPast
     )
   }
 

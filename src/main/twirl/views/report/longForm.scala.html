@@ -1,15 +1,16 @@
 @(
         header: Html,
-        reportingPeriodForm: Form[forms.report.ReportingPeriodFormModel],
         longForm: Form[forms.report.LongFormModel],
         paymentCodes: Form[forms.report.PaymentCodesFormModel],
+        reportingPeriod: forms.report.ReportingPeriodFormModel,
         companyId: CompaniesHouseId,
         df: DateTimeFormatter,
-        serviceStartDate: LocalDate
+        serviceStartDate: LocalDate,
+        validations: forms.report.Validations
 )(implicit messages: MessagesApi, lang: Lang)
 
 <div id=contentStart">
-    @shared._errorBox(reportingPeriodForm)
+    @shared._errorBox(longForm)
 
 <div class="scannable-wrapper">
     @header
@@ -23,15 +24,11 @@
     </div>
     <p></p>
 
-    @shared._coverageInformation()
+
     @shared._day1Calculation()
 
-    <form action="@routes.ReportingPeriodController.post(companyId)" method="POST" id="longForm-report">
-        @for((k, v) <- longForm.data) {
-            <input type="hidden" name='@k' value="@HtmlFormat.escape(v)">
-        }
-
-        @for((k, v) <- paymentCodes.data) {
+    <form action="@routes.FilingController.postLongForm(companyId)" method="POST" id="longForm-report">
+        @for((k, v) <- validations.reportingPeriodFormModel.unbind(reportingPeriod)) {
             <input type="hidden" name='@k' value="@HtmlFormat.escape(v)">
         }
 
@@ -39,7 +36,11 @@
             Companies House number: @companyId.id
         </p>
 
-        @report._reportingPeriod(reportingPeriodForm)
+        @report._paymentStatistics(longForm)
+        @report._paymentTerms(longForm)
+        @report._disputeResolution(longForm)
+        @report._otherPaymentInfo(longForm)
+        @report._paymentCodes(paymentCodes)
 
         <input type="submit" class="button" name="Continue" value="Continue">
     </form>

@@ -27,7 +27,7 @@ import org.scalactic.TripleEquals._
 import play.api.Logger
 import play.api.data.Forms._
 import play.api.data.validation.{Constraint, Invalid, Valid}
-import play.api.data.{FormError, Mapping}
+import play.api.data.{Form, FormError, Mapping}
 import utils.YesNo.{No, Yes}
 import utils.{AdjustErrors, TimeSource}
 
@@ -96,20 +96,28 @@ class Validations @Inject()(timeSource: TimeSource, serviceConfig: ServiceConfig
     "hasQualifyingContracts" -> yesNo
   )(ReportingPeriodFormModel.apply)(ReportingPeriodFormModel.unapply)
 
+  val paymentCodesFormModel = mapping(
+    "paymentCodes"-> conditionalText(paymentCodesWordCount)
+  )(PaymentCodesFormModel.apply)(PaymentCodesFormModel.unapply)
+
   val reportFormModel = mapping(
     "paymentHistory" -> paymentHistory,
     "paymentTerms" -> paymentTerms,
     "offerEInvoicing" -> yesNo,
     "offerSupplyChainFinancing" -> yesNo,
     "retentionChargesInPolicy" -> yesNo,
-    "retentionChargesInPast" -> yesNo,
-    "paymentCodes" -> conditionalText(paymentCodesWordCount)
+    "retentionChargesInPast" -> yesNo
   )(LongFormModel.apply)(LongFormModel.unapply)
 
   val reportReviewModel = mapping(
     "confirmedBy" -> nonEmptyText(maxLength = 255),
   "confirmed" -> checked("error.confirm")
   )(ReportReviewModel.apply)(ReportReviewModel.unapply)
+
+  val emptyReportingPeriod: Form[ReportingPeriodFormModel] = Form(reportingPeriodFormModel)
+  val emptyLongForm: Form[LongFormModel] = Form(reportFormModel)
+  val emptyPaymentCodes: Form[PaymentCodesFormModel] = Form(paymentCodesFormModel)
+  val emptyReview: Form[ReportReviewModel] = Form(reportReviewModel)
 }
 
 

@@ -65,8 +65,8 @@ TwirlKeys.templateImports ++= Seq(
 )
 
 javaOptions := Seq(
-  "-Dconfig.file=src/main/resources/development.application.conf",
-  "-Dlogger.file=src/main/resources/development.logger.xml"
+  "-Dconfig.longForm=src/main/resources/development.application.conf",
+  "-Dlogger.longForm=src/main/resources/development.logger.xml"
 )
 
 // need this because we've disabled the PlayLayoutPlugin. without it twirl templates won't get

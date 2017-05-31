@@ -107,12 +107,11 @@ trait ReportService {
     *                  generates the absolute url for it.
     */
   def create(
-              confirmedBy: String,
-              companiesHouseId: CompaniesHouseId,
-              companyName: String,
+              companyDetail:CompanyDetail,
               reportingPeriod: ReportingPeriodFormModel,
-              reportFormModel: LongFormModel,
+              longForm: Option[LongFormModel],
+              paymentCodesFormModel: PaymentCodesFormModel,
               review: ReportReviewModel,
               confirmationEmailAddress: String,
-              reportUrl: ReportId => String): Future[ReportId]
+              reportUrl: (ReportId) => String): Future[ReportId]
 }

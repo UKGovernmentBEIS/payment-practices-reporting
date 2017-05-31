@@ -28,7 +28,7 @@ import org.joda.time.LocalDate
 import play.api.data.Form
 import play.api.data.Forms.single
 import play.api.i18n.MessagesApi
-import play.api.mvc.{Action, Controller}
+import play.api.mvc.{Action, Call, Controller}
 import play.twirl.api.Html
 import questionnaire._
 import services._
@@ -85,20 +85,19 @@ class VisualTestController @Inject()(
     )
 
     val reportValidations = new Validations(new SystemTimeSource, ServiceConfig.empty)
-    val emptyReportingPeriod: Form[ReportingPeriodFormModel] = Form(reportValidations.reportingPeriodFormModel)
-    val emptyReport: Form[LongFormModel] = Form(reportValidations.reportFormModel)
-    val emptyReview: Form[ReportReviewModel] = Form(reportValidations.reportReviewModel)
+    import reportValidations._
+
     val dummyReportingPeriod = ReportingPeriodFormModel(DateRange(LocalDate.now(), LocalDate.now()), No)
     val header = h1(s"Publish a report for:<br>$companyName")
     val serviceStartDate = serviceConfig.startDate.getOrElse(ServiceConfig.defaultServiceStartDate)
 
     val publish = Seq(
-      views.html.report.file(header, emptyReport, dummyReportingPeriod, id, df, serviceStartDate, reportValidations),
-      views.html.report.file(header, emptyReport.fill(LongFormModel(healthyLongForm, paymentCodes)), dummyReportingPeriod, id, df, serviceStartDate, reportValidations),
-      views.html.report.file(header, emptyReport.fillAndValidate(LongFormModel(unhealthyLongForm, paymentCodes)), dummyReportingPeriod, id, df, serviceStartDate, reportValidations)
+      views.html.report.longForm(header, emptyLongForm, emptyPaymentCodes, dummyReportingPeriod, id, df, serviceStartDate, reportValidations),
+      views.html.report.longForm(header, emptyLongForm.fill(LongFormModel(healthyLongForm)), emptyPaymentCodes.fill(PaymentCodesFormModel(paymentCodes)), dummyReportingPeriod, id, df, serviceStartDate, reportValidations),
+      views.html.report.longForm(header, emptyLongForm.fillAndValidate(LongFormModel(unhealthyLongForm)), emptyPaymentCodes.fill(PaymentCodesFormModel(paymentCodes)), dummyReportingPeriod, id, df, serviceStartDate, reportValidations)
     )
 
-    val review = Seq(views.html.report.review(emptyReview, LongFormModel(healthyLongForm, paymentCodes), dummyReportingPeriod, id, companyName, df, reportValidations))
+    val review = Seq(views.html.report.review(emptyReview, Some(LongFormModel(healthyLongForm)), PaymentCodesFormModel(paymentCodes), dummyReportingPeriod, Call("", ""), id, companyName, df, reportValidations))
     val published = Seq(views.html.report.filingSuccess(reportId, "foobar@example.com", pageConfig.surveyMonkeyConfig))
     val errors = Seq(
       views.html.errors.sessionTimeout(),

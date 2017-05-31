@@ -22,7 +22,7 @@ import javax.inject.{Inject, Named}
 import actions.{CompanyAuthAction, CompanyAuthRequest}
 import akka.actor.ActorRef
 import config.{PageConfig, ServiceConfig}
-import forms.report.{LongFormModel, ReportingPeriodFormModel, Validations}
+import forms.report.{LongFormModel, PaymentCodesFormModel, ReportingPeriodFormModel, Validations}
 import models.CompaniesHouseId
 import play.api.data.Form
 import play.api.i18n.MessagesApi
@@ -44,15 +44,15 @@ class ReportingPeriodController @Inject()(
 
   import views.html.{report => pages}
 
-  val emptyReportingPeriod: Form[ReportingPeriodFormModel] = Form(validations.reportingPeriodFormModel)
-  val emptyReport: Form[LongFormModel] = Form(validations.reportFormModel)
+
+  import validations._
 
   def reportPageHeader(implicit request: CompanyAuthRequest[_]): Html = h1(s"Publish a report for:<br>${request.companyDetail.companyName}")
   private def publishTitle(companyName: String) = s"Publish a report for $companyName"
   private def title(implicit request: CompanyAuthRequest[_]): String = publishTitle(request.companyDetail.companyName)
 
   def start(companiesHouseId: CompaniesHouseId) = CompanyAuthAction(companiesHouseId) { implicit request =>
-    Ok(page(title)(home, pages.reportingPeriod(reportPageHeader, emptyReportingPeriod, emptyReport, companiesHouseId, df, serviceStartDate)))
+    Ok(page(title)(home, pages.reportingPeriod(reportPageHeader, emptyReportingPeriod, emptyLongForm, emptyPaymentCodes, companiesHouseId, df, serviceStartDate)))
   }
 
   def post(companiesHouseId: CompaniesHouseId) = CompanyAuthAction(companiesHouseId)(parse.urlFormEncoded) { implicit request =>
@@ -60,13 +60,19 @@ class ReportingPeriodController @Inject()(
     // we don't want to carry any errors forward when we progress to the next page. This also
     // makes sure that when the user starts filing a new report that the next page doesn't start
     // out full of errors because the report is empty.
-    val reportForm = emptyReport.bindForm.discardingErrors
+    val longForm = emptyLongForm.bindForm.discardingErrors
+    val paymentCodesForm = emptyPaymentCodes.bindForm.discardingErrors
 
     val reportingPeriodForm = emptyReportingPeriod.bindForm
 
     reportingPeriodForm.fold(
-      errs => BadRequest(page(title)(home, pages.reportingPeriod(reportPageHeader, errs, reportForm, companiesHouseId, df, serviceStartDate))),
-      reportingPeriod => Ok(page(title)(home, pages.file(reportPageHeader, reportForm, reportingPeriod, companiesHouseId, df, serviceStartDate, validations)))
+      errs => BadRequest(page(title)(home, pages.reportingPeriod(reportPageHeader, errs, longForm, paymentCodesForm, companiesHouseId, df, serviceStartDate))),
+      reportingPeriod =>
+        if (reportingPeriod.hasQualifyingContracts.toBoolean)
+          Ok(page(title)(home, pages.longForm(reportPageHeader, longForm, paymentCodesForm, reportingPeriod, companiesHouseId, df, serviceStartDate, validations)))
+        else
+          Ok(page(title)(home, pages.shortForm(reportPageHeader, paymentCodesForm, reportingPeriod, companiesHouseId, df, serviceStartDate, validations)))
+
     )
   }
 }

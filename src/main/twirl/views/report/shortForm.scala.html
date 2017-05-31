@@ -1,0 +1,33 @@
+@(
+        header: Html,
+        reportForm: Form[forms.report.PaymentCodesFormModel],
+        reportingPeriod: forms.report.ReportingPeriodFormModel,
+        companyId: CompaniesHouseId,
+        df: DateTimeFormatter,
+        serviceStartDate: LocalDate,
+        validations: forms.report.Validations
+)(implicit messages: MessagesApi, lang: Lang)
+
+<div id=contentStart">
+    @shared._errorBox(reportForm)
+
+<div class="scannable-wrapper">
+    @header
+
+    <form action="@routes.FilingController.postShortForm(companyId)" method="POST" id="longForm-report">
+        @for((k, v) <- validations.reportingPeriodFormModel.unbind(reportingPeriod)) {
+            <input type="hidden" name='@k' value="@HtmlFormat.escape(v)">
+        }
+
+        <p class="small-aside">
+            Companies House number: @companyId.id
+        </p>
+
+        @report._paymentCodes(reportForm)
+
+        <input type="submit" class="button" name="Continue" value="Continue">
+    </form>
+
+    @report._scripts(df, serviceStartDate)
+</div>
+</div>

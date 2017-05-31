@@ -20,13 +20,12 @@ package slicks.repos
 import javax.inject.Inject
 
 import com.github.tminglei.slickpg.PgDateSupportJoda
-import dbrows._
-import forms.report.{LongFormModel, ReportReviewModel, ReportingPeriodFormModel}
+import forms.report.{LongFormModel, PaymentCodesFormModel, ReportReviewModel, ReportingPeriodFormModel}
 import models.{CompaniesHouseId, ReportId}
 import org.joda.time.LocalDate
 import org.reactivestreams.Publisher
 import play.api.db.slick.DatabaseConfigProvider
-import services.{Report, ReportService}
+import services.{CompanyDetail, Report, ReportService}
 import slicks.DBBinding
 import slicks.helpers.RowBuilders
 import slicks.modules.{ConfirmationModule, ReportModule}
@@ -43,6 +42,7 @@ class ReportTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(implic
     with RowBuilders {
 
   val db = dbConfigProvider.get.db
+
   import api._
 
   def reportByIdQ(reportId: Rep[ReportId]) = reportQuery.filter(_._1.reportId === reportId)
@@ -71,5 +71,22 @@ class ReportTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(implic
 
     db.stream(disableAutocommit andThen action).mapResult(Report.apply)
   }
-  override def create(confirmedBy: String, companiesHouseId: CompaniesHouseId, companyName: String, reportingPeriod: ReportingPeriodFormModel, reportFormModel: LongFormModel, review: ReportReviewModel, confirmationEmailAddress: String, reportUrl: (ReportId) => String): Future[ReportId] = ???
+
+  override def create(
+                       companyDetail: CompanyDetail,
+                       reportingPeriod: ReportingPeriodFormModel,
+                       longForm: Option[LongFormModel],
+                       paymentCodesFormModel: PaymentCodesFormModel,
+                       review: ReportReviewModel,
+                       confirmationEmailAddress: String,
+                       reportUrl: (ReportId) => String): Future[ReportId] = db.run {
+    val sf = buildShortFormRow(companyDetail, review, reportingPeriod, paymentCodesFormModel, confirmationEmailAddress)
+
+    {
+      for {
+        reportId <- shortFormTable.returning(shortFormTable.map(_.reportId)) += sf
+        _ <- longForm.map(longFormTable += buildLongFormRow(reportId, _)).getOrElse(DBIO.successful(()))
+      } yield reportId
+    }.transactionally
+  }
 }
