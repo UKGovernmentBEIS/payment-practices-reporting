@@ -21,7 +21,7 @@ import dbrows.{LongFormRow, ShortFormRow}
 import forms.report.{LongFormModel, PaymentCodesFormModel, ReportReviewModel, ReportingPeriodFormModel}
 import models.ReportId
 import org.joda.time.LocalDate
-import services.{CompanyDetail, LongForm}
+import services.CompanyDetail
 
 trait RowBuilders {
 
@@ -39,5 +39,25 @@ trait RowBuilders {
     )
   }
 
-  def buildLongFormRow(reportId: ReportId, longForm: LongFormModel) :LongFormRow = ???
+  def buildLongFormRow(reportId: ReportId, longForm: LongFormModel) :LongFormRow =
+    LongFormRow(
+      reportId,
+      longForm.paymentTerms.terms,
+      longForm.paymentTerms.paymentPeriod,
+      longForm.paymentTerms.maximumContractPeriod,
+      longForm.paymentTerms.maximumContractPeriodComment,
+      longForm.paymentTerms.paymentTermsChanged.comment.text,
+      longForm.paymentTerms.paymentTermsChanged.notified.flatMap(_.text),
+      longForm.paymentTerms.paymentTermsComment,
+      longForm.paymentTerms.disputeResolution,
+      longForm.offerEInvoicing,
+      longForm.offerSupplyChainFinancing,
+      longForm.retentionChargesInPolicy,
+      longForm.retentionChargesInPolicy,
+      longForm.paymentHistory.averageDaysToPay,
+      longForm.paymentHistory.percentPaidLaterThanAgreedTerms,
+      longForm.paymentHistory.percentageSplit.percentWithin30Days,
+      longForm.paymentHistory.percentageSplit.percentWithin60Days,
+      longForm.paymentHistory.percentageSplit.percentBeyond60Days
+    )
 }
