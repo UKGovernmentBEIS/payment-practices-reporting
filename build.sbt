@@ -10,11 +10,14 @@ git.useGitDescribe in ThisBuild := true
 
 scalaVersion in ThisBuild := "2.11.8"
 
-enablePlugins(PlayScala)
-disablePlugins(PlayLayoutPlugin)
-enablePlugins(GitVersioning)
-enablePlugins(GitBranchPrompt)
-enablePlugins(BuildInfoPlugin)
+lazy val `payment-practices-reporting` = project.in(file("."))
+  .enablePlugins(PlayScala)
+  .disablePlugins(PlayLayoutPlugin)
+  .enablePlugins(GitVersioning)
+  .enablePlugins(GitBranchPrompt)
+  .enablePlugins(BuildInfoPlugin)
+  .configs(IntegrationTest.extend(Test)) // integration tests use utility classes from unit tests
+  .settings(Defaults.itSettings: _*)
 
 resolvers += Resolver.bintrayRepo("gov-uk-notify", "maven")
 
