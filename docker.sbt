@@ -8,3 +8,4 @@ dockerBaseImage := "openjdk:8u102-jdk"
 dockerExposedPorts := Seq(9000)
 
 dockerUpdateLatest := true
+
