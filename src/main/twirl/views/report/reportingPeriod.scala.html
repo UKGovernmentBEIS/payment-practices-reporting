@@ -1,7 +1,7 @@
 @(
         header: Html,
         reportingPeriodForm: Form[forms.report.ReportingPeriodFormModel],
-        reportForm: Form[forms.report.ReportFormModel],
+        reportForm: Form[forms.report.LongFormModel],
         companyId: CompaniesHouseId,
         df: DateTimeFormatter,
         serviceStartDate: LocalDate
@@ -20,7 +20,7 @@
         <strong><a target="_blank" href="@routes.QuestionnaireController.start()">You should prepare</a>
             before filling in this form.</strong>
     </div>
-    <p/>
+    <p></p>
 
     @shared._coverageInformation()
     @shared._day1Calculation()

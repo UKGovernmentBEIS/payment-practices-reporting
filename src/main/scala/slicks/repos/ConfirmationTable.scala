@@ -19,11 +19,13 @@ package slicks.repos
 
 import javax.inject.Inject
 
-import dbrows.{ConfirmationFailedRow, ConfirmationPendingRow, ConfirmationSentRow}
+import dbrows._
+import forms.DateRange
+import forms.report.{ConditionalText, PaymentTerms, PaymentTermsChanged}
 import models.ReportId
 import org.joda.time.LocalDateTime
 import play.api.db.slick.DatabaseConfigProvider
-import services.{ConfirmationService, FiledReport}
+import services.{ConfirmationService, LongForm, Report}
 import slick.dbio.Effect.Write
 import slicks.modules.{ConfirmationModule, ReportModule}
 import uk.gov.service.notify.{NotificationClientException, SendEmailResponse}
@@ -38,17 +40,20 @@ class ConfirmationTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(
     with ReportQueries {
 
   val db = dbConfigProvider.get.db
+
   import api._
 
-  override def findUnconfirmedAndLock(): Future[Option[(ConfirmationPendingRow, FiledReport)]] = db.run {
+
+
+  override def findUnconfirmedAndLock(): Future[Option[(ConfirmationPendingRow, Report)]] = db.run {
     val lockTimeout = LocalDateTime.now().minusSeconds(30)
 
     val q = for {
       c <- confirmationPendingTable if c.lockedAt.isEmpty || c.lockedAt < lockTimeout
-      r <- filedReportQuery if r._1.id === c.reportId
+      r <- reportQuery if r._1.reportId === c.reportId
     } yield (c, r)
 
-    val action = q.result.headOption.map(_.map { case (c, r) => (c, FiledReport.tupled(r)) })
+    val action = q.result.headOption.map(_.map { case (c, r) => (c, Report.apply(r)) })
 
     action.flatMap {
       case Some((c, r)) =>

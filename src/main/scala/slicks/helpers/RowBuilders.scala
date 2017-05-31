@@ -17,49 +17,25 @@
 
 package slicks.helpers
 
-import dbrows._
-import forms.report.{ReportFormModel, ReportReviewModel, ReportingPeriodFormModel}
+import dbrows.ShortFormRow
+import forms.report.{ReportReviewModel, ReportingPeriodFormModel, ShortFormModel}
 import models.ReportId
 import org.joda.time.LocalDate
+import services.CompanyDetail
 
 trait RowBuilders {
-  def buildPeriodRow(reportingPeriod: ReportingPeriodFormModel, reportId: ReportId) =
-    ReportPeriodRow(reportId, reportingPeriod.reportDates.startDate, reportingPeriod.reportDates.endDate, reportingPeriod.hasQualifyingContracts)
 
-  def buildPaymentTermsRow(report: ReportFormModel, reportId: ReportId) =
-    PaymentTermsRow(
-      reportId,
-      report.paymentTerms.terms,
-      report.paymentTerms.paymentPeriod,
-      report.paymentTerms.maximumContractPeriod,
-      report.paymentTerms.maximumContractPeriodComment,
-      report.paymentTerms.paymentTermsChanged.comment.text,
-      report.paymentTerms.paymentTermsChanged.notified.flatMap(_.text),
-      report.paymentTerms.paymentTermsComment,
-      report.paymentTerms.disputeResolution
+  def buildShortFormRow(companyDetail: CompanyDetail, review: ReportReviewModel, reportingPeriod: ReportingPeriodFormModel, shortFormModel: ShortFormModel, confirmationEmail: String) = {
+    ShortFormRow(
+      ReportId(-1),
+      companyDetail.companyName,
+      companyDetail.companiesHouseId,
+      LocalDate.now(),
+      review.confirmedBy,
+      confirmationEmail,
+      reportingPeriod.reportDates.startDate,
+      reportingPeriod.reportDates.endDate,
+      shortFormModel.paymentCodes.text
     )
-
-  def buildPaymentHistoryRow(report: ReportFormModel, reportId: ReportId) = PaymentHistoryRow(
-    reportId,
-    report.paymentHistory.averageDaysToPay,
-    report.paymentHistory.percentPaidLaterThanAgreedTerms,
-    report.paymentHistory.percentageSplit.percentWithin30Days,
-    report.paymentHistory.percentageSplit.percentWithin60Days,
-    report.paymentHistory.percentageSplit.percentBeyond60Days
-  )
-
-  def buildOtherInfoRow(report: ReportFormModel, reportId: ReportId): OtherInfoRow =
-    OtherInfoRow(
-      reportId,
-      report.offerEInvoicing,
-      report.offerSupplyChainFinancing,
-      report.retentionChargesInPolicy,
-      report.retentionChargesInPast
-    )
-
-  def buildPaymentCodesRow(report: ReportFormModel, reportId: ReportId): PaymentCodesRow =
-    PaymentCodesRow(reportId, report.hasPaymentCodes.text)
-
-  def buildFilingRow(review: ReportReviewModel, reportId: ReportId, confirmationEmail:String): FilingRow =
-    FilingRow(reportId, new LocalDate(), review.confirmedBy, confirmationEmail)
+  }
 }

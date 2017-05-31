@@ -1,13 +1,13 @@
 @import org.joda.time.format.DateTimeFormatter
-@import services.FiledReport
-@(report: FiledReport, companiesHouseIdentifier: String, df: DateTimeFormatter)
+@import services.Report
+@(report: Report, companiesHouseIdentifier: String, df: DateTimeFormatter)
 <li class="searchresult">
     <h2 class="heading-medium">
-        <a href="@routes.ReportController.view(report.header.id)">
-            <span class="nowrap">@df.print(report.period.startDate)</span> to <span class="nowrap">@df.print(report.period.endDate)</span>
+        <a href="@routes.ReportController.view(report.id)">
+            <span class="nowrap">@df.print(report.reportDates.startDate)</span> to <span class="nowrap">@df.print(report.reportDates.endDate)</span>
         </a>
     </h2>
     <p>
-        Published: @df.print(report.filing.filingDate)
+        Published: @df.print(report.filingDate)
     </p>
 </li>

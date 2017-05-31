@@ -22,7 +22,7 @@ import javax.inject.{Inject, Named}
 import actions.{CompanyAuthAction, CompanyAuthRequest}
 import akka.actor.ActorRef
 import config.{PageConfig, ServiceConfig}
-import forms.report.{ReportFormModel, ReportReviewModel, ReportingPeriodFormModel, Validations}
+import forms.report.{LongFormModel, ReportReviewModel, ReportingPeriodFormModel, Validations}
 import models.{CompaniesHouseId, ReportId}
 import play.api.data.Form
 import play.api.data.Forms.{single, _}
@@ -46,7 +46,7 @@ class FilingController @Inject()(
   import views.html.{report => pages}
 
   val emptyReportingPeriod: Form[ReportingPeriodFormModel] = Form(validations.reportingPeriodFormModel)
-  val emptyReport: Form[ReportFormModel] = Form(validations.reportFormModel)
+  val emptyReport: Form[LongFormModel] = Form(validations.reportFormModel)
   val emptyReview: Form[ReportReviewModel] = Form(validations.reportReviewModel)
   private val reviewPageTitle = "Review your report"
 
@@ -91,7 +91,7 @@ class FilingController @Inject()(
     )
   }
 
-  private def checkConfirmation(companiesHouseId: CompaniesHouseId, reportingPeriod: ReportingPeriodFormModel, report: ReportFormModel)(implicit request: CompanyAuthRequest[Map[String, Seq[String]]]): Future[Result] = {
+  private def checkConfirmation(companiesHouseId: CompaniesHouseId, reportingPeriod: ReportingPeriodFormModel, report: LongFormModel)(implicit request: CompanyAuthRequest[Map[String, Seq[String]]]): Future[Result] = {
     emptyReview.bindForm.fold(
       errs => Future.successful(BadRequest(page(reviewPageTitle)(home, pages.review(errs, report, reportingPeriod, companiesHouseId, request.companyDetail.companyName, df, validations)))),
       review => {
@@ -111,7 +111,7 @@ class FilingController @Inject()(
     }
   }
 
-  private def createReport(companiesHouseId: CompaniesHouseId, reportingPeriod: ReportingPeriodFormModel, report: ReportFormModel, review: ReportReviewModel)(implicit request: CompanyAuthRequest[_]): Future[ReportId] = {
+  private def createReport(companiesHouseId: CompaniesHouseId, reportingPeriod: ReportingPeriodFormModel, report: LongFormModel, review: ReportReviewModel)(implicit request: CompanyAuthRequest[_]): Future[ReportId] = {
 
     val urlFunction: ReportId => String = (id: ReportId) => controllers.routes.ReportController.view(id).absoluteURL()
     for {
@@ -121,10 +121,10 @@ class FilingController @Inject()(
   }
 
   def showConfirmation(reportId: ReportId) = Action.async { implicit request =>
-    reports.findFiled(reportId).map {
+    reports.find(reportId).map {
       case Some(report) => Ok(
-        page(s"You have published a report for ${report.header.companyName}")
-        (home, pages.filingSuccess(reportId, report.filing.confirmationEmailAddress, pageConfig.surveyMonkeyConfig)))
+        page(s"You have published a report for ${report.companyName}")
+        (home, pages.filingSuccess(reportId, report.confirmationEmailAddress, pageConfig.surveyMonkeyConfig)))
       case None => BadRequest(s"Could not find a report with id ${reportId.id}")
     }
   }

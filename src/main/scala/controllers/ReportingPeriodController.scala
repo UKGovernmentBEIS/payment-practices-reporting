@@ -22,7 +22,7 @@ import javax.inject.{Inject, Named}
 import actions.{CompanyAuthAction, CompanyAuthRequest}
 import akka.actor.ActorRef
 import config.{PageConfig, ServiceConfig}
-import forms.report.{ReportFormModel, ReportingPeriodFormModel, Validations}
+import forms.report.{LongFormModel, ReportingPeriodFormModel, Validations}
 import models.CompaniesHouseId
 import play.api.data.Form
 import play.api.i18n.MessagesApi
@@ -45,7 +45,7 @@ class ReportingPeriodController @Inject()(
   import views.html.{report => pages}
 
   val emptyReportingPeriod: Form[ReportingPeriodFormModel] = Form(validations.reportingPeriodFormModel)
-  val emptyReport: Form[ReportFormModel] = Form(validations.reportFormModel)
+  val emptyReport: Form[LongFormModel] = Form(validations.reportFormModel)
 
   def reportPageHeader(implicit request: CompanyAuthRequest[_]): Html = h1(s"Publish a report for:<br>${request.companyDetail.companyName}")
   private def publishTitle(companyName: String) = s"Publish a report for $companyName"

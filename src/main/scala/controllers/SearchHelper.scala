@@ -36,7 +36,7 @@ trait SearchHelper {
     query match {
       case Some(q) => companySearch.searchCompanies(q, pageNumber.getOrElse(1), itemsPerPage.getOrElse(25)).flatMap { results =>
         val countsF = results.items.map { result =>
-          reportService.byCompanyNumber(result.companiesHouseId).map(rs => (result.companiesHouseId, rs.count(_.isFiled)))
+          reportService.byCompanyNumber(result.companiesHouseId).map(rs => (result.companiesHouseId, rs.length))
         }
 
         Future.sequence(countsF).map(counts => resultsPage(q, Some(results), Map(counts: _*)))

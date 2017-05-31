@@ -21,16 +21,15 @@ import javax.inject.Inject
 
 import com.github.tminglei.slickpg.PgDateSupportJoda
 import dbrows._
-import forms.report.{ReportFormModel, ReportReviewModel, ReportingPeriodFormModel}
+import forms.report.{LongFormModel, ReportReviewModel, ReportingPeriodFormModel}
 import models.{CompaniesHouseId, ReportId}
 import org.joda.time.LocalDate
 import org.reactivestreams.Publisher
 import play.api.db.slick.DatabaseConfigProvider
-import services.{FiledReport, Report, ReportService}
+import services.{Report, ReportService}
 import slicks.DBBinding
 import slicks.helpers.RowBuilders
 import slicks.modules.{ConfirmationModule, ReportModule}
-import utils.YesNo
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -46,20 +45,12 @@ class ReportTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(implic
   val db = dbConfigProvider.get.db
   import api._
 
-  def reportByIdQ(id: Rep[ReportId]) = reportQuery.filter(_._1.id === id)
+  def reportByIdQ(reportId: Rep[ReportId]) = reportQuery.filter(_._1.reportId === reportId)
 
   val reportByIdC = Compiled(reportByIdQ _)
 
   def find(id: ReportId): Future[Option[Report]] = db.run {
-    reportByIdC(id).result.headOption.map(_.map(Report.tupled))
-  }
-
-  def filedReportByIdQ(id: Rep[ReportId]) = filedReportQuery.filter(_._1.id === id)
-
-  val filedReportByIdC = Compiled(filedReportByIdQ _)
-
-  def findFiled(id: ReportId): Future[Option[FiledReport]] = db.run {
-    filedReportByIdC(id).result.headOption.map(_.map(FiledReport.tupled))
+    reportByIdC(id).result.headOption.map(_.map(Report.apply))
   }
 
   def reportByCoNoQ(cono: Rep[CompaniesHouseId]) = reportQuery.filter(_._1.companyId === cono)
@@ -67,41 +58,18 @@ class ReportTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(implic
   val reportByCoNoC = Compiled(reportByCoNoQ _)
 
   def byCompanyNumber(companiesHouseId: CompaniesHouseId): Future[Seq[Report]] = db.run {
-    reportByCoNoC(companiesHouseId).result.map(_.map(Report.tupled))
+    reportByCoNoC(companiesHouseId).result.map(_.map(Report.apply))
   }
 
   /**
     * Code to adjust fetchSize on Postgres driver taken from:
     * https://engineering.sequra.es/2016/02/database-streaming-on-play-with-slick-from-publisher-to-chunked-result/
     */
-  def list(cutoffDate: LocalDate): Publisher[FiledReport] = {
+  def list(cutoffDate: LocalDate): Publisher[Report] = {
     val disableAutocommit = SimpleDBIO(_.connection.setAutoCommit(false))
-    val action = filedReportQueryC.result.withStatementParameters(fetchSize = 10000)
+    val action = reportQueryC.result.withStatementParameters(fetchSize = 10000)
 
-    db.stream(disableAutocommit andThen action).mapResult(FiledReport.tupled)
+    db.stream(disableAutocommit andThen action).mapResult(Report.apply)
   }
-
-  override def create(
-                       confirmedBy: String,
-                       companiesHouseId: CompaniesHouseId,
-                       companyName: String,
-                       reportingPeriod:ReportingPeriodFormModel,
-                       report: ReportFormModel,
-                       review: ReportReviewModel,
-                       confirmationEmailAddress: String,
-                       reportUrl: ReportId => String
-                     ): Future[ReportId] = db.run {
-    val header = ReportHeaderRow(ReportId(0), companyName, companiesHouseId, new LocalDate(), new LocalDate())
-
-    (reportHeaderTable.returning(reportHeaderTable.map(_.id)) += header).flatMap { reportId =>
-      for {
-        _ <- reportPeriodTable += buildPeriodRow(reportingPeriod, reportId)
-        _ <- paymentTermsTable += buildPaymentTermsRow(report, reportId)
-        _ <- paymentHistoryTable += buildPaymentHistoryRow(report, reportId)
-        _ <- otherInfoTable += buildOtherInfoRow(report, reportId)
-        _ <- filingTable += buildFilingRow(review, reportId, confirmationEmailAddress)
-        _ <- confirmationPendingTable += ConfirmationPendingRow(reportId, confirmationEmailAddress, reportUrl(reportId), 0, None, None, None)
-      } yield reportId
-    }.transactionally
-  }
+  override def create(confirmedBy: String, companiesHouseId: CompaniesHouseId, companyName: String, reportingPeriod: ReportingPeriodFormModel, reportFormModel: LongFormModel, review: ReportReviewModel, confirmationEmailAddress: String, reportUrl: (ReportId) => String): Future[ReportId] = ???
 }

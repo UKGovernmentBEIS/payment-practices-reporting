@@ -1,0 +1,113 @@
+@(longForm: services.LongForm, paymentCodes: forms.report.ConditionalText)
+
+<h3 class="heading-medium">Payment statistics</h3>
+<p>Average time taken to pay invoices: <span class="datum">@longForm.paymentHistory.averageDaysToPay days</span></p>
+
+<p>
+    Invoices paid:
+</p>
+<ul class="list list-bullet">
+    <li>within 30 days: <span class="datum">@longForm.paymentHistory.percentageSplit.percentWithin30Days%</span></li>
+    <li>in 31 to 60 days: <span class="datum">@longForm.paymentHistory.percentageSplit.percentWithin60Days%</span></li>
+    <li>in 61 days or more: <span class="datum">@longForm.paymentHistory.percentageSplit.percentBeyond60Days%</span></li>
+</ul>
+
+<p>Invoices due but not paid within agreed terms: <span class="datum">@longForm.paymentHistory.percentPaidLaterThanAgreedTerms
+    %</span></p>
+
+<h3 class="heading-medium">Payment terms</h3>
+<h4 class="heading-small">Standard payment period</h4>
+<p>
+    @longForm.paymentTerms.paymentPeriod days
+</p>
+<h4 class="heading-small">Standard payment terms</h4>
+<p>
+@shared._multiline(longForm.paymentTerms.terms)
+</p>
+
+
+<h4 class="heading-small">Were there any changes to the standard payment terms in the reporting period?</h4>
+<p>
+@longForm.paymentTerms.paymentTermsChanged.comment.text.map { text =>
+<strong>Yes </strong> &ndash; @shared._multiline(text)
+}.getOrElse {
+    <strong>No</strong>
+}
+</p>
+@if(longForm.paymentTerms.paymentTermsChanged.comment.isDefined) {
+    <h4 class="heading-small">Were suppliers notified or consulted about these changes?</h4>
+    <p>
+    @longForm.paymentTerms.paymentTermsChanged.notified.map { c =>
+        @c.text.map { text =>
+        <strong>Yes </strong> &ndash;
+            @shared._multiline(text)
+        }.getOrElse {
+            <strong>No</strong>
+        }
+    }
+    </p>
+}
+
+<h4 class="heading-small">Maximum contractual payment period agreed</h4>
+<p>
+    @(longForm.paymentTerms.maximumContractPeriod) days
+</p>
+<p>
+@(longForm.paymentTerms.maximumContractPeriodComment.map(shared._multiline(_)))
+</p>
+
+
+<h4 class="heading-small">Any other information about payment terms</h4>
+<p>
+@longForm.paymentTerms.paymentTermsComment.map(text => shared._multiline(text)).getOrElse(<em>N/A</em>)
+</p>
+<h3 class="heading-medium">Dispute resolution process</h3>
+<p>
+@shared._multiline(longForm.paymentTerms.disputeResolution)
+</p>
+
+<h3 class="heading-medium">Other payment information</h3>
+<h4 class="heading-small">
+    Has this business signed up to a code of conduct or standards on payment practices? If so, which?
+</h4>
+<span class="form-hint">
+    For example, signatories to The Prompt Payment Code must commit to paying 95% of their invoices within 60 days.</span>
+<p>
+@paymentCodes.text.map { text =>
+<strong>Yes </strong> &ndash; @shared._multiline(text)
+}.getOrElse {
+    <strong>No</strong>
+}
+</p>
+<h4 class="heading-small">
+    Does this business offer e-invoicing?
+    <span class="form-hint">
+        This is where suppliers can electronically submit and track invoices. It’s not just allowing suppliers to email them an invoice.
+    </span>
+</h4>
+<p>
+@longForm.offerEInvoicing.entryName.capitalize
+</p>
+
+<h4 class="heading-small">
+    Does this business offer supply chain finance?
+    <span class="form-hint">
+        This is where a supplier who has submitted an invoice can be paid by a third-party finance provider earlier than the agreed payment date.
+        The business would then pay the finance provider the invoiced sum by the payment date.</span>
+</h4>
+<p>
+@longForm.offerSupplyChainFinance.entryName.capitalize
+</p>
+<h4 class="heading-small">
+    Under its payment practices and policies, can this business deduct sums from payments under qualifying contracts
+    as a charge for remaining on a supplier list?
+</h4>
+<p>
+@longForm.retentionChargesInPolicy.entryName.capitalize
+</p>
+<h4 class="heading-small">
+    During the reporting period, did the business deduct sums from payments as a charge for remaining on a supplier list?
+</h4>
+<p>
+@longForm.retentionChargesInPast.entryName.capitalize
+</p>

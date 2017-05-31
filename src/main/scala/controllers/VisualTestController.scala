@@ -21,8 +21,7 @@ import javax.inject.Inject
 
 import calculator.Calculator
 import config.{PageConfig, ServiceConfig}
-import dbrows._
-import forms.report.{ReportFormModel, ReportReviewModel, ReportingPeriodFormModel, Validations}
+import forms.report._
 import forms.{DateRange, Validations}
 import models.{CompaniesHouseId, DecisionState, ReportId}
 import org.joda.time.LocalDate
@@ -32,7 +31,7 @@ import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, Controller}
 import play.twirl.api.Html
 import questionnaire._
-import services.{CompanyDetail, CompanySearchResult, FiledReport, PagedResults}
+import services._
 import utils.YesNo.{No, Yes}
 import utils.{SystemTimeSource, YesNo}
 
@@ -87,7 +86,7 @@ class VisualTestController @Inject()(
 
     val reportValidations = new Validations(new SystemTimeSource, ServiceConfig.empty)
     val emptyReportingPeriod: Form[ReportingPeriodFormModel] = Form(reportValidations.reportingPeriodFormModel)
-    val emptyReport: Form[ReportFormModel] = Form(reportValidations.reportFormModel)
+    val emptyReport: Form[LongFormModel] = Form(reportValidations.reportFormModel)
     val emptyReview: Form[ReportReviewModel] = Form(reportValidations.reportReviewModel)
     val dummyReportingPeriod = ReportingPeriodFormModel(DateRange(LocalDate.now(), LocalDate.now()), No)
     val header = h1(s"Publish a report for:<br>$companyName")
@@ -95,11 +94,11 @@ class VisualTestController @Inject()(
 
     val publish = Seq(
       views.html.report.file(header, emptyReport, dummyReportingPeriod, id, df, serviceStartDate, reportValidations),
-      views.html.report.file(header, emptyReport.fill(ReportFormModel(healthyReport)), dummyReportingPeriod, id, df, serviceStartDate, reportValidations),
-      views.html.report.file(header, emptyReport.fillAndValidate(ReportFormModel(unhealthyReport)), dummyReportingPeriod, id, df, serviceStartDate, reportValidations)
+      views.html.report.file(header, emptyReport.fill(LongFormModel(healthyLongForm, paymentCodes)), dummyReportingPeriod, id, df, serviceStartDate, reportValidations),
+      views.html.report.file(header, emptyReport.fillAndValidate(LongFormModel(unhealthyLongForm, paymentCodes)), dummyReportingPeriod, id, df, serviceStartDate, reportValidations)
     )
 
-    val review = Seq(views.html.report.review(emptyReview, ReportFormModel(healthyReport), dummyReportingPeriod, id, companyName, df, reportValidations))
+    val review = Seq(views.html.report.review(emptyReview, LongFormModel(healthyLongForm, paymentCodes), dummyReportingPeriod, id, companyName, df, reportValidations))
     val published = Seq(views.html.report.filingSuccess(reportId, "foobar@example.com", pageConfig.surveyMonkeyConfig))
     val errors = Seq(
       views.html.errors.sessionTimeout(),
@@ -155,24 +154,39 @@ class VisualTestController @Inject()(
 
   val reportId = ReportId(0)
 
-  val healthyReport = FiledReport(
-    ReportHeaderRow(reportId, "ABC Limited", CompaniesHouseId("1234567890"), LocalDate.now, LocalDate.now),
-    ReportPeriodRow(reportId, startDate, endDate, Yes),
-    PaymentTermsRow(reportId, "payment terms", 30, 30, Some("Maximum period is very fair"), Some("Payment terms have changed"), Some("We told everyone"), Some("Other comments"), "Dispute resolution process is the best"),
-    PaymentHistoryRow(reportId, 30, 10, 33, 33, 33),
-    OtherInfoRow(reportId, No, Yes, No, Yes),
-    PaymentCodesRow(reportId, Some("Payment Practice Code")),
-    FilingRow(reportId, LocalDate.now, "The big boss", "bigboss@thebigcompany.com")
-  )
+  private val paymentCodes = ConditionalText("Payment Practice Code")
 
-  val unhealthyReport = FiledReport(
-    ReportHeaderRow(reportId, "ABC Limited", CompaniesHouseId("1234567890"), LocalDate.now, LocalDate.now),
-    ReportPeriodRow(reportId, startDate.plusYears(1), endDate.plusYears(1), Yes),
-    PaymentTermsRow(reportId, "payment terms", -1, 200, Some("Maximum period is very fair"), Some("Payment terms have changed"), Some("We told everyone"), Some("Other comments"), "Dispute resolution process is the best"),
-    PaymentHistoryRow(reportId, -1, 200, 20, 33, 33),
-    OtherInfoRow(reportId, No, Yes, No, Yes),
-    PaymentCodesRow(reportId, Some("Payment Practice Code")),
-    FilingRow(reportId, LocalDate.now, "The big boss", "bigboss@thebigcompany.com")
+  lazy val healthyReport = Report(
+    reportId, "ABC Limited", CompaniesHouseId("1234567890"), LocalDate.now,
+    "The big boss", "bigboss@thebigcompany.com", DateRange(startDate, endDate), paymentCodes,
+    Some(healthyLongForm))
+
+  val healthyLongForm = LongForm(
+    PaymentTerms(
+      30,
+      "payment terms",
+      30,
+      Some("Maximum period is very fair"),
+      PaymentTermsChanged(ConditionalText("Payment terms have changed"), Some(ConditionalText("We told everyone"))),
+      Some("Other comments"),
+      "Dispute resolution process is the best"),
+    PaymentHistory(30, 10, PercentageSplit(33, 33, 33)),
+    No, Yes, No, Yes)
+
+
+  lazy val unhealthyReport = Report(
+    reportId, "ABC Limited", CompaniesHouseId("1234567890"), LocalDate.now,
+    "The big boss", "bigboss@thebigcompany.com", DateRange(startDate.plusYears(1), endDate.plusYears(1)), paymentCodes,
+    Some(unhealthyLongForm))
+
+  val unhealthyLongForm = LongForm(
+    PaymentTerms(-1, "payment terms", 200, Some("Maximum period is very fair"),
+      PaymentTermsChanged(ConditionalText("Payment terms have changed"), Some(ConditionalText("We told everyone"))),
+      Some("Other comments"),
+      "Dispute resolution process is the best"
+    ),
+    PaymentHistory(-1, 200, PercentageSplit(20, 33, 33)),
+    No, Yes, No, Yes
   )
 
 }

@@ -1,0 +1,18 @@
+@(paymentCodes: forms.report.ConditionalText)
+
+<p>
+    The business stated that it did enter into any qualifying contracts in the reporting period.
+</p>
+
+<h4 class="heading-small">
+    Has this business signed up to a code of conduct or standards on payment practices? If so, which?
+</h4>
+<span class="form-hint">
+    For example, signatories to The Prompt Payment Code must commit to paying 95% of their invoices within 60 days.</span>
+<p>
+@paymentCodes.text.map { text =>
+<strong>Yes </strong> &ndash; @shared._multiline(text)
+}.getOrElse {
+    <strong>No</strong>
+}
+</p>

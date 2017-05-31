@@ -17,7 +17,7 @@
 
 package views.html.helpers
 
-import forms.report.{ConditionalText, ReportFormModel, ReportingPeriodFormModel}
+import forms.report.{ConditionalText, LongFormModel, ReportingPeriodFormModel}
 import org.joda.time.LocalDate
 import org.joda.time.format.DateTimeFormat
 import play.twirl.api.{Html, HtmlFormat}
@@ -57,18 +57,18 @@ object ReviewPageData extends HtmlHelpers {
     * The review page can be reconfigured by changing this list of tables or by changing
     * the content of the various groups.
     */
-  def groups(companyName: String, reportingPeriod: ReportingPeriodFormModel, report: ReportFormModel): Seq[TableDescriptor] = Seq(
+  def groups(companyName: String, reportingPeriod: ReportingPeriodFormModel, report: LongFormModel): Seq[TableDescriptor] = Seq(
     "check-answers check-answers-essay" -> group1(companyName, reportingPeriod, report),
     "check-answers check-answers-essay" -> group2(report),
     "check-answers check-answers-essay" -> group3(report)
   )
 
-  def group1(companyName: String, reportingPeriod: ReportingPeriodFormModel, report: ReportFormModel): Seq[RowDescriptor] =
+  def group1(companyName: String, reportingPeriod: ReportingPeriodFormModel, report: LongFormModel): Seq[RowDescriptor] =
     topLevelInfo(companyName) ++ reportingDateRows(reportingPeriod) ++ paymentHistoryRows(report)
 
-  def group2(r: ReportFormModel) = paymentTermsRows(r)
+  def group2(r: LongFormModel) = paymentTermsRows(r)
 
-  def group3(r: ReportFormModel) = otherInfoRows(r)
+  def group3(r: LongFormModel) = otherInfoRows(r)
 
   def topLevelInfo(companyName: String): Seq[(String, Html)] = Seq(
     ("Company or limited liability partnership", companyName)
@@ -79,7 +79,7 @@ object ReviewPageData extends HtmlHelpers {
     "End date of reporting period" -> df.print(r.reportDates.endDate)
   )
 
-  def paymentHistoryRows(r: ReportFormModel): Seq[(String, Html)] = Seq(
+  def paymentHistoryRows(r: LongFormModel): Seq[(String, Html)] = Seq(
     ("Average number of days for making payment", (r.paymentHistory.averageDaysToPay, "days")),
     ("Percentage of invoices paid within 30 days", (r.paymentHistory.percentageSplit.percentWithin30Days, "%")),
     ("Percentage of invoices paid within 31 to 60 days", (r.paymentHistory.percentageSplit.percentWithin60Days, "%")),
@@ -87,7 +87,7 @@ object ReviewPageData extends HtmlHelpers {
     ("Percentage of invoices not paid within agreed terms", (r.paymentHistory.percentPaidLaterThanAgreedTerms, "%"))
   )
 
-  def paymentTermsRows(r: ReportFormModel): Seq[(String, Html)] = Seq(
+  def paymentTermsRows(r: LongFormModel): Seq[(String, Html)] = Seq(
     ("Standard payment period", (r.paymentTerms.paymentPeriod, "days")),
     ("Standard payment terms", r.paymentTerms.terms),
     ("Any changes to standard payment terms", conditionalText(r.paymentTerms.paymentTermsChanged.comment)),
@@ -99,12 +99,12 @@ object ReviewPageData extends HtmlHelpers {
     ("Your dispute resolution process", breakLines(r.paymentTerms.disputeResolution))
   )
 
-  def otherInfoRows(r: ReportFormModel): Seq[(String, Html)] = Seq(
+  def otherInfoRows(r: LongFormModel): Seq[(String, Html)] = Seq(
     ("Do you offer e-invoicing?", r.offerEInvoicing),
     ("Do you offer offer supply chain finance?", r.offerSupplyChainFinancing),
     ("Do you have a policy of deducting sums from payments under qualifying contracts as a charge for remaining on a supplier list?", r.retentionChargesInPolicy),
     ("In this reporting period, have you deducted any sum from payments under qualifying contracts as a charge for remaining on a supplier list?", r.retentionChargesInPast),
-    ("Are you a member of a code of conduct or standards on payment practices?", conditionalText(r.hasPaymentCodes))
+    ("Are you a member of a code of conduct or standards on payment practices?", conditionalText(r.paymentCodes))
   )
 
 }

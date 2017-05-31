@@ -104,7 +104,7 @@ class Validations @Inject()(timeSource: TimeSource, serviceConfig: ServiceConfig
     "retentionChargesInPolicy" -> yesNo,
     "retentionChargesInPast" -> yesNo,
     "paymentCodes" -> conditionalText(paymentCodesWordCount)
-  )(ReportFormModel.apply)(ReportFormModel.unapply)
+  )(LongFormModel.apply)(LongFormModel.unapply)
 
   val reportReviewModel = mapping(
     "confirmedBy" -> nonEmptyText(maxLength = 255),

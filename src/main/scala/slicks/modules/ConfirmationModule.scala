@@ -34,7 +34,7 @@ trait ConfirmationModule extends DBBinding {
   class ConfirmationFailedTable(tag: Tag) extends Table[ConfirmationFailedRow](tag, "confirmation_failed") {
     def reportId = column[ReportId]("report_id", O.Length(IdType.length))
 
-    def reportIdFK = foreignKey("confirmationfailed_report_fk", reportId, reportHeaderTable)(_.id, onDelete = ForeignKeyAction.Cascade)
+    def reportIdFK = foreignKey("confirmationfailed_report_fk", reportId, shortFormTable)(_.reportId, onDelete = ForeignKeyAction.Cascade)
 
     def reportIdIndex = index("confirmationfailed_report_idx", reportId, unique = true)
 
@@ -56,7 +56,7 @@ trait ConfirmationModule extends DBBinding {
   class ConfirmationSentTable(tag: Tag) extends Table[ConfirmationSentRow](tag, "confirmation_sent") {
     def reportId = column[ReportId]("report_id", O.Length(IdType.length))
 
-    def reportIdFK = foreignKey("confirmationsent_report_fk", reportId, reportHeaderTable)(_.id, onDelete = ForeignKeyAction.Cascade)
+    def reportIdFK = foreignKey("confirmationsent_report_fk", reportId, shortFormTable)(_.reportId, onDelete = ForeignKeyAction.Cascade)
 
     def reportIdIndex = index("confirmationsent_report_idx", reportId, unique = true)
 
@@ -78,7 +78,7 @@ trait ConfirmationModule extends DBBinding {
   class ConfirmationPendingTable(tag: Tag) extends Table[ConfirmationPendingRow](tag, "confirmation_pending") {
     def reportId = column[ReportId]("report_id", O.Length(IdType.length))
 
-    def reportIdFK = foreignKey("confirmationpending_report_fk", reportId, reportHeaderTable)(_.id, onDelete = ForeignKeyAction.Cascade)
+    def reportIdFK = foreignKey("confirmationpending_report_fk", reportId, shortFormTable)(_.reportId, onDelete = ForeignKeyAction.Cascade)
 
     def reportIdIndex = index("confirmationpending_report_idx", reportId, unique = true)
 

@@ -104,10 +104,10 @@ class ReportController @Inject()(
 
   def view(reportId: ReportId) = Action.async { implicit request =>
     val f = for {
-      report <- OptionT(reportService.findFiled(reportId))
+      report <- OptionT(reportService.find(reportId))
     } yield {
       val crumbs = breadcrumbs(homeBreadcrumb)
-      Ok(page(s"Payment practice report for ${report.header.companyName}")(crumbs, views.html.search.report(report, df)))
+      Ok(page(s"Payment practice report for ${report.companyName}")(crumbs, views.html.search.report(report, df)))
     }
 
     f.value.map {
