@@ -39,7 +39,8 @@ case class ContractDetailsRow(
                                reportId: ReportId,
 
                                paymentTerms: String,
-                               paymentPeriod: Int,
+                               shortestPaymentPeriod: Int,
+                               longestPaymentPeriod: Option[Int],
                                maximumContractPeriod: Int,
                                maximumContractPeriodComment: Option[String],
                                paymentTermsChangedComment: Option[String],

@@ -58,8 +58,9 @@ class Validations @Inject()(timeSource: TimeSource, serviceConfig: ServiceConfig
   )(PaymentHistory.apply)(PaymentHistory.unapply)
 
 
-  val paymentTerms: Mapping[PaymentTerms] = mapping(
-    "paymentPeriod" -> number(min = 0),
+  private val pt: Mapping[PaymentTerms] = mapping(
+    "shortestPaymentPeriod" -> number(min = 0),
+    "longestPaymentPeriod" -> optional(number(min = 0)),
     "terms" -> words(1, paymentTermsWordCount),
     "maximumContractPeriod" -> number(min = 0),
     "maximumContractPeriodComment" -> optional(words(1, maxContractPeriodCommentWordCount)),
@@ -67,6 +68,16 @@ class Validations @Inject()(timeSource: TimeSource, serviceConfig: ServiceConfig
     "paymentTermsComment" -> optional(words(1, paymentTermsCommentWordCount)),
     "disputeResolution" -> words(1, disputeResolutionWordCount)
   )(PaymentTerms.apply)(PaymentTerms.unapply)
+    .verifying("error.shortestNotLessThanLongest", pt => pt.longestPaymentPeriod.forall(longest => pt.shortestPaymentPeriod < longest))
+
+  val paymentTerms: Mapping[PaymentTerms] = AdjustErrors(pt) { (key, errs) =>
+    errs.map {
+      case FormError(k, messages, args) if messages.headOption.contains("error.shortestNotLessThanLongest") =>
+        FormError(s"paymentTerms.longestPaymentPeriod", messages, args)
+
+      case e => e
+    }
+  }
 
   private def now() = new LocalDate(timeSource.currentTimeMillis())
 
@@ -97,7 +108,7 @@ class Validations @Inject()(timeSource: TimeSource, serviceConfig: ServiceConfig
   )(ReportingPeriodFormModel.apply)(ReportingPeriodFormModel.unapply)
 
   private val paymentCodesValidation = "paymentCodes" -> conditionalText(paymentCodesWordCount)
-  
+
   val shortFormModel = mapping(
     paymentCodesValidation
   )(ShortFormModel.apply)(ShortFormModel.unapply)

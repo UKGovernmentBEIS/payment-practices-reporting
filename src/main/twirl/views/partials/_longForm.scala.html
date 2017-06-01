@@ -16,10 +16,21 @@
     %</span></p>
 
 <h3 class="heading-medium">Payment terms</h3>
-<h4 class="heading-small">Standard payment period</h4>
-<p>
-    @longForm.paymentTerms.paymentPeriod days
-</p>
+@longForm.paymentTerms.longestPaymentPeriod.map { longest =>
+    <h4 class="heading-small">Shortest standard payment period</h4>
+    <p>
+        @longForm.paymentTerms.shortestPaymentPeriod days
+    </p>
+    <h4 class="heading-small">Longest standard payment period</h4>
+    <p>
+        @longest days
+    </p>
+}.getOrElse {
+    <h4 class="heading-small">Standard payment period for qualifying contracts</h4>
+    <p>
+        @longForm.paymentTerms.shortestPaymentPeriod days
+    </p>
+}
 <h4 class="heading-small">Standard payment terms</h4>
 <p>
 @shared._multiline(longForm.paymentTerms.terms)

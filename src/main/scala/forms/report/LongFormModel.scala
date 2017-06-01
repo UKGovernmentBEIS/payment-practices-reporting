@@ -104,7 +104,8 @@ case class PaymentTermsChanged(comment: ConditionalText, notified: Option[Condit
 }
 
 case class PaymentTerms(
-                         paymentPeriod: Int,
+                         shortestPaymentPeriod: Int,
+                         longestPaymentPeriod: Option[Int],
                          terms: String,
                          maximumContractPeriod: Int,
                          maximumContractPeriodComment: Option[String],
@@ -115,7 +116,7 @@ case class PaymentTerms(
 
 object PaymentTerms {
   def apply(row: ContractDetailsRow): PaymentTerms =
-    PaymentTerms(row.paymentPeriod, row.paymentTerms, row.maximumContractPeriod, row.maximumContractPeriodComment,
+    PaymentTerms(row.shortestPaymentPeriod, row.longestPaymentPeriod, row.paymentTerms, row.maximumContractPeriod, row.maximumContractPeriodComment,
       pt(row),
       row.paymentTermsChangedComment,
       row.disputeResolution
