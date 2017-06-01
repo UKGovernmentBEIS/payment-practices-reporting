@@ -43,7 +43,8 @@ trait RowBuilders {
     ContractDetailsRow(
       reportId,
       longForm.paymentTerms.terms,
-      longForm.paymentTerms.paymentPeriod,
+      longForm.paymentTerms.shortestPaymentPeriod,
+      longForm.paymentTerms.longestPaymentPeriod,
       longForm.paymentTerms.maximumContractPeriod,
       longForm.paymentTerms.maximumContractPeriodComment,
       longForm.paymentTerms.paymentTermsChanged.comment.text,

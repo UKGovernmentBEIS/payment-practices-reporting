@@ -3,7 +3,9 @@
     @import shared.{_numberField, _textBox, _yesNoField}
 
 <h2 class="heading-large">Payment terms for qualifying contracts</h2>
-@_numberField(form, "paymentTerms.paymentPeriod", Some("days"))
+@_numberField(form, "paymentTerms.shortestPaymentPeriod", Some("days"))
+@_numberField(form, "paymentTerms.longestPaymentPeriod", Some("days"))
+
 @_textBox(form, "paymentTerms.terms")
 
 @_yesNoField(form, "paymentTerms.paymentTermsChanged.changed.yesNo")

@@ -81,8 +81,10 @@ field.paymentHistory.percentageSplit.percentBeyond60Days.hint=
 field.paymentTerms.terms.label=Describe your standard payment terms
 field.paymentTerms.terms.hint=This is your business’s standard terms relating to payment for qualifying contracts. This includes (if applicable) your standard payment terms for different types of qualifying contract. If you do not use standard terms then you should use the most frequently used payment terms for qualifying contracts, including for different types of qualifying contract. As well as briefly describing your terms, you could also include a link to your website if the full terms can be found there.
 
-field.paymentTerms.paymentPeriod.label=Enter your standard payment period in days
-field.paymentTerms.paymentPeriod.hint=The standard payment period is the contractual length of time for your business to make payments, as set out in the standard payment terms for qualifying contracts. If your business does not have standard terms, the standard payment period will be the contractual payment period in your business’s most commonly used terms for the reporting period. And if your business uses different terms for different types of qualifying contract, you must give the periods for the different contract types, as set out in the standard or most frequently used terms for each contract type.
+field.paymentTerms.shortestPaymentPeriod.label=Enter your shortest (or only) standard payment period in days
+field.paymentTerms.shortestPaymentPeriod.hint=The standard payment period is the contractual length of time for your business to make payments, as set out in the standard payment terms for qualifying contracts. If your business does not have standard terms, the standard payment period will be the contractual payment period in your business’s most commonly used terms for the reporting period. And if your business uses different terms for different types of qualifying contract, you must give the periods for the different contract types, as set out in the standard or most frequently used terms for each contract type.
+field.paymentTerms.longestPaymentPeriod.label=Optional: Enter your longest standard payment period in days
+field.paymentTerms.longestPaymentPeriod.hint=If you only have one standard payment period, you should use only the first box to enter a figure. If you have more than one standard payment period, you must enter the shortest and longest period in days using both boxes, and then describe in the Standard Payment Terms text box what each of you standard payment periods is for. If you have a range instead of a single figure, you should enter the range and then include information in the Standard Payment Terms text box about how the range is calculated.
 
 field.paymentTerms.maximumContractPeriod.label=Enter your maximum contractual payment period
 field.paymentTerms.maximumContractPeriod.hint=The maximum payment period is the longest period for payment that your business has agreed to, in a qualifying contract entered in the reporting period.
@@ -175,3 +177,6 @@ error.needchoicetocontinue.description=You need to choose an option to continue.
 
 error.confirm=You must tick this checkbox to proceed.
 error.confirm.description=You must tick this checkbox to proceed.
+
+error.shortestNotLessThanLongest=The longest period must be greater than the shortest period
+error.shortestNotLessThanLongest.description=If present, the longest payment period must be greater than the shortest payment period

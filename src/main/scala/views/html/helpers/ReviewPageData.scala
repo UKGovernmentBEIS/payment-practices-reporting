@@ -103,7 +103,8 @@ object ReviewPageData extends HtmlHelpers {
   )
 
   def paymentTermsRows(r: LongFormModel): Seq[RowDescriptor] = Seq(
-    ("Standard payment period", (r.paymentTerms.paymentPeriod, "days")),
+    ("Shortest standard payment period", (r.paymentTerms.shortestPaymentPeriod, "days")),
+    ("Longest standard payment period", (r.paymentTerms.longestPaymentPeriod, "days")),
     ("Standard payment terms", r.paymentTerms.terms),
     ("Any changes to standard payment terms", r.paymentTerms.paymentTermsChanged.comment),
     ("Did you consult or notify your suppliers about changes?",
@@ -155,12 +156,14 @@ trait HtmlHelpers {
     * and format them up. would be better to have strong types representing days and percentages.
     */
   implicit def unitsToHtml(p: (Int, String)): Html = Html(s"${p._1} ${p._2}")
+  implicit def optUnitsToHtml(p: (Option[Int], String)): Html = p._1.map(i => Html(s"$i ${p._2}")).getOrElse(Html(""))
 
   implicit def dateToHtml(d: LocalDate): Html = Html(d.toString)
 
   implicit def yesNoToHtml(yn: YesNo): Html = Html(yesNo(yn))
 
   implicit def optionToHtml(o: Option[String]): Html = Html(o.map(limitLength(_)).getOrElse(""))
+  implicit def optionIntToHtml(o: Option[Int]): Html = Html(o.map(_.toString).getOrElse(""))
 
   implicit def optionHtmlToHtml(o: Option[Html]): Html = o.getOrElse(Html(""))
 }
