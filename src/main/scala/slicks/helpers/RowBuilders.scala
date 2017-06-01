@@ -53,7 +53,7 @@ trait RowBuilders {
       longForm.offerEInvoicing,
       longForm.offerSupplyChainFinancing,
       longForm.retentionChargesInPolicy,
-      longForm.retentionChargesInPolicy,
+      longForm.retentionChargesInPast,
       longForm.paymentHistory.averageDaysToPay,
       longForm.paymentHistory.percentPaidLaterThanAgreedTerms,
       longForm.paymentHistory.percentageSplit.percentWithin30Days,
