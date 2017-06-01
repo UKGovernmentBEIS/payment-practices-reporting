@@ -17,7 +17,7 @@
 
 import javax.inject._
 
-import config.PageConfig
+import config.{PageConfig, ServiceConfig}
 import controllers.PageHelper
 import org.scalactic.TripleEquals._
 import play.api._
@@ -31,6 +31,7 @@ import scala.concurrent.Future
 @Singleton
 class ErrorHandler @Inject()(
                               val pageConfig: PageConfig,
+                              val serviceConfig: ServiceConfig,
                               env: Environment,
                               conf: Configuration,
                               sourceMapper: OptionalSourceMapper,

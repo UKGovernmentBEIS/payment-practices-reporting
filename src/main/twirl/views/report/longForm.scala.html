@@ -1,0 +1,48 @@
+@(
+        header: Html,
+        longForm: Form[forms.report.LongFormModel],
+        stashData: Map[String, String],
+        companyId: CompaniesHouseId,
+        df: DateTimeFormatter,
+        serviceStartDate: LocalDate
+)(implicit messages: MessagesApi, lang: Lang)
+
+<div id=contentStart">
+    @shared._errorBox(longForm)
+
+<div class="scannable-wrapper">
+    @header
+
+    <div class="notice">
+        <i class="icon icon-important">
+            <span class="visually-hidden">Warning</span>
+        </i>
+        <strong><a target="_blank" href="@routes.QuestionnaireController.start()">You should prepare</a>
+            before filling in this form.</strong>
+    </div>
+    <p></p>
+
+
+    @shared._day1Calculation()
+
+    <form action="@routes.LongFormController.postForm(companyId)" method="POST" id="longForm-report">
+        @for((k, v) <- stashData) {
+            <input type="hidden" name='@k' value="@HtmlFormat.escape(v)">
+        }
+
+        <p class="small-aside">
+            Companies House number: @companyId.id
+        </p>
+
+        @report._paymentStatistics(longForm)
+        @report._paymentTerms(longForm)
+        @report._disputeResolution(longForm)
+        @report._otherPaymentInfo(longForm)
+        @report._paymentCodes(longForm)
+
+        <input type="submit" class="button" name="Continue" value="Continue">
+    </form>
+
+    @report._scripts(df, serviceStartDate)
+</div>
+</div>

@@ -1,14 +1,14 @@
-@(report: services.FiledReport, df: DateTimeFormatter)
+@(report: services.Report, df: DateTimeFormatter)
 
 <div id="contentStart" class="scannable-wrapper">
-    <h1 class="heading-xlarge"> @report.header.companyName
-    <p class="small-aside">Company number: @report.header.companyId.id</p>
+    <h1 class="heading-xlarge"> @report.companyName
+    <p class="small-aside">Company number: @report.companyId.id</p>
     </h1>
 
     <h2 class="heading-large">
         Reporting period:<br>
-        <span class="nowrap">@df.print(report.period.startDate)</span>
-        to <span class="nowrap">@df.print(report.period.endDate)</span>
+        <span class="nowrap">@df.print(report.reportDates.startDate)</span>
+        to <span class="nowrap">@df.print(report.reportDates.endDate)</span>
     </h2>
     <hr>
 
@@ -19,116 +19,13 @@
         <strong>This information is as reported by the business, and responses are in their own words.</strong>
     </div>
 
-    <h3 class="heading-medium">This report was filed on @df.print(report.header.createdAt)</h3>
-    <p>and approved by @report.filing.approvedBy</p>
+    <h3 class="heading-medium">This report was filed on @df.print(report.filingDate)</h3>
+    <p>and approved by @report.approvedBy</p>
 
-    <h3 class="heading-medium">Payment statistics</h3>
-    <p>Average time taken to pay invoices: <span class="datum">@report.paymentHistory.averageDaysToPay days</span></p>
-
-    <p>
-        Invoices paid:
-    </p>
-    <ul class="list list-bullet">
-        <li>within 30 days: <span class="datum">@report.paymentHistory.percentInvoicesWithin30Days%</span></li>
-        <li>in 31 to 60 days: <span class="datum">@report.paymentHistory.percentInvoicesWithin60Days%</span></li>
-        <li>in 61 days or more: <span class="datum">@report.paymentHistory.percentInvoicesBeyond60Days%</span></li>
-    </ul>
-
-    <p>Invoices due but not paid within agreed terms: <span class="datum">@report.paymentHistory.percentPaidLaterThanAgreedTerms
-        %</span></p>
-
-    <h3 class="heading-medium">Payment terms</h3>
-    <h4 class="heading-small">Standard payment period</h4>
-    <p>
-        @report.paymentTerms.paymentPeriod days
-    </p>
-    <h4 class="heading-small">Standard payment terms</h4>
-    <p>
-    @shared._multiline(report.paymentTerms.paymentTerms)
-    </p>
-
-
-    <h4 class="heading-small">Were there any changes to the standard payment terms in the reporting period?</h4>
-    <p>
-    @report.paymentTerms.paymentTermsChangedComment.map { text =>
-    <strong>Yes </strong> &ndash; @shared._multiline(text)
+    @report.contractDetails.map { lf =>
+        @partials._longForm(lf, report.paymentCodes)
     }.getOrElse {
-        <strong>No</strong>
+        @partials._shortForm(report.paymentCodes)
     }
-    </p>
-    @if(report.paymentTerms.paymentTermsChangedComment.isDefined) {
-        <h4 class="heading-small">Were suppliers notified or consulted about these changes?</h4>
-        <p>
-        @report.paymentTerms.paymentTermsChangedNotifiedComment.map { text =>
-        <strong>Yes </strong> &ndash; @shared._multiline(text)
-        }.getOrElse {
-            <strong>No</strong>
-        }
-        </p>
-    }
-
-    <h4 class="heading-small">Maximum contractual payment period agreed</h4>
-    <p>
-        @(report.paymentTerms.maximumContractPeriod) days
-    </p>
-    <p>
-    @(report.paymentTerms.maximumContractPeriodComment.map(shared._multiline(_)))
-    </p>
-
-
-    <h4 class="heading-small">Any other information about payment terms</h4>
-    <p>
-    @report.paymentTerms.paymentTermsComment.map(text => shared._multiline(text)).getOrElse(<em>N/A</em>)
-    </p>
-    <h3 class="heading-medium">Dispute resolution process</h3>
-    <p>
-    @shared._multiline(report.paymentTerms.disputeResolution)
-    </p>
-
-    <h3 class="heading-medium">Other payment information</h3>
-    <h4 class="heading-small">
-        Has this business signed up to a code of conduct or standards on payment practices? If so, which?
-    </h4>
-    <span class="form-hint">
-        For example, signatories to The Prompt Payment Code must commit to paying 95% of their invoices within 60 days.</span>
-    <p>
-    @report.otherInfo.paymentCodes.map { text =>
-    <strong>Yes </strong> &ndash; @shared._multiline(text)
-    }.getOrElse {
-        <strong>No</strong>
-    }
-    </p>
-    <h4 class="heading-small">
-        Does this business offer e-invoicing?
-        <span class="form-hint">
-            This is where suppliers can electronically submit and track invoices. It’s not just allowing suppliers to email them an invoice.
-        </span>
-    </h4>
-    <p>
-    @report.otherInfo.offerEInvoicing.entryName.capitalize
-    </p>
-
-    <h4 class="heading-small">
-        Does this business offer supply chain finance?
-        <span class="form-hint">
-            This is where a supplier who has submitted an invoice can be paid by a third-party finance provider earlier than the agreed payment date.
-            The business would then pay the finance provider the invoiced sum by the payment date.</span>
-    </h4>
-    <p>
-    @report.otherInfo.offerSupplyChainFinance.entryName.capitalize
-    </p>
-    <h4 class="heading-small">
-        Under its payment practices and policies, can this business deduct sums from payments under qualifying contracts
-        as a charge for remaining on a supplier list?
-    </h4>
-    <p>
-    @report.otherInfo.retentionChargesInPolicy.entryName.capitalize
-    </p>
-    <h4 class="heading-small">
-        During the reporting period, did the business deduct sums from payments as a charge for remaining on a supplier list?
-    </h4>
-    <p>
-    @report.otherInfo.retentionChargesInPast.entryName.capitalize
-    </p>
 
 </div>

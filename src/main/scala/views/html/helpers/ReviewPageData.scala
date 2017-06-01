@@ -17,7 +17,7 @@
 
 package views.html.helpers
 
-import forms.report.{ConditionalText, ReportFormModel}
+import forms.report.{ConditionalText, LongFormModel, ReportingPeriodFormModel, ShortFormModel}
 import org.joda.time.LocalDate
 import org.joda.time.format.DateTimeFormat
 import play.twirl.api.{Html, HtmlFormat}
@@ -49,6 +49,8 @@ object ReviewPageData extends HtmlHelpers {
     */
   type TableDescriptor = (String, Seq[RowDescriptor])
 
+  val cssClasses = "check-answers check-answers-essay"
+
   /**
     * Generate a sequence of pairs describing the `<table>`s that should be created on the
     * report review page. The first element is the css class name that should be applied to
@@ -57,29 +59,42 @@ object ReviewPageData extends HtmlHelpers {
     * The review page can be reconfigured by changing this list of tables or by changing
     * the content of the various groups.
     */
-  def groups(companyName: String, report: ReportFormModel): Seq[TableDescriptor] = Seq(
-    "check-answers check-answers-essay" -> group1(companyName, report),
-    "check-answers check-answers-essay" -> group2(report),
-    "check-answers check-answers-essay" -> group3(report)
-  )
+  def formGroups(companyName: String, reportingPeriod: ReportingPeriodFormModel, shortForm: ShortFormModel): Seq[TableDescriptor] = {
+    Seq(
+      cssClasses -> group1(companyName, reportingPeriod),
+      cssClasses -> group3(shortForm)
+    )
+  }
 
-  def group1(companyName: String, report: ReportFormModel): Seq[RowDescriptor] =
-    topLevelInfo(companyName, report) ++ reportingDateRows(report) ++ paymentHistoryRows(report)
+  def formGroups(companyName: String, reportingPeriod: ReportingPeriodFormModel, longForm: LongFormModel): Seq[TableDescriptor] = {
+    Seq(
+      cssClasses -> group1(companyName, reportingPeriod, longForm),
+      cssClasses -> group2(longForm),
+      cssClasses -> group3(longForm)
+    )
+  }
 
-  def group2(r: ReportFormModel) = paymentTermsRows(r)
+  def group1(companyName: String, reportingPeriod: ReportingPeriodFormModel, longForm: LongFormModel): Seq[RowDescriptor] =
+    topLevelInfo(companyName) ++ reportingDateRows(reportingPeriod) ++ paymentHistoryRows(longForm)
 
-  def group3(r: ReportFormModel) = otherInfoRows(r)
+  def group1(companyName: String, reportingPeriod: ReportingPeriodFormModel): Seq[RowDescriptor] =
+    topLevelInfo(companyName) ++ reportingDateRows(reportingPeriod)
 
-  def topLevelInfo(companyName: String, report: ReportFormModel): Seq[(String, Html)] = Seq(
+  def group2(r: LongFormModel) = paymentTermsRows(r)
+
+  def group3(shortForm: ShortFormModel) = paymentCodesRows(shortForm)
+  def group3(longForm: LongFormModel) = otherInfoRows(longForm)
+
+  def topLevelInfo(companyName: String): Seq[RowDescriptor] = Seq(
     ("Company or limited liability partnership", companyName)
   )
 
-  def reportingDateRows(r: ReportFormModel): Seq[(String, Html)] = Seq(
+  def reportingDateRows(r: ReportingPeriodFormModel): Seq[RowDescriptor] = Seq(
     "Start date of reporting period" -> df.print(r.reportDates.startDate),
     "End date of reporting period" -> df.print(r.reportDates.endDate)
   )
 
-  def paymentHistoryRows(r: ReportFormModel): Seq[(String, Html)] = Seq(
+  def paymentHistoryRows(r: LongFormModel): Seq[RowDescriptor] = Seq(
     ("Average number of days for making payment", (r.paymentHistory.averageDaysToPay, "days")),
     ("Percentage of invoices paid within 30 days", (r.paymentHistory.percentageSplit.percentWithin30Days, "%")),
     ("Percentage of invoices paid within 31 to 60 days", (r.paymentHistory.percentageSplit.percentWithin60Days, "%")),
@@ -87,10 +102,10 @@ object ReviewPageData extends HtmlHelpers {
     ("Percentage of invoices not paid within agreed terms", (r.paymentHistory.percentPaidLaterThanAgreedTerms, "%"))
   )
 
-  def paymentTermsRows(r: ReportFormModel): Seq[(String, Html)] = Seq(
+  def paymentTermsRows(r: LongFormModel): Seq[RowDescriptor] = Seq(
     ("Standard payment period", (r.paymentTerms.paymentPeriod, "days")),
     ("Standard payment terms", r.paymentTerms.terms),
-    ("Any changes to standard payment terms", conditionalText(r.paymentTerms.paymentTermsChanged.comment)),
+    ("Any changes to standard payment terms", r.paymentTerms.paymentTermsChanged.comment),
     ("Did you consult or notify your suppliers about changes?",
       r.paymentTerms.paymentTermsChanged.notified.map(conditionalText)),
     ("Maximum contract period in days", (r.paymentTerms.maximumContractPeriod, "days")),
@@ -99,12 +114,18 @@ object ReviewPageData extends HtmlHelpers {
     ("Your dispute resolution process", breakLines(r.paymentTerms.disputeResolution))
   )
 
-  def otherInfoRows(r: ReportFormModel): Seq[(String, Html)] = Seq(
-    ("Do you offer e-invoicing?", r.offerEInvoicing),
-    ("Do you offer offer supply chain finance?", r.offerSupplyChainFinancing),
-    ("Do you have a policy of deducting sums from payments under qualifying contracts as a charge for remaining on a supplier list?", r.retentionChargesInPolicy),
-    ("In this reporting period, have you deducted any sum from payments under qualifying contracts as a charge for remaining on a supplier list?", r.retentionChargesInPast),
-    ("Are you a member of a code of conduct or standards on payment practices?", conditionalText(r.hasPaymentCodes))
+  private val codeOfCoductText = "Are you a member of a code of conduct or standards on payment practices?"
+
+  def otherInfoRows(longForm: LongFormModel): Seq[RowDescriptor] = Seq(
+    ("Do you offer e-invoicing?", longForm.offerEInvoicing),
+    ("Do you offer offer supply chain finance?", longForm.offerSupplyChainFinancing),
+    ("Do you have a policy of deducting sums from payments under qualifying contracts as a charge for remaining on a supplier list?", longForm.retentionChargesInPolicy),
+    ("In this reporting period, have you deducted any sum from payments under qualifying contracts as a charge for remaining on a supplier list?", longForm.retentionChargesInPast),
+    (codeOfCoductText, longForm.paymentCodes)
+  )
+
+  def paymentCodesRows(shortForm: ShortFormModel): Seq[RowDescriptor] = Seq(
+    (codeOfCoductText, shortForm.paymentCodes)
   )
 
 }
@@ -120,7 +141,7 @@ trait HtmlHelpers {
 
   def breakLines(s: String): Html = Html(HtmlFormat.escape(limitLength(s)).toString.replace("\n", "<br />"))
 
-  def conditionalText(ct: ConditionalText): Html = ct.yesNo match {
+  implicit def conditionalText(ct: ConditionalText): Html = ct.yesNo match {
     case Yes => Html(s"<strong>Yes </strong>&ndash; ${breakLines(ct.text.map(limitLength(_)).getOrElse(""))}")
     case No => Html("<strong>No</strong>")
   }

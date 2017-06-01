@@ -17,46 +17,47 @@
 
 package slicks.helpers
 
-import dbrows._
-import forms.report.{ReportFormModel, ReportReviewModel}
+import dbrows.{ContractDetailsRow, ReportRow}
+import forms.report._
 import models.ReportId
 import org.joda.time.LocalDate
+import services.CompanyDetail
 
 trait RowBuilders {
-  def buildPeriodRow(report: ReportFormModel, reportId: ReportId) = ReportPeriodRow(reportId, report.reportDates.startDate, report.reportDates.endDate)
 
-  def buildPaymentTermsRow(report: ReportFormModel, reportId: ReportId) =
-    PaymentTermsRow(
-      reportId,
-      report.paymentTerms.terms,
-      report.paymentTerms.paymentPeriod,
-      report.paymentTerms.maximumContractPeriod,
-      report.paymentTerms.maximumContractPeriodComment,
-      report.paymentTerms.paymentTermsChanged.comment.text,
-      report.paymentTerms.paymentTermsChanged.notified.flatMap(_.text),
-      report.paymentTerms.paymentTermsComment,
-      report.paymentTerms.disputeResolution
+  def buildReport(companyDetail: CompanyDetail, review: ReportReviewModel, reportingPeriod: ReportingPeriodFormModel, paymentCodes: ConditionalText, confirmationEmail: String) = {
+    ReportRow(
+      ReportId(-1),
+      companyDetail.companyName,
+      companyDetail.companiesHouseId,
+      LocalDate.now(),
+      review.confirmedBy,
+      confirmationEmail,
+      reportingPeriod.reportDates.startDate,
+      reportingPeriod.reportDates.endDate,
+      paymentCodes.text
     )
+  }
 
-  def buildPaymentHistoryRow(report: ReportFormModel, reportId: ReportId) = PaymentHistoryRow(
-    reportId,
-    report.paymentHistory.averageDaysToPay,
-    report.paymentHistory.percentPaidLaterThanAgreedTerms,
-    report.paymentHistory.percentageSplit.percentWithin30Days,
-    report.paymentHistory.percentageSplit.percentWithin60Days,
-    report.paymentHistory.percentageSplit.percentBeyond60Days
-  )
-
-  def buildOtherInfoRow(report: ReportFormModel, reportId: ReportId): OtherInfoRow =
-    OtherInfoRow(
+  def buildContractDetails(reportId: ReportId, longForm: LongFormModel): ContractDetailsRow =
+    ContractDetailsRow(
       reportId,
-      report.offerEInvoicing,
-      report.offerSupplyChainFinancing,
-      report.retentionChargesInPolicy,
-      report.retentionChargesInPast,
-      report.hasPaymentCodes.text
+      longForm.paymentTerms.terms,
+      longForm.paymentTerms.paymentPeriod,
+      longForm.paymentTerms.maximumContractPeriod,
+      longForm.paymentTerms.maximumContractPeriodComment,
+      longForm.paymentTerms.paymentTermsChanged.comment.text,
+      longForm.paymentTerms.paymentTermsChanged.notified.flatMap(_.text),
+      longForm.paymentTerms.paymentTermsComment,
+      longForm.paymentTerms.disputeResolution,
+      longForm.offerEInvoicing,
+      longForm.offerSupplyChainFinancing,
+      longForm.retentionChargesInPolicy,
+      longForm.retentionChargesInPast,
+      longForm.paymentHistory.averageDaysToPay,
+      longForm.paymentHistory.percentPaidLaterThanAgreedTerms,
+      longForm.paymentHistory.percentageSplit.percentWithin30Days,
+      longForm.paymentHistory.percentageSplit.percentWithin60Days,
+      longForm.paymentHistory.percentageSplit.percentBeyond60Days
     )
-
-  def buildFilingRow(review: ReportReviewModel, reportId: ReportId, confirmationEmail:String): FilingRow =
-    FilingRow(reportId, new LocalDate(), review.confirmedBy, confirmationEmail)
 }

@@ -24,7 +24,6 @@ import play.api.{Configuration, Environment, Logger}
 import services._
 import services.live.{CompaniesHouseAuth, CompaniesHouseSearch, NotifyServiceImpl}
 import services.mocks.{MockCompanyAuth, MockCompanySearch, MockNotify}
-import slicks.modules.DB
 
 class Module(environment: Environment, configuration: Configuration) extends AbstractModule with AkkaGuiceSupport {
   override def configure(): Unit = {
@@ -68,7 +67,6 @@ class Module(environment: Environment, configuration: Configuration) extends Abs
     bind(classOf[ServiceConfig])
       .toInstance(config.service.getOrElse(ServiceConfig.empty))
 
-    bind(classOf[DB]).asEagerSingleton()
     bindActor[ConfirmationActor]("confirmation-actor")
 
     bind(classOf[SessionCleaner]).asEagerSingleton()

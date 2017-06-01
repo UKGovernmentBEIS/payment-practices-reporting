@@ -15,25 +15,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package slicks
+package controllers
 
-import com.github.tminglei.slickpg.{ExPostgresDriver, PgDateSupportJoda, PgPlayJsonSupport}
-import play.api.db.slick.DatabaseConfigProvider
-import slick.backend.DatabaseConfig
+import models.CompaniesHouseId
+import play.api.mvc.{Controller, Result}
+import services.{CompanyAuthService, OAuthToken}
 
-trait DBBinding extends ExPostgresDriver with PgDateSupportJoda {
+import scala.concurrent.{ExecutionContext, Future}
 
-  def dbConfigProvider: DatabaseConfigProvider
+trait BaseFormController {
+  self: Controller =>
 
-  lazy val dbConfig: DatabaseConfig[ExPostgresDriver] = dbConfigProvider.get[ExPostgresDriver]
+  val companyAuth: CompanyAuthService
+  implicit val ec: ExecutionContext
 
-  lazy val driver = new ExPostgresDriver with PgPlayJsonSupport with PgDateSupportJoda {
-    override val pgjson = "jsonb"
+  def verifyingOAuthScope(companiesHouseId: CompaniesHouseId, oAuthToken: OAuthToken)(body: => Future[Result]): Future[Result] = {
+    companyAuth.isInScope(companiesHouseId, oAuthToken).flatMap {
+      case true => body
+      case false => Future.successful(Redirect(controllers.routes.ErrorController.invalidScope(companiesHouseId)))
+    }
   }
 
-  lazy val db: driver.api.Database = dbConfig.db
-
-  override val api = new API with DateTimeImplicits
-
-  def schema: DDL = DDL(Seq(), Seq())
 }

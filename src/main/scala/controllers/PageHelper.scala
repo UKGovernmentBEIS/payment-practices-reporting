@@ -17,7 +17,8 @@
 
 package controllers
 
-import config.{GoogleAnalyticsConfig, PageConfig}
+import config.{GoogleAnalyticsConfig, PageConfig, ServiceConfig}
+import org.joda.time.format.DateTimeFormat
 import org.scalactic.TripleEquals._
 import play.api.data.Form
 import play.api.mvc.{Call, RequestHeader}
@@ -31,7 +32,11 @@ case class PageContext(googleAnalyticsConfig: GoogleAnalyticsConfig, externalRou
 
 trait PageHelper {
   def pageConfig: PageConfig
+  def serviceConfig: ServiceConfig
 
+  val df = DateTimeFormat.forPattern("d MMMM YYYY")
+
+  val serviceStartDate = serviceConfig.startDate.getOrElse(ServiceConfig.defaultServiceStartDate)
 
   implicit def er(implicit request: RequestHeader): ExternalRouter = {
     new ExternalRoutes(pageConfig.searchConfig).apply(request.host)

@@ -1,0 +1,32 @@
+@(
+        header: Html,
+        shortForm: Form[forms.report.ShortFormModel],
+        stashData: Map[String, String],
+        companyId: CompaniesHouseId,
+        df: DateTimeFormatter,
+        serviceStartDate: LocalDate
+)(implicit messages: MessagesApi, lang: Lang)
+
+<div id=contentStart">
+    @shared._errorBox(shortForm)
+
+<div class="scannable-wrapper">
+    @header
+
+    <form action="@routes.ShortFormController.postForm(companyId)" method="POST" id="file-report">
+        @for((k, v) <- stashData) {
+            <input type="hidden" name='@k' value="@HtmlFormat.escape(v)">
+        }
+
+        <p class="small-aside">
+            Companies House number: @companyId.id
+        </p>
+
+        @report._paymentCodes(shortForm)
+
+        <input type="submit" class="button" name="Continue" value="Continue">
+    </form>
+
+    @report._scripts(df, serviceStartDate)
+</div>
+</div>

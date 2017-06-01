@@ -1,0 +1,44 @@
+@(
+        header: Html,
+        reportingPeriodForm: Form[forms.report.ReportingPeriodFormModel],
+        formData: Map[String, String],
+        companyId: CompaniesHouseId,
+        df: DateTimeFormatter,
+        serviceStartDate: LocalDate
+)(implicit messages: MessagesApi, lang: Lang)
+
+<div id=contentStart">
+    @shared._errorBox(reportingPeriodForm)
+
+<div class="scannable-wrapper">
+    @header
+
+    <div class="notice">
+        <i class="icon icon-important">
+            <span class="visually-hidden">Warning</span>
+        </i>
+        <strong><a target="_blank" href="@routes.QuestionnaireController.start()">You should prepare</a>
+            before filling in this form.</strong>
+    </div>
+    <p></p>
+
+    @shared._coverageInformation()
+    @shared._day1Calculation()
+
+    <form action="@routes.ReportingPeriodController.post(companyId)" method="POST" id="longForm-report">
+        @for((k, v) <- formData) {
+            <input type="hidden" name='@k' value="@HtmlFormat.escape(v)">
+        }
+
+        <p class="small-aside">
+            Companies House number: @companyId.id
+        </p>
+
+        @report._reportingPeriod(reportingPeriodForm)
+
+        <input type="submit" class="button" name="Continue" value="Continue">
+    </form>
+
+    @report._scripts(df, serviceStartDate)
+</div>
+</div>

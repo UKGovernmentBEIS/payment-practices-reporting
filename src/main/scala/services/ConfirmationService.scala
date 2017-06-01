@@ -33,7 +33,7 @@ trait ConfirmationService {
     * locking period. If one is found, return both the confirmation detail and the report it relates
     * to.
     */
-  def findUnconfirmedAndLock(): Future[Option[(ConfirmationPendingRow, FiledReport)]]
+  def findUnconfirmedAndLock(): Future[Option[(ConfirmationPendingRow, Report)]]
 
 
   /**

@@ -18,55 +18,87 @@
 package services
 
 import com.google.inject.ImplementedBy
-import dbrows._
-import forms.report.{ReportFormModel, ReportReviewModel}
+import dbrows.{ContractDetailsRow, ReportRow}
+import forms.DateRange
+import forms.report._
 import models.{CompaniesHouseId, ReportId}
 import org.joda.time.LocalDate
 import org.reactivestreams.Publisher
 import slicks.repos.ReportTable
+import utils.YesNo
 
 import scala.concurrent.Future
 
 case class Report(
-                   header: ReportHeaderRow,
-                   period: Option[ReportPeriodRow],
-                   paymentTerms: Option[PaymentTermsRow],
-                   paymentHistory: Option[PaymentHistoryRow],
-                   otherInfo: Option[OtherInfoRow],
-                   filing: Option[FilingRow]) {
-  /**
-    * If this report has been completed and filed then return Some `FiledReport`
-    * otherwise None
-    */
-  def filed: Option[FiledReport] = for {
-    p <- period
-    terms <- paymentTerms
-    hist <- paymentHistory
-    other <- otherInfo
-    f <- filing
-  } yield FiledReport(header, p, terms, hist, other, f)
+                   id: ReportId,
+                   companyName: String,
+                   companyId: CompaniesHouseId,
+                   filingDate: LocalDate,
 
-  def isFiled: Boolean = filed.isDefined
+                   approvedBy: String,
+                   confirmationEmailAddress: String,
+
+                   reportDates: DateRange,
+                   paymentCodes: ConditionalText,
+
+                   contractDetails: Option[ContractDetails]
+                 )
+
+object Report {
+  def apply(r: (ReportRow, Option[ContractDetailsRow])): Report = {
+    val (reportRow, contractDetailsRow) = r
+    import reportRow._
+    Report(
+      id,
+      companyName,
+      companyId,
+      filingDate,
+      approvedBy,
+      confirmationEmailAddress,
+      DateRange(startDate, endDate),
+      ConditionalText(paymentCodes),
+      contractDetailsRow.map(buildContractDetails)
+    )
+  }
+
+  def buildContractDetails(row: ContractDetailsRow): ContractDetails = {
+    import row._
+    ContractDetails(
+      PaymentTerms(
+        paymentPeriod,
+        paymentTerms,
+        maximumContractPeriod,
+        maximumContractPeriodComment,
+        PaymentTermsChanged(ConditionalText(paymentTermsChangedComment), Some(ConditionalText(paymentTermsChangedNotifiedComment))).normalise,
+        paymentTermsComment,
+        disputeResolution
+      ),
+      PaymentHistory(averageDaysToPay, percentPaidLaterThanAgreedTerms, PercentageSplit(percentInvoicesWithin30Days, percentInvoicesWithin60Days, percentInvoicesBeyond60Days)),
+      offerEInvoicing,
+      offerSupplyChainFinance,
+      retentionChargesInPolicy,
+      retentionChargesInPast
+    )
+  }
 }
 
-case class FiledReport(
-                        header: ReportHeaderRow,
-                        period: ReportPeriodRow,
-                        paymentTerms: PaymentTermsRow,
-                        paymentHistory: PaymentHistoryRow,
-                        otherInfo: OtherInfoRow,
-                        filing: FilingRow
-                      )
+case class ContractDetails(
+                     paymentTerms: PaymentTerms,
+                     paymentHistory: PaymentHistory,
+                     offerEInvoicing: YesNo,
+                     offerSupplyChainFinance: YesNo,
+                     retentionChargesInPolicy: YesNo,
+                     retentionChargesInPast: YesNo
+                   )
+
 
 @ImplementedBy(classOf[ReportTable])
 trait ReportService {
   def find(id: ReportId): Future[Option[Report]]
 
-  def findFiled(id: ReportId): Future[Option[FiledReport]]
-
   def byCompanyNumber(companiesHouseId: CompaniesHouseId): Future[Seq[Report]]
 
-  def list(cutoffDate: LocalDate): Publisher[FiledReport]
+  def list(cutoffDate: LocalDate): Publisher[Report]
 
   /**
     *
@@ -76,11 +108,18 @@ trait ReportService {
     *                  generates the absolute url for it.
     */
   def create(
-              confirmedBy: String,
-              companiesHouseId: CompaniesHouseId,
-              companyName: String,
-              reportFormModel: ReportFormModel,
+              companyDetail:CompanyDetail,
+              reportingPeriod: ReportingPeriodFormModel,
+              longForm: LongFormModel,
               review: ReportReviewModel,
               confirmationEmailAddress: String,
-              reportUrl: ReportId => String): Future[ReportId]
+              reportUrl: (ReportId) => String): Future[ReportId]
+
+  def create(
+              companyDetail:CompanyDetail,
+              reportingPeriod: ReportingPeriodFormModel,
+              shortFormModel: ShortFormModel,
+              review: ReportReviewModel,
+              confirmationEmailAddress: String,
+              reportUrl: (ReportId) => String): Future[ReportId]
 }

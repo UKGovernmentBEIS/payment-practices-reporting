@@ -22,10 +22,6 @@ import dbrows._
 
 object ReportModuleDef extends ModuleDefinition {
   override def spec = ModuleSpec("ReportModule")
-    .withTableFor[ReportHeaderRow]
-    .withTableFor[ReportPeriodRow]
-    .withTableFor[PaymentTermsRow]
-    .withTableFor[PaymentHistoryRow]
-    .withTableFor[OtherInfoRow]
-    .withTableFor[FilingRow]
+    .withTableFor[ReportRow]
+    .withTableFor[ContractDetailsRow]
 }

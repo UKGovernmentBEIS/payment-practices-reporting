@@ -39,14 +39,14 @@ class ConfirmationDeliveryServiceImpl @Inject()(confirmationRepo: ConfirmationSe
     }
   }
 
-  private def attemptToSend(confirmation: ConfirmationPendingRow, report: FiledReport)(implicit ec: ExecutionContext): Future[DeliveryOutcome] = {
+  private def attemptToSend(confirmation: ConfirmationPendingRow, report: Report)(implicit ec: ExecutionContext): Future[DeliveryOutcome] = {
     notifyService.sendEmail(confirmation.emailAddress, buildParams(confirmation, report)).flatMap { response =>
-      confirmationRepo.confirmationSent(report.header.id, LocalDateTime.now, response)
-        .map(_ => ConfirmationSent(report.header.id))
+      confirmationRepo.confirmationSent(report.id, LocalDateTime.now, response)
+        .map(_ => ConfirmationSent(report.id))
     }.recoverWith {
       case nex: NotificationClientException =>
-        confirmationRepo.confirmationFailed(report.header.id, LocalDateTime.now, nex)
-          .map(_ => ConfirmationFailed(report.header.id))
+        confirmationRepo.confirmationFailed(report.id, LocalDateTime.now, nex)
+          .map(_ => ConfirmationFailed(report.id))
 
       case ex: Exception =>
         Logger.error("Exception sending email", ex)
@@ -54,12 +54,12 @@ class ConfirmationDeliveryServiceImpl @Inject()(confirmationRepo: ConfirmationSe
     }
   }
 
-  private def buildParams(row: ConfirmationPendingRow, report: FiledReport) = {
+  private def buildParams(row: ConfirmationPendingRow, report: Report) = {
     Map[String, String](
-      "companyName" -> report.header.companyName,
-      "companieshouseidentifier" -> report.header.companyId.id,
-      "startdate" -> df.print(report.period.startDate),
-      "enddate" -> df.print(report.period.endDate),
+      "companyName" -> report.companyName,
+      "companieshouseidentifier" -> report.companyId.id,
+      "startdate" -> df.print(report.reportDates.startDate),
+      "enddate" -> df.print(report.reportDates.endDate),
       "reportid" -> ReportNum(row.reportId),
       "reporturl" -> row.url
     )

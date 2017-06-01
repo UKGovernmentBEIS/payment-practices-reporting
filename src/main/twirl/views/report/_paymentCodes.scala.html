@@ -1,0 +1,9 @@
+@(form: Form[_])(implicit messages: MessagesApi)
+
+@import shared.{_yesNoField, _textField}
+
+@_yesNoField(form, "paymentCodes.yesNo")
+
+<div class="panel" id="show-if-payment-codes">
+    @_textField(form, "paymentCodes.text")
+</div>

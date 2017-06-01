@@ -17,10 +17,10 @@
 
 package forms.report
 
-import dbrows.{PaymentHistoryRow, PaymentTermsRow}
+import dbrows.ContractDetailsRow
 import forms.DateRange
 import org.scalactic.TripleEquals._
-import services.FiledReport
+import services.ContractDetails
 import utils.YesNo
 import utils.YesNo.{No, Yes}
 
@@ -63,11 +63,15 @@ case class ConditionalText(yesNo: YesNo, text: Option[String]) {
     case ConditionalText(Yes, Some(t)) if t.trim() === "" => ConditionalText(Yes, None)
     case _ => this
   }
+
+  def isDefined: Boolean = yesNo.toBoolean
 }
 
 object ConditionalText {
   def apply(o: Option[String]): ConditionalText =
     o.map(s => ConditionalText(Yes, Some(s))).getOrElse(ConditionalText(No, None))
+
+  def apply(s: String): ConditionalText = ConditionalText(Some(s))
 }
 
 case class PercentageSplit(
@@ -85,7 +89,7 @@ case class PaymentHistory(
                          )
 
 object PaymentHistory {
-  def apply(row: PaymentHistoryRow): PaymentHistory =
+  def apply(row: ContractDetailsRow): PaymentHistory =
     PaymentHistory(row.averageDaysToPay, row.percentPaidLaterThanAgreedTerms, PercentageSplit(row.percentInvoicesWithin30Days, row.percentInvoicesWithin60Days, row.percentInvoicesBeyond60Days))
 }
 
@@ -110,14 +114,14 @@ case class PaymentTerms(
                        )
 
 object PaymentTerms {
-  def apply(row: PaymentTermsRow): PaymentTerms =
+  def apply(row: ContractDetailsRow): PaymentTerms =
     PaymentTerms(row.paymentPeriod, row.paymentTerms, row.maximumContractPeriod, row.maximumContractPeriodComment,
       pt(row),
       row.paymentTermsChangedComment,
       row.disputeResolution
     )
 
-  def pt(row: PaymentTermsRow): PaymentTermsChanged = {
+  def pt(row: ContractDetailsRow): PaymentTermsChanged = {
     val comment = ConditionalText(row.paymentTermsChangedComment)
     val notified =
       if (comment.yesNo === Yes) Some(ConditionalText(row.paymentTermsChangedNotifiedComment))
@@ -127,29 +131,35 @@ object PaymentTerms {
   }
 }
 
-case class ReportFormModel(
-                            reportDates: DateRange,
-                            paymentHistory: PaymentHistory,
-                            paymentTerms: PaymentTerms,
-                            offerEInvoicing: YesNo,
-                            offerSupplyChainFinancing: YesNo,
-                            retentionChargesInPolicy: YesNo,
-                            retentionChargesInPast: YesNo,
-                            hasPaymentCodes: ConditionalText
-                          )
+case class ReportingPeriodFormModel(
+                                     reportDates: DateRange,
+                                     hasQualifyingContracts: YesNo
+                                   )
 
-object ReportFormModel {
-  def apply(filed: FiledReport): ReportFormModel = {
-    ReportFormModel(
-      DateRange(filed.period.startDate, filed.period.endDate),
-      PaymentHistory(filed.paymentHistory),
-      PaymentTerms(filed.paymentTerms),
-      filed.otherInfo.offerEInvoicing,
-      filed.otherInfo.offerSupplyChainFinance,
-      filed.otherInfo.retentionChargesInPolicy,
-      filed.otherInfo.retentionChargesInPast,
-      ConditionalText(filed.otherInfo.paymentCodes)
-    )
+case class ShortFormModel(
+                           paymentCodes: ConditionalText
+                         )
+
+case class LongFormModel(
+                          paymentHistory: PaymentHistory,
+                          paymentTerms: PaymentTerms,
+                          offerEInvoicing: YesNo,
+                          offerSupplyChainFinancing: YesNo,
+                          retentionChargesInPolicy: YesNo,
+                          retentionChargesInPast: YesNo,
+                          paymentCodes: ConditionalText
+                        )
+
+object LongFormModel {
+  def apply(paymentCodes: ConditionalText, report: ContractDetails): LongFormModel = {
+    LongFormModel(
+      report.paymentHistory,
+      report.paymentTerms,
+      report.offerEInvoicing,
+      report.offerSupplyChainFinance,
+      report.retentionChargesInPolicy,
+      report.retentionChargesInPast,
+      paymentCodes)
   }
 
 }

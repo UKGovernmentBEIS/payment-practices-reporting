@@ -17,24 +17,23 @@
 
 package slicks.modules
 
-import com.github.tminglei.slickpg.PgDateSupportJoda
+
 import com.wellfactored.slickgen.IdType
 import dbrows.{ConfirmationFailedRow, ConfirmationPendingRow, ConfirmationSentRow}
 import models.ReportId
 import org.joda.time.LocalDateTime
-import slicks.DBBinding
 
-trait ConfirmationModule extends DBBinding {
-  self: ReportModule with PgDateSupportJoda =>
+trait ConfirmationModule  {
+  self: CoreModule with ReportModule =>
 
-  import api._
+  import profile.api._
 
   type ConfirmationFailedQuery = Query[ConfirmationFailedTable, ConfirmationFailedRow, Seq]
 
   class ConfirmationFailedTable(tag: Tag) extends Table[ConfirmationFailedRow](tag, "confirmation_failed") {
     def reportId = column[ReportId]("report_id", O.Length(IdType.length))
 
-    def reportIdFK = foreignKey("confirmationfailed_report_fk", reportId, reportHeaderTable)(_.id, onDelete = ForeignKeyAction.Cascade)
+    def reportIdFK = foreignKey("confirmationfailed_report_fk", reportId, reportTable)(_.id, onDelete = ForeignKeyAction.Cascade)
 
     def reportIdIndex = index("confirmationfailed_report_idx", reportId, unique = true)
 
@@ -56,7 +55,7 @@ trait ConfirmationModule extends DBBinding {
   class ConfirmationSentTable(tag: Tag) extends Table[ConfirmationSentRow](tag, "confirmation_sent") {
     def reportId = column[ReportId]("report_id", O.Length(IdType.length))
 
-    def reportIdFK = foreignKey("confirmationsent_report_fk", reportId, reportHeaderTable)(_.id, onDelete = ForeignKeyAction.Cascade)
+    def reportIdFK = foreignKey("confirmationsent_report_fk", reportId, reportTable)(_.id, onDelete = ForeignKeyAction.Cascade)
 
     def reportIdIndex = index("confirmationsent_report_idx", reportId, unique = true)
 
@@ -78,7 +77,7 @@ trait ConfirmationModule extends DBBinding {
   class ConfirmationPendingTable(tag: Tag) extends Table[ConfirmationPendingRow](tag, "confirmation_pending") {
     def reportId = column[ReportId]("report_id", O.Length(IdType.length))
 
-    def reportIdFK = foreignKey("confirmationpending_report_fk", reportId, reportHeaderTable)(_.id, onDelete = ForeignKeyAction.Cascade)
+    def reportIdFK = foreignKey("confirmationpending_report_fk", reportId, reportTable)(_.id, onDelete = ForeignKeyAction.Cascade)
 
     def reportIdIndex = index("confirmationpending_report_idx", reportId, unique = true)
 
@@ -98,6 +97,4 @@ trait ConfirmationModule extends DBBinding {
   }
 
   lazy val confirmationPendingTable = TableQuery[ConfirmationPendingTable]
-
-  override def schema = super.schema ++ confirmationPendingTable.schema ++ confirmationSentTable.schema ++ confirmationFailedTable.schema
 }

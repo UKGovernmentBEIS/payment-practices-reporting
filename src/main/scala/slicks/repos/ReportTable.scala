@@ -19,45 +19,36 @@ package slicks.repos
 
 import javax.inject.Inject
 
-import com.github.tminglei.slickpg.PgDateSupportJoda
-import dbrows._
-import forms.report.{ReportFormModel, ReportReviewModel}
+import forms.report.{LongFormModel, ShortFormModel, ReportReviewModel, ReportingPeriodFormModel}
 import models.{CompaniesHouseId, ReportId}
 import org.joda.time.LocalDate
 import org.reactivestreams.Publisher
-import play.api.db.slick.DatabaseConfigProvider
-import services.{FiledReport, Report, ReportService}
-import slicks.DBBinding
+import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfig}
+import services.{CompanyDetail, Report, ReportService}
+import slick.jdbc.JdbcProfile
 import slicks.helpers.RowBuilders
-import slicks.modules.{ConfirmationModule, ReportModule}
+import slicks.modules.{ConfirmationModule, CoreModule, ReportModule}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class ReportTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(implicit ec: ExecutionContext)
-  extends DBBinding
+class ReportTable @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit ec: ExecutionContext)
+  extends CoreModule
     with ReportService
     with ReportModule
-    with ConfirmationModule
     with ReportQueries
-    with PgDateSupportJoda
-    with RowBuilders {
+    with RowBuilders
+    with HasDatabaseConfig[JdbcProfile] {
 
-  import api._
+  override lazy val dbConfig = dbConfigProvider.get[JdbcProfile]
 
-  def reportByIdQ(id: Rep[ReportId]) = reportQuery.filter(_._1.id === id)
+  import profile.api._
+
+  def reportByIdQ(reportId: Rep[ReportId]) = reportQuery.filter(_._1.id === reportId)
 
   val reportByIdC = Compiled(reportByIdQ _)
 
   def find(id: ReportId): Future[Option[Report]] = db.run {
-    reportByIdC(id).result.headOption.map(_.map(Report.tupled))
-  }
-
-  def filedReportByIdQ(id: Rep[ReportId]) = filedReportQuery.filter(_._1.id === id)
-
-  val filedReportByIdC = Compiled(filedReportByIdQ _)
-
-  def findFiled(id: ReportId): Future[Option[FiledReport]] = db.run {
-    filedReportByIdC(id).result.headOption.map(_.map(FiledReport.tupled))
+    reportByIdC(id).result.headOption.map(_.map(Report.apply))
   }
 
   def reportByCoNoQ(cono: Rep[CompaniesHouseId]) = reportQuery.filter(_._1.companyId === cono)
@@ -65,40 +56,44 @@ class ReportTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(implic
   val reportByCoNoC = Compiled(reportByCoNoQ _)
 
   def byCompanyNumber(companiesHouseId: CompaniesHouseId): Future[Seq[Report]] = db.run {
-    reportByCoNoC(companiesHouseId).result.map(_.map(Report.tupled))
+    reportByCoNoC(companiesHouseId).result.map(_.map(Report.apply))
   }
 
   /**
     * Code to adjust fetchSize on Postgres driver taken from:
     * https://engineering.sequra.es/2016/02/database-streaming-on-play-with-slick-from-publisher-to-chunked-result/
     */
-  def list(cutoffDate: LocalDate): Publisher[FiledReport] = {
+  def list(cutoffDate: LocalDate): Publisher[Report] = {
     val disableAutocommit = SimpleDBIO(_.connection.setAutoCommit(false))
-    val action = filedReportQueryC.result.withStatementParameters(fetchSize = 10000)
+    val action = reportQueryC.result.withStatementParameters(fetchSize = 10000)
 
-    db.stream(disableAutocommit andThen action).mapResult(FiledReport.tupled)
+    db.stream(disableAutocommit andThen action).mapResult(Report.apply)
   }
 
   override def create(
-                       confirmedBy: String,
-                       companiesHouseId: CompaniesHouseId,
-                       companyName: String,
-                       report: ReportFormModel,
+                       companyDetail: CompanyDetail,
+                       reportingPeriod: ReportingPeriodFormModel,
+                       longForm: LongFormModel,
                        review: ReportReviewModel,
                        confirmationEmailAddress: String,
-                       reportUrl: ReportId => String
-                     ): Future[ReportId] = db.run {
-    val header = ReportHeaderRow(ReportId(0), companyName, companiesHouseId, new LocalDate(), new LocalDate())
+                       reportUrl: (ReportId) => String): Future[ReportId] = db.run {
+    val reportRow = buildReport(companyDetail, review, reportingPeriod, longForm.paymentCodes, confirmationEmailAddress)
 
-    (reportHeaderTable.returning(reportHeaderTable.map(_.id)) += header).flatMap { reportId =>
+    {
       for {
-        _ <- reportPeriodTable += buildPeriodRow(report, reportId)
-        _ <- paymentTermsTable += buildPaymentTermsRow(report, reportId)
-        _ <- paymentHistoryTable += buildPaymentHistoryRow(report, reportId)
-        _ <- otherInfoTable += buildOtherInfoRow(report, reportId)
-        _ <- filingTable += buildFilingRow(review, reportId, confirmationEmailAddress)
-        _ <- confirmationPendingTable += ConfirmationPendingRow(reportId, confirmationEmailAddress, reportUrl(reportId), 0, None, None, None)
+        reportId <- reportTable.returning(reportTable.map(_.id)) += reportRow
+        _ <- contractDetailsTable += buildContractDetails(reportId, longForm)
       } yield reportId
     }.transactionally
+  }
+  override def create(
+                       companyDetail: CompanyDetail,
+                       reportingPeriod: ReportingPeriodFormModel,
+                       shortFormModel: ShortFormModel,
+                       review: ReportReviewModel,
+                       confirmationEmailAddress: String,
+                       reportUrl: (ReportId) => String): Future[ReportId] = db.run {
+    val reportRow = buildReport(companyDetail, review, reportingPeriod, shortFormModel.paymentCodes, confirmationEmailAddress)
+    reportTable.returning(reportTable.map(_.id)) += reportRow
   }
 }

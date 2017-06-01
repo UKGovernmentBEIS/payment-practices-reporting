@@ -17,29 +17,15 @@
 
 package slicks.helpers
 
-import com.github.tminglei.slickpg.{ExPostgresDriver, PgPlayJsonSupport}
-import play.api.libs.json.{JsArray, JsObject, Json}
-import slick.jdbc.JdbcType
+import play.api.libs.json.{JsObject, Json}
+import slick.jdbc.JdbcProfile
 
 trait PlayJsonMappers {
-  self: ExPostgresDriver with PgPlayJsonSupport =>
+  protected val profile: JdbcProfile
 
-  implicit val playJsObjectTypeMapper: JdbcType[JsObject] =
-    new GenericJdbcType[JsObject](
-      pgjson,
-      (v) => Json.parse(v).as[JsObject],
-      (v) => Json.stringify(v),
-      zero = JsObject(Seq()),
-      hasLiteralForm = false
-    )
+  import profile.api._
 
-  implicit val playJsArrayTypeMapper: JdbcType[JsArray] =
-    new GenericJdbcType[JsArray](
-      pgjson,
-      (v) => Json.parse(v).as[JsArray],
-      (v) => Json.stringify(v),
-      zero = JsArray(),
-      hasLiteralForm = false
-    )
+  implicit lazy val playJsObjectTypeMapper: BaseColumnType[JsObject] =
+    MappedColumnType.base[JsObject, String](Json.stringify, Json.parse(_).as[JsObject])
 }
 

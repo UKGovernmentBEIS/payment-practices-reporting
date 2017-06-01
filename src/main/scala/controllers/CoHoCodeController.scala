@@ -19,7 +19,7 @@ package controllers
 
 import javax.inject.Inject
 
-import config.PageConfig
+import config.{PageConfig, ServiceConfig}
 import controllers.CoHoCodeController.CodeOption.{Colleague, Register}
 import models.CompaniesHouseId
 import play.api.data.Forms.single
@@ -36,7 +36,8 @@ class CoHoCodeController @Inject()(
                                     companyAuth: CompanyAuthService,
                                     val companySearch: CompanySearchService,
                                     val reportService: ReportService,
-                                    val pageConfig: PageConfig
+                                    val pageConfig: PageConfig,
+                                    val serviceConfig: ServiceConfig
                                   )(implicit val ec: ExecutionContext, messages: MessagesApi)
   extends Controller
     with PageHelper

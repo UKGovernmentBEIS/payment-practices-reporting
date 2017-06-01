@@ -22,7 +22,7 @@ import javax.inject.Inject
 import actions.SessionAction
 import cats.data.OptionT
 import cats.instances.future._
-import config.PageConfig
+import config.{PageConfig, ServiceConfig}
 import forms.Validations
 import models.{CompaniesHouseId, ReportId}
 import org.joda.time.format.DateTimeFormat
@@ -40,7 +40,8 @@ class ReportController @Inject()(
                                   companyAuth: CompanyAuthService,
                                   val companySearch: CompanySearchService,
                                   val reportService: ReportService,
-                                  val pageConfig: PageConfig
+                                  val pageConfig: PageConfig,
+                                  val serviceConfig: ServiceConfig
                                 )(implicit val ec: ExecutionContext, messages: MessagesApi)
   extends Controller
     with PageHelper
@@ -101,14 +102,12 @@ class ReportController @Inject()(
     Redirect(companyAuth.authoriseUrl(companiesHouseId), companyAuth.authoriseParams(companiesHouseId))
   }
 
-  val df = DateTimeFormat.forPattern("d MMMM YYYY")
-
   def view(reportId: ReportId) = Action.async { implicit request =>
     val f = for {
-      report <- OptionT(reportService.findFiled(reportId))
+      report <- OptionT(reportService.find(reportId))
     } yield {
       val crumbs = breadcrumbs(homeBreadcrumb)
-      Ok(page(s"Payment practice report for ${report.header.companyName}")(crumbs, views.html.search.report(report, df)))
+      Ok(page(s"Payment practice report for ${report.companyName}")(crumbs, views.html.search.report(report, df)))
     }
 
     f.value.map {

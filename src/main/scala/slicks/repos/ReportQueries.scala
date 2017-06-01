@@ -17,13 +17,12 @@
 
 package slicks.repos
 
-import slicks.DBBinding
-import slicks.modules.ReportModule
+import slicks.modules.{CoreModule, ReportModule}
 
 trait ReportQueries {
-  self: DBBinding with ReportModule =>
+  self: CoreModule with ReportModule =>
 
-  import api._
+  import profile.api._
 
   /**
     * This is quite an awkward query expression. The purpose is to select all report headers and, at
@@ -31,33 +30,8 @@ trait ReportQueries {
     * for the situation where some sections are not yet completed. All of the section structures come
     * back as `Option`s. Only the header is guaranteed to be present in the result.
     */
-  val reportQuery = {
-    reportHeaderTable
-      .joinLeft(reportPeriodTable).on(_.id === _.reportId)
-      .joinLeft(paymentTermsTable).on(_._1.id === _.reportId)
-      .joinLeft(paymentHistoryTable).on(_._1._1.id === _.reportId)
-      .joinLeft(otherInfoTable).on(_._1._1._1.id === _.reportId)
-      .joinLeft(filingTable).on(_._1._1._1._1.id === _.reportId)
-      .map {
-        case (((((header, period), terms), history), other), filing) => (header, period, terms, history, other, filing)
-      }
-  }
+  val reportQuery = reportTable.joinLeft(contractDetailsTable).on(_.id === _.reportId)
 
   val reportQueryC = Compiled(reportQuery)
 
-  /**
-    * Select reports that have been filed - i.e. all sections are present
-    */
-  val filedReportQuery = {
-    for {
-      header <- reportHeaderTable
-      period <- reportPeriodTable if period.reportId === header.id
-      terms <- paymentTermsTable if terms.reportId === header.id
-      history <- paymentHistoryTable if history.reportId === header.id
-      other <- otherInfoTable if other.reportId === header.id
-      filing <- filingTable if filing.reportId === header.id
-    } yield (header, period, terms, history, other, filing)
-  }
-
-  val filedReportQueryC = Compiled(filedReportQuery)
 }
