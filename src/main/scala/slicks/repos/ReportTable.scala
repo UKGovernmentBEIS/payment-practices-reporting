@@ -35,7 +35,6 @@ class ReportTable @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit e
   extends CoreModule
     with ReportService
     with ReportModule
-    with ConfirmationModule
     with ReportQueries
     with RowBuilders
     with HasDatabaseConfig[JdbcProfile] {
