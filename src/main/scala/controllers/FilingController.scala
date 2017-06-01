@@ -155,7 +155,7 @@ class FilingController @Inject()(
   }
 
   private def checkConfirmation(companiesHouseId: CompaniesHouseId, reportingPeriod: ReportingPeriodFormModel, shortForm: ShortFormModel)(implicit request: CompanyAuthRequest[Map[String, Seq[String]]]): Future[Result] = {
-    val action: Call = routes.FilingController.postLongFormReview(companiesHouseId)
+    val action: Call = routes.FilingController.postShortFormReview(companiesHouseId)
     val companyName: String = request.companyDetail.companyName
 
     val reportData = emptyReportingPeriod.fill(reportingPeriod).data ++ emptyShortForm.fill(shortForm).data
