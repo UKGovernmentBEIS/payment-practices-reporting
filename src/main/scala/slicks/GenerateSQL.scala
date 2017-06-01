@@ -32,8 +32,8 @@ object GenerateSQL
   import profile.api._
 
   val schema =
-    shortFormTable.schema ++
-      longFormTable.schema ++
+    reportTable.schema ++
+      contractDetailsTable.schema ++
       confirmationPendingTable.schema ++
       confirmationSentTable.schema ++
       confirmationFailedTable.schema ++

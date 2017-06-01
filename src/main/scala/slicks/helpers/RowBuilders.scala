@@ -17,16 +17,16 @@
 
 package slicks.helpers
 
-import dbrows.{LongFormRow, ShortFormRow}
-import forms.report.{LongFormModel, PaymentCodesFormModel, ReportReviewModel, ReportingPeriodFormModel}
+import dbrows.{ContractDetailsRow, ReportRow}
+import forms.report._
 import models.ReportId
 import org.joda.time.LocalDate
 import services.CompanyDetail
 
 trait RowBuilders {
 
-  def buildShortFormRow(companyDetail: CompanyDetail, review: ReportReviewModel, reportingPeriod: ReportingPeriodFormModel, paymentCodesFormModel: PaymentCodesFormModel, confirmationEmail: String) = {
-    ShortFormRow(
+  def buildReport(companyDetail: CompanyDetail, review: ReportReviewModel, reportingPeriod: ReportingPeriodFormModel, paymentCodes: ConditionalText, confirmationEmail: String) = {
+    ReportRow(
       ReportId(-1),
       companyDetail.companyName,
       companyDetail.companiesHouseId,
@@ -35,12 +35,12 @@ trait RowBuilders {
       confirmationEmail,
       reportingPeriod.reportDates.startDate,
       reportingPeriod.reportDates.endDate,
-      paymentCodesFormModel.paymentCodes.text
+      paymentCodes.text
     )
   }
 
-  def buildLongFormRow(reportId: ReportId, longForm: LongFormModel) :LongFormRow =
-    LongFormRow(
+  def buildContractDetails(reportId: ReportId, longForm: LongFormModel): ContractDetailsRow =
+    ContractDetailsRow(
       reportId,
       longForm.paymentTerms.terms,
       longForm.paymentTerms.paymentPeriod,

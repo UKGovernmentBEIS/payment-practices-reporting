@@ -34,6 +34,7 @@ import questionnaire._
 import services._
 import utils.YesNo.{No, Yes}
 import utils.{SystemTimeSource, YesNo}
+import views.html.helpers.ReviewPageData
 
 class VisualTestController @Inject()(
                                       summarizer: Summarizer,
@@ -87,17 +88,20 @@ class VisualTestController @Inject()(
     val reportValidations = new Validations(new SystemTimeSource, ServiceConfig.empty)
     import reportValidations._
 
-    val dummyReportingPeriod = ReportingPeriodFormModel(DateRange(LocalDate.now(), LocalDate.now()), No)
+    val dummyReportingPeriodModel = ReportingPeriodFormModel(DateRange(LocalDate.now(), LocalDate.now()), No)
+    val dummyReportingPeriodForm = emptyReportingPeriod.fill(dummyReportingPeriodModel)
     val header = h1(s"Publish a report for:<br>$companyName")
     val serviceStartDate = serviceConfig.startDate.getOrElse(ServiceConfig.defaultServiceStartDate)
+    val healthyLongFormModel = LongFormModel(paymentCodes, healthyLongForm)
 
     val publish = Seq(
-      views.html.report.longForm(header, emptyLongForm, emptyPaymentCodes, dummyReportingPeriod, id, df, serviceStartDate, reportValidations),
-      views.html.report.longForm(header, emptyLongForm.fill(LongFormModel(healthyLongForm)), emptyPaymentCodes.fill(PaymentCodesFormModel(paymentCodes)), dummyReportingPeriod, id, df, serviceStartDate, reportValidations),
-      views.html.report.longForm(header, emptyLongForm.fillAndValidate(LongFormModel(unhealthyLongForm)), emptyPaymentCodes.fill(PaymentCodesFormModel(paymentCodes)), dummyReportingPeriod, id, df, serviceStartDate, reportValidations)
+      views.html.report.longForm(header, emptyLongForm, dummyReportingPeriodForm.data, id, df, serviceStartDate),
+      views.html.report.longForm(header, emptyLongForm.fill(healthyLongFormModel), dummyReportingPeriodForm.data, id, df, serviceStartDate),
+      views.html.report.longForm(header, emptyLongForm.fillAndValidate(LongFormModel(paymentCodes, unhealthyLongForm)), dummyReportingPeriodForm.data, id, df, serviceStartDate)
     )
 
-    val review = Seq(views.html.report.review(emptyReview, Some(LongFormModel(healthyLongForm)), PaymentCodesFormModel(paymentCodes), dummyReportingPeriod, Call("", ""), id, companyName, df, reportValidations))
+    val formGroups = ReviewPageData.formGroups(companyName, dummyReportingPeriodModel, healthyLongFormModel)
+    val review = Seq(views.html.report.review(emptyReview, emptyLongForm.fill(healthyLongFormModel).data ++ dummyReportingPeriodForm.data, formGroups, Call("", ""), id, companyName, df))
     val published = Seq(views.html.report.filingSuccess(reportId, "foobar@example.com", pageConfig.surveyMonkeyConfig))
     val errors = Seq(
       views.html.errors.sessionTimeout(),
@@ -160,7 +164,7 @@ class VisualTestController @Inject()(
     "The big boss", "bigboss@thebigcompany.com", DateRange(startDate, endDate), paymentCodes,
     Some(healthyLongForm))
 
-  val healthyLongForm = LongForm(
+  val healthyLongForm = ContractDetails(
     PaymentTerms(
       30,
       "payment terms",
@@ -178,7 +182,7 @@ class VisualTestController @Inject()(
     "The big boss", "bigboss@thebigcompany.com", DateRange(startDate.plusYears(1), endDate.plusYears(1)), paymentCodes,
     Some(unhealthyLongForm))
 
-  val unhealthyLongForm = LongForm(
+  val unhealthyLongForm = ContractDetails(
     PaymentTerms(-1, "payment terms", 200, Some("Maximum period is very fair"),
       PaymentTermsChanged(ConditionalText("Payment terms have changed"), Some(ConditionalText("We told everyone"))),
       Some("Other comments"),

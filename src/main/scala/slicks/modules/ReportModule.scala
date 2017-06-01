@@ -34,12 +34,12 @@ trait ReportModule  {
   implicit def reportIdMapper: BaseColumnType[ReportId] = MappedColumnType.base[ReportId, Long](_.id, ReportId)
   implicit def companiesHouseIdMapper: BaseColumnType[CompaniesHouseId] = MappedColumnType.base[CompaniesHouseId, String](_.id, CompaniesHouseId)
 
-  type ShortFormQuery = Query[ShortFormTable, ShortFormRow, Seq]
+  type ReportQuery = Query[ReportTable, ReportRow, Seq]
 
   val reportIdColumnName = "report_id"
 
-  class ShortFormTable(tag: Tag) extends Table[ShortFormRow](tag, "short_form") {
-    def reportId = column[ReportId](reportIdColumnName, O.Length(IdType.length), O.PrimaryKey, O.AutoInc)
+  class ReportTable(tag: Tag) extends Table[ReportRow](tag, "report") {
+    def id = column[ReportId](reportIdColumnName, O.Length(IdType.length), O.PrimaryKey, O.AutoInc)
 
     def companyName = column[String]("company_name", O.Length(255))
     def companyId = column[CompaniesHouseId]("company_id", O.Length(255))
@@ -50,7 +50,7 @@ trait ReportModule  {
     def endDate = column[LocalDate]("end_date")
     def paymentCodes = column[Option[String]]("payment_codes", O.Length(paymentCodesCharCount))
 
-    def * = (reportId,
+    def * = (id,
       companyName,
       companyId,
       filingDate,
@@ -59,16 +59,16 @@ trait ReportModule  {
       startDate,
       endDate,
       paymentCodes
-    ) <> (ShortFormRow.tupled, ShortFormRow.unapply)
+    ) <> (ReportRow.tupled, ReportRow.unapply)
   }
 
-  lazy val shortFormTable = TableQuery[ShortFormTable]
+  lazy val reportTable = TableQuery[ReportTable]
 
-  type LongFormQuery = Query[LongFormTable, LongFormRow, Seq]
+  type ContractDetailsQuery = Query[ContractDetailsTable, ContractDetailsRow, Seq]
 
-  class LongFormTable(tag: Tag) extends Table[LongFormRow](tag, "long_form") {
+  class ContractDetailsTable(tag: Tag) extends Table[ContractDetailsRow](tag, "contract_details") {
     def reportId = column[ReportId](reportIdColumnName, O.Length(IdType.length))
-    def reportIdFK = foreignKey("long_form_report_fk", reportId, shortFormTable)(_.reportId, onDelete = ForeignKeyAction.Cascade)
+    def reportIdFK = foreignKey("long_form_report_fk", reportId, reportTable)(_.id, onDelete = ForeignKeyAction.Cascade)
     def reportIdIndex = index("long_form_report_idx", reportId, unique = true)
 
 
@@ -110,10 +110,10 @@ trait ReportModule  {
       percentInvoicesWithin30Days,
       percentInvoicesWithin60Days,
       percentInvoicesBeyond60Days
-    ) <> (LongFormRow.tupled, LongFormRow.unapply)
+    ) <> (ContractDetailsRow.tupled, ContractDetailsRow.unapply)
   }
 
-  lazy val longFormTable = TableQuery[LongFormTable]
+  lazy val contractDetailsTable = TableQuery[ContractDetailsTable]
 
 }
 

@@ -1,8 +1,7 @@
 @(
         header: Html,
         reportingPeriodForm: Form[forms.report.ReportingPeriodFormModel],
-        longForm: Form[forms.report.LongFormModel],
-        paymentCodes: Form[forms.report.PaymentCodesFormModel],
+        formData: Map[String, String],
         companyId: CompaniesHouseId,
         df: DateTimeFormatter,
         serviceStartDate: LocalDate
@@ -27,11 +26,7 @@
     @shared._day1Calculation()
 
     <form action="@routes.ReportingPeriodController.post(companyId)" method="POST" id="longForm-report">
-        @for((k, v) <- longForm.data) {
-            <input type="hidden" name='@k' value="@HtmlFormat.escape(v)">
-        }
-
-        @for((k, v) <- paymentCodes.data) {
+        @for((k, v) <- formData) {
             <input type="hidden" name='@k' value="@HtmlFormat.escape(v)">
         }
 

@@ -18,7 +18,7 @@
 package services
 
 import com.google.inject.ImplementedBy
-import dbrows.{LongFormRow, ShortFormRow}
+import dbrows.{ContractDetailsRow, ReportRow}
 import forms.DateRange
 import forms.report._
 import models.{CompaniesHouseId, ReportId}
@@ -40,15 +40,16 @@ case class Report(
 
                    reportDates: DateRange,
                    paymentCodes: ConditionalText,
-                   longForm: Option[LongForm]
+
+                   contractDetails: Option[ContractDetails]
                  )
 
 object Report {
-  def apply(r: (ShortFormRow, Option[LongFormRow])): Report = {
-    val (shortForm, longForm) = r
-    import shortForm._
+  def apply(r: (ReportRow, Option[ContractDetailsRow])): Report = {
+    val (reportRow, contractDetailsRow) = r
+    import reportRow._
     Report(
-      reportId,
+      id,
       companyName,
       companyId,
       filingDate,
@@ -56,13 +57,13 @@ object Report {
       confirmationEmailAddress,
       DateRange(startDate, endDate),
       ConditionalText(paymentCodes),
-      longForm.map(buildLongForm)
+      contractDetailsRow.map(buildContractDetails)
     )
   }
 
-  def buildLongForm(longForm: LongFormRow): LongForm = {
-    import longForm._
-    LongForm(
+  def buildContractDetails(row: ContractDetailsRow): ContractDetails = {
+    import row._
+    ContractDetails(
       PaymentTerms(
         paymentPeriod,
         paymentTerms,
@@ -81,7 +82,7 @@ object Report {
   }
 }
 
-case class LongForm(
+case class ContractDetails(
                      paymentTerms: PaymentTerms,
                      paymentHistory: PaymentHistory,
                      offerEInvoicing: YesNo,
@@ -109,8 +110,15 @@ trait ReportService {
   def create(
               companyDetail:CompanyDetail,
               reportingPeriod: ReportingPeriodFormModel,
-              longForm: Option[LongFormModel],
-              paymentCodesFormModel: PaymentCodesFormModel,
+              longForm: LongFormModel,
+              review: ReportReviewModel,
+              confirmationEmailAddress: String,
+              reportUrl: (ReportId) => String): Future[ReportId]
+
+  def create(
+              companyDetail:CompanyDetail,
+              reportingPeriod: ReportingPeriodFormModel,
+              shortFormModel: ShortFormModel,
               review: ReportReviewModel,
               confirmationEmailAddress: String,
               reportUrl: (ReportId) => String): Future[ReportId]

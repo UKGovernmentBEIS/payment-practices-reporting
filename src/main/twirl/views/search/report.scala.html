@@ -22,7 +22,7 @@
     <h3 class="heading-medium">This report was filed on @df.print(report.filingDate)</h3>
     <p>and approved by @report.approvedBy</p>
 
-    @report.longForm.map { lf =>
+    @report.contractDetails.map { lf =>
         @partials._longForm(lf, report.paymentCodes)
     }.getOrElse {
         @partials._shortForm(report.paymentCodes)

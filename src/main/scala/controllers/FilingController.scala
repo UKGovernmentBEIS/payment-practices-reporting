@@ -30,6 +30,7 @@ import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, Call, Controller, Result}
 import play.twirl.api.Html
 import services._
+import views.html.helpers.ReviewPageData
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -43,12 +44,9 @@ class FilingController @Inject()(
                                   @Named("confirmation-actor") confirmationActor: ActorRef
                                 )(implicit ec: ExecutionContext, messages: MessagesApi) extends Controller with PageHelper {
 
+  import validations._
   import views.html.{report => pages}
 
-  val emptyReportingPeriod: Form[ReportingPeriodFormModel] = Form(validations.reportingPeriodFormModel)
-  val emptyLongForm: Form[LongFormModel] = Form(validations.reportFormModel)
-  val emptyPaymentCodes: Form[PaymentCodesFormModel] = Form(validations.paymentCodesFormModel)
-  val emptyReview: Form[ReportReviewModel] = Form(validations.reportReviewModel)
   private val reviewPageTitle = "Review your report"
   private def publishTitle(companyName: String) = s"Publish a report for $companyName"
 
@@ -58,17 +56,22 @@ class FilingController @Inject()(
     val title = publishTitle(request.companyDetail.companyName)
     val action = routes.FilingController.postShortFormReview(companiesHouseId)
 
-    val paymentCodesForm = emptyPaymentCodes.bindForm
+    val shortForm = emptyShortForm.bindForm
     val reportingPeriodForm = emptyReportingPeriod.bindForm
 
     reportingPeriodForm.fold(
-      errs => BadRequest(page(title)(home, pages.reportingPeriod(reportPageHeader, errs, emptyLongForm, paymentCodesForm, companiesHouseId, df, serviceStartDate))),
-      reportingPeriod => paymentCodesForm.fold(
-        errs => BadRequest(page(title)(home, pages.longForm(reportPageHeader, emptyLongForm, errs, reportingPeriod, companiesHouseId, df, serviceStartDate, validations))),
-        paymentCodes => Ok(page(reviewPageTitle)(home,
-          pages.review(emptyReview, None, paymentCodes, reportingPeriod, action, companiesHouseId, request.companyDetail.companyName, df, validations)
-        ))
-      )
+      errs => BadRequest(page(title)(home, pages.reportingPeriod(reportPageHeader, errs, shortForm.data, companiesHouseId, df, serviceStartDate))),
+      reportingPeriod =>
+        shortForm.fold(
+          errs => BadRequest(page(title)(home, pages.shortForm(reportPageHeader, errs, reportingPeriodForm.data, companiesHouseId, df, serviceStartDate))),
+          sf => {
+            val reportData = shortForm.data ++ reportingPeriodForm.data
+            val formGroups = ReviewPageData.formGroups(request.companyDetail.companyName, reportingPeriod, sf)
+            Ok(page(reviewPageTitle)(home,
+              pages.review(emptyReview, reportData, formGroups, action, companiesHouseId, request.companyDetail.companyName, df)
+            ))
+          }
+        )
     )
   }
 
@@ -77,17 +80,19 @@ class FilingController @Inject()(
     val action = routes.FilingController.postLongFormReview(companiesHouseId)
 
     val longForm = emptyLongForm.bindForm
-    val paymentCodesForm = emptyPaymentCodes.bindForm
     val reportingPeriodForm = emptyReportingPeriod.bindForm
 
     reportingPeriodForm.fold(
-      errs => BadRequest(page(title)(home, pages.reportingPeriod(reportPageHeader, errs, longForm, paymentCodesForm, companiesHouseId, df, serviceStartDate))),
-      reportingPeriod => longForm.fold(
-        errs => BadRequest(page(title)(home, pages.longForm(reportPageHeader, errs, paymentCodesForm, reportingPeriod, companiesHouseId, df, serviceStartDate, validations))),
-        longForm => Ok(page(reviewPageTitle)(home,
-          pages.review(emptyReview, Some(longForm), paymentCodesForm.get, reportingPeriod, action, companiesHouseId, request.companyDetail.companyName, df, validations)
-        ))
-      )
+      errs => BadRequest(page(title)(home, pages.reportingPeriod(reportPageHeader, errs, longForm.data, companiesHouseId, df, serviceStartDate))),
+      reportingPeriod =>
+        longForm.fold(
+          errs => BadRequest(page(title)(home, pages.longForm(reportPageHeader, errs, reportingPeriodForm.data, companiesHouseId, df, serviceStartDate))),
+          lf => {
+            val reportData = longForm.data ++ reportingPeriodForm.data
+            val formGroups = ReviewPageData.formGroups(request.companyDetail.companyName, reportingPeriod, lf)
+            Ok(page(reviewPageTitle)(home, pages.review(emptyReview, reportData, formGroups, action, companiesHouseId, request.companyDetail.companyName, df)))
+          }
+        )
     )
   }
 
@@ -95,16 +100,16 @@ class FilingController @Inject()(
     val revise: Boolean = Form(single("revise" -> text)).bindForm.value.contains("Revise")
     val title = publishTitle(request.companyDetail.companyName)
 
-    val paymentCodesForm = emptyPaymentCodes.bindForm
+    val shortForm = emptyShortForm.bindForm
     val reportingPeriodForm = emptyReportingPeriod.bindForm
 
     reportingPeriodForm.fold(
-      errs => Future.successful(BadRequest(page(title)(home, pages.reportingPeriod(reportPageHeader, errs, emptyLongForm, paymentCodesForm, companiesHouseId, df, serviceStartDate)))),
-      reportingPeriod => paymentCodesForm.fold(
-        errs => Future.successful(BadRequest(page(title)(home, pages.shortForm(reportPageHeader, errs, reportingPeriod, companiesHouseId, df, serviceStartDate, validations)))),
-        rp =>
-          if (revise) Future.successful(Ok(page(title)(home, pages.reportingPeriod(reportPageHeader, reportingPeriodForm, emptyLongForm, paymentCodesForm, companiesHouseId, df, serviceStartDate))))
-          else checkConfirmation(companiesHouseId, reportingPeriod, None, paymentCodesForm.get)
+      errs => Future.successful(BadRequest(page(title)(home, pages.reportingPeriod(reportPageHeader, errs, shortForm.data, companiesHouseId, df, serviceStartDate)))),
+      reportingPeriod => shortForm.fold(
+        errs => Future.successful(BadRequest(page(title)(home, pages.shortForm(reportPageHeader, errs, reportingPeriodForm.data, companiesHouseId, df, serviceStartDate)))),
+        sf =>
+          if (revise) Future.successful(Ok(page(title)(home, pages.reportingPeriod(reportPageHeader, reportingPeriodForm, shortForm.data, companiesHouseId, df, serviceStartDate))))
+          else checkConfirmation(companiesHouseId, reportingPeriod, sf)
       )
     )
   }
@@ -117,30 +122,53 @@ class FilingController @Inject()(
     // (as we only send the user to the review page if they are) but if somehow they aren't then
     // send the user back to the report form to fix them.
     val longForm = emptyLongForm.bindForm
-    val paymentCodesForm = emptyPaymentCodes.bindForm
     val reportingPeriodForm = emptyReportingPeriod.bindForm
 
     reportingPeriodForm.fold(
-      errs => Future.successful(BadRequest(page(title)(home, pages.reportingPeriod(reportPageHeader, errs, longForm, paymentCodesForm, companiesHouseId, df, serviceStartDate)))),
+      errs => Future.successful(BadRequest(page(title)(home, pages.reportingPeriod(reportPageHeader, errs, longForm.data, companiesHouseId, df, serviceStartDate)))),
       reportingPeriod => longForm.fold(
-        errs => Future.successful(BadRequest(page(title)(home, pages.longForm(reportPageHeader, errs, paymentCodesForm, reportingPeriod, companiesHouseId, df, serviceStartDate, validations)))),
+        errs => Future.successful(BadRequest(page(title)(home, pages.longForm(reportPageHeader, errs, reportingPeriodForm.data, companiesHouseId, df, serviceStartDate)))),
         lf =>
-          if (revise) Future.successful(Ok(page(title)(home, pages.reportingPeriod(reportPageHeader, reportingPeriodForm, longForm, paymentCodesForm, companiesHouseId, df, serviceStartDate))))
-          else checkConfirmation(companiesHouseId, reportingPeriod, Some(lf), paymentCodesForm.get)
+          if (revise) Future.successful(Ok(page(title)(home, pages.reportingPeriod(reportPageHeader, reportingPeriodForm, longForm.data, companiesHouseId, df, serviceStartDate))))
+          else checkConfirmation(companiesHouseId, reportingPeriod, lf)
       )
     )
   }
 
-  private def checkConfirmation(companiesHouseId: CompaniesHouseId, reportingPeriod: ReportingPeriodFormModel, longForm: Option[LongFormModel], paymentCodesForm: PaymentCodesFormModel)(implicit request: CompanyAuthRequest[Map[String, Seq[String]]]): Future[Result] = {
-    val action: Call = longForm.map(_ => routes.FilingController.postLongFormReview(companiesHouseId)).getOrElse(routes.FilingController.postShortFormReview(companiesHouseId))
+  private def checkConfirmation(companiesHouseId: CompaniesHouseId, reportingPeriod: ReportingPeriodFormModel, longForm: LongFormModel)(implicit request: CompanyAuthRequest[Map[String, Seq[String]]]): Future[Result] = {
+    val action: Call = routes.FilingController.postLongFormReview(companiesHouseId)
+    val companyName: String = request.companyDetail.companyName
+
+    val reportData = emptyReportingPeriod.fill(reportingPeriod).data ++ emptyLongForm.fill(longForm).data
+    val formGroups = ReviewPageData.formGroups(companyName, reportingPeriod, longForm)
+
     emptyReview.bindForm.fold(
-      errs => Future.successful(BadRequest(page(reviewPageTitle)(home, pages.review(errs, longForm, paymentCodesForm, reportingPeriod, action, companiesHouseId, request.companyDetail.companyName, df, validations)))),
+      errs => Future.successful(BadRequest(page(reviewPageTitle)(home, pages.review(errs, reportData, formGroups, action, companiesHouseId, companyName, df)))),
       review => {
         if (review.confirmed) verifyingOAuthScope(companiesHouseId, request.oAuthToken) {
-          createReport(companiesHouseId, reportingPeriod, longForm, paymentCodesForm, review).map(rId => Redirect(controllers.routes.FilingController.showConfirmation(rId)))
+          createReport(companiesHouseId, reportingPeriod, longForm, review).map(rId => Redirect(controllers.routes.FilingController.showConfirmation(rId)))
+        } else {
+          Future.successful(BadRequest(page(reviewPageTitle)(home, pages.review(emptyReview.fill(review), reportData, formGroups, action, companiesHouseId, companyName, df))))
         }
-        else
-          Future.successful(BadRequest(page(reviewPageTitle)(home, pages.review(emptyReview.fill(review), longForm, paymentCodesForm, reportingPeriod, action, companiesHouseId, request.companyDetail.companyName, df, validations))))
+      }
+    )
+  }
+
+  private def checkConfirmation(companiesHouseId: CompaniesHouseId, reportingPeriod: ReportingPeriodFormModel, shortForm: ShortFormModel)(implicit request: CompanyAuthRequest[Map[String, Seq[String]]]): Future[Result] = {
+    val action: Call = routes.FilingController.postLongFormReview(companiesHouseId)
+    val companyName: String = request.companyDetail.companyName
+
+    val reportData = emptyReportingPeriod.fill(reportingPeriod).data ++ emptyShortForm.fill(shortForm).data
+    val formGroups = ReviewPageData.formGroups(companyName, reportingPeriod, shortForm)
+
+    emptyReview.bindForm.fold(
+      errs => Future.successful(BadRequest(page(reviewPageTitle)(home, pages.review(errs, reportData, formGroups, action, companiesHouseId, companyName, df)))),
+      review => {
+        if (review.confirmed) verifyingOAuthScope(companiesHouseId, request.oAuthToken) {
+          createReport(companiesHouseId, reportingPeriod, shortForm, review).map(rId => Redirect(controllers.routes.FilingController.showConfirmation(rId)))
+        } else {
+          Future.successful(BadRequest(page(reviewPageTitle)(home, pages.review(emptyReview.fill(review), reportData, formGroups, action, companiesHouseId, companyName, df))))
+        }
       }
     )
   }
@@ -152,11 +180,18 @@ class FilingController @Inject()(
     }
   }
 
-  private def createReport(companiesHouseId: CompaniesHouseId, reportingPeriod: ReportingPeriodFormModel, longForm: Option[LongFormModel], paymentCodesForm: PaymentCodesFormModel, review: ReportReviewModel)(implicit request: CompanyAuthRequest[_]): Future[ReportId] = {
-
+  private def createReport(companiesHouseId: CompaniesHouseId, reportingPeriod: ReportingPeriodFormModel, shortForm: ShortFormModel, review: ReportReviewModel)(implicit request: CompanyAuthRequest[_]): Future[ReportId] = {
     val urlFunction: ReportId => String = (id: ReportId) => controllers.routes.ReportController.view(id).absoluteURL()
     for {
-      reportId <- reports.create(request.companyDetail, reportingPeriod, longForm, paymentCodesForm, review, request.emailAddress, urlFunction)
+      reportId <- reports.create(request.companyDetail, reportingPeriod, shortForm, review, request.emailAddress, urlFunction)
+      _ <- Future.successful(confirmationActor ! 'poll)
+    } yield reportId
+  }
+
+  private def createReport(companiesHouseId: CompaniesHouseId, reportingPeriod: ReportingPeriodFormModel, longForm: LongFormModel, review: ReportReviewModel)(implicit request: CompanyAuthRequest[_]): Future[ReportId] = {
+    val urlFunction: ReportId => String = (id: ReportId) => controllers.routes.ReportController.view(id).absoluteURL()
+    for {
+      reportId <- reports.create(request.companyDetail, reportingPeriod, longForm, review, request.emailAddress, urlFunction)
       _ <- Future.successful(confirmationActor ! 'poll)
     } yield reportId
   }

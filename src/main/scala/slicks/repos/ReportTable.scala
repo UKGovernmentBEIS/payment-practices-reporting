@@ -19,7 +19,7 @@ package slicks.repos
 
 import javax.inject.Inject
 
-import forms.report.{LongFormModel, PaymentCodesFormModel, ReportReviewModel, ReportingPeriodFormModel}
+import forms.report.{LongFormModel, ShortFormModel, ReportReviewModel, ReportingPeriodFormModel}
 import models.{CompaniesHouseId, ReportId}
 import org.joda.time.LocalDate
 import org.reactivestreams.Publisher
@@ -44,7 +44,7 @@ class ReportTable @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit e
 
   import profile.api._
 
-  def reportByIdQ(reportId: Rep[ReportId]) = reportQuery.filter(_._1.reportId === reportId)
+  def reportByIdQ(reportId: Rep[ReportId]) = reportQuery.filter(_._1.id === reportId)
 
   val reportByIdC = Compiled(reportByIdQ _)
 
@@ -74,18 +74,27 @@ class ReportTable @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit e
   override def create(
                        companyDetail: CompanyDetail,
                        reportingPeriod: ReportingPeriodFormModel,
-                       longForm: Option[LongFormModel],
-                       paymentCodesFormModel: PaymentCodesFormModel,
+                       longForm: LongFormModel,
                        review: ReportReviewModel,
                        confirmationEmailAddress: String,
                        reportUrl: (ReportId) => String): Future[ReportId] = db.run {
-    val sf = buildShortFormRow(companyDetail, review, reportingPeriod, paymentCodesFormModel, confirmationEmailAddress)
+    val reportRow = buildReport(companyDetail, review, reportingPeriod, longForm.paymentCodes, confirmationEmailAddress)
 
     {
       for {
-        reportId <- shortFormTable.returning(shortFormTable.map(_.reportId)) += sf
-        _ <- longForm.map(longFormTable += buildLongFormRow(reportId, _)).getOrElse(DBIO.successful(()))
+        reportId <- reportTable.returning(reportTable.map(_.id)) += reportRow
+        _ <- contractDetailsTable += buildContractDetails(reportId, longForm)
       } yield reportId
     }.transactionally
+  }
+  override def create(
+                       companyDetail: CompanyDetail,
+                       reportingPeriod: ReportingPeriodFormModel,
+                       shortFormModel: ShortFormModel,
+                       review: ReportReviewModel,
+                       confirmationEmailAddress: String,
+                       reportUrl: (ReportId) => String): Future[ReportId] = db.run {
+    val reportRow = buildReport(companyDetail, review, reportingPeriod, shortFormModel.paymentCodes, confirmationEmailAddress)
+    reportTable.returning(reportTable.map(_.id)) += reportRow
   }
 }

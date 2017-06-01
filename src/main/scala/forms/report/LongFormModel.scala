@@ -17,10 +17,10 @@
 
 package forms.report
 
-import dbrows.LongFormRow
+import dbrows.ContractDetailsRow
 import forms.DateRange
 import org.scalactic.TripleEquals._
-import services.{LongForm, Report}
+import services.ContractDetails
 import utils.YesNo
 import utils.YesNo.{No, Yes}
 
@@ -89,7 +89,7 @@ case class PaymentHistory(
                          )
 
 object PaymentHistory {
-  def apply(row: LongFormRow): PaymentHistory =
+  def apply(row: ContractDetailsRow): PaymentHistory =
     PaymentHistory(row.averageDaysToPay, row.percentPaidLaterThanAgreedTerms, PercentageSplit(row.percentInvoicesWithin30Days, row.percentInvoicesWithin60Days, row.percentInvoicesBeyond60Days))
 }
 
@@ -114,14 +114,14 @@ case class PaymentTerms(
                        )
 
 object PaymentTerms {
-  def apply(row: LongFormRow): PaymentTerms =
+  def apply(row: ContractDetailsRow): PaymentTerms =
     PaymentTerms(row.paymentPeriod, row.paymentTerms, row.maximumContractPeriod, row.maximumContractPeriodComment,
       pt(row),
       row.paymentTermsChangedComment,
       row.disputeResolution
     )
 
-  def pt(row: LongFormRow): PaymentTermsChanged = {
+  def pt(row: ContractDetailsRow): PaymentTermsChanged = {
     val comment = ConditionalText(row.paymentTermsChangedComment)
     val notified =
       if (comment.yesNo === Yes) Some(ConditionalText(row.paymentTermsChangedNotifiedComment))
@@ -136,7 +136,7 @@ case class ReportingPeriodFormModel(
                                      hasQualifyingContracts: YesNo
                                    )
 
-case class PaymentCodesFormModel(
+case class ShortFormModel(
                            paymentCodes: ConditionalText
                          )
 
@@ -146,19 +146,20 @@ case class LongFormModel(
                           offerEInvoicing: YesNo,
                           offerSupplyChainFinancing: YesNo,
                           retentionChargesInPolicy: YesNo,
-                          retentionChargesInPast: YesNo
+                          retentionChargesInPast: YesNo,
+                          paymentCodes: ConditionalText
                         )
 
 object LongFormModel {
-  def apply(report: LongForm): LongFormModel = {
+  def apply(paymentCodes: ConditionalText, report: ContractDetails): LongFormModel = {
     LongFormModel(
       report.paymentHistory,
       report.paymentTerms,
       report.offerEInvoicing,
       report.offerSupplyChainFinance,
       report.retentionChargesInPolicy,
-      report.retentionChargesInPast
-    )
+      report.retentionChargesInPast,
+      paymentCodes)
   }
 
 }

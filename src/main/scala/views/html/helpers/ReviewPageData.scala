@@ -17,7 +17,7 @@
 
 package views.html.helpers
 
-import forms.report.{ConditionalText, LongFormModel, PaymentCodesFormModel, ReportingPeriodFormModel}
+import forms.report.{ConditionalText, LongFormModel, ReportingPeriodFormModel, ShortFormModel}
 import org.joda.time.LocalDate
 import org.joda.time.format.DateTimeFormat
 import play.twirl.api.{Html, HtmlFormat}
@@ -59,20 +59,31 @@ object ReviewPageData extends HtmlHelpers {
     * The review page can be reconfigured by changing this list of tables or by changing
     * the content of the various groups.
     */
-  def formGroups(companyName: String, reportingPeriod: ReportingPeriodFormModel, paymentCodesFormModel: PaymentCodesFormModel, longForm: Option[LongFormModel]): Seq[TableDescriptor] = {
+  def formGroups(companyName: String, reportingPeriod: ReportingPeriodFormModel, shortForm: ShortFormModel): Seq[TableDescriptor] = {
     Seq(
-      Some(cssClasses -> group1(companyName, reportingPeriod, longForm)),
-      longForm.map(cssClasses -> group2(_)),
-      Some(cssClasses -> group3(longForm, paymentCodesFormModel))
-    ).flatten
+      cssClasses -> group1(companyName, reportingPeriod),
+      cssClasses -> group3(shortForm)
+    )
   }
 
-  def group1(companyName: String, reportingPeriod: ReportingPeriodFormModel, longForm: Option[LongFormModel]): Seq[RowDescriptor] =
-    topLevelInfo(companyName) ++ reportingDateRows(reportingPeriod) ++ longForm.map(paymentHistoryRows).getOrElse(Seq())
+  def formGroups(companyName: String, reportingPeriod: ReportingPeriodFormModel, longForm: LongFormModel): Seq[TableDescriptor] = {
+    Seq(
+      cssClasses -> group1(companyName, reportingPeriod, longForm),
+      cssClasses -> group2(longForm),
+      cssClasses -> group3(longForm)
+    )
+  }
+
+  def group1(companyName: String, reportingPeriod: ReportingPeriodFormModel, longForm: LongFormModel): Seq[RowDescriptor] =
+    topLevelInfo(companyName) ++ reportingDateRows(reportingPeriod) ++ paymentHistoryRows(longForm)
+
+  def group1(companyName: String, reportingPeriod: ReportingPeriodFormModel): Seq[RowDescriptor] =
+    topLevelInfo(companyName) ++ reportingDateRows(reportingPeriod)
 
   def group2(r: LongFormModel) = paymentTermsRows(r)
 
-  def group3(longForm: Option[LongFormModel], pc:PaymentCodesFormModel) = longForm.map(otherInfoRows).getOrElse(Seq()) ++ paymentCodesRows(pc)
+  def group3(shortForm: ShortFormModel) = paymentCodesRows(shortForm)
+  def group3(longForm: LongFormModel) = otherInfoRows(longForm)
 
   def topLevelInfo(companyName: String): Seq[RowDescriptor] = Seq(
     ("Company or limited liability partnership", companyName)
@@ -103,15 +114,16 @@ object ReviewPageData extends HtmlHelpers {
     ("Your dispute resolution process", breakLines(r.paymentTerms.disputeResolution))
   )
 
-  def otherInfoRows(r: LongFormModel): Seq[RowDescriptor] = Seq(
-    ("Do you offer e-invoicing?", r.offerEInvoicing),
-    ("Do you offer offer supply chain finance?", r.offerSupplyChainFinancing),
-    ("Do you have a policy of deducting sums from payments under qualifying contracts as a charge for remaining on a supplier list?", r.retentionChargesInPolicy),
-    ("In this reporting period, have you deducted any sum from payments under qualifying contracts as a charge for remaining on a supplier list?", r.retentionChargesInPast)
+  def otherInfoRows(longForm: LongFormModel): Seq[RowDescriptor] = Seq(
+    ("Do you offer e-invoicing?", longForm.offerEInvoicing),
+    ("Do you offer offer supply chain finance?", longForm.offerSupplyChainFinancing),
+    ("Do you have a policy of deducting sums from payments under qualifying contracts as a charge for remaining on a supplier list?", longForm.retentionChargesInPolicy),
+    ("In this reporting period, have you deducted any sum from payments under qualifying contracts as a charge for remaining on a supplier list?", longForm.retentionChargesInPast),
+    ("Are you a member of a code of conduct or standards on payment practices?", conditionalText(longForm.paymentCodes))
   )
 
-  def paymentCodesRows(pc: PaymentCodesFormModel): Seq[RowDescriptor] = Seq(
-    ("Are you a member of a code of conduct or standards on payment practices?", conditionalText(pc.paymentCodes))
+  def paymentCodesRows(shortForm: ShortFormModel): Seq[RowDescriptor] = Seq(
+    ("Are you a member of a code of conduct or standards on payment practices?", conditionalText(shortForm.paymentCodes))
   )
 
 }

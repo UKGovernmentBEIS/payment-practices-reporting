@@ -22,39 +22,39 @@ import org.joda.time.LocalDate
 import utils.YesNo
 
 
-case class ShortFormRow(
-                         reportId: ReportId,
+case class ReportRow(
+                      id: ReportId,
 
-                         companyName: String,
-                         companyId: CompaniesHouseId,
-                         filingDate: LocalDate,
-                         approvedBy: String,
-                         confirmationEmailAddress: String,
-                         startDate: LocalDate,
-                         endDate: LocalDate,
-                         paymentCodes: Option[String]
-                       )
+                      companyName: String,
+                      companyId: CompaniesHouseId,
+                      filingDate: LocalDate,
+                      approvedBy: String,
+                      confirmationEmailAddress: String,
+                      startDate: LocalDate,
+                      endDate: LocalDate,
+                      paymentCodes: Option[String]
+                    )
 
-case class LongFormRow(
-                        reportId: ReportId,
+case class ContractDetailsRow(
+                               reportId: ReportId,
 
-                        paymentTerms: String,
-                        paymentPeriod: Int,
-                        maximumContractPeriod: Int,
-                        maximumContractPeriodComment: Option[String],
-                        paymentTermsChangedComment: Option[String],
-                        paymentTermsChangedNotifiedComment: Option[String],
-                        paymentTermsComment: Option[String],
-                        disputeResolution: String,
+                               paymentTerms: String,
+                               paymentPeriod: Int,
+                               maximumContractPeriod: Int,
+                               maximumContractPeriodComment: Option[String],
+                               paymentTermsChangedComment: Option[String],
+                               paymentTermsChangedNotifiedComment: Option[String],
+                               paymentTermsComment: Option[String],
+                               disputeResolution: String,
 
-                        offerEInvoicing: YesNo,
-                        offerSupplyChainFinance: YesNo,
-                        retentionChargesInPolicy: YesNo,
-                        retentionChargesInPast: YesNo,
+                               offerEInvoicing: YesNo,
+                               offerSupplyChainFinance: YesNo,
+                               retentionChargesInPolicy: YesNo,
+                               retentionChargesInPast: YesNo,
 
-                        averageDaysToPay: Int,
-                        percentPaidLaterThanAgreedTerms: Int,
-                        percentInvoicesWithin30Days: Int,
-                        percentInvoicesWithin60Days: Int,
-                        percentInvoicesBeyond60Days: Int
-                      )
+                               averageDaysToPay: Int,
+                               percentPaidLaterThanAgreedTerms: Int,
+                               percentInvoicesWithin30Days: Int,
+                               percentInvoicesWithin60Days: Int,
+                               percentInvoicesBeyond60Days: Int
+                             )

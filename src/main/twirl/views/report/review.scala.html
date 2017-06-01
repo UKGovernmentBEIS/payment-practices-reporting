@@ -1,13 +1,11 @@
 @(
         review: Form[forms.report.ReportReviewModel],
-        longForm: Option[forms.report.LongFormModel],
-        paymentCodes: forms.report.PaymentCodesFormModel,
-        reportingPeriod: forms.report.ReportingPeriodFormModel,
+        reportData: Map[String, String],
+        formGroups: Seq[views.html.helpers.ReviewPageData.TableDescriptor],
         formAction: Call,
         id: CompaniesHouseId,
         companyName: String,
-        df: org.joda.time.format.DateTimeFormatter,
-        validations: forms.report.Validations)(implicit messagesApi: MessagesApi)
+        df: org.joda.time.format.DateTimeFormatter)(implicit messagesApi: MessagesApi)
 
 @checked(field: Field) = @{
     if(field.value.contains("true")) "checked" else ""
@@ -24,7 +22,7 @@
 
     <div class="scannable-wrapper">
 
-        @for((cssClass, rows) <- helpers.ReviewPageData.formGroups(companyName, reportingPeriod, paymentCodes, longForm)) {
+        @for((cssClass, rows) <- formGroups) {
             <table class="@cssClass">
             @for((name, value) <- rows) {
                 <tr>
@@ -35,18 +33,8 @@
             </table>
         }
 
-
-
         <form action="@formAction" method="POST">
-            @longForm.map { lf =>
-                @for((k, v) <- validations.reportFormModel.unbind(lf)) {
-                    <input type="hidden" name='@k' value="@HtmlFormat.escape(v)">
-                }
-            }
-            @for((k, v) <- validations.reportingPeriodFormModel.unbind(reportingPeriod)) {
-                <input type="hidden" name='@k' value="@HtmlFormat.escape(v)">
-            }
-            @for((k, v) <- validations.paymentCodesFormModel.unbind(paymentCodes)) {
+            @for((k, v) <- reportData) {
                 <input type="hidden" name='@k' value="@HtmlFormat.escape(v)">
             }
 

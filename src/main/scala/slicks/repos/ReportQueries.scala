@@ -30,7 +30,7 @@ trait ReportQueries {
     * for the situation where some sections are not yet completed. All of the section structures come
     * back as `Option`s. Only the header is guaranteed to be present in the result.
     */
-  val reportQuery = shortFormTable.joinLeft(longFormTable).on(_.reportId === _.reportId)
+  val reportQuery = reportTable.joinLeft(contractDetailsTable).on(_.id === _.reportId)
 
   val reportQueryC = Compiled(reportQuery)
 

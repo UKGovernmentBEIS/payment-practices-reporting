@@ -22,7 +22,7 @@ import javax.inject.{Inject, Named}
 import actions.{CompanyAuthAction, CompanyAuthRequest}
 import akka.actor.ActorRef
 import config.{PageConfig, ServiceConfig}
-import forms.report.{LongFormModel, PaymentCodesFormModel, ReportingPeriodFormModel, Validations}
+import forms.report.{LongFormModel, ShortFormModel, ReportingPeriodFormModel, Validations}
 import models.CompaniesHouseId
 import play.api.data.Form
 import play.api.i18n.MessagesApi
@@ -52,7 +52,7 @@ class ReportingPeriodController @Inject()(
   private def title(implicit request: CompanyAuthRequest[_]): String = publishTitle(request.companyDetail.companyName)
 
   def start(companiesHouseId: CompaniesHouseId) = CompanyAuthAction(companiesHouseId) { implicit request =>
-    Ok(page(title)(home, pages.reportingPeriod(reportPageHeader, emptyReportingPeriod, emptyLongForm, emptyPaymentCodes, companiesHouseId, df, serviceStartDate)))
+    Ok(page(title)(home, pages.reportingPeriod(reportPageHeader, emptyReportingPeriod, Map.empty, companiesHouseId, df, serviceStartDate)))
   }
 
   def post(companiesHouseId: CompaniesHouseId) = CompanyAuthAction(companiesHouseId)(parse.urlFormEncoded) { implicit request =>
@@ -61,17 +61,17 @@ class ReportingPeriodController @Inject()(
     // makes sure that when the user starts filing a new report that the next page doesn't start
     // out full of errors because the report is empty.
     val longForm = emptyLongForm.bindForm.discardingErrors
-    val paymentCodesForm = emptyPaymentCodes.bindForm.discardingErrors
+    val shortForm = emptyShortForm.bindForm.discardingErrors
 
     val reportingPeriodForm = emptyReportingPeriod.bindForm
 
     reportingPeriodForm.fold(
-      errs => BadRequest(page(title)(home, pages.reportingPeriod(reportPageHeader, errs, longForm, paymentCodesForm, companiesHouseId, df, serviceStartDate))),
+      errs => BadRequest(page(title)(home, pages.reportingPeriod(reportPageHeader, errs, longForm.data ++ shortForm.data, companiesHouseId, df, serviceStartDate))),
       reportingPeriod =>
         if (reportingPeriod.hasQualifyingContracts.toBoolean)
-          Ok(page(title)(home, pages.longForm(reportPageHeader, longForm, paymentCodesForm, reportingPeriod, companiesHouseId, df, serviceStartDate, validations)))
+          Ok(page(title)(home, pages.longForm(reportPageHeader, longForm, reportingPeriodForm.data, companiesHouseId, df, serviceStartDate)))
         else
-          Ok(page(title)(home, pages.shortForm(reportPageHeader, paymentCodesForm, reportingPeriod, companiesHouseId, df, serviceStartDate, validations)))
+          Ok(page(title)(home, pages.shortForm(reportPageHeader, shortForm, reportingPeriodForm.data, companiesHouseId, df, serviceStartDate)))
 
     )
   }

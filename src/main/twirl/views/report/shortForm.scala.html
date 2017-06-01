@@ -1,21 +1,20 @@
 @(
         header: Html,
-        reportForm: Form[forms.report.PaymentCodesFormModel],
-        reportingPeriod: forms.report.ReportingPeriodFormModel,
+        shortForm: Form[forms.report.ShortFormModel],
+        stashData: Map[String, String],
         companyId: CompaniesHouseId,
         df: DateTimeFormatter,
-        serviceStartDate: LocalDate,
-        validations: forms.report.Validations
+        serviceStartDate: LocalDate
 )(implicit messages: MessagesApi, lang: Lang)
 
 <div id=contentStart">
-    @shared._errorBox(reportForm)
+    @shared._errorBox(shortForm)
 
 <div class="scannable-wrapper">
     @header
 
     <form action="@routes.FilingController.postShortForm(companyId)" method="POST" id="file-report">
-        @for((k, v) <- validations.reportingPeriodFormModel.unbind(reportingPeriod)) {
+        @for((k, v) <- stashData) {
             <input type="hidden" name='@k' value="@HtmlFormat.escape(v)">
         }
 
@@ -23,7 +22,7 @@
             Companies House number: @companyId.id
         </p>
 
-        @report._paymentCodes(reportForm)
+        @report._paymentCodes(shortForm)
 
         <input type="submit" class="button" name="Continue" value="Continue">
     </form>
