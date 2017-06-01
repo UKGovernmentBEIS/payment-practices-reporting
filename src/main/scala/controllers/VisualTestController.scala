@@ -101,7 +101,7 @@ class VisualTestController @Inject()(
     )
 
     val formGroups = ReviewPageData.formGroups(companyName, dummyReportingPeriodModel, healthyLongFormModel)
-    val review = Seq(views.html.report.review(emptyReview, emptyLongForm.fill(healthyLongFormModel).data ++ dummyReportingPeriodForm.data, formGroups, Call("", ""), id, companyName, df))
+    val review = Seq(views.html.report.review(emptyReview, emptyLongForm.fill(healthyLongFormModel).data ++ dummyReportingPeriodForm.data, formGroups, Call("", "")))
     val published = Seq(views.html.report.filingSuccess(reportId, "foobar@example.com", pageConfig.surveyMonkeyConfig))
     val errors = Seq(
       views.html.errors.sessionTimeout(),

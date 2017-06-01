@@ -13,7 +13,7 @@
 <div class="scannable-wrapper">
     @header
 
-    <form action="@routes.FilingController.postShortForm(companyId)" method="POST" id="file-report">
+    <form action="@routes.ShortFormController.postForm(companyId)" method="POST" id="file-report">
         @for((k, v) <- stashData) {
             <input type="hidden" name='@k' value="@HtmlFormat.escape(v)">
         }

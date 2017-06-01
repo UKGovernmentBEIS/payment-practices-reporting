@@ -2,10 +2,7 @@
         review: Form[forms.report.ReportReviewModel],
         reportData: Map[String, String],
         formGroups: Seq[views.html.helpers.ReviewPageData.TableDescriptor],
-        formAction: Call,
-        id: CompaniesHouseId,
-        companyName: String,
-        df: org.joda.time.format.DateTimeFormatter)(implicit messagesApi: MessagesApi)
+        formAction: Call)(implicit messagesApi: MessagesApi)
 
 @checked(field: Field) = @{
     if(field.value.contains("true")) "checked" else ""

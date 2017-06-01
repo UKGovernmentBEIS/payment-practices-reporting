@@ -25,7 +25,7 @@
 
     @shared._day1Calculation()
 
-    <form action="@routes.FilingController.postLongForm(companyId)" method="POST" id="longForm-report">
+    <form action="@routes.LongFormController.postForm(companyId)" method="POST" id="longForm-report">
         @for((k, v) <- stashData) {
             <input type="hidden" name='@k' value="@HtmlFormat.escape(v)">
         }

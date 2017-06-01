@@ -19,15 +19,21 @@ package controllers
 
 import javax.inject.Inject
 
-import actions.SessionAction
+import actions.{CompanyAuthAction, SessionAction}
 import config.{PageConfig, ServiceConfig}
+import models.CompaniesHouseId
 import play.api.mvc.{Action, Controller}
 
 class ErrorController @Inject()(val pageConfig: PageConfig,
-                                val serviceConfig: ServiceConfig) extends Controller with PageHelper {
+                                val serviceConfig: ServiceConfig,
+                                CompanyAuthAction: CompanyAuthAction) extends Controller with PageHelper {
 
   def sessionTimeout = Action { implicit request =>
     Unauthorized(page("Your session timed out")(home, views.html.errors.sessionTimeout())).removingFromSession(SessionAction.sessionIdKey)
+  }
+
+  def invalidScope(companiesHouseId: CompaniesHouseId) = CompanyAuthAction(companiesHouseId) { implicit request =>
+    Ok(page("Your report has not been filed because of an error")(home, views.html.errors.invalidScope(request.companyDetail)))
   }
 
 }
