@@ -96,8 +96,10 @@ class Validations @Inject()(timeSource: TimeSource, serviceConfig: ServiceConfig
     "hasQualifyingContracts" -> yesNo
   )(ReportingPeriodFormModel.apply)(ReportingPeriodFormModel.unapply)
 
+  private val paymentCodesValidation = "paymentCodes" -> conditionalText(paymentCodesWordCount)
+  
   val shortFormModel = mapping(
-    "paymentCodes"-> conditionalText(paymentCodesWordCount)
+    paymentCodesValidation
   )(ShortFormModel.apply)(ShortFormModel.unapply)
 
   val reportFormModel = mapping(
@@ -107,12 +109,12 @@ class Validations @Inject()(timeSource: TimeSource, serviceConfig: ServiceConfig
     "offerSupplyChainFinancing" -> yesNo,
     "retentionChargesInPolicy" -> yesNo,
     "retentionChargesInPast" -> yesNo,
-    "paymentCodes"-> conditionalText(paymentCodesWordCount)
+    paymentCodesValidation
   )(LongFormModel.apply)(LongFormModel.unapply)
 
   val reportReviewModel = mapping(
     "confirmedBy" -> nonEmptyText(maxLength = 255),
-  "confirmed" -> checked("error.confirm")
+    "confirmed" -> checked("error.confirm")
   )(ReportReviewModel.apply)(ReportReviewModel.unapply)
 
   val emptyReportingPeriod: Form[ReportingPeriodFormModel] = Form(reportingPeriodFormModel)

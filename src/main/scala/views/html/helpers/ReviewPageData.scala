@@ -105,7 +105,7 @@ object ReviewPageData extends HtmlHelpers {
   def paymentTermsRows(r: LongFormModel): Seq[RowDescriptor] = Seq(
     ("Standard payment period", (r.paymentTerms.paymentPeriod, "days")),
     ("Standard payment terms", r.paymentTerms.terms),
-    ("Any changes to standard payment terms", conditionalText(r.paymentTerms.paymentTermsChanged.comment)),
+    ("Any changes to standard payment terms", r.paymentTerms.paymentTermsChanged.comment),
     ("Did you consult or notify your suppliers about changes?",
       r.paymentTerms.paymentTermsChanged.notified.map(conditionalText)),
     ("Maximum contract period in days", (r.paymentTerms.maximumContractPeriod, "days")),
@@ -114,16 +114,18 @@ object ReviewPageData extends HtmlHelpers {
     ("Your dispute resolution process", breakLines(r.paymentTerms.disputeResolution))
   )
 
+  private val codeOfCoductText = "Are you a member of a code of conduct or standards on payment practices?"
+
   def otherInfoRows(longForm: LongFormModel): Seq[RowDescriptor] = Seq(
     ("Do you offer e-invoicing?", longForm.offerEInvoicing),
     ("Do you offer offer supply chain finance?", longForm.offerSupplyChainFinancing),
     ("Do you have a policy of deducting sums from payments under qualifying contracts as a charge for remaining on a supplier list?", longForm.retentionChargesInPolicy),
     ("In this reporting period, have you deducted any sum from payments under qualifying contracts as a charge for remaining on a supplier list?", longForm.retentionChargesInPast),
-    ("Are you a member of a code of conduct or standards on payment practices?", conditionalText(longForm.paymentCodes))
+    (codeOfCoductText, longForm.paymentCodes)
   )
 
   def paymentCodesRows(shortForm: ShortFormModel): Seq[RowDescriptor] = Seq(
-    ("Are you a member of a code of conduct or standards on payment practices?", conditionalText(shortForm.paymentCodes))
+    (codeOfCoductText, shortForm.paymentCodes)
   )
 
 }
@@ -139,7 +141,7 @@ trait HtmlHelpers {
 
   def breakLines(s: String): Html = Html(HtmlFormat.escape(limitLength(s)).toString.replace("\n", "<br />"))
 
-  def conditionalText(ct: ConditionalText): Html = ct.yesNo match {
+  implicit def conditionalText(ct: ConditionalText): Html = ct.yesNo match {
     case Yes => Html(s"<strong>Yes </strong>&ndash; ${breakLines(ct.text.map(limitLength(_)).getOrElse(""))}")
     case No => Html("<strong>No</strong>")
   }
