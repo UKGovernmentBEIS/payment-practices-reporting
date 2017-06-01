@@ -35,14 +35,14 @@ import views.html.helpers.ReviewPageData
 import scala.concurrent.{ExecutionContext, Future}
 
 class LongFormController @Inject()(
-                                  reports: ReportService,
-                                  validations: Validations,
-                                  val companyAuth: CompanyAuthService,
-                                  CompanyAuthAction: CompanyAuthAction,
-                                  val serviceConfig: ServiceConfig,
-                                  val pageConfig: PageConfig,
-                                  @Named("confirmation-actor") confirmationActor: ActorRef
-                                )(implicit val ec: ExecutionContext, messages: MessagesApi) extends Controller with BaseFormController with PageHelper {
+                                    reports: ReportService,
+                                    validations: Validations,
+                                    val companyAuth: CompanyAuthService,
+                                    companyAuthAction: CompanyAuthAction,
+                                    val serviceConfig: ServiceConfig,
+                                    val pageConfig: PageConfig,
+                                    @Named("confirmation-actor") confirmationActor: ActorRef
+                                  )(implicit val ec: ExecutionContext, messages: MessagesApi) extends Controller with BaseFormController with PageHelper {
 
   import validations._
   import views.html.{report => pages}
@@ -52,7 +52,7 @@ class LongFormController @Inject()(
 
   def reportPageHeader(implicit request: CompanyAuthRequest[_]): Html = h1(s"Publish a report for:<br>${request.companyDetail.companyName}")
 
-  def postForm(companiesHouseId: CompaniesHouseId) = CompanyAuthAction(companiesHouseId)(parse.urlFormEncoded) { implicit request =>
+  def postForm(companiesHouseId: CompaniesHouseId) = companyAuthAction(companiesHouseId)(parse.urlFormEncoded) { implicit request =>
     val title = publishTitle(request.companyDetail.companyName)
     val action = routes.LongFormController.postReview(companiesHouseId)
 
@@ -73,7 +73,7 @@ class LongFormController @Inject()(
     )
   }
 
-  def postReview(companiesHouseId: CompaniesHouseId) = CompanyAuthAction(companiesHouseId).async(parse.urlFormEncoded) { implicit request =>
+  def postReview(companiesHouseId: CompaniesHouseId) = companyAuthAction(companiesHouseId).async(parse.urlFormEncoded) { implicit request =>
     val revise: Boolean = Form(single("revise" -> text)).bindForm.value.contains("Revise")
     val title = publishTitle(request.companyDetail.companyName)
 

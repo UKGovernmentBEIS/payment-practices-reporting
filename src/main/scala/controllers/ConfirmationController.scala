@@ -35,10 +35,8 @@ class ConfirmationController @Inject()(
 
   import views.html.{report => pages}
 
-  private val reviewPageTitle = "Review your report"
   private def publishTitle(companyName: String) = s"Publish a report for $companyName"
-
-
+  
   def showConfirmation(reportId: ReportId) = Action.async { implicit request =>
     reports.find(reportId).map {
       case Some(report) => Ok(
