@@ -25,7 +25,6 @@ import cats.instances.future._
 import config.{PageConfig, ServiceConfig}
 import forms.Validations
 import models.{CompaniesHouseId, ReportId}
-import org.joda.time.format.DateTimeFormat
 import org.scalactic.TripleEquals._
 import play.api.data.Forms._
 import play.api.data._

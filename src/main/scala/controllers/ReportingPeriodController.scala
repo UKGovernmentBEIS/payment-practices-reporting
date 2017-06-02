@@ -48,7 +48,7 @@ class ReportingPeriodController @Inject()(
   private def publishTitle(companyName: String) = s"Publish a report for $companyName"
   private def title(implicit request: CompanyAuthRequest[_]): String = publishTitle(request.companyDetail.companyName)
 
-  def start(companiesHouseId: CompaniesHouseId) = companyAuthAction(companiesHouseId) { implicit request =>
+  def startReport(companiesHouseId: CompaniesHouseId) = companyAuthAction(companiesHouseId) { implicit request =>
     Ok(page(title)(home, pages.reportingPeriod(reportPageHeader, emptyReportingPeriod, Map.empty, companiesHouseId, df, serviceStartDate)))
   }
 

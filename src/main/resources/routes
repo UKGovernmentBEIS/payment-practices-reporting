@@ -26,7 +26,7 @@ POST        /publish/company/:id/code                       controllers.CoHoCode
 GET         /publish/company/:id/colleague                  controllers.ReportController.colleague(id:CompaniesHouseId)
 GET         /publish/company/:id/register                   controllers.ReportController.register(id:CompaniesHouseId)
 GET         /publish/company/:id/apply-for-code             controllers.ReportController.applyForAuthCode(id:CompaniesHouseId)
-GET         /publish/company/:id/file                       controllers.ReportingPeriodController.start(id:CompaniesHouseId)
+GET         /publish/company/:id/file                       controllers.ReportingPeriodController.startReport(id:CompaniesHouseId)
 
 POST        /publish/company/:id/file/long                  controllers.LongFormController.postForm(id:CompaniesHouseId)
 POST        /publish/company/:id/file/short                 controllers.ShortFormController.postForm(id:CompaniesHouseId)
