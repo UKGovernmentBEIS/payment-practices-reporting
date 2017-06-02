@@ -95,7 +95,7 @@ field.paymentTerms.maximumContractPeriodComment.hint=For example, if you have di
 field.paymentTerms.paymentTermsChanged.changed.yesNo.label=Were there any changes to your standard payment terms in the reporting period?
 field.paymentTerms.paymentTermsChanged.changed.yesNo.hint=For example, a business may start the reporting period with a 60-day payment period in their standard contract, but change this to 30-days three months into the reporting period.
 field.paymentTerms.paymentTermsChanged.changed.text.label=If so, explain what the changes were
-field.paymentTerms.paymentTermsChanged.changed.text.hint=Describe your dispute resolution process for qualifying contracts How do you resolve disputes and complaints with your suppliers about payments?\n\nThis helps suppliers know who to contact and to understand the process they need to follow to resolve a dispute or concern.\n\nThis may be a detailed process, or simply an explanation that a complaint or concern will be considered by a particular department or job title, the usual timescale and next steps.\n\nIf your business has a dispute resolution process already published on their website, you could include a hyperlink here alongside an explanation of the process.
+field.paymentTerms.paymentTermsChanged.changed.text.hint=
 
 field.paymentTerms.paymentTermsChanged.notified.yesNo.label=If there were changes, did you consult or notify suppliers before you made these changes?
 field.paymentTerms.paymentTermsChanged.notified.yesNo.hint=
@@ -106,7 +106,7 @@ field.paymentTerms.paymentTermsComment.label=Optional: any further information a
 field.paymentTerms.paymentTermsComment.hint=
 
 field.paymentTerms.disputeResolution.label=Describe your dispute resolution process
-field.paymentTerms.disputeResolution.hint=How do you resolve disputes and complaints with your suppliers about payments?
+field.paymentTerms.disputeResolution.hint=Describe your dispute resolution process for qualifying contracts How do you resolve disputes and complaints with your suppliers about payments?\n\nThis helps suppliers know who to contact and to understand the process they need to follow to resolve a dispute or concern.\n\nThis may be a detailed process, or simply an explanation that a complaint or concern will be considered by a particular department or job title, the usual timescale and next steps.\n\nIf your business has a dispute resolution process already published on their website, you could include a hyperlink here alongside an explanation of the process.
 
 field.offerEInvoicing.label=Does your business offer e-invoicing?
 field.offerEInvoicing.hint=You must state whether your business'' payment practices and policies provide for invoices to be submitted and tracked electronically, such as with invoice document management systems software.\n\nInvoice document management systems software allows documents to be electronically exchanged, and means a more streamlined process with less manual intervention. This can make the process of payment faster for the supplier.
