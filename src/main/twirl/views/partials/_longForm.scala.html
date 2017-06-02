@@ -46,7 +46,7 @@
 }
 </p>
 @if(longForm.paymentTerms.paymentTermsChanged.comment.isDefined) {
-    <h4 class="heading-small">Were suppliers notified or consulted about these changes?</h4>
+    <h4 class="heading-small">Were suppliers notified or consulted about these changes before they were made?</h4>
     <p>
     @longForm.paymentTerms.paymentTermsChanged.notified.map { c =>
         @c.text.map { text =>
@@ -91,7 +91,7 @@
 }
 </p>
 <h4 class="heading-small">
-    Does this business offer e-invoicing?
+    Does this business offer e-invoicing in relation to qualifying contracts?
     <span class="form-hint">
         This is where suppliers can electronically submit and track invoices. It’s not just allowing suppliers to email them an invoice.
     </span>
@@ -104,7 +104,7 @@
     Does this business offer supply chain finance?
     <span class="form-hint">
         This is where a supplier who has submitted an invoice can be paid by a third-party finance provider earlier than the agreed payment date.
-        The business would then pay the finance provider the invoiced sum by the payment date.</span>
+        The business would then pay the finance provider the invoiced sum.</span>
 </h4>
 <p>
 @longForm.offerSupplyChainFinance.entryName.capitalize
