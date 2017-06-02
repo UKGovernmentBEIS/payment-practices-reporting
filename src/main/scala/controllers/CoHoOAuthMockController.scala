@@ -64,7 +64,7 @@ class CoHoOAuthMockController @Inject()(
       _ <- OptionT.liftF(sessionService.put(request.sessionId, oAuthTokenKey, ref))
       _ <- OptionT.liftF(sessionService.put(request.sessionId, companyDetailsKey, companyDetail))
       _ <- OptionT.liftF(sessionService.put(request.sessionId, emailAddressKey, emailAddress))
-    } yield Redirect(controllers.routes.ReportingPeriodController.start(companiesHouseId))
+    } yield Redirect(controllers.routes.ReportingPeriodController.startReport(companiesHouseId))
 
     f.value.map {
       case Some(result) => result
