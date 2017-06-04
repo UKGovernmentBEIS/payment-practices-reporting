@@ -135,9 +135,9 @@
         <!-- TODO add enctype support -->
         <form name="authorise"
               class="form "
-              action="@routes.CoHoOAuthMockController.postAuthCode(chn)"
+              action="@routes.OAuth2Controller.claimCallback(None, None)"
 
-              method="POST" enctype="multipart/form-data">
+              method="GET" enctype="multipart/form-data">
 
             <div class="form-group">
                 <label for="auth_code" class="form-label form-label-bold" id="auth_code-label">
@@ -152,7 +152,8 @@
                 <input type="submit" id="submit" name="submit" value="Authenticate" class="button"/>
 
             </div>
-            <input type="hidden" name="request" id="request" value="eyJ0eXAiOiJKV0UiLCJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..eOek9GXAKYHweOo43XBRNA.LZ90YaD3xiYLb8C0wWasyQBjFQeasydruy-GG215hd58PyxgfSDkve72P-1rQzmVho6Hn-AukJtwX9VUhWr41UNXBcxL7glAVZ5sHNriHIpBSp861q205hKhWNfgh6tLSc9VOy4B1SZBiAaqxDKBNb1fkncjlL_RAyNJEy77dbbnLjQNaIgkpJt_PJ_hZkwaTmimaNjxIO5DymfYX_lvYXLJG_Ea0DZdoE1DZcWjQIZVyxylpYzG0av73hmEfspWztpFuZMQPLplQoXnQ6zeCkwrgrZQerTlHvJPcW4RY4l0gjPyZVTx00fznkFUwdWdQOJmB4NSsJyGLo3mBxvFptsL75HZmBEln6HwziFqcVWyzTO-VBeHKZ0_oQeEKLIpgGoJxKRPLZj5S7pL6D-r6Zxxsm6xaEqki2VNbB8Q9bySGPDdwIkWPDjt1zoG2O-5JeQ8C6g6nFRyhgC6ys0IY2ry6QRkodYZ6clN6J6JkGcR6WxotrLPoSvGqsT0CWBped5Ce8_hSucLY_v3Maczdo2X4KKe68VjoBp9kFct36c4e2Ds48JpAhllvR6pBCcI.3FT37nIK9GMygerx6B-YdJP0Z8KGSnKdtkPRKsKqaQA" >
+            <input type="hidden" name="code" id="request" value="dummycode" >
+            <input type="hidden" name="state" id="request" value="@chn.id" >
         </form>
         <p class="text"><a id="auth_code_request" href="/company/10203299/authcode/request?request=eyJ0eXAiOiJKV0UiLCJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..eOek9GXAKYHweOo43XBRNA.LZ90YaD3xiYLb8C0wWasyQBjFQeasydruy-GG215hd58PyxgfSDkve72P-1rQzmVho6Hn-AukJtwX9VUhWr41UNXBcxL7glAVZ5sHNriHIpBSp861q205hKhWNfgh6tLSc9VOy4B1SZBiAaqxDKBNb1fkncjlL_RAyNJEy77dbbnLjQNaIgkpJt_PJ_hZkwaTmimaNjxIO5DymfYX_lvYXLJG_Ea0DZdoE1DZcWjQIZVyxylpYzG0av73hmEfspWztpFuZMQPLplQoXnQ6zeCkwrgrZQerTlHvJPcW4RY4l0gjPyZVTx00fznkFUwdWdQOJmB4NSsJyGLo3mBxvFptsL75HZmBEln6HwziFqcVWyzTO-VBeHKZ0_oQeEKLIpgGoJxKRPLZj5S7pL6D-r6Zxxsm6xaEqki2VNbB8Q9bySGPDdwIkWPDjt1zoG2O-5JeQ8C6g6nFRyhgC6ys0IY2ry6QRkodYZ6clN6J6JkGcR6WxotrLPoSvGqsT0CWBped5Ce8_hSucLY_v3Maczdo2X4KKe68VjoBp9kFct36c4e2Ds48JpAhllvR6pBCcI.3FT37nIK9GMygerx6B-YdJP0Z8KGSnKdtkPRKsKqaQA">Request an authentication code</a></p>
         <!--end content-->

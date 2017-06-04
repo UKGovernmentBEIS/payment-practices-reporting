@@ -39,12 +39,11 @@ GET         /publish/error/:id                              controllers.ErrorCon
 
 POST        /publish/company/:id/reportingPeriod            controllers.ReportingPeriodController.post(id:CompaniesHouseId)
 
-GET         /report-payment-practices/claim-callback        controllers.OAuth2Controller.claimCallback(code: Option[String], state: Option[String], error:Option[String], errorDescription:Option[String], errorCode:Option[String])
+GET         /report-payment-practices/claim-callback        controllers.OAuth2Controller.claimCallback(code: Option[String], state: Option[String], error:Option[String]=None, errorDescription:Option[String]=None, errorCode:Option[String]=None)
 
 GET         /publish/coho/login/:id                         controllers.CoHoOAuthMockController.login(id:CompaniesHouseId)
 POST        /publish/coho/login/:id                         controllers.CoHoOAuthMockController.postLogin(id:CompaniesHouseId)
 
 GET         /publish/coho/code/:id                          controllers.CoHoOAuthMockController.authCode(id:CompaniesHouseId)
-POST        /publish/coho/code/:id                          controllers.CoHoOAuthMockController.postAuthCode(id:CompaniesHouseId)
 
 GET         /publish/session-timeout                        controllers.ErrorController.sessionTimeout
