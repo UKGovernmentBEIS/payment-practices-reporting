@@ -17,7 +17,7 @@
 
 package controllers
 
-import config.{GoogleAnalyticsConfig, PageConfig, ServiceConfig}
+import config.{GoogleAnalyticsConfig, PageConfig, ServiceConfig, SurveyMonkeyConfig}
 import org.joda.time.format.DateTimeFormat
 import org.scalactic.TripleEquals._
 import play.api.data.Form
@@ -48,7 +48,7 @@ trait PageHelper {
 
   def page(title: String)(contents: Html*)(implicit pageContext: PageContext): Html = {
     val content = html(contents: _*)
-    views.html.templates.govukTemplateDefaults(title)(content)(pageContext)
+    views.html.templates.govukTemplateDefaults(title, pageConfig.surveyMonkeyConfig)(content)(pageContext)
   }
 
   def html(contents: Html*): Html = {

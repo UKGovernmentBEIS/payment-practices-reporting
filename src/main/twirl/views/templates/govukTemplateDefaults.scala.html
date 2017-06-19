@@ -1,4 +1,4 @@
-@(htmlTitle: String)(content: Html)(implicit pageContext: PageContext)
+@(htmlTitle: String, surveyMonkeyConfig: config.SurveyMonkeyConfig)(content: Html)(implicit pageContext: PageContext)
 
 @head = {
 }
@@ -34,11 +34,13 @@
         <div class="phase-banner-beta">
             <p>
                 <strong class="phase-tag">BETA</strong>
-                <span>
-                    This is a new service – your
-                        <a rel="external" href="https://www.surveymonkey.co.uk/r/FCWW3MX">feedback</a>
+                @surveyMonkeyConfig.feedbackFormCode.map { code =>
+                    <span>
+                        This is a new service – your
+                        <a rel="external" href="https://www.surveymonkey.co.uk/r/@code">feedback</a>
                         will help us to improve it.
-                </span>
+                    </span>
+                }
             </p>
         </div>
         @content
