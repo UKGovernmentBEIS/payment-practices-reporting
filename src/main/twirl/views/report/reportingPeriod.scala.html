@@ -36,8 +36,6 @@
         <li>It is not for <a rel="external" target="_blank" href="http://www.legislation.gov.uk/ukpga/2015/26/section/2/enacted">financial services</a>.</li>
     </ul>
 
-    @shared._day1Calculation()
-
     <form action="@routes.ReportingPeriodController.post(companyId)" method="POST" id="longForm-report">
         @for((k, v) <- formData) {
             <input type="hidden" name='@k' value="@HtmlFormat.escape(v)">
