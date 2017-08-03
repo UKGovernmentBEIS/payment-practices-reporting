@@ -121,7 +121,7 @@ field.retentionChargesInPast.label=In this reporting period, has your business d
 field.retentionChargesInPast.hint=
 
 field.paymentCodes.yesNo.label=Is your business a member of a code of conduct or standards on payment practices?
-field.paymentCodes.yesNo.hint=A payment code is a voluntary initiative, where signatories agree to undertake certain behaviours as a mark of good practice. For example, signatories to the Prompt Payment Code must commit to paying 95% of their invoices within 60 days.
+field.paymentCodes.yesNo.hint=A payment code is a voluntary initiative, where signatories agree to undertake certain behaviours as a mark of good practice. For example, signatories to the Prompt Payment Code must commit to paying 95% of their invoices within 60 days unless exceptional circumstances apply.
 field.paymentCodes.text.label=If so, enter the name of the code of practice
 field.paymentCodes.text.hint=
 
