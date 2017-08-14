@@ -1,0 +1,22 @@
+.ui-autocomplete {
+  padding: 0;
+  list-style: none;
+  background-color: #fff;
+  width: 218px;
+  border: 1px solid #b0beca;
+  max-height: 350px;
+  overflow-x: hidden;
+}
+
+.ui-autocomplete .ui-menu-item {
+  border-top: 1px solid #b0beca;
+  display: block;
+  color: #005ea5;
+  cursor: pointer;
+}
+
+.ui-autocomplete .ui-state-active {
+  margin:-1px;
+  background-color: #005ea5;
+  color: #fff;
+}
