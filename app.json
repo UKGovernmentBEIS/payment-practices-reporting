@@ -5,7 +5,8 @@
   "env": {
     "APPLY_EVOLUTIONS": "true",
     "APPLY_EVOLUTIONS_DOWNS": "true",
-    "SERVICE_START_DATE":"2017-1-1"
+    "SERVICE_START_DATE":"2017-1-1",
+    "MAINTENANCE_PAGE_URL": "https://ukgovernmentbeis.github.io/payment-practices-reporting/down-for-maintenance.html"
   },
   "formation": {
   },
