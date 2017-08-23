@@ -30,6 +30,7 @@ GET         /publish/company/:id/file                       controllers.Reportin
 
 POST        /publish/company/:id/file/page/1                controllers.PagedLongFormController.postFormPage1(id: CompaniesHouseId)
 POST        /publish/company/:id/file/page/2                controllers.PagedLongFormController.postFormPage2(id: CompaniesHouseId)
+POST        /publish/company/:id/file/page/3                controllers.PagedLongFormController.postFormPage3(id: CompaniesHouseId)
 
 POST        /publish/company/:id/file/long                  controllers.LongFormController.postForm(id:CompaniesHouseId)
 POST        /publish/company/:id/file/short                 controllers.ShortFormController.postForm(id:CompaniesHouseId)

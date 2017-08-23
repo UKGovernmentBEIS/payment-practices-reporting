@@ -105,8 +105,8 @@ field.paymentTermsChanged.notified.text.hint=
 field.paymentTermsComment.label=Optional: any further information about your payment terms
 field.paymentTermsComment.hint=
 
-field.disputeResolution.label=Describe your dispute resolution process
-field.disputeResolution.hint=Describe your dispute resolution process for qualifying contracts How do you resolve disputes and complaints with your suppliers about payments?\n\nThis helps suppliers know who to contact and to understand the process they need to follow to resolve a dispute or concern.\n\nThis may be a detailed process, or simply an explanation that a complaint or concern will be considered by a particular department or job title, the usual timescale and next steps.\n\nIf your business has a dispute resolution process already published on their website, you could include a hyperlink here alongside an explanation of the process.
+field.disputeResolution.text.label=Describe your dispute resolution process
+field.disputeResolution.text.hint=Describe your dispute resolution process for qualifying contracts How do you resolve disputes and complaints with your suppliers about payments?\n\nThis helps suppliers know who to contact and to understand the process they need to follow to resolve a dispute or concern.\n\nThis may be a detailed process, or simply an explanation that a complaint or concern will be considered by a particular department or job title, the usual timescale and next steps.\n\nIf your business has a dispute resolution process already published on their website, you could include a hyperlink here alongside an explanation of the process.
 
 field.offerEInvoicing.label=Does your business offer e-invoicing?
 field.offerEInvoicing.hint=You must state whether your business'' payment practices and policies provide for invoices to be submitted and tracked electronically, such as with invoice document management systems software.\n\nInvoice document management systems software allows documents to be electronically exchanged, and means a more streamlined process with less manual intervention. This can make the process of payment faster for the supplier.

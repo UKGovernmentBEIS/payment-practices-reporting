@@ -74,7 +74,7 @@ class Validations @Inject()(timeSource: TimeSource, serviceConfig: ServiceConfig
   val paymentTerms: Mapping[PaymentTerms] = AdjustErrors(pt) { (key, errs) =>
     errs.map {
       case FormError(k, messages, args) if messages.headOption.contains(errorLongestMessage) =>
-        FormError(s"paymentTerms.longestPaymentPeriod", messages, args)
+        FormError(s"longestPaymentPeriod", messages, args)
 
       case e => e
     }
@@ -139,12 +139,13 @@ class Validations @Inject()(timeSource: TimeSource, serviceConfig: ServiceConfig
     "confirmed" -> checked("error.confirm")
   )(ReportReviewModel.apply)(ReportReviewModel.unapply)
 
-  val emptyReportingPeriod: Form[ReportingPeriodFormModel] = Form(reportingPeriodFormModel)
-  val emptyPaymentHistory : Form[PaymentHistory]           = Form(paymentHistory)
-  val emptyPaymentTerms   : Form[PaymentTerms]             = Form(paymentTerms)
-  val emptyLongForm       : Form[LongFormModel]            = Form(reportFormModel)
-  val emptyShortForm      : Form[ShortFormModel]           = Form(shortFormModel)
-  val emptyReview         : Form[ReportReviewModel]        = Form(reportReviewModel)
+  val emptyReportingPeriod  : Form[ReportingPeriodFormModel] = Form(reportingPeriodFormModel)
+  val emptyPaymentHistory   : Form[PaymentHistory]           = Form(paymentHistory)
+  val emptyPaymentTerms     : Form[PaymentTerms]             = Form(paymentTerms)
+  val emptyDisputeResolution: Form[DisputeResolution]        = Form(disputeResolution)
+  val emptyLongForm         : Form[LongFormModel]            = Form(reportFormModel)
+  val emptyShortForm        : Form[ShortFormModel]           = Form(shortFormModel)
+  val emptyReview           : Form[ReportReviewModel]        = Form(reportReviewModel)
 }
 
 

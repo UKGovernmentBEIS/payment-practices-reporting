@@ -1,6 +1,6 @@
-@(form: Form[forms.report.LongFormModel])(implicit messages: MessagesApi)
+@(form: Form[forms.report.DisputeResolution])(implicit messages: MessagesApi)
 
 @import shared._textBox
 
 <h2 class="heading-large">Dispute resolution process</h2>
-@_textBox(form, "paymentTerms.disputeResolution")
+@_textBox(form, "disputeResolution.text")
