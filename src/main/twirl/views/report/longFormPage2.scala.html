@@ -1,0 +1,32 @@
+@(
+    header: Html,
+    paymentTerms: Form[forms.report.PaymentTerms],
+    stashData: Map[String, String],
+    companyId: CompaniesHouseId,
+    df: DateTimeFormatter,
+    serviceStartDate: LocalDate
+)(implicit messages: MessagesApi, lang: Lang)
+
+<div id=contentStart">
+    @shared._errorBox(paymentTerms)
+
+<div class="scannable-wrapper">
+    @header
+
+    <form action="@routes.PagedLongFormController.postFormPage2(companyId)" method="POST" id="longForm-report">
+        @for((k, v) <- stashData) {
+            <input type="hidden" name='@k' value="@HtmlFormat.escape(v)">
+        }
+
+        <p class="small-aside">
+            Companies House number: @companyId.id
+        </p>
+
+        @report._paymentTerms(paymentTerms)
+
+        <input type="submit" class="button" name="Continue" value="Next">
+    </form>
+
+    @report._scripts(df, serviceStartDate)
+</div>
+</div>

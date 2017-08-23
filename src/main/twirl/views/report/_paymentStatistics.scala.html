@@ -1,4 +1,4 @@
-@(form: Form[forms.report.LongFormModel])(implicit messages: MessagesApi)
+@(form: Form[forms.report.PaymentHistory])(implicit messages: MessagesApi)
 
 @import shared._numberField
 
@@ -12,18 +12,18 @@
 <h2 class="heading-large">Payment statistics</h2>
 <p>Round up or down to the nearest whole number</p>
 
-@_numberField(form, "paymentHistory.averageDaysToPay", Some("days"))
+@_numberField(form, "averageDaysToPay", Some("days"))
 
-<div class="form-group @errorClass("paymentHistory.percentageSplit")">
+<div class="form-group @errorClass("percentageSplit")">
     <label class="form-label">
         <span class="bold-medium">Split of payments made under qualifying contracts in the reporting period</span>
         <span class="form-hint">Figures A, B and C should add up to 100%</span>
-        <span class="error-message">@errorMessage("paymentHistory.percentageSplit")</span>
+        <span class="error-message">@errorMessage("percentageSplit")</span>
     </label>
 
-    @_numberField(form, "paymentHistory.percentageSplit.percentWithin30Days", Some("%"))
-    @_numberField(form, "paymentHistory.percentageSplit.percentWithin60Days", Some("%"))
-    @_numberField(form, "paymentHistory.percentageSplit.percentBeyond60Days", Some("%"))
+    @_numberField(form, "percentageSplit.percentWithin30Days", Some("%"))
+    @_numberField(form, "percentageSplit.percentWithin60Days", Some("%"))
+    @_numberField(form, "percentageSplit.percentBeyond60Days", Some("%"))
 </div>
 
-@_numberField(form, "paymentHistory.percentPaidBeyondAgreedTerms", Some("%"))
+@_numberField(form, "percentPaidBeyondAgreedTerms", Some("%"))

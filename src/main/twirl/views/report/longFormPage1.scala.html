@@ -1,14 +1,14 @@
 @(
-        header: Html,
-        longForm: Form[forms.report.LongFormModel],
-        stashData: Map[String, String],
-        companyId: CompaniesHouseId,
-        df: DateTimeFormatter,
-        serviceStartDate: LocalDate
+    header: Html,
+    paymentHistory: Form[forms.report.PaymentHistory],
+    stashData: Map[String, String],
+    companyId: CompaniesHouseId,
+    df: DateTimeFormatter,
+    serviceStartDate: LocalDate
 )(implicit messages: MessagesApi, lang: Lang)
 
 <div id=contentStart">
-    @shared._errorBox(longForm)
+    @shared._errorBox(paymentHistory)
 
 <div class="scannable-wrapper">
     @header
@@ -25,7 +25,7 @@
 
     @shared._day1Calculation()
 
-    <form action="@routes.LongFormController.postForm(companyId)" method="POST" id="longForm-report">
+    <form action="@routes.PagedLongFormController.postFormPage1(companyId)" method="POST" id="longForm-report">
         @for((k, v) <- stashData) {
             <input type="hidden" name='@k' value="@HtmlFormat.escape(v)">
         }
@@ -34,11 +34,9 @@
             Companies House number: @companyId.id
         </p>
 
-        @report._disputeResolution(longForm)
-        @report._otherPaymentInfo(longForm)
-        @report._paymentCodes(longForm)
+        @report._paymentStatistics(paymentHistory)
 
-        <input type="submit" class="button" name="Continue" value="Review your answers">
+        <input type="submit" class="button" name="Continue" value="Next">
     </form>
 
     @report._scripts(df, serviceStartDate)

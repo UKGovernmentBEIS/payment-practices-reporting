@@ -28,6 +28,9 @@ GET         /publish/company/:id/register                   controllers.ReportCo
 GET         /publish/company/:id/apply-for-code             controllers.ReportController.applyForAuthCode(id:CompaniesHouseId)
 GET         /publish/company/:id/file                       controllers.ReportingPeriodController.startReport(id:CompaniesHouseId)
 
+POST        /publish/company/:id/file/page/1                controllers.PagedLongFormController.postFormPage1(id: CompaniesHouseId)
+POST        /publish/company/:id/file/page/2                controllers.PagedLongFormController.postFormPage2(id: CompaniesHouseId)
+
 POST        /publish/company/:id/file/long                  controllers.LongFormController.postForm(id:CompaniesHouseId)
 POST        /publish/company/:id/file/short                 controllers.ShortFormController.postForm(id:CompaniesHouseId)
 POST        /publish/company/:id/review/long                controllers.LongFormController.postReview(id:CompaniesHouseId)

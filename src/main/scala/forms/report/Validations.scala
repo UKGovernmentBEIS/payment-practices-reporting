@@ -54,7 +54,7 @@ class Validations @Inject()(timeSource: TimeSource, serviceConfig: ServiceConfig
   val paymentHistory: Mapping[PaymentHistory] = mapping(
     "averageDaysToPay" -> number(min = 0),
     "percentageSplit" -> percentageSplit,
-  "percentPaidBeyondAgreedTerms" -> percentage
+    "percentPaidBeyondAgreedTerms" -> percentage
   )(PaymentHistory.apply)(PaymentHistory.unapply)
 
 
@@ -87,8 +87,8 @@ class Validations @Inject()(timeSource: TimeSource, serviceConfig: ServiceConfig
     * dates that are prior to that date. In order to support testing in non-live environments
     * I've provided a config parameter to allow the date to be set to something different.
     */
-  private val serviceStartDate = serviceConfig.startDate.getOrElse(ServiceConfig.defaultServiceStartDate)
-  private val df = DateTimeFormat.forPattern("d MMMM yyyy")
+  private val serviceStartDate       = serviceConfig.startDate.getOrElse(ServiceConfig.defaultServiceStartDate)
+  private val df                     = DateTimeFormat.forPattern("d MMMM yyyy")
   private val serviceStartConstraint = Constraint { dr: DateRange =>
     if (dr.endDate.isBefore(serviceStartDate)) {
       val invalid = Invalid("error.beforeservicestart", df.print(serviceStartDate))
@@ -140,9 +140,11 @@ class Validations @Inject()(timeSource: TimeSource, serviceConfig: ServiceConfig
   )(ReportReviewModel.apply)(ReportReviewModel.unapply)
 
   val emptyReportingPeriod: Form[ReportingPeriodFormModel] = Form(reportingPeriodFormModel)
-  val emptyLongForm: Form[LongFormModel] = Form(reportFormModel)
-  val emptyShortForm: Form[ShortFormModel] = Form(shortFormModel)
-  val emptyReview: Form[ReportReviewModel] = Form(reportReviewModel)
+  val emptyPaymentHistory : Form[PaymentHistory]           = Form(paymentHistory)
+  val emptyPaymentTerms   : Form[PaymentTerms]             = Form(paymentTerms)
+  val emptyLongForm       : Form[LongFormModel]            = Form(reportFormModel)
+  val emptyShortForm      : Form[ShortFormModel]           = Form(shortFormModel)
+  val emptyReview         : Form[ReportReviewModel]        = Form(reportReviewModel)
 }
 
 
@@ -168,10 +170,10 @@ object PaymentTermsChangedValidations {
 
   private val answerNotifiedIfChanged = Constraint { ch: PaymentTermsChanged =>
     ch match {
-      case PaymentTermsChanged(ConditionalText(Yes, _), None) => Invalid(errorMustAnswer)
+      case PaymentTermsChanged(ConditionalText(Yes, _), None)                             => Invalid(errorMustAnswer)
       case PaymentTermsChanged(ConditionalText(Yes, _), Some(ConditionalText(Yes, None))) => Invalid(errorNotifiedTextRequired)
-      case PaymentTermsChanged(ConditionalText(No, _), _) => Valid
-      case _ => Valid
+      case PaymentTermsChanged(ConditionalText(No, _), _)                                 => Valid
+      case _                                                                              => Valid
     }
   }
 
@@ -224,7 +226,7 @@ object ConditionalTextValidations {
   private val textRequiredIfYes = Constraint { ct: ConditionalText =>
     ct match {
       case ConditionalText(Yes, None) => Invalid(errorRequired)
-      case _ => Valid
+      case _                          => Valid
     }
   }
 
@@ -241,7 +243,7 @@ object ConditionalTextValidations {
   def conditionalText(maxWords: Int): AdjustErrors[ConditionalText] = AdjustErrors(condText(maxWords)) { (key, errs) =>
     errs.map {
       case FormError(k, messages, args) if k === key => FormError(s"$k.text", messages, args)
-      case e => e
+      case e                                         => e
     }
   }
 }

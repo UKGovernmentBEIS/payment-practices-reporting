@@ -69,7 +69,7 @@ class ReportingPeriodController @Inject()(
     errs => BadRequest(page(title)(home, pages.reportingPeriod(reportPageHeader, errs, stashData, companiesHouseId, df, serviceStartDate))),
        reportingPeriod =>
         if (reportingPeriod.hasQualifyingContracts.toBoolean)
-          Ok(page(title)(home, pages.longForm(reportPageHeader, longForm, reportingPeriodForm.data, companiesHouseId, df, serviceStartDate)))
+          Ok(page(title)(home, pages.longFormPage1(reportPageHeader, emptyPaymentHistory, reportingPeriodForm.data, companiesHouseId, df, serviceStartDate)))
         else
           Ok(page(title)(home, pages.shortForm(reportPageHeader, shortForm, reportingPeriodForm.data, companiesHouseId, df, serviceStartDate)))
 
