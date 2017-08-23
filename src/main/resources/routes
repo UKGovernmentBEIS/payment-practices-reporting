@@ -1,53 +1,51 @@
-GET         /assets/*file                                   controllers.Assets.at(path="/public", file)
-GET         /public/*file                                   controllers.Assets.at(path="/public", file)
+GET         /assets/*file                                     controllers.Assets.at(path="/public", file)
+GET         /public/*file                                     controllers.Assets.at(path="/public", file)
 
-GET         /                                               controllers.HomeController.index()
+GET         /                                                 controllers.HomeController.index()
 
-GET         /start                                          controllers.HomeController.start()
+GET         /start                                            controllers.HomeController.start()
 
-GET         /robots.txt                                     controllers.HomeController.robots()
+GET         /robots.txt                                       controllers.HomeController.robots()
 
-GET         /wip                                            controllers.Default.todo
-GET         /visual-test                                    controllers.VisualTestController.show
+GET         /wip                                              controllers.Default.todo
+GET         /visual-test                                      controllers.VisualTestController.show
 
-GET         /decide                                         controllers.QuestionnaireController.start
-GET         /decide/questions                               controllers.QuestionnaireController.nextQuestion
-POST        /decide/questions                               controllers.QuestionnaireController.nextQuestion
+GET         /decide                                           controllers.QuestionnaireController.start
+GET         /decide/questions                                 controllers.QuestionnaireController.nextQuestion
+POST        /decide/questions                                 controllers.QuestionnaireController.nextQuestion
 
-GET         /deadlines                                      controllers.CalculatorController.start()
-POST        /deadlines                                      controllers.CalculatorController.calculate()
+GET         /deadlines                                        controllers.CalculatorController.start()
+POST        /deadlines                                        controllers.CalculatorController.calculate()
 
-GET         /publish                                        controllers.ReportController.search(q:Option[String], page:Option[Int], items_per_page:Option[Int])
-GET         /publish/company/:id/start                      controllers.ReportController.start(id:CompaniesHouseId)
-GET         /publish/company/:id/pre-login                  controllers.ReportController.preLogin(id:CompaniesHouseId)
-POST        /publish/company/:id/login                      controllers.ReportController.login(id:CompaniesHouseId)
-GET         /publish/company/:id/code                       controllers.CoHoCodeController.code(id:CompaniesHouseId)
-POST        /publish/company/:id/code                       controllers.CoHoCodeController.codeOptions(id:CompaniesHouseId)
-GET         /publish/company/:id/colleague                  controllers.ReportController.colleague(id:CompaniesHouseId)
-GET         /publish/company/:id/register                   controllers.ReportController.register(id:CompaniesHouseId)
-GET         /publish/company/:id/apply-for-code             controllers.ReportController.applyForAuthCode(id:CompaniesHouseId)
-GET         /publish/company/:id/file                       controllers.ReportingPeriodController.startReport(id:CompaniesHouseId)
+GET         /publish                                          controllers.ReportController.search(q:Option[String], page:Option[Int], items_per_page:Option[Int])
+GET         /publish/company/:id/start                        controllers.ReportController.start(id:CompaniesHouseId)
+GET         /publish/company/:id/pre-login                    controllers.ReportController.preLogin(id:CompaniesHouseId)
+POST        /publish/company/:id/login                        controllers.ReportController.login(id:CompaniesHouseId)
+GET         /publish/company/:id/code                         controllers.CoHoCodeController.code(id:CompaniesHouseId)
+POST        /publish/company/:id/code                         controllers.CoHoCodeController.codeOptions(id:CompaniesHouseId)
+GET         /publish/company/:id/colleague                    controllers.ReportController.colleague(id:CompaniesHouseId)
+GET         /publish/company/:id/register                     controllers.ReportController.register(id:CompaniesHouseId)
+GET         /publish/company/:id/apply-for-code               controllers.ReportController.applyForAuthCode(id:CompaniesHouseId)
+GET         /publish/company/:id/file                         controllers.ReportingPeriodController.startReport(id:CompaniesHouseId)
 
-POST        /publish/company/:id/file/page/1                controllers.PagedLongFormController.postFormPage1(id: CompaniesHouseId)
-POST        /publish/company/:id/file/page/2                controllers.PagedLongFormController.postFormPage2(id: CompaniesHouseId)
-POST        /publish/company/:id/file/page/3                controllers.PagedLongFormController.postFormPage3(id: CompaniesHouseId)
+POST        /publish/company/:id/file/page/:pageNumber        controllers.PagedLongFormController.postFormPage(pageNumber:Int, id: CompaniesHouseId)
 
-POST        /publish/company/:id/file/long                  controllers.LongFormController.postForm(id:CompaniesHouseId)
-POST        /publish/company/:id/file/short                 controllers.ShortFormController.postForm(id:CompaniesHouseId)
-POST        /publish/company/:id/review/long                controllers.LongFormController.postReview(id:CompaniesHouseId)
-POST        /publish/company/:id/review/short               controllers.ShortFormController.postReview(id:CompaniesHouseId)
+POST        /publish/company/:id/file/long                    controllers.LongFormController.postForm(id:CompaniesHouseId)
+POST        /publish/company/:id/file/short                   controllers.ShortFormController.postForm(id:CompaniesHouseId)
+POST        /publish/company/:id/review/long                  controllers.LongFormController.postReview(id:CompaniesHouseId)
+POST        /publish/company/:id/review/short                 controllers.ShortFormController.postReview(id:CompaniesHouseId)
 
-GET         /publish/:reportId/success                      controllers.ConfirmationController.showConfirmation(reportId:ReportId)
-GET         /report/:reportId                               controllers.ReportController.view(reportId: ReportId)
-GET         /publish/error/:id                              controllers.ErrorController.invalidScope(id:CompaniesHouseId)
+GET         /publish/:reportId/success                        controllers.ConfirmationController.showConfirmation(reportId:ReportId)
+GET         /report/:reportId                                 controllers.ReportController.view(reportId: ReportId)
+GET         /publish/error/:id                                controllers.ErrorController.invalidScope(id:CompaniesHouseId)
 
-POST        /publish/company/:id/reportingPeriod            controllers.ReportingPeriodController.post(id:CompaniesHouseId)
+POST        /publish/company/:id/reportingPeriod              controllers.ReportingPeriodController.post(id:CompaniesHouseId)
 
-GET         /report-payment-practices/claim-callback        controllers.OAuth2Controller.claimCallback(code: Option[String], state: Option[String], error:Option[String]=None, errorDescription:Option[String]=None, errorCode:Option[String]=None)
+GET         /report-payment-practices/claim-callback          controllers.OAuth2Controller.claimCallback(code: Option[String], state: Option[String], error:Option[String]=None, errorDescription:Option[String]=None, errorCode:Option[String]=None)
 
-GET         /publish/coho/login/:id                         controllers.CoHoOAuthMockController.login(id:CompaniesHouseId)
-POST        /publish/coho/login/:id                         controllers.CoHoOAuthMockController.postLogin(id:CompaniesHouseId)
+GET         /publish/coho/login/:id                           controllers.CoHoOAuthMockController.login(id:CompaniesHouseId)
+POST        /publish/coho/login/:id                           controllers.CoHoOAuthMockController.postLogin(id:CompaniesHouseId)
 
-GET         /publish/coho/code/:id                          controllers.CoHoOAuthMockController.authCode(id:CompaniesHouseId)
+GET         /publish/coho/code/:id                            controllers.CoHoOAuthMockController.authCode(id:CompaniesHouseId)
 
-GET         /publish/session-timeout                        controllers.ErrorController.sessionTimeout
+GET         /publish/session-timeout                          controllers.ErrorController.sessionTimeout

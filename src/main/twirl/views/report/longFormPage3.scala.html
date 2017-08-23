@@ -13,7 +13,7 @@
 <div class="scannable-wrapper">
     @header
 
-    <form action="@routes.PagedLongFormController.postFormPage3(companyId)" method="POST" id="longForm-report">
+    <form action="@routes.PagedLongFormController.postFormPage(3, companyId)" method="POST" id="longForm-report">
         @for((k, v) <- stashData) {
             <input type="hidden" name='@k' value="@HtmlFormat.escape(v)">
         }
@@ -24,7 +24,7 @@
 
         @report._disputeResolution(disputeResolution)
 
-        <input type="submit" class="button" name="Continue" value="Review your answers">
+        <input type="submit" class="button" name="Continue" value="Next">
     </form>
 
     @report._scripts(df, serviceStartDate)

@@ -81,19 +81,21 @@ class PagedLongFormController @Inject()(
       emptyPaymentTerms,
       (header: Html, companiesHouseId: CompaniesHouseId) => (errs: Form[PaymentTerms], data) => pages.longFormPage2(header, errs, data, companiesHouseId, df, serviceStartDate),
       (header: Html, companiesHouseId: CompaniesHouseId) => (data) => pages.longFormPage3(header, emptyDisputeResolution, data, companiesHouseId, df, serviceStartDate)
+    ),
+    FormHandler(
+      emptyDisputeResolution,
+      (header: Html, companiesHouseId: CompaniesHouseId) => (errs: Form[DisputeResolution], data) => pages.longFormPage3(header, errs, data, companiesHouseId, df, serviceStartDate),
+      (header: Html, companiesHouseId: CompaniesHouseId) => (data) => pages.longFormPage4(header, emptyOtherInformation, data, companiesHouseId, df, serviceStartDate)
+    ),
+    FormHandler(
+      emptyOtherInformation,
+      (header: Html, companiesHouseId: CompaniesHouseId) => (errs: Form[OtherInformation], data) => pages.longFormPage4(header, errs, data, companiesHouseId, df, serviceStartDate),
+      (header: Html, companiesHouseId: CompaniesHouseId) => (data) => ???
     )
   )
 
-  def postFormPage1(companiesHouseId: CompaniesHouseId) = companyAuthAction(companiesHouseId)(parse.urlFormEncoded) { implicit request =>
-    handlePage(1, companiesHouseId)
-  }
-
-  def postFormPage2(companiesHouseId: CompaniesHouseId) = companyAuthAction(companiesHouseId)(parse.urlFormEncoded) { implicit request =>
-    handlePage(2, companiesHouseId)
-  }
-
-  def postFormPage3(companiesHouseId: CompaniesHouseId) = companyAuthAction(companiesHouseId)(parse.urlFormEncoded) { implicit request =>
-    ???
+  def postFormPage(pageNumber:Int, companiesHouseId: CompaniesHouseId) = companyAuthAction(companiesHouseId)(parse.urlFormEncoded) { implicit request =>
+    handlePage(pageNumber, companiesHouseId)
   }
 
   private def handlePage(pageNumber: Int, companiesHouseId: CompaniesHouseId)(implicit request: CompanyAuthRequest[Map[String, Seq[String]]]) = {

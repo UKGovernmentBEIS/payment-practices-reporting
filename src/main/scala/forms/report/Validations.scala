@@ -115,7 +115,7 @@ class Validations @Inject()(timeSource: TimeSource, serviceConfig: ServiceConfig
   )(ShortFormModel.apply)(ShortFormModel.unapply)
 
   val disputeResolution: Mapping[DisputeResolution] = mapping(
-    "disputeResolution" -> words(1, disputeResolutionWordCount)
+    "disputeResolutionText" -> words(1, disputeResolutionWordCount)
   )(DisputeResolution.apply)(DisputeResolution.unapply)
 
 
@@ -143,6 +143,7 @@ class Validations @Inject()(timeSource: TimeSource, serviceConfig: ServiceConfig
   val emptyPaymentHistory   : Form[PaymentHistory]           = Form(paymentHistory)
   val emptyPaymentTerms     : Form[PaymentTerms]             = Form(paymentTerms)
   val emptyDisputeResolution: Form[DisputeResolution]        = Form(disputeResolution)
+  val emptyOtherInformation : Form[OtherInformation]         = Form(otherInformation)
   val emptyLongForm         : Form[LongFormModel]            = Form(reportFormModel)
   val emptyShortForm        : Form[ShortFormModel]           = Form(shortFormModel)
   val emptyReview           : Form[ReportReviewModel]        = Form(reportReviewModel)

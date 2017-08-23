@@ -117,7 +117,7 @@ case class PaymentTerms(
   paymentTermsComment: Option[String]
 )
 
-case class DisputeResolution(text: String)
+case class DisputeResolution(disputeResolutionText: String)
 
 case class OtherInformation(
   offerEInvoicing: YesNo,

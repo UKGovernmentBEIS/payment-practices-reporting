@@ -56,7 +56,7 @@ trait RowBuilders {
       longForm.paymentTerms.paymentTermsChanged.comment.text,
       longForm.paymentTerms.paymentTermsChanged.notified.flatMap(_.text),
       longForm.paymentTerms.paymentTermsComment,
-      longForm.disputeResolution.text,
+      longForm.disputeResolution.disputeResolutionText,
       longForm.otherInformation.offerEInvoicing,
       longForm.otherInformation.offerSupplyChainFinance,
       longForm.otherInformation.retentionChargesInPolicy,

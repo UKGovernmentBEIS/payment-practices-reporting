@@ -36,7 +36,7 @@ class ValidationsTest extends WordSpecLike with Matchers with OptionValues with 
         "disputeResolution" -> "disputeResolution"
       ))
 
-      result.left.value shouldBe List(FormError("paymentTerms.longestPaymentPeriod", List("error.shortestNotLessThanLongest")))
+      result.left.value shouldBe List(FormError("longestPaymentPeriod", List("error.shortestNotLessThanLongest")))
     }
   }
 
