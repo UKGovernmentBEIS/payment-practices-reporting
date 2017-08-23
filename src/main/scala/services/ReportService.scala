@@ -77,7 +77,7 @@ object Report {
         PaymentTermsChanged(ConditionalText(paymentTermsChangedComment), Some(ConditionalText(paymentTermsChangedNotifiedComment))).normalise,
         paymentTermsComment
       ),
-      disputeResolution,
+      DisputeResolution(disputeResolution),
       OtherInformation(
         offerEInvoicing,
         offerSupplyChainFinance,
@@ -92,7 +92,7 @@ object Report {
 case class ContractDetails(
   paymentHistory: PaymentHistory,
   paymentTerms: PaymentTerms,
-  disputeResolution: String,
+  disputeResolution: DisputeResolution,
   otherInformation: OtherInformation
 )
 

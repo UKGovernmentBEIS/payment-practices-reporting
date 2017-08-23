@@ -56,7 +56,7 @@ class LongFormController @Inject()(
     val title = publishTitle(request.companyDetail.companyName)
     val action = routes.LongFormController.postReview(companiesHouseId)
 
-    val longForm = emptyLongForm.bindForm
+    val longForm: Form[LongFormModel] = emptyLongForm.bindForm
     val reportingPeriodForm = emptyReportingPeriod.bindForm
 
     reportingPeriodForm.fold(

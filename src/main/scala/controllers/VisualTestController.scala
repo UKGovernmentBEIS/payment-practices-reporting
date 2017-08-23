@@ -184,7 +184,7 @@ class VisualTestController @Inject()(
       Some("Maximum period is very fair"),
       PaymentTermsChanged(ConditionalText("Payment terms have changed"), Some(ConditionalText("We told everyone"))),
       Some("Other comments")),
-    "Dispute resolution process is the best",
+    DisputeResolution("Dispute resolution process is the best"),
     OtherInformation(No, Yes, No, Yes, paymentCodes))
 
 
@@ -199,7 +199,7 @@ class VisualTestController @Inject()(
       PaymentTermsChanged(ConditionalText("Payment terms have changed"), Some(ConditionalText("We told everyone"))),
       Some("Other comments")
     ),
-    "Dispute resolution process is the best",
+    DisputeResolution("Dispute resolution process is the best"),
     OtherInformation(No, Yes, No, Yes, paymentCodes)
   )
 

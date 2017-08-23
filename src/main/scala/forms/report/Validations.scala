@@ -114,7 +114,9 @@ class Validations @Inject()(timeSource: TimeSource, serviceConfig: ServiceConfig
     paymentCodesValidation
   )(ShortFormModel.apply)(ShortFormModel.unapply)
 
-  val disputeResolution: Mapping[String] = words(1, disputeResolutionWordCount)
+  val disputeResolution: Mapping[DisputeResolution] = mapping(
+    "disputeResolution" -> words(1, disputeResolutionWordCount)
+  )(DisputeResolution.apply)(DisputeResolution.unapply)
 
 
   val otherInformation: Mapping[OtherInformation] = mapping(

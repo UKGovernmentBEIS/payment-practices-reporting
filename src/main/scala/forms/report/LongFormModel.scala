@@ -117,6 +117,8 @@ case class PaymentTerms(
   paymentTermsComment: Option[String]
 )
 
+case class DisputeResolution(text: String)
+
 case class OtherInformation(
   offerEInvoicing: YesNo,
   offerSupplyChainFinance: YesNo,
@@ -155,7 +157,7 @@ case class ShortFormModel(
 case class LongFormModel(
   paymentHistory: PaymentHistory,
   paymentTerms: PaymentTerms,
-  disputeResolution: String,
+  disputeResolution: DisputeResolution,
   otherInformation: OtherInformation
 )
 
