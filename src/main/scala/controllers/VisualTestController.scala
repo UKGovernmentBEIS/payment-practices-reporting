@@ -29,7 +29,7 @@ import play.api.data.Form
 import play.api.data.Forms.single
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, Call, Controller}
-import play.twirl.api.Html
+import play.twirl.api.{Html, HtmlFormat}
 import questionnaire._
 import services._
 import utils.YesNo.{No, Yes}
@@ -141,7 +141,7 @@ class VisualTestController @Inject()(
     Ok(page("Visual test of all pages")(content: _*))
   }
 
-  val questionPages = Seq(
+  val questionPages: Seq[Html] = Seq(
     isCompanyOrLLPQuestion,
     financialYearQuestion,
     hasSubsidiariesQuestion,
@@ -175,6 +175,7 @@ class VisualTestController @Inject()(
     Some(healthyLongForm))
 
   val healthyLongForm = ContractDetails(
+    PaymentHistory(30, PercentageSplit(33, 33, 33), 10),
     PaymentTerms(
       30,
       None,
@@ -182,10 +183,9 @@ class VisualTestController @Inject()(
       30,
       Some("Maximum period is very fair"),
       PaymentTermsChanged(ConditionalText("Payment terms have changed"), Some(ConditionalText("We told everyone"))),
-      Some("Other comments"),
-      "Dispute resolution process is the best"),
-    PaymentHistory(30, 10, PercentageSplit(33, 33, 33)),
-    No, Yes, No, Yes)
+      Some("Other comments")),
+    "Dispute resolution process is the best",
+    OtherInformation(No, Yes, No, Yes, paymentCodes))
 
 
   lazy val unhealthyReport = Report(
@@ -194,13 +194,13 @@ class VisualTestController @Inject()(
     Some(unhealthyLongForm))
 
   val unhealthyLongForm = ContractDetails(
+    PaymentHistory(-1, PercentageSplit(20, 33, 33), 200),
     PaymentTerms(-1, None, "payment terms", 200, Some("Maximum period is very fair"),
       PaymentTermsChanged(ConditionalText("Payment terms have changed"), Some(ConditionalText("We told everyone"))),
-      Some("Other comments"),
-      "Dispute resolution process is the best"
+      Some("Other comments")
     ),
-    PaymentHistory(-1, 200, PercentageSplit(20, 33, 33)),
-    No, Yes, No, Yes
+    "Dispute resolution process is the best",
+    OtherInformation(No, Yes, No, Yes, paymentCodes)
   )
 
 }

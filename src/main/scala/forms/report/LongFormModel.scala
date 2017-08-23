@@ -29,39 +29,39 @@ object ReportConstants {
     * We need to translate word counts into character counts for the database. This constant
     * defines the average word length (including whitespace)
     */
-  val averageWordLength = 7
+  val averageWordLength: Int = 7
 
-  val longTerms = 5000
-  val longComment = 2000
-  val shortComment = 500
+  val longTerms   : Int = 5000
+  val longComment : Int = 2000
+  val shortComment: Int = 500
 
-  val paymentTermsWordCount = longTerms
-  val paymentTermsCharCount = paymentTermsWordCount * averageWordLength
+  val paymentTermsWordCount: Int = longTerms
+  val paymentTermsCharCount: Int = paymentTermsWordCount * averageWordLength
 
-  val maxContractPeriodCommentWordCount = shortComment
-  val maxContractPeriodCommentCharCount = maxContractPeriodCommentWordCount * averageWordLength
+  val maxContractPeriodCommentWordCount: Int = shortComment
+  val maxContractPeriodCommentCharCount: Int = maxContractPeriodCommentWordCount * averageWordLength
 
-  val paymentTermsCommentWordCount = shortComment
-  val paymentTermsCommentCharCount = paymentTermsCommentWordCount * averageWordLength
+  val paymentTermsCommentWordCount: Int = shortComment
+  val paymentTermsCommentCharCount: Int = paymentTermsCommentWordCount * averageWordLength
 
-  val disputeResolutionWordCount = longComment
-  val disputeResolutionCharCount = disputeResolutionWordCount * averageWordLength
+  val disputeResolutionWordCount: Int = longComment
+  val disputeResolutionCharCount: Int = disputeResolutionWordCount * averageWordLength
 
-  val paymentTermsChangedWordCount = shortComment
-  val paymentTermsChangedCharCount = paymentTermsChangedWordCount * averageWordLength
+  val paymentTermsChangedWordCount: Int = shortComment
+  val paymentTermsChangedCharCount: Int = paymentTermsChangedWordCount * averageWordLength
 
-  val paymentTermsNotifiedWordCount = shortComment
-  val paymentTermsNotifiedCharCount = paymentTermsNotifiedWordCount * averageWordLength
+  val paymentTermsNotifiedWordCount: Int = shortComment
+  val paymentTermsNotifiedCharCount: Int = paymentTermsNotifiedWordCount * averageWordLength
 
-  val paymentCodesWordCount = 35
-  val paymentCodesCharCount = paymentCodesWordCount * averageWordLength
+  val paymentCodesWordCount: Int = 35
+  val paymentCodesCharCount: Int = paymentCodesWordCount * averageWordLength
 }
 
 case class ConditionalText(yesNo: YesNo, text: Option[String]) {
-  def normalize = this match {
-    case ConditionalText(No, _) => ConditionalText(No, None)
+  def normalize: ConditionalText = this match {
+    case ConditionalText(No, _)                           => ConditionalText(No, None)
     case ConditionalText(Yes, Some(t)) if t.trim() === "" => ConditionalText(Yes, None)
-    case _ => this
+    case _                                                => this
   }
 
   def isDefined: Boolean = yesNo.toBoolean
@@ -75,51 +75,62 @@ object ConditionalText {
 }
 
 case class PercentageSplit(
-                            percentWithin30Days: Int,
-                            percentWithin60Days: Int,
-                            percentBeyond60Days: Int
-                          ) {
+  percentWithin30Days: Int,
+  percentWithin60Days: Int,
+  percentBeyond60Days: Int
+) {
   def total: Int = percentWithin30Days + percentWithin60Days + percentBeyond60Days
 }
 
 case class PaymentHistory(
-                           averageDaysToPay: Int,
-                           percentPaidLaterThanAgreedTerms: Int,
-                           percentageSplit: PercentageSplit
-                         )
+  averageDaysToPay: Int,
+  percentageSplit: PercentageSplit,
+  percentPaidLaterThanAgreedTerms: Int
+)
 
 object PaymentHistory {
   def apply(row: ContractDetailsRow): PaymentHistory =
-    PaymentHistory(row.averageDaysToPay, row.percentPaidLaterThanAgreedTerms, PercentageSplit(row.percentInvoicesWithin30Days, row.percentInvoicesWithin60Days, row.percentInvoicesBeyond60Days))
+    PaymentHistory(
+      row.averageDaysToPay,
+      PercentageSplit(row.percentInvoicesWithin30Days, row.percentInvoicesWithin60Days, row.percentInvoicesBeyond60Days),
+      row.percentPaidLaterThanAgreedTerms
+    )
 }
 
 case class PaymentTermsChanged(comment: ConditionalText, notified: Option[ConditionalText]) {
   /**
     * If the answer to the comment question is No then remove any answer to the Notified question
     */
-  def normalise = this match {
+  def normalise: PaymentTermsChanged = this match {
     case PaymentTermsChanged(c@ConditionalText(No, _), _) => PaymentTermsChanged(c, None)
-    case _ => this
+    case _                                                => this
   }
 }
 
 case class PaymentTerms(
-                         shortestPaymentPeriod: Int,
-                         longestPaymentPeriod: Option[Int],
-                         terms: String,
-                         maximumContractPeriod: Int,
-                         maximumContractPeriodComment: Option[String],
-                         paymentTermsChanged: PaymentTermsChanged,
-                         paymentTermsComment: Option[String],
-                         disputeResolution: String
-                       )
+  shortestPaymentPeriod: Int,
+  longestPaymentPeriod: Option[Int],
+  terms: String,
+  maximumContractPeriod: Int,
+  maximumContractPeriodComment: Option[String],
+  paymentTermsChanged: PaymentTermsChanged,
+  paymentTermsComment: Option[String]
+)
+
+case class OtherInformation(
+  offerEInvoicing: YesNo,
+  offerSupplyChainFinance: YesNo,
+  retentionChargesInPolicy: YesNo,
+  retentionChargesInPast: YesNo,
+  paymentCodes: ConditionalText
+)
 
 object PaymentTerms {
   def apply(row: ContractDetailsRow): PaymentTerms =
-    PaymentTerms(row.shortestPaymentPeriod, row.longestPaymentPeriod, row.paymentTerms, row.maximumContractPeriod, row.maximumContractPeriodComment,
+    PaymentTerms(
+      row.shortestPaymentPeriod, row.longestPaymentPeriod, row.paymentTerms, row.maximumContractPeriod, row.maximumContractPeriodComment,
       pt(row),
-      row.paymentTermsChangedComment,
-      row.disputeResolution
+      row.paymentTermsChangedComment
     )
 
   def pt(row: ContractDetailsRow): PaymentTermsChanged = {
@@ -133,42 +144,36 @@ object PaymentTerms {
 }
 
 case class ReportingPeriodFormModel(
-                                     reportDates: DateRange,
-                                     hasQualifyingContracts: YesNo
-                                   )
+  reportDates: DateRange,
+  hasQualifyingContracts: YesNo
+)
 
 case class ShortFormModel(
-                           paymentCodes: ConditionalText
-                         )
+  paymentCodes: ConditionalText
+)
 
 case class LongFormModel(
-                          paymentHistory: PaymentHistory,
-                          paymentTerms: PaymentTerms,
-                          offerEInvoicing: YesNo,
-                          offerSupplyChainFinancing: YesNo,
-                          retentionChargesInPolicy: YesNo,
-                          retentionChargesInPast: YesNo,
-                          paymentCodes: ConditionalText
-                        )
+  paymentHistory: PaymentHistory,
+  paymentTerms: PaymentTerms,
+  disputeResolution: String,
+  otherInformation: OtherInformation
+)
 
 object LongFormModel {
   def apply(paymentCodes: ConditionalText, report: ContractDetails): LongFormModel = {
     LongFormModel(
       report.paymentHistory,
       report.paymentTerms,
-      report.offerEInvoicing,
-      report.offerSupplyChainFinance,
-      report.retentionChargesInPolicy,
-      report.retentionChargesInPast,
-      paymentCodes)
+      report.disputeResolution,
+      report.otherInformation)
   }
 
 }
 
 case class ReportReviewModel(
-                              confirmedBy: String,
-                              confirmed: Boolean
-                            )
+  confirmedBy: String,
+  confirmed: Boolean
+)
 
 
 

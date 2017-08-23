@@ -19,7 +19,7 @@ package views.html.helpers
 
 import forms.report.{ConditionalText, LongFormModel, ReportingPeriodFormModel, ShortFormModel}
 import org.joda.time.LocalDate
-import org.joda.time.format.DateTimeFormat
+import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
 import play.twirl.api.{Html, HtmlFormat}
 import utils.YesNo
 import utils.YesNo.{No, Yes}
@@ -37,7 +37,7 @@ import scala.language.implicitConversions
   */
 object ReviewPageData extends HtmlHelpers {
 
-  val df = DateTimeFormat.forPattern("d MMMM YYYY")
+  val df: DateTimeFormatter = DateTimeFormat.forPattern("d MMMM YYYY")
 
   /**
     * Maps a row label to the value for the row
@@ -80,10 +80,11 @@ object ReviewPageData extends HtmlHelpers {
   def group1(companyName: String, reportingPeriod: ReportingPeriodFormModel): Seq[RowDescriptor] =
     topLevelInfo(companyName) ++ reportingDateRows(reportingPeriod)
 
-  def group2(r: LongFormModel) = paymentTermsRows(r)
+  def group2(r: LongFormModel): Seq[(String, Html)] = paymentTermsRows(r)
 
-  def group3(shortForm: ShortFormModel) = paymentCodesRows(shortForm)
-  def group3(longForm: LongFormModel) = otherInfoRows(longForm)
+  def group3(shortForm: ShortFormModel): Seq[(String, Html)] = paymentCodesRows(shortForm)
+
+  def group3(longForm: LongFormModel): Seq[(String, Html)] = otherInfoRows(longForm)
 
   def topLevelInfo(companyName: String): Seq[RowDescriptor] = Seq(
     ("Company or limited liability partnership", companyName)
@@ -112,21 +113,21 @@ object ReviewPageData extends HtmlHelpers {
     ("Maximum contract period in days", (r.paymentTerms.maximumContractPeriod, "days")),
     ("Maximum contract period: further information", r.paymentTerms.maximumContractPeriodComment.map(breakLines)),
     ("Further remarks about your payment terms", r.paymentTerms.paymentTermsComment.map(breakLines)),
-    ("Your dispute resolution process", breakLines(r.paymentTerms.disputeResolution))
+    ("Your dispute resolution process", breakLines(r.disputeResolution))
   )
 
-  private val codeOfCoductText = "Are you a member of a code of conduct or standards on payment practices?"
+  private val codeOfConductText = "Are you a member of a code of conduct or standards on payment practices?"
 
   def otherInfoRows(longForm: LongFormModel): Seq[RowDescriptor] = Seq(
-    ("Do you offer e-invoicing?", longForm.offerEInvoicing),
-    ("Do you offer offer supply chain finance?", longForm.offerSupplyChainFinancing),
-    ("Do you have a policy of deducting sums from payments under qualifying contracts as a charge for remaining on a supplier list?", longForm.retentionChargesInPolicy),
-    ("In this reporting period, have you deducted any sum from payments under qualifying contracts as a charge for remaining on a supplier list?", longForm.retentionChargesInPast),
-    (codeOfCoductText, longForm.paymentCodes)
+    ("Do you offer e-invoicing?", longForm.otherInformation.offerEInvoicing),
+    ("Do you offer offer supply chain finance?", longForm.otherInformation.offerSupplyChainFinance),
+    ("Do you have a policy of deducting sums from payments under qualifying contracts as a charge for remaining on a supplier list?", longForm.otherInformation.retentionChargesInPolicy),
+    ("In this reporting period, have you deducted any sum from payments under qualifying contracts as a charge for remaining on a supplier list?", longForm.otherInformation.retentionChargesInPast),
+    (codeOfConductText, longForm.otherInformation.paymentCodes)
   )
 
   def paymentCodesRows(shortForm: ShortFormModel): Seq[RowDescriptor] = Seq(
-    (codeOfCoductText, shortForm.paymentCodes)
+    (codeOfConductText, shortForm.paymentCodes)
   )
 
 }
@@ -144,7 +145,7 @@ trait HtmlHelpers {
 
   implicit def conditionalText(ct: ConditionalText): Html = ct.yesNo match {
     case Yes => Html(s"<strong>Yes </strong>&ndash; ${breakLines(ct.text.map(limitLength(_)).getOrElse(""))}")
-    case No => Html("<strong>No</strong>")
+    case No  => Html("<strong>No</strong>")
   }
 
   implicit def stringToHtml(s: String): Html = HtmlFormat.escape(limitLength(s))

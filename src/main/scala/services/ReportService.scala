@@ -25,24 +25,23 @@ import models.{CompaniesHouseId, ReportId}
 import org.joda.time.LocalDate
 import org.reactivestreams.Publisher
 import slicks.repos.ReportTable
-import utils.YesNo
 
 import scala.concurrent.Future
 
 case class Report(
-                   id: ReportId,
-                   companyName: String,
-                   companyId: CompaniesHouseId,
-                   filingDate: LocalDate,
+  id: ReportId,
+  companyName: String,
+  companyId: CompaniesHouseId,
+  filingDate: LocalDate,
 
-                   approvedBy: String,
-                   confirmationEmailAddress: String,
+  approvedBy: String,
+  confirmationEmailAddress: String,
 
-                   reportDates: DateRange,
-                   paymentCodes: ConditionalText,
+  reportDates: DateRange,
+  paymentCodes: ConditionalText,
 
-                   contractDetails: Option[ContractDetails]
-                 )
+  contractDetails: Option[ContractDetails]
+)
 
 object Report {
   def apply(r: (ReportRow, Option[ContractDetailsRow])): Report = {
@@ -57,13 +56,18 @@ object Report {
       confirmationEmailAddress,
       DateRange(startDate, endDate),
       ConditionalText(paymentCodes),
-      contractDetailsRow.map(buildContractDetails)
+      contractDetailsRow.map(buildContractDetails(reportRow, _))
     )
   }
 
-  def buildContractDetails(row: ContractDetailsRow): ContractDetails = {
-    import row._
+  def buildContractDetails(report: ReportRow, longForm: ContractDetailsRow): ContractDetails = {
+    import longForm._
     ContractDetails(
+      PaymentHistory(
+        averageDaysToPay,
+        PercentageSplit(percentInvoicesWithin30Days, percentInvoicesWithin60Days, percentInvoicesBeyond60Days),
+        percentPaidLaterThanAgreedTerms
+      ),
       PaymentTerms(
         shortestPaymentPeriod,
         longestPaymentPeriod,
@@ -71,26 +75,26 @@ object Report {
         maximumContractPeriod,
         maximumContractPeriodComment,
         PaymentTermsChanged(ConditionalText(paymentTermsChangedComment), Some(ConditionalText(paymentTermsChangedNotifiedComment))).normalise,
-        paymentTermsComment,
-        disputeResolution
+        paymentTermsComment
       ),
-      PaymentHistory(averageDaysToPay, percentPaidLaterThanAgreedTerms, PercentageSplit(percentInvoicesWithin30Days, percentInvoicesWithin60Days, percentInvoicesBeyond60Days)),
-      offerEInvoicing,
-      offerSupplyChainFinance,
-      retentionChargesInPolicy,
-      retentionChargesInPast
+      disputeResolution,
+      OtherInformation(
+        offerEInvoicing,
+        offerSupplyChainFinance,
+        retentionChargesInPolicy,
+        retentionChargesInPast,
+        ConditionalText(report.paymentCodes)
+      )
     )
   }
 }
 
 case class ContractDetails(
-                     paymentTerms: PaymentTerms,
-                     paymentHistory: PaymentHistory,
-                     offerEInvoicing: YesNo,
-                     offerSupplyChainFinance: YesNo,
-                     retentionChargesInPolicy: YesNo,
-                     retentionChargesInPast: YesNo
-                   )
+  paymentHistory: PaymentHistory,
+  paymentTerms: PaymentTerms,
+  disputeResolution: String,
+  otherInformation: OtherInformation
+)
 
 
 @ImplementedBy(classOf[ReportTable])
@@ -109,18 +113,20 @@ trait ReportService {
     *                  generates the absolute url for it.
     */
   def create(
-              companyDetail:CompanyDetail,
-              reportingPeriod: ReportingPeriodFormModel,
-              longForm: LongFormModel,
-              review: ReportReviewModel,
-              confirmationEmailAddress: String,
-              reportUrl: (ReportId) => String): Future[ReportId]
+    companyDetail: CompanyDetail,
+    reportingPeriod: ReportingPeriodFormModel,
+    longForm: LongFormModel,
+    review: ReportReviewModel,
+    confirmationEmailAddress: String,
+    reportUrl: (ReportId) => String
+  ): Future[ReportId]
 
   def create(
-              companyDetail:CompanyDetail,
-              reportingPeriod: ReportingPeriodFormModel,
-              shortFormModel: ShortFormModel,
-              review: ReportReviewModel,
-              confirmationEmailAddress: String,
-              reportUrl: (ReportId) => String): Future[ReportId]
+    companyDetail: CompanyDetail,
+    reportingPeriod: ReportingPeriodFormModel,
+    shortFormModel: ShortFormModel,
+    review: ReportReviewModel,
+    confirmationEmailAddress: String,
+    reportUrl: (ReportId) => String
+  ): Future[ReportId]
 }

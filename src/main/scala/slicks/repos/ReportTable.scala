@@ -77,7 +77,7 @@ class ReportTable @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit e
                        review: ReportReviewModel,
                        confirmationEmailAddress: String,
                        reportUrl: (ReportId) => String): Future[ReportId] = db.run {
-    val reportRow = buildReport(companyDetail, review, reportingPeriod, longForm.paymentCodes, confirmationEmailAddress)
+    val reportRow = buildReport(companyDetail, review, reportingPeriod, longForm.otherInformation.paymentCodes, confirmationEmailAddress)
 
     {
       for {
