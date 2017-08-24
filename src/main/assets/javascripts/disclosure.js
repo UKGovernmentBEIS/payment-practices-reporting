@@ -34,7 +34,10 @@ function gradualDisclosure() {
         var panelId = data[j][0];
         var checkboxName = data[j][1];
 
-        showPanelIfYes(panelId, checkboxName);
-        subscribeToChange(panelId, checkboxName);
+        var panel = document.getElementById(panelId);
+        if (panel !== null) {
+            showPanelIfYes(panelId, checkboxName);
+            subscribeToChange(panelId, checkboxName);
+        }
     }
 }
