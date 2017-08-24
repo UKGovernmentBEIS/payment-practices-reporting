@@ -98,7 +98,7 @@ class Validations @Inject()(timeSource: TimeSource, serviceConfig: ServiceConfig
     else Valid
   }
 
-  private val reportDates =
+  private val reportDates: Mapping[DateRange] =
     dateRange
       .verifying("error.notfuture", dr => !now().isBefore(dr.endDate))
       .verifying(serviceStartConstraint)

@@ -224,17 +224,17 @@ function validationPlumbing(messages, serviceStartDate) {
             "reportDates.endDate.year", "reportDates.endDate.month", "reportDates.endDate.day"],
         v.validations.multiStartBeforeEnd(serviceStartDate));
 
-    v.validateTextInput("paymentHistory.averageDaysToPay", v.validations.textPositiveInteger);
-    v.validateTextInput("paymentHistory.percentPaidBeyondAgreedTerms", v.validations.textPercentage);
-    v.validateTextInput("paymentHistory.percentageSplit.percentWithin30Days", v.validations.textPercentage);
-    v.validateTextInput("paymentHistory.percentageSplit.percentWithin60Days", v.validations.textPercentage);
-    v.validateTextInput("paymentHistory.percentageSplit.percentBeyond60Days", v.validations.textPercentage);
+    v.validateTextInput("paymentStatistics.averageDaysToPay", v.validations.textPositiveInteger);
+    v.validateTextInput("paymentStatistics.percentPaidBeyondAgreedTerms", v.validations.textPercentage);
+    v.validateTextInput("paymentStatistics.percentageSplit.percentWithin30Days", v.validations.textPercentage);
+    v.validateTextInput("paymentStatistics.percentageSplit.percentWithin60Days", v.validations.textPercentage);
+    v.validateTextInput("paymentStatistics.percentageSplit.percentBeyond60Days", v.validations.textPercentage);
     v.validateTextInput("paymentTerms.paymentPeriod", v.validations.textPositiveInteger);
     v.validateTextInput("paymentTerms.maximumContractPeriod", v.validations.textPositiveInteger);
 
     v.validateMultiple([
-        "paymentHistory.percentageSplit.percentWithin30Days",
-        "paymentHistory.percentageSplit.percentWithin60Days",
-        "paymentHistory.percentageSplit.percentBeyond60Days"
+        "paymentStatistics.percentageSplit.percentWithin60Days",
+        "paymentStatistics.percentageSplit.percentWithin30Days",
+        "paymentStatistics.percentageSplit.percentBeyond60Days"
     ], v.validations.multiSumTo100);
 }
