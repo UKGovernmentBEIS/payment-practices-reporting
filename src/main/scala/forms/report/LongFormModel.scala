@@ -82,15 +82,15 @@ case class PercentageSplit(
   def total: Int = percentWithin30Days + percentWithin60Days + percentBeyond60Days
 }
 
-case class PaymentHistory(
+case class PaymentStatistics(
   averageDaysToPay: Int,
   percentageSplit: PercentageSplit,
   percentPaidLaterThanAgreedTerms: Int
 )
 
-object PaymentHistory {
-  def apply(row: ContractDetailsRow): PaymentHistory =
-    PaymentHistory(
+object PaymentStatistics {
+  def apply(row: ContractDetailsRow): PaymentStatistics =
+    PaymentStatistics(
       row.averageDaysToPay,
       PercentageSplit(row.percentInvoicesWithin30Days, row.percentInvoicesWithin60Days, row.percentInvoicesBeyond60Days),
       row.percentPaidLaterThanAgreedTerms
@@ -155,7 +155,7 @@ case class ShortFormModel(
 )
 
 case class LongFormModel(
-  paymentHistory: PaymentHistory,
+  paymentStatistics: PaymentStatistics,
   paymentTerms: PaymentTerms,
   disputeResolution: DisputeResolution,
   otherInformation: OtherInformation
@@ -164,7 +164,7 @@ case class LongFormModel(
 object LongFormModel {
   def apply(paymentCodes: ConditionalText, report: ContractDetails): LongFormModel = {
     LongFormModel(
-      report.paymentHistory,
+      report.paymentStatistics,
       report.paymentTerms,
       report.disputeResolution,
       report.otherInformation)

@@ -75,7 +75,7 @@ object ReviewPageData extends HtmlHelpers {
   }
 
   def group1(companyName: String, reportingPeriod: ReportingPeriodFormModel, longForm: LongFormModel): Seq[RowDescriptor] =
-    topLevelInfo(companyName) ++ reportingDateRows(reportingPeriod) ++ paymentHistoryRows(longForm)
+    topLevelInfo(companyName) ++ reportingDateRows(reportingPeriod) ++ paymentStatisticsRows(longForm)
 
   def group1(companyName: String, reportingPeriod: ReportingPeriodFormModel): Seq[RowDescriptor] =
     topLevelInfo(companyName) ++ reportingDateRows(reportingPeriod)
@@ -95,12 +95,12 @@ object ReviewPageData extends HtmlHelpers {
     "End date of reporting period" -> df.print(r.reportDates.endDate)
   )
 
-  def paymentHistoryRows(r: LongFormModel): Seq[RowDescriptor] = Seq(
-    ("Average number of days for making payment", (r.paymentHistory.averageDaysToPay, "days")),
-    ("Percentage of invoices paid within 30 days", (r.paymentHistory.percentageSplit.percentWithin30Days, "%")),
-    ("Percentage of invoices paid within 31 to 60 days", (r.paymentHistory.percentageSplit.percentWithin60Days, "%")),
-    ("Percentage of invoices paid on or after day 61", (r.paymentHistory.percentageSplit.percentBeyond60Days, "%")),
-    ("Percentage of invoices not paid within agreed terms", (r.paymentHistory.percentPaidLaterThanAgreedTerms, "%"))
+  def paymentStatisticsRows(r: LongFormModel): Seq[RowDescriptor] = Seq(
+    ("Average number of days for making payment", (r.paymentStatistics.averageDaysToPay, "days")),
+    ("Percentage of invoices paid within 30 days", (r.paymentStatistics.percentageSplit.percentWithin30Days, "%")),
+    ("Percentage of invoices paid within 31 to 60 days", (r.paymentStatistics.percentageSplit.percentWithin60Days, "%")),
+    ("Percentage of invoices paid on or after day 61", (r.paymentStatistics.percentageSplit.percentBeyond60Days, "%")),
+    ("Percentage of invoices not paid within agreed terms", (r.paymentStatistics.percentPaidLaterThanAgreedTerms, "%"))
   )
 
   def paymentTermsRows(r: LongFormModel): Seq[RowDescriptor] = Seq(

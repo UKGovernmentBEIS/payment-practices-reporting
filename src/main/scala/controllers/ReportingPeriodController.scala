@@ -32,20 +32,24 @@ import services.{CompanyAuthService, ReportService}
 import scala.concurrent.ExecutionContext
 
 class ReportingPeriodController @Inject()(
-                                           reports: ReportService,
-                                           validations: Validations,
-                                           companyAuth: CompanyAuthService,
-                                           companyAuthAction: CompanyAuthAction,
-                                           val serviceConfig: ServiceConfig,
-                                           val pageConfig: PageConfig,
-                                           @Named("confirmation-actor") confirmationActor: ActorRef
-                                         )(implicit ec: ExecutionContext, messages: MessagesApi) extends Controller with PageHelper {
+  reports: ReportService,
+  validations: Validations,
+  pagedLongFormData: PagedLongFormData,
+  companyAuth: CompanyAuthService,
+  companyAuthAction: CompanyAuthAction,
+  val serviceConfig: ServiceConfig,
+  val pageConfig: PageConfig,
+  @Named("confirmation-actor") confirmationActor: ActorRef
+)(implicit ec: ExecutionContext, messages: MessagesApi) extends Controller with PageHelper {
 
+  import pagedLongFormData._
   import validations._
   import views.html.{report => pages}
 
   def reportPageHeader(implicit request: CompanyAuthRequest[_]): Html = h1(s"Publish a report for:<br>${request.companyDetail.companyName}")
+
   private def publishTitle(companyName: String) = s"Publish a report for $companyName"
+
   private def title(implicit request: CompanyAuthRequest[_]): String = publishTitle(request.companyDetail.companyName)
 
   def startReport(companiesHouseId: CompaniesHouseId) = companyAuthAction(companiesHouseId) { implicit request =>
@@ -66,10 +70,10 @@ class ReportingPeriodController @Inject()(
 
     val reportingPeriodForm = emptyReportingPeriod.bindForm
     reportingPeriodForm.fold(
-    errs => BadRequest(page(title)(home, pages.reportingPeriod(reportPageHeader, errs, stashData, companiesHouseId, df, serviceStartDate))),
-       reportingPeriod =>
+      errs => BadRequest(page(title)(home, pages.reportingPeriod(reportPageHeader, errs, stashData, companiesHouseId, df, serviceStartDate))),
+      reportingPeriod =>
         if (reportingPeriod.hasQualifyingContracts.toBoolean)
-          Ok(page(title)(home, pages.longFormPage1(reportPageHeader, emptyPaymentHistory, reportingPeriodForm.data, companiesHouseId, df, serviceStartDate)))
+          Ok(page(title)(home, pages.longFormPage1(reportPageHeader, emptyPaymentStatisticsForm, reportingPeriodForm.data, companiesHouseId, df, serviceStartDate)))
         else
           Ok(page(title)(home, pages.shortForm(reportPageHeader, shortForm, reportingPeriodForm.data, companiesHouseId, df, serviceStartDate)))
 

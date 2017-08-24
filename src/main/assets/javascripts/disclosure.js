@@ -2,7 +2,7 @@
 
 function gradualDisclosure() {
     var data = [
-        ["show-if-payment-codes", "paymentCodes.yesNo"],
+        ["show-if-payment-codes", "otherInformation.paymentCodes.yesNo"],
         ["show-if-payment-changes", "paymentTerms.paymentTermsChanged.changed.yesNo"],
         ["show-if-payment-changes-notified", "paymentTerms.paymentTermsChanged.notified.yesNo"]
     ];

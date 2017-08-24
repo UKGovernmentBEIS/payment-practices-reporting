@@ -51,11 +51,11 @@ class Validations @Inject()(timeSource: TimeSource, serviceConfig: ServiceConfig
   )(PercentageSplit.apply)(PercentageSplit.unapply)
     .verifying("error.sumto100", sumTo100)
 
-  val paymentHistory: Mapping[PaymentHistory] = mapping(
+  val paymentStatistics: Mapping[PaymentStatistics] = mapping(
     "averageDaysToPay" -> number(min = 0),
     "percentageSplit" -> percentageSplit,
     "percentPaidBeyondAgreedTerms" -> percentage
-  )(PaymentHistory.apply)(PaymentHistory.unapply)
+  )(PaymentStatistics.apply)(PaymentStatistics.unapply)
 
 
   val errorLongestMessage = "error.shortestNotLessThanLongest"
@@ -128,7 +128,7 @@ class Validations @Inject()(timeSource: TimeSource, serviceConfig: ServiceConfig
   )(OtherInformation.apply)(OtherInformation.unapply)
 
   val reportFormModel: Mapping[LongFormModel] = mapping(
-    "paymentHistory" -> paymentHistory,
+    "paymentStatistics" -> paymentStatistics,
     "paymentTerms" -> paymentTerms,
     "disputeResolution" -> disputeResolution,
     "otherInformation" -> otherInformation
@@ -140,7 +140,7 @@ class Validations @Inject()(timeSource: TimeSource, serviceConfig: ServiceConfig
   )(ReportReviewModel.apply)(ReportReviewModel.unapply)
 
   val emptyReportingPeriod  : Form[ReportingPeriodFormModel] = Form(reportingPeriodFormModel)
-  val emptyPaymentHistory   : Form[PaymentHistory]           = Form(paymentHistory)
+  val emptyPaymentStatistics: Form[PaymentStatistics]        = Form(paymentStatistics)
   val emptyPaymentTerms     : Form[PaymentTerms]             = Form(paymentTerms)
   val emptyDisputeResolution: Form[DisputeResolution]        = Form(disputeResolution)
   val emptyOtherInformation : Form[OtherInformation]         = Form(otherInformation)

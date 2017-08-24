@@ -1,16 +1,16 @@
-@(form: Form[forms.report.OtherInformation])(implicit messages: MessagesApi)
+@(form: Form[controllers.OtherInformationForm])(implicit messages: MessagesApi)
 
 <h2 class="heading-large">Other payment information</h2>
 
 @import shared.{_yesNoField, _textField}
 
-@_yesNoField(form, "offerEInvoicing")
-@_yesNoField(form, "offerSupplyChainFinancing")
-@_yesNoField(form, "retentionChargesInPolicy")
-@_yesNoField(form, "retentionChargesInPast")
+@_yesNoField(form, "otherInformation.offerEInvoicing")
+@_yesNoField(form, "otherInformation.offerSupplyChainFinancing")
+@_yesNoField(form, "otherInformation.retentionChargesInPolicy")
+@_yesNoField(form, "otherInformation.retentionChargesInPast")
 
-@_yesNoField(form, "paymentCodes.yesNo")
+@_yesNoField(form, "otherInformation.paymentCodes.yesNo")
 
 <div class="panel" id="show-if-payment-codes">
-@_textField(form, "paymentCodes.text")
+@_textField(form, "otherInformation.paymentCodes.text")
 </div>

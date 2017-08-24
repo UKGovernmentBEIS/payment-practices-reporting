@@ -61,10 +61,10 @@ trait RowBuilders {
       longForm.otherInformation.offerSupplyChainFinance,
       longForm.otherInformation.retentionChargesInPolicy,
       longForm.otherInformation.retentionChargesInPast,
-      longForm.paymentHistory.averageDaysToPay,
-      longForm.paymentHistory.percentPaidLaterThanAgreedTerms,
-      longForm.paymentHistory.percentageSplit.percentWithin30Days,
-      longForm.paymentHistory.percentageSplit.percentWithin60Days,
-      longForm.paymentHistory.percentageSplit.percentBeyond60Days
+      longForm.paymentStatistics.averageDaysToPay,
+      longForm.paymentStatistics.percentPaidLaterThanAgreedTerms,
+      longForm.paymentStatistics.percentageSplit.percentWithin30Days,
+      longForm.paymentStatistics.percentageSplit.percentWithin60Days,
+      longForm.paymentStatistics.percentageSplit.percentBeyond60Days
     )
 }

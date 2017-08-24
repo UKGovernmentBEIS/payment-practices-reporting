@@ -1,24 +1,24 @@
-@(form: Form[forms.report.PaymentTerms])(implicit messages: MessagesApi)
+@(form: Form[controllers.PaymentTermsForm])(implicit messages: MessagesApi)
 
     @import shared.{_numberField, _textBox, _yesNoField}
 
 <h2 class="heading-large">Payment terms for qualifying contracts</h2>
-@_numberField(form, "shortestPaymentPeriod", Some("days"))
-@_numberField(form, "longestPaymentPeriod", Some("days"))
+@_numberField(form, "paymentTerms.shortestPaymentPeriod", Some("days"))
+@_numberField(form, "paymentTerms.longestPaymentPeriod", Some("days"))
 
-@_textBox(form, "terms")
+@_textBox(form, "paymentTerms.terms")
 
-@_yesNoField(form, "paymentTermsChanged.changed.yesNo")
+@_yesNoField(form, "paymentTerms.paymentTermsChanged.changed.yesNo")
 
 <div class="panel" id="show-if-payment-changes">
-    @_textBox(form, "paymentTermsChanged.changed.text")
-    @_yesNoField(form, "paymentTermsChanged.notified.yesNo")
+    @_textBox(form, "paymentTerms.paymentTermsChanged.changed.text")
+    @_yesNoField(form, "paymentTerms.paymentTermsChanged.notified.yesNo")
     <div class="panel" id="show-if-payment-changes-notified">
-    @_textBox(form, "paymentTermsChanged.notified.text")
+    @_textBox(form, "paymentTerms.paymentTermsChanged.notified.text")
     </div>
 </div>
 
-@_numberField(form, "maximumContractPeriod", Some("days"))
-@_textBox(form, "maximumContractPeriodComment")
+@_numberField(form, "paymentTerms.maximumContractPeriod", Some("days"))
+@_textBox(form, "paymentTerms.maximumContractPeriodComment")
 
-@_textBox(form, "paymentTermsComment")
+@_textBox(form, "paymentTerms.paymentTermsComment")

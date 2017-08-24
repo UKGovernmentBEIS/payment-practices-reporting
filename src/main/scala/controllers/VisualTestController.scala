@@ -175,7 +175,7 @@ class VisualTestController @Inject()(
     Some(healthyLongForm))
 
   val healthyLongForm = ContractDetails(
-    PaymentHistory(30, PercentageSplit(33, 33, 33), 10),
+    PaymentStatistics(30, PercentageSplit(33, 33, 33), 10),
     PaymentTerms(
       30,
       None,
@@ -194,7 +194,7 @@ class VisualTestController @Inject()(
     Some(unhealthyLongForm))
 
   val unhealthyLongForm = ContractDetails(
-    PaymentHistory(-1, PercentageSplit(20, 33, 33), 200),
+    PaymentStatistics(-1, PercentageSplit(20, 33, 33), 200),
     PaymentTerms(-1, None, "payment terms", 200, Some("Maximum period is very fair"),
       PaymentTermsChanged(ConditionalText("Payment terms have changed"), Some(ConditionalText("We told everyone"))),
       Some("Other comments")

@@ -1,6 +1,6 @@
 @(
     header: Html,
-    paymentHistory: Form[forms.report.PaymentHistory],
+    form: Form[controllers.PaymentStatisticsForm],
     stashData: Map[String, String],
     companyId: CompaniesHouseId,
     df: DateTimeFormatter,
@@ -8,7 +8,7 @@
 )(implicit messages: MessagesApi, lang: Lang)
 
 <div id=contentStart">
-    @shared._errorBox(paymentHistory)
+    @shared._errorBox(form)
 
 <div class="scannable-wrapper">
     @header
@@ -34,7 +34,7 @@
             Companies House number: @companyId.id
         </p>
 
-        @report._paymentStatistics(paymentHistory)
+        @report._paymentStatistics(form)
 
         <input type="submit" class="button" name="Continue" value="Next">
     </form>

@@ -63,7 +63,7 @@ object Report {
   def buildContractDetails(report: ReportRow, longForm: ContractDetailsRow): ContractDetails = {
     import longForm._
     ContractDetails(
-      PaymentHistory(
+      PaymentStatistics(
         averageDaysToPay,
         PercentageSplit(percentInvoicesWithin30Days, percentInvoicesWithin60Days, percentInvoicesBeyond60Days),
         percentPaidLaterThanAgreedTerms
@@ -90,7 +90,7 @@ object Report {
 }
 
 case class ContractDetails(
-  paymentHistory: PaymentHistory,
+  paymentStatistics: PaymentStatistics,
   paymentTerms: PaymentTerms,
   disputeResolution: DisputeResolution,
   otherInformation: OtherInformation
