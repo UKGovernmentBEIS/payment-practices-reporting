@@ -69,17 +69,16 @@ class ReportingPeriodController @Inject()(
     val shortForm = emptyShortForm.bindForm.discardingErrors
     val reportingPeriodForm = emptyReportingPeriod.bindForm
 
-    // The longForm is a superset of the shortForm so its data will include all the fields we
-    // need to stash if we go back to the reportingPeriod page
-    val stashData: Map[String, String] =  paymentTerms.data ++ disputeResolution.data ++ otherInformation.data ++ reportingPeriodForm.data
-
-    Logger.debug(paymentStatistics.toString)
-
     reportingPeriodForm.fold(
-      errs => BadRequest(page(title)(home, pages.reportingPeriod(reportPageHeader, errs, stashData, companiesHouseId, df, serviceStartDate))),
+      errs => {
+        val stashData: Map[String, String] =  paymentStatistics.data ++ paymentTerms.data ++ disputeResolution.data ++ otherInformation.data
+        BadRequest(page(title)(home, pages.reportingPeriod(reportPageHeader, errs, stashData, companiesHouseId, df, serviceStartDate)))
+      },
       reportingPeriod =>
-        if (reportingPeriod.hasQualifyingContracts.toBoolean)
+        if (reportingPeriod.hasQualifyingContracts.toBoolean) {
+          val stashData: Map[String, String] =  paymentTerms.data ++ disputeResolution.data ++ otherInformation.data ++ reportingPeriodForm.data
           Ok(page(title)(home, pages.longFormPage1(reportPageHeader, paymentStatistics, stashData, companiesHouseId, df, serviceStartDate)))
+        }
         else
           Ok(page(title)(home, pages.shortForm(reportPageHeader, shortForm, reportingPeriodForm.data, companiesHouseId, df, serviceStartDate)))
 

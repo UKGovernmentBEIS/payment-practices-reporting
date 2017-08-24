@@ -103,11 +103,21 @@ class PagedLongFormController @Inject()(
       emptyLongForm,
       (header: Html, companyDetail: CompanyDetail) => (errs: Form[OtherInformationForm], data) => pages.longFormPage4(header, errs, data, companyDetail.companiesHouseId, df, serviceStartDate),
       (header: Html, companyDetail: CompanyDetail) => (form: Form[LongFormModel], data) => {
-        val lf = emptyLongForm.bind(data).value.get
-        val reportingPeriod = emptyReportingPeriod.bind(data).value.get
-        val formGroups = ReviewPageData.formGroups(companyDetail.companyName, reportingPeriod, lf)
-        val action = routes.LongFormController.postReview(companyDetail.companiesHouseId)
-        pages.review(emptyReview, data, formGroups, action)
+        val boundData = for {
+          lf <- emptyLongForm.bind(data).value
+          reportingPeriod <- emptyReportingPeriod.bind(data).value
+        } yield (lf, reportingPeriod)
+
+        boundData match {
+          case Some((lf, reportingPeriod)) =>
+            val formGroups = ReviewPageData.formGroups(companyDetail.companyName, reportingPeriod, lf)
+            val action = routes.LongFormController.postReview(companyDetail.companiesHouseId)
+            pages.review(emptyReview, data, formGroups, action)
+
+          // There were errors on the LongForm. Because the LongForm binds the same structures as the
+          // individual page forms, we should never get here, but we need a sensible response if we do
+          case None => ???
+        }
       }
     )
   )
