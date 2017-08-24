@@ -30,21 +30,22 @@ import play.api.i18n.MessagesApi
 import play.api.mvc.{Controller, Request, Result}
 import play.twirl.api.Html
 import services._
+import views.html.helpers.ReviewPageData
 
 import scala.concurrent.ExecutionContext
 
 case class FormHandler[T](
   form: Form[T],
-  private val errorFunction: (Html, CompaniesHouseId) => (Form[T], Map[String, String]) => Html,
-  private val nextPageFunction: (Html, CompaniesHouseId) => (Map[String, String]) => Html
+  private val errorFunction: (Html, CompanyDetail) => (Form[T], Map[String, String]) => Html,
+  private val nextPageFunction: (Html, CompanyDetail) => (Map[String, String]) => Html
 ) {
   def bind(implicit request: Request[Map[String, Seq[String]]]): FormHandler[T] = copy(form = form.bindForm)
 
-  def errorPage(reportPageHeader: Html, companiesHouseId: CompaniesHouseId, otherFormData: Map[String, String]): Html =
-    errorFunction(reportPageHeader, companiesHouseId)(form, otherFormData)
+  def errorPage(reportPageHeader: Html, companyDetail: CompanyDetail, otherFormData: Map[String, String]): Html =
+    errorFunction(reportPageHeader, companyDetail)(form, otherFormData)
 
-  def nextPage(reportPageHeader: Html, companiesHouseId: CompaniesHouseId, otherFormData: Map[String, String]): Html =
-    nextPageFunction(reportPageHeader, companiesHouseId)(otherFormData ++ form.data)
+  def nextPage(reportPageHeader: Html, companyDetail: CompanyDetail, otherFormData: Map[String, String]): Html =
+    nextPageFunction(reportPageHeader, companyDetail)(otherFormData ++ form.data)
 }
 
 class PagedLongFormController @Inject()(
@@ -71,36 +72,42 @@ class PagedLongFormController @Inject()(
   val emptyFormHandlers = Seq(
     FormHandler(
       emptyReportingPeriod,
-      (header: Html, companiesHouseId: CompaniesHouseId) => (errs: Form[ReportingPeriodFormModel], data) => pages.reportingPeriod(header, errs, data, companiesHouseId, df, serviceStartDate),
-      (header: Html, companiesHouseId: CompaniesHouseId) => (data) => pages.longFormPage1(header, emptyPaymentStatisticsForm, data, companiesHouseId, df, serviceStartDate)
+      (header: Html, companyDetail: CompanyDetail) => (errs: Form[ReportingPeriodFormModel], data) => pages.reportingPeriod(header, errs, data, companyDetail.companiesHouseId, df, serviceStartDate),
+      (header: Html, companyDetail: CompanyDetail) => (data) => pages.longFormPage1(header, emptyPaymentStatisticsForm, data, companyDetail.companiesHouseId, df, serviceStartDate)
     ),
     FormHandler(
       emptyPaymentStatisticsForm,
-      (header: Html, companiesHouseId: CompaniesHouseId) => (errs: Form[PaymentStatisticsForm], data) => pages.longFormPage1(header, errs, data, companiesHouseId, df, serviceStartDate),
-      (header: Html, companiesHouseId: CompaniesHouseId) => (data) => pages.longFormPage2(header, emptyPaymentTermsForm, data, companiesHouseId, df, serviceStartDate)
+      (header: Html, companyDetail: CompanyDetail) => (errs: Form[PaymentStatisticsForm], data) => pages.longFormPage1(header, errs, data, companyDetail.companiesHouseId, df, serviceStartDate),
+      (header: Html, companyDetail: CompanyDetail) => (data) => pages.longFormPage2(header, emptyPaymentTermsForm, data, companyDetail.companiesHouseId, df, serviceStartDate)
     ),
     FormHandler(
       emptyPaymentTermsForm,
-      (header: Html, companiesHouseId: CompaniesHouseId) => (errs: Form[PaymentTermsForm], data) => pages.longFormPage2(header, errs, data, companiesHouseId, df, serviceStartDate),
-      (header: Html, companiesHouseId: CompaniesHouseId) => (data) => pages.longFormPage3(header, emptyDisputeResolutionForm, data, companiesHouseId, df, serviceStartDate)
+      (header: Html, companyDetail: CompanyDetail) => (errs: Form[PaymentTermsForm], data) => pages.longFormPage2(header, errs, data, companyDetail.companiesHouseId, df, serviceStartDate),
+      (header: Html, companyDetail: CompanyDetail) => (data) => pages.longFormPage3(header, emptyDisputeResolutionForm, data, companyDetail.companiesHouseId, df, serviceStartDate)
     ),
     FormHandler(
       emptyDisputeResolutionForm,
-      (header: Html, companiesHouseId: CompaniesHouseId) => (errs: Form[DisputeResolutionForm], data) => pages.longFormPage3(header, errs, data, companiesHouseId, df, serviceStartDate),
-      (header: Html, companiesHouseId: CompaniesHouseId) => (data) => pages.longFormPage4(header, emptyOtherInformationForm, data, companiesHouseId, df, serviceStartDate)
+      (header: Html, companyDetail: CompanyDetail) => (errs: Form[DisputeResolutionForm], data) => pages.longFormPage3(header, errs, data, companyDetail.companiesHouseId, df, serviceStartDate),
+      (header: Html, companyDetail: CompanyDetail) => (data) => pages.longFormPage4(header, emptyOtherInformationForm, data, companyDetail.companiesHouseId, df, serviceStartDate)
     ),
     FormHandler(
       emptyOtherInformationForm,
-      (header: Html, companiesHouseId: CompaniesHouseId) => (errs: Form[OtherInformationForm], data) => pages.longFormPage4(header, errs, data, companiesHouseId, df, serviceStartDate),
-      (header: Html, companiesHouseId: CompaniesHouseId) => (data) => ???
+      (header: Html, companyDetail: CompanyDetail) => (errs: Form[OtherInformationForm], data) => pages.longFormPage4(header, errs, data, companyDetail.companiesHouseId, df, serviceStartDate),
+      (header: Html, companyDetail: CompanyDetail) => (data) => {
+        val lf = emptyLongForm.bind(data).value.get
+        val reportingPeriod = emptyReportingPeriod.bind(data).value.get
+        val formGroups = ReviewPageData.formGroups(companyDetail.companyName, reportingPeriod, lf)
+        val action = routes.LongFormController.postReview(companyDetail.companiesHouseId)
+        pages.review(emptyReview, data, formGroups, action)
+      }
     )
   )
 
   def postFormPage(pageNumber: Int, companiesHouseId: CompaniesHouseId) = companyAuthAction(companiesHouseId)(parse.urlFormEncoded) { implicit request =>
-    handlePage(pageNumber, companiesHouseId)
+    handlePage(pageNumber, request.companyDetail)
   }
 
-  private def handlePage(pageNumber: Int, companiesHouseId: CompaniesHouseId)(implicit request: CompanyAuthRequest[Map[String, Seq[String]]]) = {
+  private def handlePage(pageNumber: Int, companyDetail: CompanyDetail)(implicit request: CompanyAuthRequest[Map[String, Seq[String]]]) = {
     val title = publishTitle(request.companyDetail.companyName)
     Logger.debug(request.body.toString)
 
@@ -119,14 +126,14 @@ class PagedLongFormController @Inject()(
       currentResult match {
         case Some(r) => Some(r)
         case None    =>
-          if (formHandler.form.hasErrors) Some(BadRequest(page(title)(formHandler.errorPage(reportPageHeader, companiesHouseId, dataToStash))))
+          if (formHandler.form.hasErrors) Some(BadRequest(page(title)(formHandler.errorPage(reportPageHeader, companyDetail, dataToStash))))
           else None
       }
     }
 
     result match {
       case Some(r) => r
-      case None    => Ok(page(reviewPageTitle)(home, handlersUpToThisPage.last.nextPage(reportPageHeader, companiesHouseId, dataToStash)))
+      case None    => Ok(page(reviewPageTitle)(home, handlersUpToThisPage.last.nextPage(reportPageHeader, companyDetail, dataToStash)))
     }
   }
 
