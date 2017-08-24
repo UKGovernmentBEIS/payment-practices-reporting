@@ -49,7 +49,7 @@ case class FormHandler[T, U](
     errorFunction(reportPageHeader, companyDetail)(form, otherFormData)
 
   def nextPage(reportPageHeader: Html, companyDetail: CompanyDetail, dataForPage: Map[String, String], otherFormData: Map[String, String]): Html =
-    nextPageFunction(reportPageHeader, companyDetail)(nextForm.bind(dataForPage), otherFormData ++ form.data)
+    nextPageFunction(reportPageHeader, companyDetail)(nextForm.bind(dataForPage).discardingErrors, otherFormData ++ form.data)
 }
 
 class PagedLongFormController @Inject()(
