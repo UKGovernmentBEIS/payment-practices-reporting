@@ -1,10 +1,10 @@
 @(
-        header: Html,
-        reportingPeriodForm: Form[forms.report.ReportingPeriodFormModel],
-        formData: Map[String, String],
-        companyId: CompaniesHouseId,
-        df: DateTimeFormatter,
-        serviceStartDate: LocalDate
+    header: Html,
+    reportingPeriodForm: Form[forms.report.ReportingPeriodFormModel],
+    stashData: Map[String, String],
+    companyId: CompaniesHouseId,
+    df: DateTimeFormatter,
+    serviceStartDate: LocalDate
 )(implicit messages: MessagesApi, lang: Lang)
 
 <div id=contentStart">
@@ -33,11 +33,12 @@
 
         <li>It is for goods, services or intangible property, including intellectual property.</li>
 
-        <li>It is not for <a rel="external" target="_blank" href="http://www.legislation.gov.uk/ukpga/2015/26/section/2/enacted">financial services</a>.</li>
+        <li>It is not for <a rel="external" target="_blank" href="http://www.legislation.gov.uk/ukpga/2015/26/section/2/enacted">
+            financial services</a>.</li>
     </ul>
 
     <form action="@routes.ReportingPeriodController.post(companyId)" method="POST" id="longForm-report">
-        @for((k, v) <- formData) {
+        @for((k, v) <- stashData) {
             <input type="hidden" name='@k' value="@HtmlFormat.escape(v)">
         }
 

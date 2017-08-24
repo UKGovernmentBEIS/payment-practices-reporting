@@ -24,6 +24,7 @@ import akka.actor.ActorRef
 import config.{PageConfig, ServiceConfig}
 import forms.report.Validations
 import models.CompaniesHouseId
+import play.api.Logger
 import play.api.i18n.MessagesApi
 import play.api.mvc.Controller
 import play.twirl.api.Html
@@ -61,19 +62,24 @@ class ReportingPeriodController @Inject()(
     // we don't want to carry any errors forward when we progress to the next page. This also
     // makes sure that when the user starts filing a new report that the next page doesn't start
     // out full of errors because the report is empty.
-    val longForm = emptyLongForm.bindForm.discardingErrors
+    val paymentStatistics = emptyPaymentStatisticsForm.bindForm.discardingErrors
+    val paymentTerms = emptyPaymentTermsForm.bindForm.discardingErrors
+    val disputeResolution = emptyDisputeResolutionForm.bindForm.discardingErrors
+    val otherInformation = emptyOtherInformationForm.bindForm.discardingErrors
     val shortForm = emptyShortForm.bindForm.discardingErrors
+    val reportingPeriodForm = emptyReportingPeriod.bindForm
 
     // The longForm is a superset of the shortForm so its data will include all the fields we
     // need to stash if we go back to the reportingPeriod page
-    val stashData: Map[String, String] = longForm.data
+    val stashData: Map[String, String] =  paymentTerms.data ++ disputeResolution.data ++ otherInformation.data ++ reportingPeriodForm.data
 
-    val reportingPeriodForm = emptyReportingPeriod.bindForm
+    Logger.debug(paymentStatistics.toString)
+
     reportingPeriodForm.fold(
       errs => BadRequest(page(title)(home, pages.reportingPeriod(reportPageHeader, errs, stashData, companiesHouseId, df, serviceStartDate))),
       reportingPeriod =>
         if (reportingPeriod.hasQualifyingContracts.toBoolean)
-          Ok(page(title)(home, pages.longFormPage1(reportPageHeader, emptyPaymentStatisticsForm, reportingPeriodForm.data, companiesHouseId, df, serviceStartDate)))
+          Ok(page(title)(home, pages.longFormPage1(reportPageHeader, paymentStatistics, stashData, companiesHouseId, df, serviceStartDate)))
         else
           Ok(page(title)(home, pages.shortForm(reportPageHeader, shortForm, reportingPeriodForm.data, companiesHouseId, df, serviceStartDate)))
 
