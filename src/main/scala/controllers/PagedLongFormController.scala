@@ -123,38 +123,38 @@ class PagedLongFormController @Inject()(
   )
 
   def postFormPage(pageNumber: Int, companiesHouseId: CompaniesHouseId) = companyAuthAction(companiesHouseId)(parse.urlFormEncoded) { implicit request =>
-    if (pageNumber < 1 || pageNumber >= emptyFormHandlers.length) NotFound
-    else handlePage(pageNumber, request.companyDetail)
+    handlePage(pageNumber, request.companyDetail)
   }
 
   private def handlePage(pageNumber: Int, companyDetail: CompanyDetail)(implicit request: CompanyAuthRequest[Map[String, Seq[String]]]): Result = {
-    val title = publishTitle(request.companyDetail.companyName)
-
     val boundForms = emptyFormHandlers.map(_.bind)
-    val handlersUpToThisPage = boundForms.take(pageNumber + 1)
 
-    val errorResult = handlersUpToThisPage.foldLeft(None: Option[Result]) { (currentResult, formHandler) =>
-      currentResult match {
-        case Some(r) => Some(r)
-        case None    =>
-          if (formHandler.form.hasErrors) {
-            val formsToStash = boundForms.take(pageNumber) ++ boundForms.drop(pageNumber + 1)
-            val dataToStash = formsToStash.foldLeft(Map[String, String]())((acc, handler) => acc ++ handler.form.data)
-            Some(BadRequest(page(title)(formHandler.errorPage(reportPageHeader, companyDetail, dataToStash))))
-          }
-          else None
+    boundForms.drop(pageNumber).headOption.map { handlerForThisPage =>
+      val title = publishTitle(request.companyDetail.companyName)
+      val handlersUpToThisPage = boundForms.take(pageNumber + 1)
+
+      val errorResult = handlersUpToThisPage.foldLeft(None: Option[Result]) { (currentResult, formHandler) =>
+        currentResult match {
+          case Some(r) => Some(r)
+          case None    =>
+            if (formHandler.form.hasErrors) {
+              val formsToStash = boundForms.take(pageNumber) ++ boundForms.drop(pageNumber + 1)
+              val dataToStash = formsToStash.foldLeft(Map[String, String]())((acc, handler) => acc ++ handler.form.data)
+              Some(BadRequest(page(title)(formHandler.errorPage(reportPageHeader, companyDetail, dataToStash))))
+            }
+            else None
+        }
       }
-    }
 
-    errorResult match {
-      case Some(r) => r
-      case None    =>
-        boundForms.drop(pageNumber).headOption.map { handlerForThisPage =>
+      errorResult match {
+        case Some(r) => r
+        case None    =>
+
           val formsToStash = boundForms.take(pageNumber) ++ boundForms.drop(pageNumber + 2)
           val dataForNextPage = boundForms.drop(pageNumber + 1).headOption.map(_.form.data).getOrElse(Map.empty[String, String])
           val dataToStash = formsToStash.foldLeft(Map[String, String]())((acc, handler) => acc ++ handler.form.data)
           Ok(page(reviewPageTitle)(home, handlerForThisPage.nextPage(reportPageHeader, companyDetail, dataForNextPage, dataToStash)))
-        }.getOrElse(NotFound)
-    }
+      }
+    }.getOrElse(NotFound)
   }
 }
