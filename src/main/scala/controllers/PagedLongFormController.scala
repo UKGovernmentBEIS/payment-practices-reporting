@@ -123,10 +123,11 @@ class PagedLongFormController @Inject()(
   )
 
   def postFormPage(pageNumber: Int, companiesHouseId: CompaniesHouseId) = companyAuthAction(companiesHouseId)(parse.urlFormEncoded) { implicit request =>
-    handlePage(pageNumber, request.companyDetail)
+    if (pageNumber < 1 || pageNumber >= emptyFormHandlers.length) NotFound
+    else handlePage(pageNumber, request.companyDetail)
   }
 
-  private def handlePage(pageNumber: Int, companyDetail: CompanyDetail)(implicit request: CompanyAuthRequest[Map[String, Seq[String]]]) = {
+  private def handlePage(pageNumber: Int, companyDetail: CompanyDetail)(implicit request: CompanyAuthRequest[Map[String, Seq[String]]]): Result = {
     val title = publishTitle(request.companyDetail.companyName)
 
     val boundForms = emptyFormHandlers.map(_.bind)
@@ -148,11 +149,12 @@ class PagedLongFormController @Inject()(
     errorResult match {
       case Some(r) => r
       case None    =>
-        val handlerForThisPage = boundForms.drop(pageNumber).head
-        val formsToStash = boundForms.take(pageNumber) ++ boundForms.drop(pageNumber + 2)
-        val dataForNextPage = boundForms.drop(pageNumber + 1).headOption.map(_.form.data).getOrElse(Map.empty[String, String])
-        val dataToStash = formsToStash.foldLeft(Map[String, String]())((acc, handler) => acc ++ handler.form.data)
-        Ok(page(reviewPageTitle)(home, handlerForThisPage.nextPage(reportPageHeader, companyDetail, dataForNextPage, dataToStash)))
+        boundForms.drop(pageNumber).headOption.map { handlerForThisPage =>
+          val formsToStash = boundForms.take(pageNumber) ++ boundForms.drop(pageNumber + 2)
+          val dataForNextPage = boundForms.drop(pageNumber + 1).headOption.map(_.form.data).getOrElse(Map.empty[String, String])
+          val dataToStash = formsToStash.foldLeft(Map[String, String]())((acc, handler) => acc ++ handler.form.data)
+          Ok(page(reviewPageTitle)(home, handlerForThisPage.nextPage(reportPageHeader, companyDetail, dataForNextPage, dataToStash)))
+        }.getOrElse(NotFound)
     }
   }
 }
