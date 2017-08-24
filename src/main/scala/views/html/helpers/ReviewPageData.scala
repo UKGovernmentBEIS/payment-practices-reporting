@@ -113,7 +113,7 @@ object ReviewPageData extends HtmlHelpers {
     ("Maximum contract period in days", (r.paymentTerms.maximumContractPeriod, "days")),
     ("Maximum contract period: further information", r.paymentTerms.maximumContractPeriodComment.map(breakLines)),
     ("Further remarks about your payment terms", r.paymentTerms.paymentTermsComment.map(breakLines)),
-    ("Your dispute resolution process", breakLines(r.disputeResolution.disputeResolutionText))
+    ("Your dispute resolution process", breakLines(r.disputeResolution.text))
   )
 
   private val codeOfConductText = "Are you a member of a code of conduct or standards on payment practices?"

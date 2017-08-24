@@ -115,7 +115,7 @@ class Validations @Inject()(timeSource: TimeSource, serviceConfig: ServiceConfig
   )(ShortFormModel.apply)(ShortFormModel.unapply)
 
   val disputeResolution: Mapping[DisputeResolution] = mapping(
-    "disputeResolutionText" -> words(1, disputeResolutionWordCount)
+    "text" -> words(1, disputeResolutionWordCount)
   )(DisputeResolution.apply)(DisputeResolution.unapply)
 
 
