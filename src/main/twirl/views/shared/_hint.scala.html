@@ -1,0 +1,13 @@
+@(fieldName: String)(implicit messages: MessagesApi)
+
+
+@import shared._detailPanel
+@import views.html.helpers.HtmlHelpers.breakLines
+
+@defining(messages(s"field.$fieldName.hint")) { hintText =>
+    @if(hintText.length > 80) {
+        @_detailPanel(s"$fieldName-detail")(Html("How do I do this?"))(breakLines(hintText))
+    } else {
+        <span class="form-hint">@breakLines(hintText)</span>
+    }
+}

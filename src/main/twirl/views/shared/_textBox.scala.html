@@ -1,12 +1,14 @@
 @(form: Form[_], fieldName: String)(implicit messages: MessagesApi)
 
-@import views.html.helpers.HtmlHelpers.breakLines
+@import shared._hint
 
 <div class="form-group @errorClass(form(fieldName))">
     <fieldset>
         <label for="@fieldName">
             <span class="form-label-bold">@messages(s"field.$fieldName.label")</span>
-            <span class="form-hint">@breakLines(messages(s"field.$fieldName.hint"))</span>
+
+            @_hint(fieldName)
+
             <span id="error-@fieldName" class="error-message">@errorMessage(form(fieldName))</span>
         </label>
         <textarea class="form-control" id="@fieldName" name="@fieldName">@form(fieldName).value</textarea>

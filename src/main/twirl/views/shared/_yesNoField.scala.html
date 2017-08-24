@@ -1,7 +1,5 @@
 @(form: Form[_], fieldName: String)(implicit messages: MessagesApi)
 
-@import views.html.helpers.HtmlHelpers.breakLines
-
 @checked(value: String) = @{
     if(form(fieldName).value.contains(value)) "checked='checked'" else ""
 }
@@ -10,7 +8,7 @@
     <fieldset class="inline">
         <legend id="@fieldName">
             <span class="form-label-bold">@messages(s"field.$fieldName.label")</span>
-            <span class="form-hint">@breakLines(messages(s"field.$fieldName.hint"))</span>
+            @shared._hint(fieldName)
             <span id="error-@fieldName" class="error-message">@errorMessage(form(fieldName))</span>
         </legend>
 
