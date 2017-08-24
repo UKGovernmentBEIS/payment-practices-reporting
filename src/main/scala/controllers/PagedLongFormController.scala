@@ -120,11 +120,7 @@ class PagedLongFormController @Inject()(
     val title = publishTitle(request.companyDetail.companyName)
 
     val boundForms = emptyFormHandlers.map(_.bind)
-
-    val handlerForThisPage = boundForms.drop(pageNumber).head
     val handlersUpToThisPage = boundForms.take(pageNumber + 1)
-    val dataForNextPage = boundForms.drop(pageNumber + 1).headOption.map(_.form.data).getOrElse(Map.empty[String, String])
-
 
     val errorResult = handlersUpToThisPage.foldLeft(None: Option[Result]) { (currentResult, formHandler) =>
       currentResult match {
@@ -142,7 +138,9 @@ class PagedLongFormController @Inject()(
     errorResult match {
       case Some(r) => r
       case None    =>
+        val handlerForThisPage = boundForms.drop(pageNumber).head
         val formsToStash = boundForms.take(pageNumber) ++ boundForms.drop(pageNumber + 2)
+        val dataForNextPage = boundForms.drop(pageNumber + 1).headOption.map(_.form.data).getOrElse(Map.empty[String, String])
         val dataToStash = formsToStash.foldLeft(Map[String, String]())((acc, handler) => acc ++ handler.form.data)
         Ok(page(reviewPageTitle)(home, handlerForThisPage.nextPage(reportPageHeader, companyDetail, dataForNextPage, dataToStash)))
     }
