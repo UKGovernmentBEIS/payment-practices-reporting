@@ -20,12 +20,12 @@ package controllers
 import actions.CompanyAuthRequest
 import play.api.Logger
 import play.api.data.Form
-import play.api.libs.json.JsObject
+import play.api.libs.json.{JsObject, Json}
 import services.{SessionId, SessionService}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait SessionHelpers {
+trait FormSessionHelpers {
   implicit def ec: ExecutionContext
   def sessionService: SessionService
 
@@ -44,6 +44,14 @@ trait SessionHelpers {
         val boundForm = emptyForm.bind(data)
         Logger.debug(boundForm.errors.toString)
         !boundForm.hasErrors
+    }
+
+  protected def saveFormData[T](key: String, form: Form[T])(implicit sessionId: SessionId): Future[Unit] =
+    sessionService.get[JsObject](sessionId, "formData").map {
+      case None    => Json.obj(key -> form.data)
+      case Some(o) => o + (key -> Json.toJson(form.data))
+    }.flatMap { updatedFormData =>
+      sessionService.put(sessionId, "formData", updatedFormData)
     }
 
 }

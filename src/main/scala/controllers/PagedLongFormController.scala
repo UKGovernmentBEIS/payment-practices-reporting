@@ -29,7 +29,6 @@ import play.api.i18n.MessagesApi
 import play.api.mvc.{Controller, Request, Result}
 import play.twirl.api.Html
 import services._
-import views.html.helpers.ReviewPageData
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -62,9 +61,9 @@ class PagedLongFormController @Inject()(
   companyAuthAction: CompanyAuthAction,
   val serviceConfig: ServiceConfig,
   val pageConfig: PageConfig,
-  sessionService: SessionService,
+  val sessionService: SessionService,
   @Named("confirmation-actor") confirmationActor: ActorRef
-)(implicit val ec: ExecutionContext, messages: MessagesApi) extends Controller with BaseFormController with PageHelper {
+)(implicit val ec: ExecutionContext, messages: MessagesApi) extends Controller with BaseFormController with PageHelper with FormSessionHelpers {
 
   import pageFormData._
   import validations._
@@ -158,7 +157,7 @@ class PagedLongFormController @Inject()(
       errorResult match {
         case Some(r) => r
         case None    =>
-          sessionService.put(request.sessionId, s"page$pageNumber", handlerForThisPage.form.data)
+          saveFormData(s"page$pageNumber", handlerForThisPage.form)
           val dataForNextPage = boundForms.drop(pageNumber + 1).headOption.map(_.form.data).getOrElse(Map.empty[String, String])
           Ok(page(reviewPageTitle)(home, handlerForThisPage.nextPage(reportPageHeader, companyDetail, dataForNextPage)))
       }

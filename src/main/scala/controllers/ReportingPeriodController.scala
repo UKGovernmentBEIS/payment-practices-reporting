@@ -40,9 +40,9 @@ class ReportingPeriodController @Inject()(
   companyAuthAction: CompanyAuthAction,
   val serviceConfig: ServiceConfig,
   val pageConfig: PageConfig,
-  sessionService: SessionService,
+  val sessionService: SessionService,
   @Named("confirmation-actor") confirmationActor: ActorRef
-)(implicit ec: ExecutionContext, messages: MessagesApi) extends Controller with PageHelper {
+)(implicit ec: ExecutionContext, messages: MessagesApi) extends Controller with PageHelper with FormSessionHelpers {
 
   import validations._
   import views.html.{report => pages}
@@ -70,7 +70,7 @@ class ReportingPeriodController @Inject()(
     // makes sure that when the user starts filing a new report that the next page doesn't start
     // out full of errors because the report is empty.
     val reportingPeriodForm = emptyReportingPeriod.bindForm
-    sessionService.put(request.sessionId, formDataSessionKey, reportingPeriodForm.data).map { _ =>
+    saveFormData(formDataSessionKey, reportingPeriodForm).map { _ =>
       reportingPeriodForm.fold(
         errs => BadRequest(page(title)(home, pages.reportingPeriod(reportPageHeader, errs, companiesHouseId, df, serviceStartDate))),
         reportingPeriod =>

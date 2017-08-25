@@ -44,7 +44,7 @@ class ShortFormController @Inject()(
   val sessionService: SessionService,
   reportingPeriodController: ReportingPeriodController,
   @Named("confirmation-actor") confirmationActor: ActorRef
-)(implicit val ec: ExecutionContext, messages: MessagesApi) extends Controller with BaseFormController with PageHelper with SessionHelpers {
+)(implicit val ec: ExecutionContext, messages: MessagesApi) extends Controller with BaseFormController with PageHelper with FormSessionHelpers {
 
   import validations._
   import views.html.{report => pages}
@@ -73,7 +73,7 @@ class ShortFormController @Inject()(
     val action = routes.ShortFormController.postReview(companiesHouseId)
 
     val shortForm = emptyShortForm.bindForm
-    sessionService.put(request.sessionId, formDataSessionKey, shortForm.data).flatMap { _ =>
+    saveFormData(formDataSessionKey, shortForm).flatMap { _ =>
       checkValidFromSession(emptyReportingPeriod, reportingPeriodController.formDataSessionKey).map {
         case false => Redirect(routes.ReportingPeriodController.show(companiesHouseId))
         case true  => shortForm.fold(
