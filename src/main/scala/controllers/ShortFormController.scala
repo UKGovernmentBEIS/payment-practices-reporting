@@ -35,44 +35,64 @@ import views.html.helpers.ReviewPageData
 import scala.concurrent.{ExecutionContext, Future}
 
 class ShortFormController @Inject()(
-                                     reports: ReportService,
-                                     validations: Validations,
-                                     val companyAuth: CompanyAuthService,
-                                     companyAuthAction: CompanyAuthAction,
-                                     val serviceConfig: ServiceConfig,
-                                     val pageConfig: PageConfig,
-                                     @Named("confirmation-actor") confirmationActor: ActorRef
-                                )(implicit val ec: ExecutionContext, messages: MessagesApi) extends Controller with BaseFormController with PageHelper {
+  reports: ReportService,
+  validations: Validations,
+  val companyAuth: CompanyAuthService,
+  companyAuthAction: CompanyAuthAction,
+  val serviceConfig: ServiceConfig,
+  val pageConfig: PageConfig,
+  val sessionService: SessionService,
+  reportingPeriodController: ReportingPeriodController,
+  @Named("confirmation-actor") confirmationActor: ActorRef
+)(implicit val ec: ExecutionContext, messages: MessagesApi) extends Controller with BaseFormController with PageHelper with SessionHelpers {
 
   import validations._
   import views.html.{report => pages}
 
   private val reviewPageTitle = "Review your report"
+
   private def publishTitle(companyName: String) = s"Publish a report for $companyName"
 
   def reportPageHeader(implicit request: CompanyAuthRequest[_]): Html = h1(s"Publish a report for:<br>${request.companyDetail.companyName}")
 
-  def postForm(companiesHouseId: CompaniesHouseId) = companyAuthAction(companiesHouseId)(parse.urlFormEncoded) { implicit request =>
+  val formDataSessionKey = "shortFormData"
+
+  def show(companiesHouseId: CompaniesHouseId) = companyAuthAction(companiesHouseId).async { implicit request =>
+    val title = publishTitle(request.companyDetail.companyName)
+
+    checkValidFromSession(emptyReportingPeriod, reportingPeriodController.formDataSessionKey).flatMap {
+      case false => Future.successful(Redirect(routes.ReportingPeriodController.show(companiesHouseId)))
+      case true  => bindFromSession(emptyShortForm, formDataSessionKey).map { form =>
+        Ok(page(title)(home, pages.shortForm(reportPageHeader, form, companiesHouseId, df, serviceStartDate)))
+      }
+    }
+  }
+
+  def post(companiesHouseId: CompaniesHouseId) = companyAuthAction(companiesHouseId).async(parse.urlFormEncoded) { implicit request =>
     val title = publishTitle(request.companyDetail.companyName)
     val action = routes.ShortFormController.postReview(companiesHouseId)
 
     val shortForm = emptyShortForm.bindForm
-    val reportingPeriodForm = emptyReportingPeriod.bindForm
+    sessionService.put(request.sessionId, formDataSessionKey, shortForm.data).flatMap { _ =>
+      checkValidFromSession(emptyReportingPeriod, reportingPeriodController.formDataSessionKey).map {
+        case false => Redirect(routes.ReportingPeriodController.show(companiesHouseId))
+        case true  => shortForm.fold(
+            errs => Redirect(routes.ShortFormController.show(companiesHouseId)),
+            sf => Redirect(routes.ShortFormController.showReview(companiesHouseId))
+          )
+      }
+    }
+  }
 
-    reportingPeriodForm.fold(
-      errs => BadRequest(page(title)(home, pages.reportingPeriod(reportPageHeader, errs, shortForm.data, companiesHouseId, df, serviceStartDate))),
-      reportingPeriod =>
-        shortForm.fold(
-          errs => BadRequest(page(title)(home, pages.shortForm(reportPageHeader, errs, reportingPeriodForm.data, companiesHouseId, df, serviceStartDate))),
-          sf => {
-            val reportData = shortForm.data ++ reportingPeriodForm.data
-            val formGroups = ReviewPageData.formGroups(request.companyDetail.companyName, reportingPeriod, sf)
-            Ok(page(reviewPageTitle)(home,
-              pages.review(emptyReview, reportData, formGroups, action)
-            ))
-          }
-        )
-    )
+  def showReview(companiesHouseId: CompaniesHouseId) = companyAuthAction(companiesHouseId).async { implicit request =>
+    val action: Call = routes.ShortFormController.postReview(companiesHouseId)
+    for {
+      reportingPeriod <- bindFromSession(emptyReportingPeriod, reportingPeriodController.formDataSessionKey)
+      sf <- bindFromSession(emptyShortForm, formDataSessionKey)
+    } yield {
+      val formGroups = ReviewPageData.formGroups(request.companyDetail.companyName, reportingPeriod.get, sf.get)
+      Ok(page(reviewPageTitle)(home, pages.review(emptyReview, formGroups, action)))
+    }
   }
 
   def postReview(companiesHouseId: CompaniesHouseId) = companyAuthAction(companiesHouseId).async(parse.urlFormEncoded) { implicit request =>
@@ -83,11 +103,11 @@ class ShortFormController @Inject()(
     val reportingPeriodForm = emptyReportingPeriod.bindForm
 
     reportingPeriodForm.fold(
-      errs => Future.successful(BadRequest(page(title)(home, pages.reportingPeriod(reportPageHeader, errs, shortForm.data, companiesHouseId, df, serviceStartDate)))),
+      errs => Future.successful(BadRequest(page(title)(home, pages.reportingPeriod(reportPageHeader, errs, companiesHouseId, df, serviceStartDate)))),
       reportingPeriod => shortForm.fold(
-        errs => Future.successful(BadRequest(page(title)(home, pages.shortForm(reportPageHeader, errs, reportingPeriodForm.data, companiesHouseId, df, serviceStartDate)))),
+        errs => Future.successful(BadRequest(page(title)(home, pages.shortForm(reportPageHeader, errs, companiesHouseId, df, serviceStartDate)))),
         sf =>
-          if (revise) Future.successful(Ok(page(title)(home, pages.reportingPeriod(reportPageHeader, reportingPeriodForm, shortForm.data, companiesHouseId, df, serviceStartDate))))
+          if (revise) Future.successful(Ok(page(title)(home, pages.reportingPeriod(reportPageHeader, reportingPeriodForm, companiesHouseId, df, serviceStartDate))))
           else checkConfirmation(companiesHouseId, reportingPeriod, sf)
       )
     )
@@ -101,12 +121,12 @@ class ShortFormController @Inject()(
     val formGroups = ReviewPageData.formGroups(companyName, reportingPeriod, shortForm)
 
     emptyReview.bindForm.fold(
-      errs => Future.successful(BadRequest(page(reviewPageTitle)(home, pages.review(errs, reportData, formGroups, action)))),
+      errs => Future.successful(BadRequest(page(reviewPageTitle)(home, pages.review(errs, formGroups, action)))),
       review => {
         if (review.confirmed) verifyingOAuthScope(companiesHouseId, request.oAuthToken) {
           createReport(companiesHouseId, reportingPeriod, shortForm, review).map(rId => Redirect(controllers.routes.ConfirmationController.showConfirmation(rId)))
         } else {
-          Future.successful(BadRequest(page(reviewPageTitle)(home, pages.review(emptyReview.fill(review), reportData, formGroups, action))))
+          Future.successful(BadRequest(page(reviewPageTitle)(home, pages.review(emptyReview.fill(review), formGroups, action))))
         }
       }
     )

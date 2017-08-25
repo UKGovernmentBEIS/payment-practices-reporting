@@ -24,11 +24,11 @@ import akka.actor.ActorRef
 import config.{PageConfig, ServiceConfig}
 import forms.report.Validations
 import models.CompaniesHouseId
-import play.api.Logger
 import play.api.i18n.MessagesApi
+import play.api.libs.json.JsValue
 import play.api.mvc.Controller
 import play.twirl.api.Html
-import services.{CompanyAuthService, ReportService}
+import services.{CompanyAuthService, ReportService, SessionService}
 
 import scala.concurrent.ExecutionContext
 
@@ -40,10 +40,10 @@ class ReportingPeriodController @Inject()(
   companyAuthAction: CompanyAuthAction,
   val serviceConfig: ServiceConfig,
   val pageConfig: PageConfig,
+  sessionService: SessionService,
   @Named("confirmation-actor") confirmationActor: ActorRef
 )(implicit ec: ExecutionContext, messages: MessagesApi) extends Controller with PageHelper {
 
-  import pagedLongFormData._
   import validations._
   import views.html.{report => pages}
 
@@ -53,35 +53,32 @@ class ReportingPeriodController @Inject()(
 
   private def title(implicit request: CompanyAuthRequest[_]): String = publishTitle(request.companyDetail.companyName)
 
-  def startReport(companiesHouseId: CompaniesHouseId) = companyAuthAction(companiesHouseId) { implicit request =>
-    Ok(page(title)(home, pages.reportingPeriod(reportPageHeader, emptyReportingPeriod, Map.empty, companiesHouseId, df, serviceStartDate)))
+  val formDataSessionKey = "reportingPeriodData"
+
+  def show(companiesHouseId: CompaniesHouseId) = companyAuthAction(companiesHouseId).async { implicit request =>
+    sessionService.get[JsValue](request.sessionId, formDataSessionKey).map {
+      case None       => emptyReportingPeriod
+      case Some(data) => emptyReportingPeriod.bind(data)
+    }.map { form =>
+      Ok(page(title)(home, pages.reportingPeriod(reportPageHeader, form, companiesHouseId, df, serviceStartDate)))
+    }
   }
 
-  def post(companiesHouseId: CompaniesHouseId) = companyAuthAction(companiesHouseId)(parse.urlFormEncoded) { implicit request =>
+  def post(companiesHouseId: CompaniesHouseId) = companyAuthAction(companiesHouseId).async(parse.urlFormEncoded) { implicit request =>
     // Catch any stashed values for the main report (if we came back from the review page) but
     // we don't want to carry any errors forward when we progress to the next page. This also
     // makes sure that when the user starts filing a new report that the next page doesn't start
     // out full of errors because the report is empty.
-    val paymentStatistics = emptyPaymentStatisticsForm.bindForm.discardingErrors
-    val paymentTerms = emptyPaymentTermsForm.bindForm.discardingErrors
-    val disputeResolution = emptyDisputeResolutionForm.bindForm.discardingErrors
-    val otherInformation = emptyOtherInformationForm.bindForm.discardingErrors
-    val shortForm = emptyShortForm.bindForm.discardingErrors
     val reportingPeriodForm = emptyReportingPeriod.bindForm
-
-    reportingPeriodForm.fold(
-      errs => {
-        val stashData: Map[String, String] =  paymentStatistics.data ++ paymentTerms.data ++ disputeResolution.data ++ otherInformation.data
-        BadRequest(page(title)(home, pages.reportingPeriod(reportPageHeader, errs, stashData, companiesHouseId, df, serviceStartDate)))
-      },
-      reportingPeriod =>
-        if (reportingPeriod.hasQualifyingContracts.toBoolean) {
-          val stashData: Map[String, String] =  paymentTerms.data ++ disputeResolution.data ++ otherInformation.data ++ reportingPeriodForm.data
-          Ok(page(title)(home, pages.longFormPage1(reportPageHeader, paymentStatistics, stashData, companiesHouseId, df, serviceStartDate)))
-        }
-        else
-          Ok(page(title)(home, pages.shortForm(reportPageHeader, shortForm, reportingPeriodForm.data, companiesHouseId, df, serviceStartDate)))
-
-    )
+    sessionService.put(request.sessionId, formDataSessionKey, reportingPeriodForm.data).map { _ =>
+      reportingPeriodForm.fold(
+        errs => BadRequest(page(title)(home, pages.reportingPeriod(reportPageHeader, errs, companiesHouseId, df, serviceStartDate))),
+        reportingPeriod =>
+          if (reportingPeriod.hasQualifyingContracts.toBoolean)
+            Redirect(routes.PagedLongFormController.show(1, companiesHouseId))
+          else
+            Redirect(routes.ShortFormController.show(companiesHouseId))
+      )
+    }
   }
 }

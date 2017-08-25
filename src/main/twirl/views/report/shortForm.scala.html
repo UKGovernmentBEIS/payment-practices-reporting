@@ -1,7 +1,6 @@
 @(
     header: Html,
     shortForm: Form[forms.report.ShortFormModel],
-    stashData: Map[String, String],
     companyId: CompaniesHouseId,
     df: DateTimeFormatter,
     serviceStartDate: LocalDate
@@ -13,11 +12,7 @@
 <div class="scannable-wrapper">
     @header
 
-    <form action="@routes.ShortFormController.postForm(companyId)" method="POST" id="file-report">
-        @for((k, v) <- stashData) {
-            <input type="hidden" name='@k' value="@HtmlFormat.escape(v)">
-        }
-
+    <form action="@routes.ShortFormController.post(companyId)" method="POST" id="file-report">
         <p class="small-aside">
             Companies House number: @companyId.id
         </p>

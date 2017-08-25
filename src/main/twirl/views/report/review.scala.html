@@ -1,6 +1,5 @@
 @(
         review: Form[forms.report.ReportReviewModel],
-        reportData: Map[String, String],
         formGroups: Seq[views.html.helpers.ReviewPageData.TableDescriptor],
         formAction: Call)(implicit messagesApi: MessagesApi)
 
@@ -31,10 +30,6 @@
         }
 
         <form action="@formAction" method="POST">
-            @for((k, v) <- reportData) {
-                <input type="hidden" name='@k' value="@HtmlFormat.escape(v)">
-            }
-
             @shared._textField(review, "confirmedBy")
             <fieldset class='confirmation form-group'>
                 <h3 class="bold-medium">Confirm this statement then publish your report</h3>

@@ -1,7 +1,6 @@
 @(
     header: Html,
     paymentTerms: Form[controllers.PaymentTermsForm],
-    stashData: Map[String, String],
     companyId: CompaniesHouseId,
     df: DateTimeFormatter,
     serviceStartDate: LocalDate
@@ -13,11 +12,7 @@
 <div class="scannable-wrapper">
     @header
 
-    <form action="@routes.PagedLongFormController.postFormPage(2, companyId)" method="POST" id="longForm-report">
-        @for((k, v) <- stashData) {
-            <input type="hidden" name='@k' value="@HtmlFormat.escape(v)">
-        }
-
+    <form action="@routes.PagedLongFormController.post(2, companyId)" method="POST" id="longForm-report">
         <p class="small-aside">
             Companies House number: @companyId.id
         </p>

@@ -26,19 +26,23 @@ POST        /publish/company/:id/code                         controllers.CoHoCo
 GET         /publish/company/:id/colleague                    controllers.ReportController.colleague(id:CompaniesHouseId)
 GET         /publish/company/:id/register                     controllers.ReportController.register(id:CompaniesHouseId)
 GET         /publish/company/:id/apply-for-code               controllers.ReportController.applyForAuthCode(id:CompaniesHouseId)
-GET         /publish/company/:id/file                         controllers.ReportingPeriodController.startReport(id:CompaniesHouseId)
 
-POST        /publish/company/:id/file/page/:pageNumber        controllers.PagedLongFormController.postFormPage(pageNumber:Int, id: CompaniesHouseId)
+GET         /publish/company/:id/file/page/:pageNumber        controllers.PagedLongFormController.show(pageNumber:Int, id: CompaniesHouseId)
+POST        /publish/company/:id/file/page/:pageNumber        controllers.PagedLongFormController.post(pageNumber:Int, id: CompaniesHouseId)
 
 POST        /publish/company/:id/file/long                    controllers.LongFormController.postForm(id:CompaniesHouseId)
-POST        /publish/company/:id/file/short                   controllers.ShortFormController.postForm(id:CompaniesHouseId)
+GET         /publish/company/:id/file/short                   controllers.ShortFormController.show(id:CompaniesHouseId)
+POST        /publish/company/:id/file/short                   controllers.ShortFormController.post(id:CompaniesHouseId)
+
 POST        /publish/company/:id/review/long                  controllers.LongFormController.postReview(id:CompaniesHouseId)
+GET         /publish/company/:id/review/short                 controllers.ShortFormController.showReview(id:CompaniesHouseId)
 POST        /publish/company/:id/review/short                 controllers.ShortFormController.postReview(id:CompaniesHouseId)
 
 GET         /publish/:reportId/success                        controllers.ConfirmationController.showConfirmation(reportId:ReportId)
 GET         /report/:reportId                                 controllers.ReportController.view(reportId: ReportId)
 GET         /publish/error/:id                                controllers.ErrorController.invalidScope(id:CompaniesHouseId)
 
+GET         /publish/company/:id/reportingPeriod              controllers.ReportingPeriodController.show(id:CompaniesHouseId)
 POST        /publish/company/:id/reportingPeriod              controllers.ReportingPeriodController.post(id:CompaniesHouseId)
 
 GET         /report-payment-practices/claim-callback          controllers.OAuth2Controller.claimCallback(code: Option[String], state: Option[String], error:Option[String]=None, errorDescription:Option[String]=None, errorCode:Option[String]=None)
