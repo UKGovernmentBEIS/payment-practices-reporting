@@ -42,7 +42,7 @@ class ReportingPeriodController @Inject()(
   val pageConfig: PageConfig,
   val sessionService: SessionService,
   @Named("confirmation-actor") confirmationActor: ActorRef
-)(implicit ec: ExecutionContext, messages: MessagesApi) extends Controller with PageHelper with FormSessionHelpers {
+)(implicit val ec: ExecutionContext, messages: MessagesApi) extends Controller with PageHelper with FormSessionHelpers {
 
   import validations._
   import views.html.{report => pages}
