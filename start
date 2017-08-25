@@ -15,4 +15,4 @@
 #
 # Use CTRL-D to shut down the application.
 
-./sbt -DSTANDALONE=true compile run
+./sbt -DSTANDALONE=true "$@" compile run

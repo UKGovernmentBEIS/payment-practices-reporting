@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-java -Xmx3g -Xms3g -XX:+TieredCompilation -XX:ReservedCodeCacheSize=256m -XX:+UseNUMA -XX:+UseParallelGC -XX:+CMSClassUnloadingEnabled -jar bin/sbt-launch.jar "$@"
+java -Xmx1g -Xms512M -XX:+TieredCompilation -XX:ReservedCodeCacheSize=256m -XX:+UseNUMA -XX:+UseParallelGC -XX:+CMSClassUnloadingEnabled -jar bin/sbt-launch.jar "$@"
