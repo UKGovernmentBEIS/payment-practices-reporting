@@ -29,6 +29,7 @@ libraryDependencies ++= Seq(
   "com.wellfactored" %% "slick-gen" % "0.0.4",
   "com.github.melrief" %% "pureconfig" % "0.4.0",
   "org.postgresql" % "postgresql" % "9.4.1211",
+  "com.h2database" % "h2" % "1.4.191",
   "com.typesafe.play" %% "play-slick" % playSlickVersion,
   "com.typesafe.play" %% "play-slick-evolutions" % playSlickVersion,
   "joda-time" % "joda-time" % "2.9.7",
@@ -58,10 +59,12 @@ TwirlKeys.templateImports ++= Seq(
   "org.joda.time.format.DateTimeFormatter"
 )
 
-javaOptions := Seq(
-  "-Dconfig.file=src/main/resources/development.application.conf",
-  "-Dlogger.file=src/main/resources/development.logger.xml"
-)
+val standalone: Boolean = sys.props.contains("STANDALONE")
+
+javaOptions := {
+  if (standalone) Seq("-Dconfig.file=src/main/resources/standalone.application.conf", "-Dlogger.file=src/main/resources/development.logger.xml")
+  else Seq("-Dconfig.file=src/main/resources/development.application.conf", "-Dlogger.file=src/main/resources/development.logger.xml")
+}
 
 // need this because we've disabled the PlayLayoutPlugin. without it twirl templates won't get
 // re-compiled on change in dev mode
