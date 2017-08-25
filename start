@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+# This script will fire up the application in a completely standalone mode using fake implementations
+# of company search, company auth and GDS notify, as well as an in-memory H2 database. Because the database
+# is in-memory, no data will be preserved between runs.
+#
+# On the first run on a clean checkout, sbt will download all the dependency libraries and compile the
+# application, which will take some time. The libraries are cached on your local machine, so subsequent
+# runs will be much faster to boot up.
+#
+# Play framework will be run in development mode. This means that if you make changes to project files,
+# scala, templates, sass, etc, then these will get recompiled when you refresh the page in your browser.
+#
+# Once it is running, point your browser at http://localhost:9000
+#
+# Use CTRL-D to shut down the application.
+
+./sbt -DSTANDALONE=true compile run
