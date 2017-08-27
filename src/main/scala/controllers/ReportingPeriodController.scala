@@ -25,7 +25,6 @@ import config.{PageConfig, ServiceConfig}
 import forms.report.Validations
 import models.CompaniesHouseId
 import play.api.i18n.MessagesApi
-import play.api.libs.json.JsValue
 import play.api.mvc.Controller
 import play.twirl.api.Html
 import services.{CompanyAuthService, ReportService, SessionService}
@@ -53,13 +52,10 @@ class ReportingPeriodController @Inject()(
 
   private def title(implicit request: CompanyAuthRequest[_]): String = publishTitle(request.companyDetail.companyName)
 
-  val formDataSessionKey = "reportingPeriodData"
+  val reportPeriodDataSessionKey = "reportingPeriodData"
 
   def show(companiesHouseId: CompaniesHouseId) = companyAuthAction(companiesHouseId).async { implicit request =>
-    sessionService.get[JsValue](request.sessionId, formDataSessionKey).map {
-      case None       => emptyReportingPeriod
-      case Some(data) => emptyReportingPeriod.bind(data)
-    }.map { form =>
+    loadFormData(emptyReportingPeriod, reportPeriodDataSessionKey).map { form =>
       Ok(page(title)(home, pages.reportingPeriod(reportPageHeader, form, companiesHouseId, df, serviceStartDate)))
     }
   }
@@ -70,7 +66,7 @@ class ReportingPeriodController @Inject()(
     // makes sure that when the user starts filing a new report that the next page doesn't start
     // out full of errors because the report is empty.
     val reportingPeriodForm = emptyReportingPeriod.bindForm
-    saveFormData(formDataSessionKey, reportingPeriodForm).map { _ =>
+    saveFormData(reportPeriodDataSessionKey, reportingPeriodForm).map { _ =>
       reportingPeriodForm.fold(
         errs => BadRequest(page(title)(home, pages.reportingPeriod(reportPageHeader, errs, companiesHouseId, df, serviceStartDate))),
         reportingPeriod =>

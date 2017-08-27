@@ -10,6 +10,17 @@ git.useGitDescribe in ThisBuild := true
 
 scalaVersion in ThisBuild := "2.11.8"
 
+val commonScalacOptions = Seq(
+  "-deprecation",
+  "-unchecked",
+  "-feature",
+  "-Xlint",
+  "-Xfatal-warnings",
+  "-language:higherKinds"
+)
+
+scalacOptions ++= commonScalacOptions
+
 lazy val `payment-practices-reporting` = project.in(file("."))
   .enablePlugins(PlayScala)
   .disablePlugins(PlayLayoutPlugin)

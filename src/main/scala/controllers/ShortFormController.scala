@@ -55,14 +55,14 @@ class ShortFormController @Inject()(
 
   def reportPageHeader(implicit request: CompanyAuthRequest[_]): Html = h1(s"Publish a report for:<br>${request.companyDetail.companyName}")
 
-  val formDataSessionKey = "shortFormData"
+  val shortFormDataSessionKey = "shortFormData"
 
   def show(companiesHouseId: CompaniesHouseId) = companyAuthAction(companiesHouseId).async { implicit request =>
     val title = publishTitle(request.companyDetail.companyName)
 
-    checkValidFromSession(emptyReportingPeriod, reportingPeriodController.formDataSessionKey).flatMap {
+    checkValidFromSession(emptyReportingPeriod, reportingPeriodController.reportPeriodDataSessionKey).flatMap {
       case false => Future.successful(Redirect(routes.ReportingPeriodController.show(companiesHouseId)))
-      case true  => bindFromSession(emptyShortForm, formDataSessionKey).map { form =>
+      case true  => loadFormData(emptyShortForm, shortFormDataSessionKey).map { form =>
         Ok(page(title)(home, pages.shortForm(reportPageHeader, form, companiesHouseId, df, serviceStartDate)))
       }
     }
@@ -73,8 +73,8 @@ class ShortFormController @Inject()(
     val action = routes.ShortFormController.postReview(companiesHouseId)
 
     val shortForm = emptyShortForm.bindForm
-    saveFormData(formDataSessionKey, shortForm).flatMap { _ =>
-      checkValidFromSession(emptyReportingPeriod, reportingPeriodController.formDataSessionKey).map {
+    saveFormData(shortFormDataSessionKey, shortForm).flatMap { _ =>
+      checkValidFromSession(emptyReportingPeriod, reportingPeriodController.reportPeriodDataSessionKey).map {
         case false => Redirect(routes.ReportingPeriodController.show(companiesHouseId))
         case true  => shortForm.fold(
             errs => Redirect(routes.ShortFormController.show(companiesHouseId)),
@@ -87,8 +87,8 @@ class ShortFormController @Inject()(
   def showReview(companiesHouseId: CompaniesHouseId) = companyAuthAction(companiesHouseId).async { implicit request =>
     val action: Call = routes.ShortFormController.postReview(companiesHouseId)
     for {
-      reportingPeriod <- bindFromSession(emptyReportingPeriod, reportingPeriodController.formDataSessionKey)
-      sf <- bindFromSession(emptyShortForm, formDataSessionKey)
+      reportingPeriod <- loadFormData(emptyReportingPeriod, reportingPeriodController.reportPeriodDataSessionKey)
+      sf <- loadFormData(emptyShortForm, shortFormDataSessionKey)
     } yield {
       val formGroups = ReviewPageData.formGroups(request.companyDetail.companyName, reportingPeriod.get, sf.get)
       Ok(page(reviewPageTitle)(home, pages.review(emptyReview, formGroups, action)))

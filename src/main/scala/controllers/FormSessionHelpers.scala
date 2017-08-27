@@ -18,7 +18,6 @@
 package controllers
 
 import actions.CompanyAuthRequest
-import play.api.Logger
 import play.api.data.Form
 import play.api.libs.json.{JsObject, Json}
 import services.{SessionId, SessionService}
@@ -31,27 +30,38 @@ trait FormSessionHelpers {
 
   implicit def sessionIdFromRequest(implicit request: CompanyAuthRequest[_]): SessionId = request.sessionId
 
-  protected def bindFromSession[T](emptyForm: Form[T], key: String)(implicit sessionId: SessionId): Future[Form[T]] =
-    sessionService.get[JsObject](sessionId, key).map {
+  val formDataSessionKey = "formData"
+
+  def bindFormDataFromSession(formHandler: FormHandler[_])(implicit request: CompanyAuthRequest[_]): Future[FormHandler[_]] = {
+    sessionService.get[JsObject](request.sessionId, formDataSessionKey).map {
+      case None       => formHandler
+      case Some(data) =>
+        (data \\ formHandler.sessionKey).headOption.map { fd =>
+          val boundFormHandler = formHandler.bind(fd)
+          boundFormHandler
+        }.getOrElse(formHandler)
+    }
+  }
+
+  protected def loadFormData[T](emptyForm: Form[T], key: String)(implicit sessionId: SessionId): Future[Form[T]] =
+    sessionService.get[JsObject](sessionId, formDataSessionKey).map {
       case None       => emptyForm
-      case Some(data) => emptyForm.bind(data)
+      case Some(data) =>
+        (data \\ key).headOption.map(emptyForm.bind).getOrElse(emptyForm)
     }
 
   protected def checkValidFromSession[T](emptyForm: Form[T], key: String)(implicit sessionId: SessionId): Future[Boolean] =
-    sessionService.get[JsObject](sessionId, key).map {
+    sessionService.get[JsObject](sessionId, formDataSessionKey).map {
       case None       => false
       case Some(data) =>
-        val boundForm = emptyForm.bind(data)
-        Logger.debug(boundForm.errors.toString)
-        !boundForm.hasErrors
+        (data \\ key).headOption.exists(!emptyForm.bind(_).hasErrors)
     }
 
   protected def saveFormData[T](key: String, form: Form[T])(implicit sessionId: SessionId): Future[Unit] =
-    sessionService.get[JsObject](sessionId, "formData").map {
+    sessionService.get[JsObject](sessionId, formDataSessionKey).map {
       case None    => Json.obj(key -> form.data)
       case Some(o) => o + (key -> Json.toJson(form.data))
     }.flatMap { updatedFormData =>
-      sessionService.put(sessionId, "formData", updatedFormData)
+      sessionService.put(sessionId, formDataSessionKey, updatedFormData)
     }
-
 }
