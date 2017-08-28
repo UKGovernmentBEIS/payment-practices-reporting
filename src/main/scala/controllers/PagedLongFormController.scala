@@ -21,14 +21,18 @@ import javax.inject.{Inject, Named}
 
 import actions.{CompanyAuthAction, CompanyAuthRequest}
 import akka.actor.ActorRef
+import cats.data.OptionT
+import cats.instances.future._
 import config.{PageConfig, ServiceConfig}
 import forms.report._
 import models.CompaniesHouseId
 import play.api.data.Form
 import play.api.i18n.MessagesApi
-import play.api.mvc.{Controller, Result}
+import play.api.libs.json.{JsObject, Json}
+import play.api.mvc._
 import play.twirl.api.Html
 import services._
+import views.html.helpers.ReviewPageData
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.existentials
@@ -65,28 +69,28 @@ class PagedLongFormController @Inject()(
       (companyDetail: CompanyDetail) => routes.PagedLongFormController.show(1, companyDetail.companiesHouseId)
     ),
     FormHandler(
-      "page1",
+      "paymentStatistics",
       emptyPaymentStatisticsForm,
       (header: Html, companyDetail: CompanyDetail) => (form: Form[PaymentStatisticsForm]) => pages.longFormPage1(header, form, companyDetail.companiesHouseId, df, serviceStartDate),
       (companyDetail: CompanyDetail) => routes.PagedLongFormController.show(1, companyDetail.companiesHouseId),
       (companyDetail: CompanyDetail) => routes.PagedLongFormController.show(2, companyDetail.companiesHouseId)
     ),
     FormHandler(
-      "page2",
+      "paymentTerms",
       emptyPaymentTermsForm,
       (header: Html, companyDetail: CompanyDetail) => (form: Form[PaymentTermsForm]) => pages.longFormPage2(header, form, companyDetail.companiesHouseId, df, serviceStartDate),
       (companyDetail: CompanyDetail) => routes.PagedLongFormController.show(2, companyDetail.companiesHouseId),
       (companyDetail: CompanyDetail) => routes.PagedLongFormController.show(3, companyDetail.companiesHouseId)
     ),
     FormHandler(
-      "page3",
+      "disputeResolution",
       emptyDisputeResolutionForm,
       (header: Html, companyDetail: CompanyDetail) => (form: Form[DisputeResolutionForm]) => pages.longFormPage3(header, form, companyDetail.companiesHouseId, df, serviceStartDate),
       (companyDetail: CompanyDetail) => routes.PagedLongFormController.show(3, companyDetail.companiesHouseId),
       (companyDetail: CompanyDetail) => routes.PagedLongFormController.show(4, companyDetail.companiesHouseId)
     ),
     FormHandler(
-      "page4",
+      "otherInformation",
       emptyOtherInformationForm,
       (header: Html, companyDetail: CompanyDetail) => (form: Form[OtherInformationForm]) => pages.longFormPage4(header, form, companyDetail.companiesHouseId, df, serviceStartDate),
       (companyDetail: CompanyDetail) => routes.PagedLongFormController.show(4, companyDetail.companiesHouseId),
@@ -107,7 +111,7 @@ class PagedLongFormController @Inject()(
   case class FormHasErrors(formHandler: FormHandler[_]) extends FormResult
   case class FormIsOk(formHandler: FormHandler[_]) extends FormResult
 
-  def show(pageNumber: Int, companiesHouseId: CompaniesHouseId) = companyAuthAction(companiesHouseId).async { implicit request =>
+  def show(pageNumber: Int, companiesHouseId: CompaniesHouseId): Action[AnyContent] = companyAuthAction(companiesHouseId).async { implicit request =>
     val title = publishTitle(request.companyDetail.companyName)
 
     emptyFormHandlers.drop(pageNumber).headOption.map { handlerForThisPage =>
@@ -129,20 +133,26 @@ class PagedLongFormController @Inject()(
   }
 
   private def bindUpToPage(pageNumber: Int)(implicit request: CompanyAuthRequest[_]) = {
-    emptyFormHandlers.take(pageNumber + 1).foldLeft(Future.successful(Start): Future[FormResult]) { (currentResult, nextHandler) =>
-      currentResult.flatMap {
-        case Start | FormIsOk(_) =>
-          bindFormDataFromSession(nextHandler).map { boundHandler =>
-            if (boundHandler.form.data.isEmpty && boundHandler.form.value.isEmpty) FormIsBlank(boundHandler)
-            else if (boundHandler.form.hasErrors) FormHasErrors(boundHandler)
-            else FormIsOk(boundHandler)
-          }
-        case notOk               => Future.successful(notOk)
-      }
+    emptyFormHandlers.take(pageNumber + 1).foldLeft(Future.successful(Start): Future[FormResult])(pageBinder)
+  }
+
+  private def pageBinder(currentResult: Future[FormResult], nextHandler: FormHandler[_])(implicit request: CompanyAuthRequest[_]): Future[FormResult] = {
+    currentResult.flatMap {
+      case Start | FormIsOk(_) =>
+        bindFormDataFromSession(nextHandler).map { boundHandler =>
+          if (boundHandler.form.data.isEmpty && boundHandler.form.value.isEmpty) FormIsBlank(boundHandler)
+          else if (boundHandler.form.hasErrors) FormHasErrors(boundHandler)
+          else FormIsOk(boundHandler)
+        }
+      case notOk               => Future.successful(notOk)
     }
   }
 
-  def post(pageNumber: Int, companiesHouseId: CompaniesHouseId) = companyAuthAction(companiesHouseId).async(parse.urlFormEncoded) { implicit request =>
+  private def bindAllPages(implicit request: CompanyAuthRequest[_]): Future[FormResult] = {
+    emptyFormHandlers.foldLeft(Future.successful(Start): Future[FormResult])(pageBinder)
+  }
+
+  def post(pageNumber: Int, companiesHouseId: CompaniesHouseId): Action[Map[String, Seq[String]]] = companyAuthAction(companiesHouseId).async(parse.urlFormEncoded) { implicit request =>
     val handlerForThisPage = emptyFormHandlers.drop(pageNumber).headOption
 
     handlerForThisPage match {
@@ -165,9 +175,41 @@ class PagedLongFormController @Inject()(
     }
   }
 
-  def showReview(companiesHouseId: CompaniesHouseId) = companyAuthAction(companiesHouseId).async { implicit request =>
+  private def bindLongForm(implicit sessionId: SessionId): Future[Option[LongFormModel]] = {
+    sessionService.get[JsObject](sessionId, formDataSessionKey).map {
+      case None       => None
+      case Some(data) =>
+        for {
+          ps <- emptyPaymentStatisticsForm.bind((data \\ "paymentStatistics").headOption.getOrElse(Json.obj())).value
+          pt <- emptyPaymentTermsForm.bind((data \\ "paymentTerms").headOption.getOrElse(Json.obj())).value
+          dr <- emptyDisputeResolutionForm.bind((data \\ "disputeResolution").headOption.getOrElse(Json.obj())).value
+          oi <- emptyOtherInformationForm.bind((data \\ "otherInformation").headOption.getOrElse(Json.obj())).value
+        } yield LongFormModel(ps.paymentStatistics, pt.paymentTerms, dr.disputeResolution, oi.otherInformation)
+    }
+  }
 
-    ???
+
+  def showReview(companiesHouseId: CompaniesHouseId): Action[AnyContent] = companyAuthAction(companiesHouseId).async { implicit request =>
+    val title = publishTitle(request.companyDetail.companyName)
+    val action: Call = routes.ShortFormController.postReview(companiesHouseId)
+
+    bindAllPages.flatMap {
+      case Start                  => Future.successful(NotFound) // something went wrong - no handlers in the list!?
+      case FormHasErrors(handler) => Future.successful(Redirect(handler.pageCall(request.companyDetail)))
+      case FormIsBlank(handler)   => Future.successful(Redirect(handler.pageCall(request.companyDetail)))
+      case FormIsOk(handler)      =>
+        val forms = for {
+          reportingPeriod <- OptionT(loadFormData(emptyReportingPeriod, reportingPeriodController.reportPeriodDataSessionKey).map(_.value))
+          longForm <- OptionT(bindLongForm)
+        } yield (reportingPeriod, longForm)
+
+        forms.value.map {
+          case None          => ???
+          case Some((r, lf)) =>
+            val formGroups = ReviewPageData.formGroups(request.companyDetail.companyName, r, lf)
+            Ok(page(title)(views.html.report.review(emptyReview, formGroups, action)))
+        }
+    }
   }
 
 }
