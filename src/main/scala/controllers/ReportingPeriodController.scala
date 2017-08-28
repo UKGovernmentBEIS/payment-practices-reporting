@@ -22,6 +22,7 @@ import javax.inject.{Inject, Named}
 import actions.{CompanyAuthAction, CompanyAuthRequest}
 import akka.actor.ActorRef
 import config.{PageConfig, ServiceConfig}
+import controllers.PagedLongFormModel.FormName
 import forms.report.Validations
 import models.CompaniesHouseId
 import play.api.i18n.MessagesApi
@@ -40,6 +41,7 @@ class ReportingPeriodController @Inject()(
   val serviceConfig: ServiceConfig,
   val pageConfig: PageConfig,
   val sessionService: SessionService,
+  pagedLongFormModel: PagedLongFormModel,
   @Named("confirmation-actor") confirmationActor: ActorRef
 )(implicit val ec: ExecutionContext, messages: MessagesApi) extends Controller with PageHelper with FormSessionHelpers {
 
@@ -55,23 +57,19 @@ class ReportingPeriodController @Inject()(
   val reportPeriodDataSessionKey = "reportingPeriodData"
 
   def show(companiesHouseId: CompaniesHouseId) = companyAuthAction(companiesHouseId).async { implicit request =>
-    loadFormData(emptyReportingPeriod, reportPeriodDataSessionKey).map { form =>
+    loadFormData(emptyReportingPeriod, FormName.PaymentStatistics.entryName).map { form =>
       Ok(page(title)(home, pages.reportingPeriod(reportPageHeader, form, companiesHouseId, df, serviceStartDate)))
     }
   }
 
   def post(companiesHouseId: CompaniesHouseId) = companyAuthAction(companiesHouseId).async(parse.urlFormEncoded) { implicit request =>
-    // Catch any stashed values for the main report (if we came back from the review page) but
-    // we don't want to carry any errors forward when we progress to the next page. This also
-    // makes sure that when the user starts filing a new report that the next page doesn't start
-    // out full of errors because the report is empty.
     val reportingPeriodForm = emptyReportingPeriod.bindForm
-    saveFormData(reportPeriodDataSessionKey, reportingPeriodForm).map { _ =>
+    saveFormData(FormName.ReportingPeriod, reportingPeriodForm).map { _ =>
       reportingPeriodForm.fold(
         errs => BadRequest(page(title)(home, pages.reportingPeriod(reportPageHeader, errs, companiesHouseId, df, serviceStartDate))),
         reportingPeriod =>
           if (reportingPeriod.hasQualifyingContracts.toBoolean)
-            Redirect(routes.PagedLongFormController.show(1, companiesHouseId))
+            Redirect(routes.PagedLongFormController.show(FormName.PaymentStatistics, companiesHouseId))
           else
             Redirect(routes.ShortFormController.show(companiesHouseId))
       )

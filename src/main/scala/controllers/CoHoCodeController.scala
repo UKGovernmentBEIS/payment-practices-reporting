@@ -71,7 +71,7 @@ class CoHoCodeController @Inject()(
 object CoHoCodeController {
 
   import enumeratum.EnumEntry.Lowercase
-  import enumeratum._
+  import enumeratum.{EnumEntry, Enum}
   import utils.EnumFormatter
 
   sealed trait CodeOption extends EnumEntry with Lowercase

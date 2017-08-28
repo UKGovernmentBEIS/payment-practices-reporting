@@ -17,6 +17,7 @@
 
 package controllers
 
+import controllers.PagedLongFormModel.FormName
 import play.api.Logger
 import play.api.data.Form
 import play.api.libs.json.JsValue
@@ -28,7 +29,7 @@ import services.CompanyDetail
   * @tparam T the type of the form that is being processed by this page
   */
 case class FormHandler[T](
-  sessionKey: String,
+  formName: FormName,
   form: Form[T],
   private val renderPageFunction: (Html, CompanyDetail) => (Form[T]) => Html,
   pageCall: (CompanyDetail) => Call,
@@ -37,7 +38,7 @@ case class FormHandler[T](
   def bind(implicit request: Request[Map[String, Seq[String]]]): FormHandler[T] = copy(form = form.bindForm)
 
   def bind(jsValue: JsValue): FormHandler[T] = {
-    Logger.debug(s"trying to bind $jsValue into $sessionKey")
+    Logger.debug(s"trying to bind $jsValue into ${formName.entryName}")
     val boundForm = form.bind(jsValue)
     Logger.debug(s"bound form is $boundForm")
     copy(form = boundForm)

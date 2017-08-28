@@ -18,6 +18,7 @@
 package controllers
 
 import actions.CompanyAuthRequest
+import controllers.PagedLongFormModel.FormName
 import play.api.data.Form
 import play.api.libs.json.{JsObject, Json}
 import services.{SessionId, SessionService}
@@ -36,11 +37,15 @@ trait FormSessionHelpers {
     sessionService.get[JsObject](request.sessionId, formDataSessionKey).map {
       case None       => formHandler
       case Some(data) =>
-        (data \\ formHandler.sessionKey).headOption.map { fd =>
+        (data \\ formHandler.formName.entryName).headOption.map { fd =>
           val boundFormHandler = formHandler.bind(fd)
           boundFormHandler
         }.getOrElse(formHandler)
     }
+  }
+
+  protected def loadAllFormData(implicit sessionId: SessionId): Future[JsObject] = {
+    sessionService.get[JsObject](sessionId, formDataSessionKey).map(_.getOrElse(Json.obj()))
   }
 
   protected def loadFormData[T](emptyForm: Form[T], key: String)(implicit sessionId: SessionId): Future[Form[T]] =
@@ -56,6 +61,9 @@ trait FormSessionHelpers {
       case Some(data) =>
         (data \\ key).headOption.exists(!emptyForm.bind(_).hasErrors)
     }
+
+  protected def saveFormData[T](formName: FormName, form: Form[T])(implicit sessionId: SessionId): Future[Unit] =
+    saveFormData(formName.entryName, form)
 
   protected def saveFormData[T](key: String, form: Form[T])(implicit sessionId: SessionId): Future[Unit] =
     sessionService.get[JsObject](sessionId, formDataSessionKey).map {

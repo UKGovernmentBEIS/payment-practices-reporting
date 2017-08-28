@@ -12,7 +12,7 @@
 <div class="scannable-wrapper">
     @header
 
-    <form action="@routes.PagedLongFormController.post(4, companyId)" method="POST" id="longForm-report">
+    <form action="@routes.PagedLongFormController.post(PagedLongFormModel.FormName.OtherInformation, companyId)" method="POST" id="longForm-report">
         <p class="small-aside">
             Companies House number: @companyId.id
         </p>
