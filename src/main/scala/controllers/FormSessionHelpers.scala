@@ -35,18 +35,7 @@ trait FormSessionHelpers {
 
   val formDataSessionKey = "formData"
 
-  def bindFormDataFromSession[N <: FormName](formHandler: FormHandler[_, N])(implicit request: CompanyAuthRequest[_]): Future[FormHandler[_, N]] = {
-    sessionService.get[JsObject](request.sessionId, formDataSessionKey).map {
-      case None       => formHandler
-      case Some(data) =>
-        (data \\ formHandler.formName.entryName).headOption.map { fd =>
-          val boundFormHandler = formHandler.bind(fd)
-          boundFormHandler
-        }.getOrElse(formHandler)
-    }
-  }
-
-  def bindPage[N <: FormName](data: JsObject, handler: FormHandler[_, N]): FormResult[N] = {
+  private def bindPage[N <: FormName](data: JsObject, handler: FormHandler[_, N]): FormResult[N] = {
     val boundHandler = handler.bind((data \\ handler.formName.entryName).headOption.getOrElse(Json.obj()))
     if (boundHandler.form.data.isEmpty && boundHandler.form.value.isEmpty) FormIsBlank(boundHandler)
     else if (boundHandler.form.hasErrors) FormHasErrors(boundHandler)
@@ -86,7 +75,7 @@ trait FormSessionHelpers {
     }
   }
 
-  protected def loadAllFormData(implicit sessionId: SessionId): Future[JsObject] = {
+  private def loadAllFormData(implicit sessionId: SessionId): Future[JsObject] = {
     sessionService.get[JsObject](sessionId, formDataSessionKey).map(_.getOrElse(Json.obj()))
   }
 
@@ -107,7 +96,7 @@ trait FormSessionHelpers {
   protected def saveFormData[T](formName: FormName, form: Form[T])(implicit sessionId: SessionId): Future[Unit] =
     saveFormData(formName.entryName, form)
 
-  protected def saveFormData[T](key: String, form: Form[T])(implicit sessionId: SessionId): Future[Unit] =
+  private def saveFormData[T](key: String, form: Form[T])(implicit sessionId: SessionId): Future[Unit] =
     sessionService.get[JsObject](sessionId, formDataSessionKey).map {
       case None    => Json.obj(key -> form.data)
       case Some(o) => o + (key -> Json.toJson(form.data))
