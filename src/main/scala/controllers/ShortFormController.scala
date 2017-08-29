@@ -29,13 +29,11 @@ import play.api.data.Form
 import play.api.data.Forms.{single, _}
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Call, Controller, Result}
-import play.api.{Logger, UnexpectedException}
 import play.twirl.api.Html
 import services._
 import views.html.helpers.ReviewPageData
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Random
 
 class ShortFormController @Inject()(
   reports: ReportService,
@@ -47,7 +45,12 @@ class ShortFormController @Inject()(
   val sessionService: SessionService,
   shortFormPageModel: ShortFormPageModel,
   @Named("confirmation-actor") confirmationActor: ActorRef
-)(implicit val ec: ExecutionContext, messages: MessagesApi) extends Controller with BaseFormController with PageHelper with FormSessionHelpers {
+)(implicit val ec: ExecutionContext, messages: MessagesApi)
+  extends Controller
+    with BaseFormController
+    with PageHelper
+    with FormSessionHelpers
+    with FormControllerHelpers[ShortFormModel, ShortFormName] {
 
   import shortFormPageModel._
   import validations._
@@ -58,6 +61,18 @@ class ShortFormController @Inject()(
   private def publishTitle(companyName: String) = s"Publish a report for $companyName"
 
   def reportPageHeader(implicit request: CompanyAuthRequest[_]): Html = h1(s"Publish a report for:<br>${request.companyDetail.companyName}")
+
+  override def formHandlers: Seq[ShortFormHandler[_]] =
+    shortFormPageModel.formHandlers
+
+  override def bindMainForm(implicit sessionId: SessionId): Future[Option[ShortFormModel]] =
+    loadFormData(emptyShortForm, ShortFormName.ShortForm).map(_.value)
+
+  override def bindReportingPeriod(implicit sessionId: SessionId): Future[Option[ReportingPeriodFormModel]] =
+    loadFormData(emptyReportingPeriod, ShortFormName.ReportingPeriod).map(_.value)
+
+  override def emptyReportingPeriod: Form[ReportingPeriodFormModel] =
+    validations.emptyReportingPeriod
 
   //noinspection TypeAnnotation
   def show(companiesHouseId: CompaniesHouseId) = companyAuthAction(companiesHouseId).async { implicit request =>
@@ -114,30 +129,6 @@ class ShortFormController @Inject()(
     val action: Call = routes.ShortFormController.postReview(request.companyDetail.companiesHouseId)
     val formGroups = ReviewPageData.formGroups(request.companyDetail.companyName, reportingPeriod, shortForm)
     Future.successful(Ok(page(reviewPageTitle)(home, pages.review(emptyReview, formGroups, action))))
-  }
-
-  private def handleBinding[T](request: CompanyAuthRequest[T], f: (CompanyAuthRequest[T], ReportingPeriodFormModel, ShortFormModel) => Future[Result]): Future[Result] = {
-    implicit val req: CompanyAuthRequest[T] = request
-
-    bindAllPages(shortFormPageModel.formHandlers).flatMap {
-      case FormHasErrors(handler) => Future.successful(Redirect(handler.pageCall(request.companyDetail)))
-      case FormIsBlank(handler)   => Future.successful(Redirect(handler.pageCall(request.companyDetail)))
-      case FormIsOk(handler)      =>
-        val forms = for {
-          reportingPeriod <- loadFormData(emptyReportingPeriod, ShortFormName.ReportingPeriod).map(_.value)
-          shortForm <- loadFormData(emptyShortForm, ShortFormName.ShortForm).map(_.value)
-        } yield (reportingPeriod, shortForm)
-        forms.flatMap {
-          case (Some(r), Some(sf)) => f(request, r, sf)
-
-          // The following cases should not happen - if one of them does it indicates
-          // some kind of mismatch between the FormHandlers and the base form models
-          case (_, _) =>
-            val ref = Random.nextInt(1000000)
-            Logger.error(s"Error reference $ref: The reporting period and/or short forms did not bind correctly")
-            throw UnexpectedException(Some(s"Error reference $ref"))
-        }
-    }
   }
 
   private def handleReviewPost(request: CompanyAuthRequest[Map[String, Seq[String]]], r: ReportingPeriodFormModel, sf: ShortFormModel): Future[Result] = {

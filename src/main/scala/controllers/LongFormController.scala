@@ -52,7 +52,11 @@ class LongFormController @Inject()(
   longFormPageModel: LongFormPageModel,
   @Named("confirmation-actor") confirmationActor: ActorRef
 )(implicit val ec: ExecutionContext, messages: MessagesApi)
-  extends Controller with BaseFormController with PageHelper with FormSessionHelpers {
+  extends Controller
+    with BaseFormController
+    with PageHelper
+    with FormSessionHelpers
+    with FormControllerHelpers[LongFormModel, LongFormName] {
 
   import longFormPageModel._
   import validations._
@@ -63,6 +67,13 @@ class LongFormController @Inject()(
   private def publishTitle(companyName: String) = s"Publish a report for $companyName"
 
   def reportPageHeader(implicit request: CompanyAuthRequest[_]): Html = h1(s"Publish a report for:<br>${request.companyDetail.companyName}")
+
+  override def formHandlers: Seq[LongFormHandler[_]] = longFormPageModel.formHandlers
+
+  override val emptyReportingPeriod: Form[ReportingPeriodFormModel] = validations.emptyReportingPeriod
+
+  override def bindReportingPeriod(implicit sessionId: SessionId): Future[Option[ReportingPeriodFormModel]] =
+    loadFormData(emptyReportingPeriod, LongFormName.ReportingPeriod).map(_.value)
 
   def show(formName: LongFormName, companiesHouseId: CompaniesHouseId): Action[AnyContent] = companyAuthAction(companiesHouseId).async { implicit request =>
     val title = publishTitle(request.companyDetail.companyName)
@@ -107,7 +118,7 @@ class LongFormController @Inject()(
     }
   }
 
-  private def bindLongForm(implicit sessionId: SessionId): Future[Option[LongFormModel]] = {
+  def bindMainForm(implicit sessionId: SessionId): Future[Option[LongFormModel]] = {
     sessionService.get[JsObject](sessionId, formDataSessionKey).map {
       case None       => None
       case Some(data) =>
@@ -130,31 +141,6 @@ class LongFormController @Inject()(
 
     if (revise) Future.successful(Redirect(routes.ReportingPeriodController.show(companiesHouseId)))
     else handleBinding(request, handleReviewPost)
-  }
-
-  private def handleBinding[T](request: CompanyAuthRequest[T], f: (CompanyAuthRequest[T], ReportingPeriodFormModel, LongFormModel) => Future[Result]) = {
-    implicit val req: CompanyAuthRequest[T] = request
-
-    bindAllPages(formHandlers).flatMap {
-      case FormHasErrors(handler) => Future.successful(Redirect(handler.pageCall(request.companyDetail)))
-      case FormIsBlank(handler)   => Future.successful(Redirect(handler.pageCall(request.companyDetail)))
-      case FormIsOk(handler)      =>
-        val forms = for {
-          reportingPeriod <- loadFormData(emptyReportingPeriod, LongFormName.ReportingPeriod).map(_.value)
-          longForm <- bindLongForm
-        } yield (reportingPeriod, longForm)
-
-        forms.flatMap {
-          case (Some(r), Some(lf)) => f(request, r, lf)
-
-          // The following cases should not happen - if one of them does it indicates
-          // some kind of mismatch between the FormHandlers and the base form models
-          case (_, _) =>
-            val ref = Random.nextInt(1000000)
-            Logger.error(s"Error reference $ref: The reporting period and/or long forms did not bind correctly")
-            throw UnexpectedException(Some(s"Error reference $ref"))
-        }
-    }
   }
 
   private def renderReview(request: CompanyAuthRequest[_], r: ReportingPeriodFormModel, lf: LongFormModel): Future[Result] = {
