@@ -130,6 +130,8 @@ class LongFormController @Inject()(
   }
 
   private def handleBinding[T](request: CompanyAuthRequest[T], f: (CompanyAuthRequest[T], ReportingPeriodFormModel, LongFormModel) => Future[Result]) = {
+    implicit val req: CompanyAuthRequest[T] = request
+
     bindAllPages(formHandlers).flatMap {
       case FormHasErrors(handler) => Future.successful(Redirect(handler.pageCall(request.companyDetail)))
       case FormIsBlank(handler)   => Future.successful(Redirect(handler.pageCall(request.companyDetail)))
@@ -153,14 +155,17 @@ class LongFormController @Inject()(
   }
 
   private def renderReview(request: CompanyAuthRequest[_], r: ReportingPeriodFormModel, lf: LongFormModel): Future[Result] = {
+    implicit val req: CompanyAuthRequest[_] = request
+
     val title = publishTitle(request.companyDetail.companyName)
     val action: Call = routes.LongFormController.postReview(request.companyDetail.companiesHouseId)
     val formGroups = ReviewPageData.formGroups(request.companyDetail.companyName, r, lf)
     Future.successful(Ok(page(title)(views.html.report.review(emptyReview, formGroups, action))))
   }
 
-
   private def handleReviewPost(request: CompanyAuthRequest[Map[String, Seq[String]]], reportingPeriod: ReportingPeriodFormModel, longForm: LongFormModel): Future[Result] = {
+    implicit val req: CompanyAuthRequest[Map[String, Seq[String]]] = request
+
     val formGroups = ReviewPageData.formGroups(request.companyDetail.companyName, reportingPeriod, longForm)
     val action: Call = routes.LongFormController.postReview(request.companyDetail.companiesHouseId)
 
