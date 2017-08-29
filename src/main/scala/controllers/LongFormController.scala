@@ -35,6 +35,7 @@ import play.api.{Logger, UnexpectedException}
 import play.twirl.api.Html
 import services._
 import views.html.helpers.ReviewPageData
+import org.scalactic.TripleEquals._
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.existentials
@@ -71,12 +72,12 @@ class LongFormController @Inject()(
     bindUpToPage(formHandlers, formName).map {
       case FormIsOk(handler)      => Ok(page(title)(handler.renderPage(reportPageHeader, request.companyDetail)))
       case FormHasErrors(handler) =>
-        if (handler.formName == handlerForThisPage.formName)
+        if (handler.formName === handlerForThisPage.formName)
           BadRequest(page(title)(handler.renderPage(reportPageHeader, request.companyDetail)))
         else
           Redirect(handler.pageCall(request.companyDetail))
       case FormIsBlank(handler)   =>
-        if (handler.formName == handlerForThisPage.formName)
+        if (handler.formName === handlerForThisPage.formName)
           Ok(page(title)(handlerForThisPage.renderPage(reportPageHeader, request.companyDetail)))
         else
           Redirect(handler.pageCall(request.companyDetail))

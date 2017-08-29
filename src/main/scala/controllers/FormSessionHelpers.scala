@@ -23,6 +23,7 @@ import play.api.Logger
 import play.api.data.Form
 import play.api.libs.json.{JsObject, Json}
 import services.{SessionId, SessionService}
+import org.scalactic.TripleEquals._
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -73,7 +74,7 @@ trait FormSessionHelpers {
     * is empty or fails validation, or an Ok result for the named form.
     */
   protected def bindUpToPage[N <: FormName](formHandlers: Seq[FormHandler[_, N]], formName: N)(implicit request: CompanyAuthRequest[_]): Future[FormResult[N]] = {
-    val (handlersToBind, _) = formHandlers.splitAt(formHandlers.indexWhere(_.formName == formName) + 1)
+    val (handlersToBind, _) = formHandlers.splitAt(formHandlers.indexWhere(_.formName === formName) + 1)
 
     loadAllFormData.map { data =>
       handlersToBind.foldLeft(Seq.empty[FormResult[N]]) { (results, handler) =>
