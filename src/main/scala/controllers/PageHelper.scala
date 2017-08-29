@@ -17,8 +17,9 @@
 
 package controllers
 
-import config.{GoogleAnalyticsConfig, PageConfig, ServiceConfig, SurveyMonkeyConfig}
-import org.joda.time.format.DateTimeFormat
+import config.{GoogleAnalyticsConfig, PageConfig, ServiceConfig}
+import org.joda.time.LocalDate
+import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
 import org.scalactic.TripleEquals._
 import play.api.data.Form
 import play.api.mvc.{Call, RequestHeader}
@@ -34,9 +35,9 @@ trait PageHelper {
   def pageConfig: PageConfig
   def serviceConfig: ServiceConfig
 
-  val df = DateTimeFormat.forPattern("d MMMM YYYY")
+  val df: DateTimeFormatter = DateTimeFormat.forPattern("d MMMM YYYY")
 
-  val serviceStartDate = serviceConfig.startDate.getOrElse(ServiceConfig.defaultServiceStartDate)
+  val serviceStartDate: LocalDate = serviceConfig.startDate.getOrElse(ServiceConfig.defaultServiceStartDate)
 
   implicit def er(implicit request: RequestHeader): ExternalRouter = {
     new ExternalRoutes(pageConfig.searchConfig).apply(request.host)
@@ -58,7 +59,7 @@ trait PageHelper {
   def h1(text: String) = views.html.shared._h1(Html(text))
 
   val homeBreadcrumb = Breadcrumb(routes.HomeController.index(), "Payment practices reporting")
-  val home = breadcrumbs(homeBreadcrumb)
+  val home: Html     = breadcrumbs(homeBreadcrumb)
 
   def breadcrumbs(crumbs: Breadcrumb*): Html = views.html.shared._breadcrumbs(crumbs)
 
@@ -68,5 +69,5 @@ trait PageHelper {
   def discardErrorsIfEmpty[T](form: Form[T]): Form[T] =
     if (form.data.exists(_._2 !== "")) form else form.discardingErrors
 
-  val todo = controllers.routes.Default.todo()
+  val todo: Call = controllers.routes.Default.todo()
 }

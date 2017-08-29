@@ -35,13 +35,11 @@ import scala.concurrent.ExecutionContext
 class ReportingPeriodController @Inject()(
   reports: ReportService,
   validations: Validations,
-  pagedLongFormData: PagedLongFormData,
   companyAuth: CompanyAuthService,
   companyAuthAction: CompanyAuthAction,
   val serviceConfig: ServiceConfig,
   val pageConfig: PageConfig,
   val sessionService: SessionService,
-  pagedLongFormModel: LongFormPageModel,
   @Named("confirmation-actor") confirmationActor: ActorRef
 )(implicit val ec: ExecutionContext, messages: MessagesApi) extends Controller with PageHelper with FormSessionHelpers {
 

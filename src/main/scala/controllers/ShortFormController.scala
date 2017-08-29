@@ -21,6 +21,8 @@ import javax.inject.{Inject, Named}
 
 import actions.{CompanyAuthAction, CompanyAuthRequest}
 import akka.actor.ActorRef
+import cats.data.OptionT
+import cats.instances.future._
 import config.{PageConfig, ServiceConfig}
 import controllers.FormPageModels._
 import forms.report._
@@ -100,12 +102,33 @@ class ShortFormController @Inject()(
   //noinspection TypeAnnotation
   def postReview(companiesHouseId: CompaniesHouseId) = companyAuthAction(companiesHouseId).async(parse.urlFormEncoded) { implicit request =>
     val revise: Boolean = Form(single("revise" -> text)).bindForm.value.contains("Revise")
-    val title = publishTitle(request.companyDetail.companyName)
+    val action: Call = routes.ShortFormController.postReview(companiesHouseId)
 
-    bindAllPages(formModel.formHandlers).flatMap {
+    if (revise) Future.successful(Redirect(routes.ReportingPeriodController.show(companiesHouseId)))
+    else bindAllPages(formModel.formHandlers).flatMap {
       case FormHasErrors(handler) => Future.successful(Redirect(handler.pageCall(request.companyDetail)))
       case FormIsBlank(handler)   => Future.successful(Redirect(handler.pageCall(request.companyDetail)))
-      case FormIsOk(handler)      => ???
+      case FormIsOk(handler)      =>
+        val forms = for {
+          reportingPeriod <- OptionT(loadFormData(emptyReportingPeriod, ShortFormName.ReportingPeriod).map(_.value))
+          shortForm <- OptionT(loadFormData(emptyShortForm, ShortFormName.ShortForm).map(_.value))
+        } yield (reportingPeriod, shortForm)
+        forms.value.flatMap {
+          case None          => ???
+          case Some((r, sf)) =>
+            val formGroups = ReviewPageData.formGroups(request.companyDetail.companyName, r, sf)
+
+            emptyReview.bindForm.fold(
+              errs => Future.successful(BadRequest(page(reviewPageTitle)(home, pages.review(errs, formGroups, action)))),
+              review => {
+                if (review.confirmed) verifyingOAuthScope(companiesHouseId, request.oAuthToken) {
+                  createReport(companiesHouseId, r, sf, review.confirmedBy).map(rId => Redirect(controllers.routes.ConfirmationController.showConfirmation(rId)))
+                } else {
+                  Future.successful(BadRequest(page(reviewPageTitle)(home, pages.review(emptyReview.fill(review), formGroups, action))))
+                }
+              }
+            )
+        }
     }
   }
 

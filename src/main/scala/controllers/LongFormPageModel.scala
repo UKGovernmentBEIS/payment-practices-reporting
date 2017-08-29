@@ -30,6 +30,10 @@ import play.api.i18n.MessagesApi
 import play.twirl.api.Html
 import services.CompanyDetail
 
+case class PaymentStatisticsForm(paymentStatistics: forms.report.PaymentStatistics)
+case class PaymentTermsForm(paymentTerms: forms.report.PaymentTerms)
+case class DisputeResolutionForm(disputeResolution: forms.report.DisputeResolution)
+case class OtherInformationForm(otherInformation: forms.report.OtherInformation)
 
 class LongFormPageModel @Inject()(validations: Validations, serviceConfig: ServiceConfig)(implicit messagesApi: MessagesApi)
   extends FormPageModel[LongFormHandler[_], LongFormName] {
@@ -63,7 +67,6 @@ class LongFormPageModel @Inject()(validations: Validations, serviceConfig: Servi
   val emptyPaymentTermsForm     : Form[PaymentTermsForm]      = Form(paymentTermsFormMapping)
   val emptyDisputeResolutionForm: Form[DisputeResolutionForm] = Form(disputeResolutionFormMapping)
   val emptyOtherInformationForm : Form[OtherInformationForm]  = Form(otherInformationFormMapping)
-
 
   def handlerFor(formName: LongFormName): LongFormHandler[_] = formName match {
     case ReportingPeriod   =>
