@@ -40,7 +40,7 @@ import views.html.helpers.ReviewPageData
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.existentials
 
-class PagedLongFormController @Inject()(
+class LongFormController @Inject()(
   reports: ReportService,
   validations: Validations,
   val companyAuth: CompanyAuthService,
@@ -119,7 +119,7 @@ class PagedLongFormController @Inject()(
 
   def showReview(companiesHouseId: CompaniesHouseId): Action[AnyContent] = companyAuthAction(companiesHouseId).async { implicit request =>
     val title = publishTitle(request.companyDetail.companyName)
-    val action: Call = routes.PagedLongFormController.postReview(companiesHouseId)
+    val action: Call = routes.LongFormController.postReview(companiesHouseId)
 
     bindAllPages(formHandlers).flatMap {
       case FormHasErrors(handler) => Future.successful(Redirect(handler.pageCall(request.companyDetail)))
@@ -143,7 +143,7 @@ class PagedLongFormController @Inject()(
     companyAuthAction(companiesHouseId).async(parse.urlFormEncoded) { implicit request =>
       val title = publishTitle(request.companyDetail.companyName)
       val revise: Boolean = Form(single("revise" -> text)).bindForm.value.contains("Revise")
-      val action: Call = routes.PagedLongFormController.postReview(companiesHouseId)
+      val action: Call = routes.LongFormController.postReview(companiesHouseId)
 
       if (revise) Future.successful(Redirect(routes.ReportingPeriodController.show(companiesHouseId)))
       else bindAllPages(formHandlers).flatMap {

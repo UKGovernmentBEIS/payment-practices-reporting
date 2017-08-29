@@ -27,14 +27,14 @@ GET         /publish/company/:id/colleague                    controllers.Report
 GET         /publish/company/:id/register                     controllers.ReportController.register(id:CompaniesHouseId)
 GET         /publish/company/:id/apply-for-code               controllers.ReportController.applyForAuthCode(id:CompaniesHouseId)
 
-GET         /publish/company/:id/file/page/:formName          controllers.PagedLongFormController.show(formName: LongFormName, id: CompaniesHouseId)
-POST        /publish/company/:id/file/page/:formName          controllers.PagedLongFormController.post(formName: LongFormName, id: CompaniesHouseId)
-GET         /publish/company/:id/review/long                  controllers.PagedLongFormController.showReview(id:CompaniesHouseId)
+GET         /publish/company/:id/file/page/:formName          controllers.LongFormController.show(formName: LongFormName, id: CompaniesHouseId)
+POST        /publish/company/:id/file/page/:formName          controllers.LongFormController.post(formName: LongFormName, id: CompaniesHouseId)
+GET         /publish/company/:id/review/long                  controllers.LongFormController.showReview(id:CompaniesHouseId)
 
 GET         /publish/company/:id/file/short                   controllers.ShortFormController.show(id:CompaniesHouseId)
 POST        /publish/company/:id/file/short                   controllers.ShortFormController.post(id:CompaniesHouseId)
 
-POST        /publish/company/:id/review/long                  controllers.PagedLongFormController.postReview(id:CompaniesHouseId)
+POST        /publish/company/:id/review/long                  controllers.LongFormController.postReview(id:CompaniesHouseId)
 GET         /publish/company/:id/review/short                 controllers.ShortFormController.showReview(id:CompaniesHouseId)
 POST        /publish/company/:id/review/short                 controllers.ShortFormController.postReview(id:CompaniesHouseId)
 

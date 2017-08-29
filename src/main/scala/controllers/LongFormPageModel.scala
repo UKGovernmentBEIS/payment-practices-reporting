@@ -75,39 +75,39 @@ class LongFormPageModel @Inject()(validations: Validations, serviceConfig: Servi
         emptyReportingPeriod,
         (header: Html, companyDetail: CompanyDetail) => (form: Form[ReportingPeriodFormModel]) => pages.reportingPeriod(header, form, companyDetail.companiesHouseId, df, serviceStartDate),
         (companyDetail: CompanyDetail) => routes.ReportingPeriodController.show(companyDetail.companiesHouseId),
-        (companyDetail: CompanyDetail) => routes.PagedLongFormController.show(ReportingPeriod, companyDetail.companiesHouseId)
+        (companyDetail: CompanyDetail) => routes.LongFormController.show(ReportingPeriod, companyDetail.companiesHouseId)
       )
     case PaymentStatistics =>
       FormHandler(
         PaymentStatistics,
         emptyPaymentStatisticsForm,
         (header: Html, companyDetail: CompanyDetail) => (form: Form[PaymentStatisticsForm]) => pages.longFormPage1(header, form, companyDetail.companiesHouseId, df, serviceStartDate),
-        (companyDetail: CompanyDetail) => routes.PagedLongFormController.show(PaymentStatistics, companyDetail.companiesHouseId),
-        (companyDetail: CompanyDetail) => routes.PagedLongFormController.show(PaymentTerms, companyDetail.companiesHouseId)
+        (companyDetail: CompanyDetail) => routes.LongFormController.show(PaymentStatistics, companyDetail.companiesHouseId),
+        (companyDetail: CompanyDetail) => routes.LongFormController.show(PaymentTerms, companyDetail.companiesHouseId)
       )
     case PaymentTerms      =>
       FormHandler(
         PaymentTerms,
         emptyPaymentTermsForm,
         (header: Html, companyDetail: CompanyDetail) => (form: Form[PaymentTermsForm]) => pages.longFormPage2(header, form, companyDetail.companiesHouseId, df, serviceStartDate),
-        (companyDetail: CompanyDetail) => routes.PagedLongFormController.show(PaymentTerms, companyDetail.companiesHouseId),
-        (companyDetail: CompanyDetail) => routes.PagedLongFormController.show(DisputeResolution, companyDetail.companiesHouseId)
+        (companyDetail: CompanyDetail) => routes.LongFormController.show(PaymentTerms, companyDetail.companiesHouseId),
+        (companyDetail: CompanyDetail) => routes.LongFormController.show(DisputeResolution, companyDetail.companiesHouseId)
       )
     case DisputeResolution =>
       FormHandler(
         DisputeResolution,
         emptyDisputeResolutionForm,
         (header: Html, companyDetail: CompanyDetail) => (form: Form[DisputeResolutionForm]) => pages.longFormPage3(header, form, companyDetail.companiesHouseId, df, serviceStartDate),
-        (companyDetail: CompanyDetail) => routes.PagedLongFormController.show(DisputeResolution, companyDetail.companiesHouseId),
-        (companyDetail: CompanyDetail) => routes.PagedLongFormController.show(OtherInformation, companyDetail.companiesHouseId)
+        (companyDetail: CompanyDetail) => routes.LongFormController.show(DisputeResolution, companyDetail.companiesHouseId),
+        (companyDetail: CompanyDetail) => routes.LongFormController.show(OtherInformation, companyDetail.companiesHouseId)
       )
     case OtherInformation  =>
       FormHandler(
         OtherInformation,
         emptyOtherInformationForm,
         (header: Html, companyDetail: CompanyDetail) => (form: Form[OtherInformationForm]) => pages.longFormPage4(header, form, companyDetail.companiesHouseId, df, serviceStartDate),
-        (companyDetail: CompanyDetail) => routes.PagedLongFormController.show(OtherInformation, companyDetail.companiesHouseId),
-        (companyDetail: CompanyDetail) => routes.PagedLongFormController.showReview(companyDetail.companiesHouseId)
+        (companyDetail: CompanyDetail) => routes.LongFormController.show(OtherInformation, companyDetail.companiesHouseId),
+        (companyDetail: CompanyDetail) => routes.LongFormController.showReview(companyDetail.companiesHouseId)
       )
   }
 }

@@ -26,7 +26,7 @@
 
     @shared._day1Calculation()
 
-    <form action="@routes.PagedLongFormController.post(LongFormName.PaymentStatistics, companyId)" method="POST" id="longForm-report">
+    <form action="@routes.LongFormController.post(LongFormName.PaymentStatistics, companyId)" method="POST" id="longForm-report">
         <p class="small-aside">
             Companies House number: @companyId.id
         </p>
