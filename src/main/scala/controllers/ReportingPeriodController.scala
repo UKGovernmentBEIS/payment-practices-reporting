@@ -54,7 +54,7 @@ class ReportingPeriodController @Inject()(
 
   //noinspection TypeAnnotation
   def show(companiesHouseId: CompaniesHouseId) = companyAuthAction(companiesHouseId).async { implicit request =>
-    loadFormData(emptyReportingPeriod, LongFormName.PaymentStatistics).map { form =>
+    loadFormData(emptyReportingPeriod, LongFormName.ReportingPeriod).map { form =>
       Ok(page(title)(home, pages.reportingPeriod(reportPageHeader, form, companiesHouseId, df, serviceStartDate)))
     }
   }
