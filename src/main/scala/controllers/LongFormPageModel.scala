@@ -20,8 +20,8 @@ package controllers
 import javax.inject.Inject
 
 import config.ServiceConfig
-import enumeratum.EnumEntry.Uncapitalised
-import enumeratum._
+import controllers.FormPageModels.LongFormName._
+import controllers.FormPageModels.{FormName, LongFormHandler, LongFormName}
 import forms.report.{ReportingPeriodFormModel, Validations}
 import org.joda.time.format.DateTimeFormat
 import play.api.data.Forms.mapping
@@ -30,25 +30,14 @@ import play.api.i18n.MessagesApi
 import play.twirl.api.Html
 import services.CompanyDetail
 
-object PagedLongFormModel {
-  sealed trait FormName extends EnumEntry with Uncapitalised
-
-  object FormName extends PlayEnum[FormName] {
-    //noinspection TypeAnnotation
-    override def values = findValues
-
-    case object ReportingPeriod extends FormName
-    case object PaymentStatistics extends FormName
-    case object PaymentTerms extends FormName
-    case object DisputeResolution extends FormName
-    case object OtherInformation extends FormName
-  }
+trait FormPageModel[H, N <: FormName] {
+  def formHandlers: Seq[H]
 }
 
-class PagedLongFormModel @Inject()(validations: Validations, serviceConfig: ServiceConfig)(implicit messagesApi: MessagesApi) {
+class LongFormPageModel @Inject()(validations: Validations, serviceConfig: ServiceConfig)(implicit messagesApi: MessagesApi)
+extends FormPageModel[LongFormHandler[_], LongFormName]
+{
 
-  import PagedLongFormModel.FormName
-  import PagedLongFormModel.FormName._
   import validations._
   import views.html.{report => pages}
 
@@ -56,7 +45,7 @@ class PagedLongFormModel @Inject()(validations: Validations, serviceConfig: Serv
 
   private val serviceStartDate = serviceConfig.startDate.getOrElse(ServiceConfig.defaultServiceStartDate)
 
-  def formHandlers: Seq[FormHandler[_]] = FormName.values.map(handlerFor)
+  def formHandlers: Seq[LongFormHandler[_]] = LongFormName.values.map(handlerFor)
 
   val paymentStatisticsFormMapping: Mapping[PaymentStatisticsForm] = mapping(
     PaymentStatistics.entryName -> paymentStatistics
@@ -80,7 +69,7 @@ class PagedLongFormModel @Inject()(validations: Validations, serviceConfig: Serv
   val emptyOtherInformationForm : Form[OtherInformationForm]  = Form(otherInformationFormMapping)
 
 
-  def handlerFor(formName: FormName): FormHandler[_] = formName match {
+  def handlerFor(formName: LongFormName): LongFormHandler[_] = formName match {
     case ReportingPeriod   =>
       FormHandler(
         ReportingPeriod,

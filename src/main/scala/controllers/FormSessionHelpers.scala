@@ -18,7 +18,8 @@
 package controllers
 
 import actions.CompanyAuthRequest
-import controllers.PagedLongFormModel.FormName
+import controllers.FormPageModels._
+import play.api.Logger
 import play.api.data.Form
 import play.api.libs.json.{JsObject, Json}
 import services.{SessionId, SessionService}
@@ -33,7 +34,7 @@ trait FormSessionHelpers {
 
   val formDataSessionKey = "formData"
 
-  def bindFormDataFromSession(formHandler: FormHandler[_])(implicit request: CompanyAuthRequest[_]): Future[FormHandler[_]] = {
+  def bindFormDataFromSession[N <: FormName](formHandler: FormHandler[_, N])(implicit request: CompanyAuthRequest[_]): Future[FormHandler[_, N]] = {
     sessionService.get[JsObject](request.sessionId, formDataSessionKey).map {
       case None       => formHandler
       case Some(data) =>
@@ -44,15 +45,55 @@ trait FormSessionHelpers {
     }
   }
 
+  def bindPage[N <: FormName](data: JsObject, handler: FormHandler[_, N]): FormResult[N] = {
+    val boundHandler = handler.bind((data \\ handler.formName.entryName).headOption.getOrElse(Json.obj()))
+    if (boundHandler.form.data.isEmpty && boundHandler.form.value.isEmpty) FormIsBlank(boundHandler)
+    else if (boundHandler.form.hasErrors) FormHasErrors(boundHandler)
+    else FormIsOk(boundHandler)
+  }
+
+  protected def bindAllPages[N <: FormName](formHandlers: Seq[FormHandler[_, N]])(implicit request: CompanyAuthRequest[_]): Future[FormResult[N]] = {
+    loadAllFormData.map { data =>
+      formHandlers.foldLeft(Seq.empty[FormResult[N]]) { (results, handler) =>
+        results.headOption match {
+          case r@Some(FormIsBlank(_))   =>
+            Logger.debug(r.toString)
+            results
+          case r@Some(FormHasErrors(_)) =>
+            Logger.debug(r.toString)
+            results
+          case _                        => bindPage(data, handler) +: results
+        }
+      }.head
+    }
+  }
+
+  /**
+    * Bind pages up to including the page with the given `formName`, returning the first result that
+    * is empty or fails validation, or an Ok result for the named form.
+    */
+  protected def bindUpToPage[N <: FormName](formHandlers: Seq[FormHandler[_, N]], formName: N)(implicit request: CompanyAuthRequest[_]): Future[FormResult[N]] = {
+    val (handlersToBind, _) = formHandlers.splitAt(formHandlers.indexWhere(_.formName == formName) + 1)
+
+    loadAllFormData.map { data =>
+      handlersToBind.foldLeft(Seq.empty[FormResult[N]]) { (results, handler) =>
+        results.headOption match {
+          case Some(FormHasErrors(_)) | Some(FormIsBlank(_)) => results
+          case _                                             => bindPage(data, handler) +: results
+        }
+      }.head
+    }
+  }
+
   protected def loadAllFormData(implicit sessionId: SessionId): Future[JsObject] = {
     sessionService.get[JsObject](sessionId, formDataSessionKey).map(_.getOrElse(Json.obj()))
   }
 
-  protected def loadFormData[T](emptyForm: Form[T], key: String)(implicit sessionId: SessionId): Future[Form[T]] =
+  protected def loadFormData[T](emptyForm: Form[T], formName: FormName)(implicit sessionId: SessionId): Future[Form[T]] =
     sessionService.get[JsObject](sessionId, formDataSessionKey).map {
       case None       => emptyForm
       case Some(data) =>
-        (data \\ key).headOption.map(emptyForm.bind).getOrElse(emptyForm)
+        (data \\ formName.entryName).headOption.map(emptyForm.bind).getOrElse(emptyForm)
     }
 
   protected def checkValidFromSession[T](emptyForm: Form[T], key: String)(implicit sessionId: SessionId): Future[Boolean] =

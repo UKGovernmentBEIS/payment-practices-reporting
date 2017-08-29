@@ -22,7 +22,7 @@ import javax.inject.{Inject, Named}
 import actions.{CompanyAuthAction, CompanyAuthRequest}
 import akka.actor.ActorRef
 import config.{PageConfig, ServiceConfig}
-import controllers.PagedLongFormModel.FormName
+import controllers.FormPageModels.LongFormName
 import forms.report.Validations
 import models.CompaniesHouseId
 import play.api.i18n.MessagesApi
@@ -41,7 +41,7 @@ class ReportingPeriodController @Inject()(
   val serviceConfig: ServiceConfig,
   val pageConfig: PageConfig,
   val sessionService: SessionService,
-  pagedLongFormModel: PagedLongFormModel,
+  pagedLongFormModel: LongFormPageModel,
   @Named("confirmation-actor") confirmationActor: ActorRef
 )(implicit val ec: ExecutionContext, messages: MessagesApi) extends Controller with PageHelper with FormSessionHelpers {
 
@@ -54,20 +54,22 @@ class ReportingPeriodController @Inject()(
 
   private def title(implicit request: CompanyAuthRequest[_]): String = publishTitle(request.companyDetail.companyName)
 
+  //noinspection TypeAnnotation
   def show(companiesHouseId: CompaniesHouseId) = companyAuthAction(companiesHouseId).async { implicit request =>
-    loadFormData(emptyReportingPeriod, FormName.PaymentStatistics.entryName).map { form =>
+    loadFormData(emptyReportingPeriod, LongFormName.PaymentStatistics).map { form =>
       Ok(page(title)(home, pages.reportingPeriod(reportPageHeader, form, companiesHouseId, df, serviceStartDate)))
     }
   }
 
+  //noinspection TypeAnnotation
   def post(companiesHouseId: CompaniesHouseId) = companyAuthAction(companiesHouseId).async(parse.urlFormEncoded) { implicit request =>
     val reportingPeriodForm = emptyReportingPeriod.bindForm
-    saveFormData(FormName.ReportingPeriod, reportingPeriodForm).map { _ =>
+    saveFormData(LongFormName.ReportingPeriod, reportingPeriodForm).map { _ =>
       reportingPeriodForm.fold(
         errs => BadRequest(page(title)(home, pages.reportingPeriod(reportPageHeader, errs, companiesHouseId, df, serviceStartDate))),
         reportingPeriod =>
           if (reportingPeriod.hasQualifyingContracts.toBoolean)
-            Redirect(routes.PagedLongFormController.show(FormName.PaymentStatistics, companiesHouseId))
+            Redirect(routes.PagedLongFormController.show(LongFormName.PaymentStatistics, companiesHouseId))
           else
             Redirect(routes.ShortFormController.show(companiesHouseId))
       )

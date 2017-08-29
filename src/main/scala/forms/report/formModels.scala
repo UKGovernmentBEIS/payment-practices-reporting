@@ -169,7 +169,6 @@ object LongFormModel {
       report.disputeResolution,
       report.otherInformation)
   }
-
 }
 
 case class ReportReviewModel(

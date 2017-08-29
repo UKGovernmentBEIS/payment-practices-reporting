@@ -6,13 +6,15 @@
     serviceStartDate: LocalDate
 )(implicit messages: MessagesApi, lang: Lang)
 
+@import FormPageModels.LongFormName
+
 <div id=contentStart">
     @shared._errorBox(disputeResolution)
 
 <div class="scannable-wrapper">
     @header
 
-    <form action="@routes.PagedLongFormController.post(PagedLongFormModel.FormName.DisputeResolution, companyId)" method="POST" id="longForm-report">
+    <form action="@routes.PagedLongFormController.post(LongFormName.DisputeResolution, companyId)" method="POST" id="longForm-report">
         <p class="small-aside">
             Companies House number: @companyId.id
         </p>

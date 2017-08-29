@@ -27,8 +27,8 @@ GET         /publish/company/:id/colleague                    controllers.Report
 GET         /publish/company/:id/register                     controllers.ReportController.register(id:CompaniesHouseId)
 GET         /publish/company/:id/apply-for-code               controllers.ReportController.applyForAuthCode(id:CompaniesHouseId)
 
-GET         /publish/company/:id/file/page/:formName          controllers.PagedLongFormController.show(formName: FormName, id: CompaniesHouseId)
-POST        /publish/company/:id/file/page/:formName          controllers.PagedLongFormController.post(formName: FormName, id: CompaniesHouseId)
+GET         /publish/company/:id/file/page/:formName          controllers.PagedLongFormController.show(formName: LongFormName, id: CompaniesHouseId)
+POST        /publish/company/:id/file/page/:formName          controllers.PagedLongFormController.post(formName: LongFormName, id: CompaniesHouseId)
 GET         /publish/company/:id/review/long                  controllers.PagedLongFormController.showReview(id:CompaniesHouseId)
 
 GET         /publish/company/:id/file/short                   controllers.ShortFormController.show(id:CompaniesHouseId)
