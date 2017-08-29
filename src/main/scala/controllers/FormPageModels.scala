@@ -17,7 +17,7 @@
 
 package controllers
 
-import controllers.FormPageModels.FormName
+import controllers.FormPageModels.{FormName, LongFormHandler, LongFormName}
 import enumeratum.EnumEntry.Uncapitalised
 import enumeratum.{EnumEntry, PlayEnum}
 
@@ -65,4 +65,8 @@ object FormPageModels {
 
 trait FormPageModel[H, N <: FormName] {
   def formHandlers: Seq[H]
+  def nextFormName(formName: N): Option[N]
+
+  def nextFormHandler(formName: N): Option[H]
+
 }

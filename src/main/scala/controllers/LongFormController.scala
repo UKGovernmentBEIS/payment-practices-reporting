@@ -26,6 +26,7 @@ import controllers.FormPageModels.LongFormName._
 import controllers.FormPageModels._
 import forms.report.{LongFormModel, ReportingPeriodFormModel, Validations}
 import models.{CompaniesHouseId, ReportId}
+import org.scalactic.TripleEquals._
 import play.api.data.Form
 import play.api.data.Forms.{single, text}
 import play.api.i18n.MessagesApi
@@ -35,7 +36,6 @@ import play.api.{Logger, UnexpectedException}
 import play.twirl.api.Html
 import services._
 import views.html.helpers.ReviewPageData
-import org.scalactic.TripleEquals._
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.existentials
@@ -84,23 +84,25 @@ class LongFormController @Inject()(
     }
   }
 
-  def post(formName: LongFormName, companiesHouseId: CompaniesHouseId): Action[Map[String, Seq[String]]] =
-    companyAuthAction(companiesHouseId).async(parse.urlFormEncoded) {
-      implicit request =>
-        val handler = handlerFor(formName)
+  //noinspection TypeAnnotation
+  def post(formName: LongFormName, companiesHouseId: CompaniesHouseId) = companyAuthAction(companiesHouseId).async(parse.urlFormEncoded) { implicit request =>
+    val handler = handlerFor(formName)
 
-        for {
-          _ <- saveFormData(handler.formName, handler.bind.form)
-          result <- handlePostFormPage(formName, request.companyDetail)
-        } yield result
-    }
+    for {
+      _ <- saveFormData(handler.formName, handler.bind.form)
+      result <- handlePostFormPage(formName, request.companyDetail)
+    } yield result
+  }
 
   private def handlePostFormPage(formName: LongFormName, companyDetail: CompanyDetail)(implicit request: CompanyAuthRequest[Map[String, Seq[String]]]): Future[Result] = {
     val title = publishTitle(companyDetail.companyName)
 
     bindUpToPage(formHandlers, formName).map {
       case FormHasErrors(handler) => BadRequest(page(title)(handler.renderPage(reportPageHeader, companyDetail)))
-      case FormIsOk(handler)      => Redirect(handler.nextPageCall(companyDetail))
+      case FormIsOk(handler)      => nextFormHandler(handler.formName) match {
+        case Some(nextHandler) => Redirect(nextHandler.pageCall(companyDetail))
+        case None              => Redirect(routes.LongFormController.showReview(companyDetail.companiesHouseId))
+      }
       case FormIsBlank(handler)   => Ok(page(title)(handler.renderPage(reportPageHeader, request.companyDetail)))
     }
   }

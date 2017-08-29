@@ -45,10 +45,11 @@ class ShortFormController @Inject()(
   val serviceConfig: ServiceConfig,
   val pageConfig: PageConfig,
   val sessionService: SessionService,
-  formModel: ShortFormPageModel,
+  shortFormPageModel: ShortFormPageModel,
   @Named("confirmation-actor") confirmationActor: ActorRef
 )(implicit val ec: ExecutionContext, messages: MessagesApi) extends Controller with BaseFormController with PageHelper with FormSessionHelpers {
 
+  import shortFormPageModel._
   import validations._
   import views.html.{report => pages}
 
@@ -72,18 +73,24 @@ class ShortFormController @Inject()(
 
   //noinspection TypeAnnotation
   def post(companiesHouseId: CompaniesHouseId) = companyAuthAction(companiesHouseId).async(parse.urlFormEncoded) { implicit request =>
-    val title = publishTitle(request.companyDetail.companyName)
-    val action = routes.ShortFormController.postReview(companiesHouseId)
+    val handler = handlerFor(ShortFormName.ShortForm)
 
-    val shortForm = emptyShortForm.bindForm
-    saveFormData(ShortFormName.ShortForm, shortForm).flatMap { _ =>
-      checkValidFromSession(emptyReportingPeriod, ShortFormName.ReportingPeriod.entryName).map {
-        case false => Redirect(routes.ReportingPeriodController.show(companiesHouseId))
-        case true  => shortForm.fold(
-          errs => Redirect(routes.ShortFormController.show(companiesHouseId)),
-          sf => Redirect(routes.ShortFormController.showReview(companiesHouseId))
-        )
+    for {
+      _ <- saveFormData(handler.formName, handler.bind.form)
+      result <- handlePostFormPage(handler.formName, request.companyDetail)
+    } yield result
+  }
+
+  private def handlePostFormPage(formName: ShortFormName, companyDetail: CompanyDetail)(implicit request: CompanyAuthRequest[Map[String, Seq[String]]]): Future[Result] = {
+    val title = publishTitle(companyDetail.companyName)
+
+    bindUpToPage(formHandlers, formName).map {
+      case FormHasErrors(handler) => BadRequest(page(title)(handler.renderPage(reportPageHeader, companyDetail)))
+      case FormIsOk(handler)      => nextFormHandler(handler.formName) match {
+        case Some(nextHandler) => Redirect(nextHandler.pageCall(companyDetail))
+        case None              => Redirect(routes.ShortFormController.showReview(companyDetail.companiesHouseId))
       }
+      case FormIsBlank(handler)   => Ok(page(title)(handler.renderPage(reportPageHeader, request.companyDetail)))
     }
   }
 
@@ -112,7 +119,7 @@ class ShortFormController @Inject()(
   private def handleBinding[T](request: CompanyAuthRequest[T], f: (CompanyAuthRequest[T], ReportingPeriodFormModel, ShortFormModel) => Future[Result]): Future[Result] = {
     implicit val req: CompanyAuthRequest[T] = request
 
-    bindAllPages(formModel.formHandlers).flatMap {
+    bindAllPages(shortFormPageModel.formHandlers).flatMap {
       case FormHasErrors(handler) => Future.successful(Redirect(handler.pageCall(request.companyDetail)))
       case FormIsBlank(handler)   => Future.successful(Redirect(handler.pageCall(request.companyDetail)))
       case FormIsOk(handler)      =>

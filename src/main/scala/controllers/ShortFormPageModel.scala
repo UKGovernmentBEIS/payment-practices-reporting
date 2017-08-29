@@ -41,6 +41,11 @@ class ShortFormPageModel @Inject()(validations: Validations, serviceConfig: Serv
   private val serviceStartDate = serviceConfig.startDate.getOrElse(ServiceConfig.defaultServiceStartDate)
 
   def formHandlers: Seq[ShortFormHandler[_]] = ShortFormName.values.map(handlerFor)
+  def nextFormName(formName: ShortFormName): Option[ShortFormName] =
+    ShortFormName.values.dropWhile(_ != formName).drop(1).headOption
+
+  def nextFormHandler(formName: ShortFormName): Option[ShortFormHandler[_]] =
+    nextFormName(formName).map(handlerFor)
 
   def handlerFor(formName: ShortFormName): ShortFormHandler[_] = formName match {
     case ReportingPeriod =>
@@ -48,8 +53,7 @@ class ShortFormPageModel @Inject()(validations: Validations, serviceConfig: Serv
         ReportingPeriod,
         emptyReportingPeriod,
         (header: Html, companyDetail: CompanyDetail) => (form: Form[ReportingPeriodFormModel]) => pages.reportingPeriod(header, form, companyDetail.companiesHouseId, df, serviceStartDate),
-        (companyDetail: CompanyDetail) => routes.ReportingPeriodController.show(companyDetail.companiesHouseId),
-        (companyDetail: CompanyDetail) => routes.ShortFormController.show(companyDetail.companiesHouseId)
+        (companyDetail: CompanyDetail) => routes.ReportingPeriodController.show(companyDetail.companiesHouseId)
       )
 
     case ShortForm =>
@@ -57,8 +61,7 @@ class ShortFormPageModel @Inject()(validations: Validations, serviceConfig: Serv
         ShortForm,
         emptyShortForm,
         (header: Html, companyDetail: CompanyDetail) => (form: Form[ShortFormModel]) => pages.shortForm(header, form, companyDetail.companiesHouseId, df, serviceStartDate),
-        (companyDetail: CompanyDetail) => routes.ShortFormController.show(companyDetail.companiesHouseId),
-        (companyDetail: CompanyDetail) => routes.ShortFormController.showReview(companyDetail.companiesHouseId)
+        (companyDetail: CompanyDetail) => routes.ShortFormController.show(companyDetail.companiesHouseId)
       )
   }
 }

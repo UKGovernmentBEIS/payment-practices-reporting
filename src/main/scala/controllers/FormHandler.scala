@@ -33,8 +33,7 @@ case class FormHandler[T, N <: FormName](
   formName: N,
   form: Form[T],
   private val renderPageFunction: (Html, CompanyDetail) => (Form[T]) => Html,
-  pageCall: (CompanyDetail) => Call,
-  nextPageCall: (CompanyDetail) => Call
+  pageCall: (CompanyDetail) => Call
 ) {
   def bind(implicit request: Request[Map[String, Seq[String]]]): FormHandler[T, N] = copy(form = form.bindForm)
 
