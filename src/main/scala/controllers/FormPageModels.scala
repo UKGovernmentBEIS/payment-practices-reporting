@@ -17,8 +17,10 @@
 
 package controllers
 
+import controllers.FormPageModels.FormName
 import enumeratum.EnumEntry.Uncapitalised
 import enumeratum.{EnumEntry, PlayEnum}
+
 import scala.language.existentials
 
 object FormPageModels {
@@ -59,4 +61,8 @@ object FormPageModels {
 
   type LongFormResult = FormResult[LongFormName]
   type ShortFormResult = FormResult[ShortFormName]
+}
+
+trait FormPageModel[H, N <: FormName] {
+  def formHandlers: Seq[H]
 }

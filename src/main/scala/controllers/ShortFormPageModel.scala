@@ -20,7 +20,7 @@ package controllers
 import javax.inject.Inject
 
 import config.ServiceConfig
-import controllers.FormPageModels.{LongFormHandler, LongFormName}
+import controllers.FormPageModels.{ShortFormHandler, ShortFormName}
 import forms.report.{ReportingPeriodFormModel, ShortFormModel, Validations}
 import org.joda.time.format.DateTimeFormat
 import play.api.data.Form
@@ -28,7 +28,9 @@ import play.api.i18n.MessagesApi
 import play.twirl.api.Html
 import services.CompanyDetail
 
-class ShortFormPageModel @Inject()(validations: Validations, serviceConfig: ServiceConfig)(implicit messagesApi: MessagesApi) {
+class ShortFormPageModel @Inject()(validations: Validations, serviceConfig: ServiceConfig)(implicit messagesApi: MessagesApi)
+  extends FormPageModel[ShortFormHandler[_], ShortFormName] {
+
   import FormPageModels.{ShortFormHandler, ShortFormName}
   import ShortFormName._
   import validations._

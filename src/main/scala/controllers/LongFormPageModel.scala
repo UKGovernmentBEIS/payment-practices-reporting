@@ -21,7 +21,7 @@ import javax.inject.Inject
 
 import config.ServiceConfig
 import controllers.FormPageModels.LongFormName._
-import controllers.FormPageModels.{FormName, LongFormHandler, LongFormName}
+import controllers.FormPageModels.{LongFormHandler, LongFormName}
 import forms.report.{ReportingPeriodFormModel, Validations}
 import org.joda.time.format.DateTimeFormat
 import play.api.data.Forms.mapping
@@ -30,13 +30,9 @@ import play.api.i18n.MessagesApi
 import play.twirl.api.Html
 import services.CompanyDetail
 
-trait FormPageModel[H, N <: FormName] {
-  def formHandlers: Seq[H]
-}
 
 class LongFormPageModel @Inject()(validations: Validations, serviceConfig: ServiceConfig)(implicit messagesApi: MessagesApi)
-extends FormPageModel[LongFormHandler[_], LongFormName]
-{
+  extends FormPageModel[LongFormHandler[_], LongFormName] {
 
   import validations._
   import views.html.{report => pages}
