@@ -54,8 +54,6 @@ class ReportingPeriodController @Inject()(
 
   private def title(implicit request: CompanyAuthRequest[_]): String = publishTitle(request.companyDetail.companyName)
 
-  val reportPeriodDataSessionKey = "reportingPeriodData"
-
   def show(companiesHouseId: CompaniesHouseId) = companyAuthAction(companiesHouseId).async { implicit request =>
     loadFormData(emptyReportingPeriod, FormName.PaymentStatistics.entryName).map { form =>
       Ok(page(title)(home, pages.reportingPeriod(reportPageHeader, form, companiesHouseId, df, serviceStartDate)))

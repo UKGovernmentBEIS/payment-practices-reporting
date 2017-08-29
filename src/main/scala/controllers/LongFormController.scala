@@ -34,27 +34,29 @@ import views.html.helpers.ReviewPageData
 
 import scala.concurrent.{ExecutionContext, Future}
 
+@deprecated("use PagedLongFormContrller", since = "August 2017")
 class LongFormController @Inject()(
-                                    reports: ReportService,
-                                    validations: Validations,
-                                    val companyAuth: CompanyAuthService,
-                                    companyAuthAction: CompanyAuthAction,
-                                    val serviceConfig: ServiceConfig,
-                                    val pageConfig: PageConfig,
-                                    @Named("confirmation-actor") confirmationActor: ActorRef
-                                  )(implicit val ec: ExecutionContext, messages: MessagesApi) extends Controller with BaseFormController with PageHelper {
+  reports: ReportService,
+  validations: Validations,
+  val companyAuth: CompanyAuthService,
+  companyAuthAction: CompanyAuthAction,
+  val serviceConfig: ServiceConfig,
+  val pageConfig: PageConfig,
+  @Named("confirmation-actor") confirmationActor: ActorRef
+)(implicit val ec: ExecutionContext, messages: MessagesApi) extends Controller with BaseFormController with PageHelper {
 
   import validations._
   import views.html.{report => pages}
 
   private val reviewPageTitle = "Review your report"
+
   private def publishTitle(companyName: String) = s"Publish a report for $companyName"
 
   def reportPageHeader(implicit request: CompanyAuthRequest[_]): Html = h1(s"Publish a report for:<br>${request.companyDetail.companyName}")
 
   def postForm(companiesHouseId: CompaniesHouseId) = companyAuthAction(companiesHouseId)(parse.urlFormEncoded) { implicit request =>
     val title = publishTitle(request.companyDetail.companyName)
-    val action = routes.LongFormController.postReview(companiesHouseId)
+    val action = routes.PagedLongFormController.postReview(companiesHouseId)
 
     val longForm: Form[LongFormModel] = emptyLongForm.bindForm
     val reportingPeriodForm = emptyReportingPeriod.bindForm
@@ -95,7 +97,7 @@ class LongFormController @Inject()(
   }
 
   private def checkConfirmation(companiesHouseId: CompaniesHouseId, reportingPeriod: ReportingPeriodFormModel, longForm: LongFormModel)(implicit request: CompanyAuthRequest[Map[String, Seq[String]]]): Future[Result] = {
-    val action: Call = routes.LongFormController.postReview(companiesHouseId)
+    val action: Call = routes.PagedLongFormController.postReview(companiesHouseId)
     val companyName: String = request.companyDetail.companyName
 
     val formGroups = ReviewPageData.formGroups(companyName, reportingPeriod, longForm)
@@ -104,7 +106,7 @@ class LongFormController @Inject()(
       errs => Future.successful(BadRequest(page(reviewPageTitle)(home, pages.review(errs, formGroups, action)))),
       review => {
         if (review.confirmed) verifyingOAuthScope(companiesHouseId, request.oAuthToken) {
-          createReport(companiesHouseId, reportingPeriod, longForm, review).map(rId => Redirect(controllers.routes.ConfirmationController.showConfirmation(rId)))
+          createReport(companiesHouseId, reportingPeriod, longForm, review.confirmedBy).map(rId => Redirect(controllers.routes.ConfirmationController.showConfirmation(rId)))
         } else {
           Future.successful(BadRequest(page(reviewPageTitle)(home, pages.review(emptyReview.fill(review), formGroups, action))))
         }
@@ -112,10 +114,10 @@ class LongFormController @Inject()(
     )
   }
 
-  private def createReport(companiesHouseId: CompaniesHouseId, reportingPeriod: ReportingPeriodFormModel, longForm: LongFormModel, review: ReportReviewModel)(implicit request: CompanyAuthRequest[_]): Future[ReportId] = {
+  private def createReport(companiesHouseId: CompaniesHouseId, reportingPeriod: ReportingPeriodFormModel, longForm: LongFormModel, confirmedBy: String)(implicit request: CompanyAuthRequest[_]): Future[ReportId] = {
     val urlFunction: ReportId => String = (id: ReportId) => controllers.routes.ReportController.view(id).absoluteURL()
     for {
-      reportId <- reports.create(request.companyDetail, reportingPeriod, longForm, review, request.emailAddress, urlFunction)
+      reportId <- reports.createLongReport(request.companyDetail, reportingPeriod, longForm, confirmedBy, request.emailAddress, urlFunction)
       _ <- Future.successful(confirmationActor ! 'poll)
     } yield reportId
   }
@@ -125,7 +127,7 @@ class LongFormController @Inject()(
       case Some(report) => Ok(
         page(s"You have published a report for ${report.companyName}")
         (home, pages.filingSuccess(reportId, report.confirmationEmailAddress, pageConfig.surveyMonkeyConfig)))
-      case None => BadRequest(s"Could not find a report with id ${reportId.id}")
+      case None         => BadRequest(s"Could not find a report with id ${reportId.id}")
     }
   }
 }

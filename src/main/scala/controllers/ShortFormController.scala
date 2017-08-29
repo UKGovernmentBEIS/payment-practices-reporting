@@ -22,6 +22,7 @@ import javax.inject.{Inject, Named}
 import actions.{CompanyAuthAction, CompanyAuthRequest}
 import akka.actor.ActorRef
 import config.{PageConfig, ServiceConfig}
+import controllers.PagedLongFormModel.FormName
 import forms.report._
 import models.{CompaniesHouseId, ReportId}
 import play.api.data.Form
@@ -42,7 +43,6 @@ class ShortFormController @Inject()(
   val serviceConfig: ServiceConfig,
   val pageConfig: PageConfig,
   val sessionService: SessionService,
-  reportingPeriodController: ReportingPeriodController,
   @Named("confirmation-actor") confirmationActor: ActorRef
 )(implicit val ec: ExecutionContext, messages: MessagesApi) extends Controller with BaseFormController with PageHelper with FormSessionHelpers {
 
@@ -60,7 +60,7 @@ class ShortFormController @Inject()(
   def show(companiesHouseId: CompaniesHouseId) = companyAuthAction(companiesHouseId).async { implicit request =>
     val title = publishTitle(request.companyDetail.companyName)
 
-    checkValidFromSession(emptyReportingPeriod, reportingPeriodController.reportPeriodDataSessionKey).flatMap {
+    checkValidFromSession(emptyReportingPeriod, FormName.ReportingPeriod.entryName).flatMap {
       case false => Future.successful(Redirect(routes.ReportingPeriodController.show(companiesHouseId)))
       case true  => loadFormData(emptyShortForm, shortFormDataSessionKey).map { form =>
         Ok(page(title)(home, pages.shortForm(reportPageHeader, form, companiesHouseId, df, serviceStartDate)))
@@ -74,7 +74,7 @@ class ShortFormController @Inject()(
 
     val shortForm = emptyShortForm.bindForm
     saveFormData(shortFormDataSessionKey, shortForm).flatMap { _ =>
-      checkValidFromSession(emptyReportingPeriod, reportingPeriodController.reportPeriodDataSessionKey).map {
+      checkValidFromSession(emptyReportingPeriod, FormName.ReportingPeriod.entryName).map {
         case false => Redirect(routes.ReportingPeriodController.show(companiesHouseId))
         case true  => shortForm.fold(
             errs => Redirect(routes.ShortFormController.show(companiesHouseId)),
@@ -87,7 +87,7 @@ class ShortFormController @Inject()(
   def showReview(companiesHouseId: CompaniesHouseId) = companyAuthAction(companiesHouseId).async { implicit request =>
     val action: Call = routes.ShortFormController.postReview(companiesHouseId)
     for {
-      reportingPeriod <- loadFormData(emptyReportingPeriod, reportingPeriodController.reportPeriodDataSessionKey)
+      reportingPeriod <- loadFormData(emptyReportingPeriod, FormName.ReportingPeriod.entryName)
       sf <- loadFormData(emptyShortForm, shortFormDataSessionKey)
     } yield {
       val formGroups = ReviewPageData.formGroups(request.companyDetail.companyName, reportingPeriod.get, sf.get)
@@ -124,7 +124,7 @@ class ShortFormController @Inject()(
       errs => Future.successful(BadRequest(page(reviewPageTitle)(home, pages.review(errs, formGroups, action)))),
       review => {
         if (review.confirmed) verifyingOAuthScope(companiesHouseId, request.oAuthToken) {
-          createReport(companiesHouseId, reportingPeriod, shortForm, review).map(rId => Redirect(controllers.routes.ConfirmationController.showConfirmation(rId)))
+          createReport(companiesHouseId, reportingPeriod, shortForm, review.confirmedBy).map(rId => Redirect(controllers.routes.ConfirmationController.showConfirmation(rId)))
         } else {
           Future.successful(BadRequest(page(reviewPageTitle)(home, pages.review(emptyReview.fill(review), formGroups, action))))
         }
@@ -132,10 +132,10 @@ class ShortFormController @Inject()(
     )
   }
 
-  private def createReport(companiesHouseId: CompaniesHouseId, reportingPeriod: ReportingPeriodFormModel, shortForm: ShortFormModel, review: ReportReviewModel)(implicit request: CompanyAuthRequest[_]): Future[ReportId] = {
+  private def createReport(companiesHouseId: CompaniesHouseId, reportingPeriod: ReportingPeriodFormModel, shortForm: ShortFormModel, confirmedBy: String)(implicit request: CompanyAuthRequest[_]): Future[ReportId] = {
     val urlFunction: ReportId => String = (id: ReportId) => controllers.routes.ReportController.view(id).absoluteURL()
     for {
-      reportId <- reports.create(request.companyDetail, reportingPeriod, shortForm, review, request.emailAddress, urlFunction)
+      reportId <- reports.createShortReport(request.companyDetail, reportingPeriod, shortForm, confirmedBy, request.emailAddress, urlFunction)
       _ <- Future.successful(confirmationActor ! 'poll)
     } yield reportId
   }

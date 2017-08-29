@@ -26,8 +26,9 @@ import cats.instances.future._
 import config.{PageConfig, ServiceConfig}
 import controllers.PagedLongFormModel.FormName
 import controllers.PagedLongFormModel.FormName._
-import forms.report.{LongFormModel, Validations}
-import models.CompaniesHouseId
+import forms.report.{LongFormModel, ReportingPeriodFormModel, Validations}
+import models.{CompaniesHouseId, ReportId}
+import play.api.Logger
 import play.api.i18n.MessagesApi
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc._
@@ -47,7 +48,6 @@ class PagedLongFormController @Inject()(
   val serviceConfig: ServiceConfig,
   val pageConfig: PageConfig,
   val sessionService: SessionService,
-  reportingPeriodController: ReportingPeriodController,
   pagedLongFormModel: PagedLongFormModel,
   @Named("confirmation-actor") confirmationActor: ActorRef
 )(implicit val ec: ExecutionContext, messages: MessagesApi) extends Controller with BaseFormController with PageHelper with FormSessionHelpers {
@@ -108,8 +108,13 @@ class PagedLongFormController @Inject()(
     loadAllFormData.map { data =>
       pagedLongFormModel.formHandlers.foldLeft(Seq.empty[FormResult]) { (results, handler) =>
         results.headOption match {
-          case Some(FormHasErrors(_)) | Some(FormIsBlank(_)) => results
-          case _                                             => bindPage(data, handler) +: results
+          case r@Some(FormIsBlank(_))   =>
+            Logger.debug(r.toString)
+            results
+          case r@Some(FormHasErrors(_)) =>
+            Logger.debug(r.toString)
+            results
+          case _                      => bindPage(data, handler) +: results
         }
       }.head
     }
@@ -156,10 +161,9 @@ class PagedLongFormController @Inject()(
     }
   }
 
-
   def showReview(companiesHouseId: CompaniesHouseId): Action[AnyContent] = companyAuthAction(companiesHouseId).async { implicit request =>
     val title = publishTitle(request.companyDetail.companyName)
-    val action: Call = routes.ShortFormController.postReview(companiesHouseId)
+    val action: Call = routes.PagedLongFormController.postReview(companiesHouseId)
 
     bindAllPages.flatMap {
       case FormHasErrors(handler) => Future.successful(Redirect(handler.pageCall(request.companyDetail)))
@@ -177,5 +181,46 @@ class PagedLongFormController @Inject()(
             Ok(page(title)(views.html.report.review(emptyReview, formGroups, action)))
         }
     }
+  }
+
+  def postReview(companiesHouseId: CompaniesHouseId): Action[Map[String, Seq[String]]] =
+    companyAuthAction(companiesHouseId).async(parse.urlFormEncoded) {
+      implicit request =>
+        val action: Call = routes.PagedLongFormController.postReview(companiesHouseId)
+
+        bindAllPages.flatMap {
+          case FormHasErrors(handler) => Future.successful(Redirect(handler.pageCall(request.companyDetail)))
+          case FormIsBlank(handler)   => Future.successful(Redirect(handler.pageCall(request.companyDetail)))
+          case FormIsOk(handler)      =>
+            val forms = for {
+              reportingPeriod <- OptionT(loadFormData(emptyReportingPeriod, FormName.ReportingPeriod.entryName).map(_.value))
+              longForm <- OptionT(bindLongForm)
+            } yield (reportingPeriod, longForm)
+
+            forms.value.flatMap {
+              case None          => ???
+              case Some((r, lf)) =>
+                val formGroups = ReviewPageData.formGroups(request.companyDetail.companyName, r, lf)
+
+                emptyReview.bindForm.fold(
+                  errs => Future.successful(BadRequest(page(reviewPageTitle)(home, pages.review(errs, formGroups, action)))),
+                  review => {
+                    if (review.confirmed) verifyingOAuthScope(companiesHouseId, request.oAuthToken) {
+                      createReport(companiesHouseId, r, lf, review.confirmedBy).map(rId => Redirect(controllers.routes.ConfirmationController.showConfirmation(rId)))
+                    } else {
+                      Future.successful(BadRequest(page(reviewPageTitle)(home, pages.review(emptyReview.fill(review), formGroups, action))))
+                    }
+                  }
+                )
+            }
+        }
+    }
+
+  private def createReport(companiesHouseId: CompaniesHouseId, reportingPeriod: ReportingPeriodFormModel, longForm: LongFormModel, confirmedBy: String)(implicit request: CompanyAuthRequest[_]): Future[ReportId] = {
+    val urlFunction: ReportId => String = (id: ReportId) => controllers.routes.ReportController.view(id).absoluteURL()
+    for {
+      reportId <- reports.createLongReport(request.companyDetail, reportingPeriod, longForm, confirmedBy, request.emailAddress, urlFunction)
+      _ <- Future.successful(confirmationActor ! 'poll)
+    } yield reportId
   }
 }

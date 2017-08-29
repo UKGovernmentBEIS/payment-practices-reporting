@@ -68,19 +68,16 @@ object ReviewPageData extends HtmlHelpers {
 
   def formGroups(companyName: String, reportingPeriod: ReportingPeriodFormModel, longForm: LongFormModel): Seq[TableDescriptor] = {
     Seq(
-      cssClasses -> group1(companyName, reportingPeriod, longForm),
+      cssClasses -> group1(companyName, reportingPeriod),
       cssClasses -> group2(longForm),
       cssClasses -> group3(longForm)
     )
   }
 
-  def group1(companyName: String, reportingPeriod: ReportingPeriodFormModel, longForm: LongFormModel): Seq[RowDescriptor] =
-    topLevelInfo(companyName) ++ reportingDateRows(reportingPeriod) ++ paymentStatisticsRows(longForm)
-
   def group1(companyName: String, reportingPeriod: ReportingPeriodFormModel): Seq[RowDescriptor] =
     topLevelInfo(companyName) ++ reportingDateRows(reportingPeriod)
 
-  def group2(r: LongFormModel): Seq[(String, Html)] = paymentTermsRows(r)
+  def group2(longForm: LongFormModel): Seq[(String, Html)] = paymentStatisticsRows(longForm) ++ paymentTermsRows(longForm) ++ disputeResolutionRows(longForm)
 
   def group3(shortForm: ShortFormModel): Seq[(String, Html)] = paymentCodesRows(shortForm)
 
@@ -112,7 +109,10 @@ object ReviewPageData extends HtmlHelpers {
       r.paymentTerms.paymentTermsChanged.notified.map(conditionalText)),
     ("Maximum contract period in days", (r.paymentTerms.maximumContractPeriod, "days")),
     ("Maximum contract period: further information", r.paymentTerms.maximumContractPeriodComment.map(breakLines)),
-    ("Further remarks about your payment terms", r.paymentTerms.paymentTermsComment.map(breakLines)),
+    ("Further remarks about your payment terms", r.paymentTerms.paymentTermsComment.map(breakLines))
+  )
+
+  def disputeResolutionRows(r: LongFormModel): Seq[RowDescriptor] = Seq(
     ("Your dispute resolution process", breakLines(r.disputeResolution.text))
   )
 

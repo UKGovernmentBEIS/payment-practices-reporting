@@ -112,20 +112,20 @@ trait ReportService {
     *                  module, the `reportUrl` parameter is a function that accepts a `reportId` and
     *                  generates the absolute url for it.
     */
-  def create(
+  def createLongReport(
     companyDetail: CompanyDetail,
     reportingPeriod: ReportingPeriodFormModel,
     longForm: LongFormModel,
-    review: ReportReviewModel,
+    confirmedBy: String,
     confirmationEmailAddress: String,
     reportUrl: (ReportId) => String
   ): Future[ReportId]
 
-  def create(
+  def createShortReport(
     companyDetail: CompanyDetail,
     reportingPeriod: ReportingPeriodFormModel,
     shortFormModel: ShortFormModel,
-    review: ReportReviewModel,
+    confirmedBy: String,
     confirmationEmailAddress: String,
     reportUrl: (ReportId) => String
   ): Future[ReportId]

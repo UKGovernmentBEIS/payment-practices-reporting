@@ -31,11 +31,10 @@ GET         /publish/company/:id/file/page/:formName          controllers.PagedL
 POST        /publish/company/:id/file/page/:formName          controllers.PagedLongFormController.post(formName: FormName, id: CompaniesHouseId)
 GET         /publish/company/:id/review/long                  controllers.PagedLongFormController.showReview(id:CompaniesHouseId)
 
-POST        /publish/company/:id/file/long                    controllers.LongFormController.postForm(id:CompaniesHouseId)
 GET         /publish/company/:id/file/short                   controllers.ShortFormController.show(id:CompaniesHouseId)
 POST        /publish/company/:id/file/short                   controllers.ShortFormController.post(id:CompaniesHouseId)
 
-POST        /publish/company/:id/review/long                  controllers.LongFormController.postReview(id:CompaniesHouseId)
+POST        /publish/company/:id/review/long                  controllers.PagedLongFormController.postReview(id:CompaniesHouseId)
 GET         /publish/company/:id/review/short                 controllers.ShortFormController.showReview(id:CompaniesHouseId)
 POST        /publish/company/:id/review/short                 controllers.ShortFormController.postReview(id:CompaniesHouseId)
 

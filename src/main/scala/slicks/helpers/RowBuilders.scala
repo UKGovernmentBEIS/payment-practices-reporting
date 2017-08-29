@@ -27,7 +27,7 @@ trait RowBuilders {
 
   def buildReport(
     companyDetail: CompanyDetail,
-    review: ReportReviewModel,
+    confirmedBy:String,
     reportingPeriod: ReportingPeriodFormModel,
     paymentCodes: ConditionalText,
     confirmationEmail: String
@@ -37,7 +37,7 @@ trait RowBuilders {
       companyDetail.companyName,
       companyDetail.companiesHouseId,
       LocalDate.now(),
-      review.confirmedBy,
+      confirmedBy,
       confirmationEmail,
       reportingPeriod.reportDates.startDate,
       reportingPeriod.reportDates.endDate,

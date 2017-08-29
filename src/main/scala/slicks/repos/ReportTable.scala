@@ -19,7 +19,7 @@ package slicks.repos
 
 import javax.inject.Inject
 
-import forms.report.{LongFormModel, ShortFormModel, ReportReviewModel, ReportingPeriodFormModel}
+import forms.report.{LongFormModel, ReportingPeriodFormModel, ShortFormModel}
 import models.{CompaniesHouseId, ReportId}
 import org.joda.time.LocalDate
 import org.reactivestreams.Publisher
@@ -27,7 +27,7 @@ import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfig}
 import services.{CompanyDetail, Report, ReportService}
 import slick.jdbc.JdbcProfile
 import slicks.helpers.RowBuilders
-import slicks.modules.{ConfirmationModule, CoreModule, ReportModule}
+import slicks.modules.{CoreModule, ReportModule}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -70,14 +70,15 @@ class ReportTable @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit e
     db.stream(disableAutocommit andThen action).mapResult(Report.apply)
   }
 
-  override def create(
-                       companyDetail: CompanyDetail,
-                       reportingPeriod: ReportingPeriodFormModel,
-                       longForm: LongFormModel,
-                       review: ReportReviewModel,
-                       confirmationEmailAddress: String,
-                       reportUrl: (ReportId) => String): Future[ReportId] = db.run {
-    val reportRow = buildReport(companyDetail, review, reportingPeriod, longForm.otherInformation.paymentCodes, confirmationEmailAddress)
+  override def createLongReport(
+    companyDetail: CompanyDetail,
+    reportingPeriod: ReportingPeriodFormModel,
+    longForm: LongFormModel,
+    confirmedBy: String,
+    confirmationEmailAddress: String,
+    reportUrl: (ReportId) => String
+  ): Future[ReportId] = db.run {
+    val reportRow = buildReport(companyDetail, confirmedBy, reportingPeriod, longForm.otherInformation.paymentCodes, confirmationEmailAddress)
 
     {
       for {
@@ -86,14 +87,16 @@ class ReportTable @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit e
       } yield reportId
     }.transactionally
   }
-  override def create(
-                       companyDetail: CompanyDetail,
-                       reportingPeriod: ReportingPeriodFormModel,
-                       shortFormModel: ShortFormModel,
-                       review: ReportReviewModel,
-                       confirmationEmailAddress: String,
-                       reportUrl: (ReportId) => String): Future[ReportId] = db.run {
-    val reportRow = buildReport(companyDetail, review, reportingPeriod, shortFormModel.paymentCodes, confirmationEmailAddress)
+
+  override def createShortReport(
+    companyDetail: CompanyDetail,
+    reportingPeriod: ReportingPeriodFormModel,
+    shortFormModel: ShortFormModel,
+    confirmedBy: String,
+    confirmationEmailAddress: String,
+    reportUrl: (ReportId) => String
+  ): Future[ReportId] = db.run {
+    val reportRow = buildReport(companyDetail, confirmedBy, reportingPeriod, shortFormModel.paymentCodes, confirmationEmailAddress)
     reportTable.returning(reportTable.map(_.id)) += reportRow
   }
 }
