@@ -110,7 +110,7 @@ class LongFormController @Inject()(
 
     bindUpToPage(formHandlers, formName).map {
       case FormHasErrors(handler) => BadRequest(page(title)(handler.renderPage(reportPageHeader, companyDetail)))
-      case FormIsOk(handler)      => nextFormHandler(handler.formName) match {
+      case FormIsOk(handler)      => nextFormHandler(handler) match {
         case Some(nextHandler) => Redirect(nextHandler.pageCall(companyDetail))
         case None              => Redirect(routes.LongFormController.showReview(companyDetail.companiesHouseId))
       }

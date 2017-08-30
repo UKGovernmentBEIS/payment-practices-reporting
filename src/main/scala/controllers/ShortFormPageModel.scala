@@ -44,8 +44,8 @@ class ShortFormPageModel @Inject()(validations: Validations, serviceConfig: Serv
   def nextFormName(formName: ShortFormName): Option[ShortFormName] =
     ShortFormName.values.dropWhile(_ != formName).drop(1).headOption
 
-  def nextFormHandler(formName: ShortFormName): Option[ShortFormHandler[_]] =
-    nextFormName(formName).map(handlerFor)
+  def nextFormHandler(handler:ShortFormHandler[_]): Option[ShortFormHandler[_]] =
+    nextFormName(handler.formName).map(handlerFor)
 
   def handlerFor(formName: ShortFormName): ShortFormHandler[_] = formName match {
     case ReportingPeriod =>

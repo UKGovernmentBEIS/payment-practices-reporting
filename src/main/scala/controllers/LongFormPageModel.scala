@@ -71,8 +71,8 @@ class LongFormPageModel @Inject()(validations: Validations, serviceConfig: Servi
   def nextFormName(formName: LongFormName): Option[LongFormName] =
     LongFormName.values.dropWhile(_ != formName).drop(1).headOption
 
-  def nextFormHandler(formName: LongFormName): Option[LongFormHandler[_]] =
-    nextFormName(formName).map(handlerFor)
+  def nextFormHandler(handler:LongFormHandler[_]): Option[LongFormHandler[_]] =
+    nextFormName(handler.formName).map(handlerFor)
 
   def handlerFor(formName: LongFormName): LongFormHandler[_] = formName match {
     case ReportingPeriod   =>
@@ -86,28 +86,28 @@ class LongFormPageModel @Inject()(validations: Validations, serviceConfig: Servi
       FormHandler(
         PaymentStatistics,
         emptyPaymentStatisticsForm,
-        (header: Html, companyDetail: CompanyDetail) => (form: Form[PaymentStatisticsForm]) => pages.longFormPage1(header, form, companyDetail.companiesHouseId, df, serviceStartDate),
+        (header: Html, companyDetail: CompanyDetail) => (form: Form[PaymentStatisticsForm]) => pages.paymentStatisticsForm(header, form, companyDetail.companiesHouseId, df, serviceStartDate),
         (companyDetail: CompanyDetail) => routes.LongFormController.show(PaymentStatistics, companyDetail.companiesHouseId)
       )
     case PaymentTerms      =>
       FormHandler(
         PaymentTerms,
         emptyPaymentTermsForm,
-        (header: Html, companyDetail: CompanyDetail) => (form: Form[PaymentTermsForm]) => pages.longFormPage2(header, form, companyDetail.companiesHouseId, df, serviceStartDate),
+        (header: Html, companyDetail: CompanyDetail) => (form: Form[PaymentTermsForm]) => pages.paymentTermsForm(header, form, companyDetail.companiesHouseId, df, serviceStartDate),
         (companyDetail: CompanyDetail) => routes.LongFormController.show(PaymentTerms, companyDetail.companiesHouseId)
       )
     case DisputeResolution =>
       FormHandler(
         DisputeResolution,
         emptyDisputeResolutionForm,
-        (header: Html, companyDetail: CompanyDetail) => (form: Form[DisputeResolutionForm]) => pages.longFormPage3(header, form, companyDetail.companiesHouseId, df, serviceStartDate),
+        (header: Html, companyDetail: CompanyDetail) => (form: Form[DisputeResolutionForm]) => pages.disputeResolutionForm(header, form, companyDetail.companiesHouseId, df, serviceStartDate),
         (companyDetail: CompanyDetail) => routes.LongFormController.show(DisputeResolution, companyDetail.companiesHouseId)
       )
     case OtherInformation  =>
       FormHandler(
         OtherInformation,
         emptyOtherInformationForm,
-        (header: Html, companyDetail: CompanyDetail) => (form: Form[OtherInformationForm]) => pages.longFormPage4(header, form, companyDetail.companiesHouseId, df, serviceStartDate),
+        (header: Html, companyDetail: CompanyDetail) => (form: Form[OtherInformationForm]) => pages.otherInformationForm(header, form, companyDetail.companiesHouseId, df, serviceStartDate),
         (companyDetail: CompanyDetail) => routes.LongFormController.show(OtherInformation, companyDetail.companiesHouseId)
       )
   }

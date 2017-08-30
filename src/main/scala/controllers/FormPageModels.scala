@@ -17,7 +17,7 @@
 
 package controllers
 
-import controllers.FormPageModels.{FormName, LongFormHandler, LongFormName}
+import controllers.FormPageModels.FormName
 import enumeratum.EnumEntry.Uncapitalised
 import enumeratum.{EnumEntry, PlayEnum}
 
@@ -25,7 +25,7 @@ import scala.language.existentials
 
 object FormPageModels {
   sealed trait FormName {
-    def entryName:String
+    def entryName: String
   }
 
   sealed trait LongFormName extends FormName with EnumEntry with Uncapitalised
@@ -47,6 +47,10 @@ object FormPageModels {
     //noinspection TypeAnnotation
     override def values = findValues
 
+    /*
+     * The order in which the form pages will be displayed to the user is defined
+     * by the order in which these enumeration objects are defined.
+     */
     case object ReportingPeriod extends LongFormName
     case object PaymentStatistics extends LongFormName
     case object PaymentTerms extends LongFormName
@@ -66,7 +70,5 @@ object FormPageModels {
 trait FormPageModel[H, N <: FormName] {
   def formHandlers: Seq[H]
   def nextFormName(formName: N): Option[N]
-
-  def nextFormHandler(formName: N): Option[H]
-
+  def nextFormHandler(handler: H): Option[H]
 }
