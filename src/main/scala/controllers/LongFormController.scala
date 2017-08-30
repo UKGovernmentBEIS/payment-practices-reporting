@@ -32,14 +32,12 @@ import play.api.data.Forms.{single, text}
 import play.api.i18n.MessagesApi
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc._
-import play.api.{Logger, UnexpectedException}
 import play.twirl.api.Html
 import services._
 import views.html.helpers.ReviewPageData
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.existentials
-import scala.util.Random
 
 class LongFormController @Inject()(
   reports: ReportService,
@@ -81,13 +79,13 @@ class LongFormController @Inject()(
     val handlerForThisPage = handlerFor(formName)
 
     bindUpToPage(formHandlers, formName).map {
-      case FormIsOk(handler)      => Ok(page(title)(handler.renderPage(reportPageHeader, request.companyDetail)))
-      case FormHasErrors(handler) =>
+      case FormIsOk(handler, value) => Ok(page(title)(handler.renderPage(reportPageHeader, request.companyDetail)))
+      case FormHasErrors(handler)   =>
         if (handler.formName === handlerForThisPage.formName)
           BadRequest(page(title)(handler.renderPage(reportPageHeader, request.companyDetail)))
         else
           Redirect(handler.pageCall(request.companyDetail))
-      case FormIsBlank(handler)   =>
+      case FormIsBlank(handler)     =>
         if (handler.formName === handlerForThisPage.formName)
           Ok(page(title)(handlerForThisPage.renderPage(reportPageHeader, request.companyDetail)))
         else
@@ -109,12 +107,12 @@ class LongFormController @Inject()(
     val title = publishTitle(companyDetail.companyName)
 
     bindUpToPage(formHandlers, formName).map {
-      case FormHasErrors(handler) => BadRequest(page(title)(handler.renderPage(reportPageHeader, companyDetail)))
-      case FormIsOk(handler)      => nextFormHandler(handler) match {
+      case FormHasErrors(handler)   => BadRequest(page(title)(handler.renderPage(reportPageHeader, companyDetail)))
+      case FormIsOk(handler, value) => nextFormHandler(handler) match {
         case Some(nextHandler) => Redirect(nextHandler.pageCall(companyDetail))
         case None              => Redirect(routes.LongFormController.showReview(companyDetail.companiesHouseId))
       }
-      case FormIsBlank(handler)   => Ok(page(title)(handler.renderPage(reportPageHeader, request.companyDetail)))
+      case FormIsBlank(handler)     => Ok(page(title)(handler.renderPage(reportPageHeader, request.companyDetail)))
     }
   }
 

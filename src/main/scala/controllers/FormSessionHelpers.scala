@@ -19,11 +19,11 @@ package controllers
 
 import actions.CompanyAuthRequest
 import controllers.FormPageModels._
+import org.scalactic.TripleEquals._
 import play.api.Logger
 import play.api.data.Form
 import play.api.libs.json.{JsObject, Json}
 import services.{SessionId, SessionService}
-import org.scalactic.TripleEquals._
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -35,16 +35,18 @@ trait FormSessionHelpers {
 
   val formDataSessionKey = "formData"
 
-  private def bindPage[N <: FormName](data: JsObject, handler: FormHandler[_, N]): FormResult[N] = {
+  private def bindPage[T, N <: FormName](data: JsObject, handler: FormHandler[T, N]): FormStatus[T, N] = {
     val boundHandler = handler.bind((data \\ handler.formName.entryName).headOption.getOrElse(Json.obj()))
-    if (boundHandler.form.data.isEmpty && boundHandler.form.value.isEmpty) FormIsBlank(boundHandler)
-    else if (boundHandler.form.hasErrors) FormHasErrors(boundHandler)
-    else FormIsOk(boundHandler)
+    boundHandler.form.value match {
+      case Some(v) => FormIsOk(boundHandler, v)
+      case None    => if (boundHandler.form.data.isEmpty && boundHandler.form.value.isEmpty) FormIsBlank(boundHandler)
+                      else FormHasErrors(boundHandler)
+    }
   }
 
-  protected def bindAllPages[N <: FormName](formHandlers: Seq[FormHandler[_, N]])(implicit request: CompanyAuthRequest[_]): Future[FormResult[N]] = {
+  protected def bindAllPages[N <: FormName](formHandlers: Seq[FormHandler[_, N]])(implicit request: CompanyAuthRequest[_]): Future[FormStatus[_, N]] = {
     loadAllFormData.map { data =>
-      formHandlers.foldLeft(Seq.empty[FormResult[N]]) { (results, handler) =>
+      formHandlers.foldLeft(Seq.empty[FormStatus[_, N]]) { (results, handler) =>
         results.headOption match {
           case r@Some(FormIsBlank(_))   =>
             Logger.debug(r.toString)
@@ -62,11 +64,11 @@ trait FormSessionHelpers {
     * Bind pages up to including the page with the given `formName`, returning the first result that
     * is empty or fails validation, or an Ok result for the named form.
     */
-  protected def bindUpToPage[N <: FormName](formHandlers: Seq[FormHandler[_, N]], formName: N)(implicit request: CompanyAuthRequest[_]): Future[FormResult[N]] = {
+  protected def bindUpToPage[N <: FormName](formHandlers: Seq[FormHandler[_, N]], formName: N)(implicit request: CompanyAuthRequest[_]): Future[FormStatus[_, N]] = {
     val (handlersToBind, _) = formHandlers.splitAt(formHandlers.indexWhere(_.formName === formName) + 1)
 
     loadAllFormData.map { data =>
-      handlersToBind.foldLeft(Seq.empty[FormResult[N]]) { (results, handler) =>
+      handlersToBind.foldLeft(Seq.empty[FormStatus[_, N]]) { (results, handler) =>
         results.headOption match {
           case Some(FormHasErrors(_)) | Some(FormIsBlank(_)) => results
           case _                                             => bindPage(data, handler) +: results

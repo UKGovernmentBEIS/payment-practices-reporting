@@ -32,6 +32,7 @@ object FormPageModels {
   sealed trait ShortFormName extends FormName with EnumEntry with Uncapitalised
 
   type ShortFormHandler[T] = FormHandler[T, ShortFormName]
+  type LongFormHandler[T] = FormHandler[T, LongFormName]
 
   object ShortFormName extends PlayEnum[ShortFormName] {
     //noinspection TypeAnnotation
@@ -40,8 +41,6 @@ object FormPageModels {
     case object ReportingPeriod extends ShortFormName
     case object ShortForm extends ShortFormName
   }
-
-  type LongFormHandler[T] = FormHandler[T, LongFormName]
 
   object LongFormName extends PlayEnum[LongFormName] {
     //noinspection TypeAnnotation
@@ -58,13 +57,13 @@ object FormPageModels {
     case object OtherInformation extends LongFormName
   }
 
-  sealed trait FormResult[N <: FormName]
-  case class FormIsBlank[N <: FormName](formHandler: FormHandler[_, N]) extends FormResult[N]
-  case class FormHasErrors[N <: FormName](formHandler: FormHandler[_, N]) extends FormResult[N]
-  case class FormIsOk[N <: FormName](formHandler: FormHandler[_, N]) extends FormResult[N]
+  sealed trait FormStatus[T, N <: FormName]
+  case class FormIsBlank[T, N <: FormName](formHandler: FormHandler[T, N]) extends FormStatus[T, N]
+  case class FormHasErrors[T, N <: FormName](formHandler: FormHandler[T, N]) extends FormStatus[T, N]
+  case class FormIsOk[T, N <: FormName](formHandler: FormHandler[T, N], value: T) extends FormStatus[T, N]
 
-  type LongFormResult = FormResult[LongFormName]
-  type ShortFormResult = FormResult[ShortFormName]
+  type LongFormStatus[T] = FormStatus[T, LongFormName]
+  type ShortFormStatus[T] = FormStatus[T, ShortFormName]
 }
 
 trait FormPageModel[H, N <: FormName] {

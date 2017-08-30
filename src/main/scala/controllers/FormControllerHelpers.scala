@@ -45,7 +45,7 @@ trait FormControllerHelpers[T, N <: FormName] {
     bindAllPages[N](formHandlers).flatMap {
       case FormHasErrors(handler) => Future.successful(Redirect(handler.pageCall(request.companyDetail)))
       case FormIsBlank(handler)   => Future.successful(Redirect(handler.pageCall(request.companyDetail)))
-      case FormIsOk(handler)      =>
+      case FormIsOk(handler, value)      =>
         val forms = for {
           reportingPeriod <- bindReportingPeriod
           longForm <- bindMainForm

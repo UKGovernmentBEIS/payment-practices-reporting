@@ -100,12 +100,12 @@ class ShortFormController @Inject()(
     val title = publishTitle(companyDetail.companyName)
 
     bindUpToPage(formHandlers, formName).map {
-      case FormHasErrors(handler) => BadRequest(page(title)(handler.renderPage(reportPageHeader, companyDetail)))
-      case FormIsOk(handler)      => nextFormHandler(handler) match {
+      case FormHasErrors(handler)   => BadRequest(page(title)(handler.renderPage(reportPageHeader, companyDetail)))
+      case FormIsOk(handler, value) => nextFormHandler(handler) match {
         case Some(nextHandler) => Redirect(nextHandler.pageCall(companyDetail))
         case None              => Redirect(routes.ShortFormController.showReview(companyDetail.companiesHouseId))
       }
-      case FormIsBlank(handler)   => Ok(page(title)(handler.renderPage(reportPageHeader, request.companyDetail)))
+      case FormIsBlank(handler)     => Ok(page(title)(handler.renderPage(reportPageHeader, request.companyDetail)))
     }
   }
 
