@@ -30,7 +30,7 @@ import org.scalactic.TripleEquals._
 import play.api.data.Form
 import play.api.data.Forms.{single, text}
 import play.api.i18n.MessagesApi
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.Json
 import play.api.mvc._
 import play.twirl.api.Html
 import services._
@@ -64,7 +64,7 @@ class LongFormController @Inject()(
 
   private def publishTitle(companyName: String) = s"Publish a report for $companyName"
 
-  def reportPageHeader(implicit request: CompanyAuthRequest[_]): Html = h1(s"Publish a report for:<br>${request.companyDetail.companyName}")
+  def reportPageHeader(companyDetail: CompanyDetail): Html = h1(s"Publish a report for:<br>${companyDetail.companyName}")
 
   override def formHandlers: Seq[LongFormHandler[_]] = longFormPageModel.formHandlers
 
@@ -74,22 +74,24 @@ class LongFormController @Inject()(
     loadFormData(emptyReportingPeriod, LongFormName.ReportingPeriod).map(_.value)
 
   def show(formName: LongFormName, companiesHouseId: CompaniesHouseId): Action[AnyContent] = companyAuthAction(companiesHouseId).async { implicit request =>
-    val title = publishTitle(request.companyDetail.companyName)
+    val companyDetail = request.companyDetail
 
-    val handlerForThisPage = handlerFor(formName)
+    handleShowPage(formName, companyDetail)
+  }
+
+  private[controllers] def handleShowPage(formName: LongFormName, companyDetail: CompanyDetail)(implicit sessionId: SessionId, pageContext: PageContext) = {
+    val title = publishTitle(companyDetail.companyName)
 
     bindUpToPage(formHandlers, formName).map {
-      case FormIsOk(handler, value) => Ok(page(title)(handler.renderPage(reportPageHeader, request.companyDetail)))
-      case FormHasErrors(handler)   =>
-        if (handler.formName === handlerForThisPage.formName)
-          BadRequest(page(title)(handler.renderPage(reportPageHeader, request.companyDetail)))
-        else
-          Redirect(handler.pageCall(request.companyDetail))
-      case FormIsBlank(handler)     =>
-        if (handler.formName === handlerForThisPage.formName)
-          Ok(page(title)(handlerForThisPage.renderPage(reportPageHeader, request.companyDetail)))
-        else
-          Redirect(handler.pageCall(request.companyDetail))
+      case FormHasErrors(boundHandler) if boundHandler.formName !== formName => Redirect(boundHandler.callPage(companyDetail))
+      case FormIsBlank(boundHandler) if boundHandler.formName !== formName   => Redirect(boundHandler.callPage(companyDetail))
+
+      case FormHasErrors(boundHandler) => BadRequest(page(title)(boundHandler.renderPage(reportPageHeader(companyDetail), companyDetail)))
+      // Form is blank, so the user hasn't filled it in yet. In this case we don't
+      // want to show errors, so use the empty form handler for the formName
+      case FormIsBlank(_) => Ok(page(title)(handlerFor(formName).renderPage(reportPageHeader(companyDetail), companyDetail)))
+
+      case FormIsOk(handler, value) => Ok(page(title)(handler.renderPage(reportPageHeader(companyDetail), companyDetail)))
     }
   }
 
@@ -103,31 +105,29 @@ class LongFormController @Inject()(
     } yield result
   }
 
-  private def handlePostFormPage(formName: LongFormName, companyDetail: CompanyDetail)(implicit request: CompanyAuthRequest[Map[String, Seq[String]]]): Future[Result] = {
+  private def handlePostFormPage(formName: LongFormName, companyDetail: CompanyDetail)(implicit sessionId: SessionId, pageContext: PageContext): Future[Result] = {
     val title = publishTitle(companyDetail.companyName)
 
     bindUpToPage(formHandlers, formName).map {
-      case FormHasErrors(handler)   => BadRequest(page(title)(handler.renderPage(reportPageHeader, companyDetail)))
+      case FormHasErrors(handler) => BadRequest(page(title)(handler.renderPage(reportPageHeader(companyDetail), companyDetail)))
+      case FormIsBlank(handler)   => BadRequest(page(title)(handler.renderPage(reportPageHeader(companyDetail), companyDetail)))
+
       case FormIsOk(handler, value) => nextFormHandler(handler) match {
-        case Some(nextHandler) => Redirect(nextHandler.pageCall(companyDetail))
+        case Some(nextHandler) => Redirect(nextHandler.callPage(companyDetail))
         case None              => Redirect(routes.LongFormController.showReview(companyDetail.companiesHouseId))
       }
-      case FormIsBlank(handler)     => Ok(page(title)(handler.renderPage(reportPageHeader, request.companyDetail)))
     }
   }
 
-  def bindMainForm(implicit sessionId: SessionId): Future[Option[LongFormModel]] = {
-    sessionService.get[JsObject](sessionId, formDataSessionKey).map {
-      case None       => None
-      case Some(data) =>
-        for {
-          ps <- emptyPaymentStatisticsForm.bind((data \\ PaymentStatistics.entryName).headOption.getOrElse(Json.obj())).value
-          pt <- emptyPaymentTermsForm.bind((data \\ PaymentTerms.entryName).headOption.getOrElse(Json.obj())).value
-          dr <- emptyDisputeResolutionForm.bind((data \\ DisputeResolution.entryName).headOption.getOrElse(Json.obj())).value
-          oi <- emptyOtherInformationForm.bind((data \\ OtherInformation.entryName).headOption.getOrElse(Json.obj())).value
-        } yield LongFormModel(ps.paymentStatistics, pt.paymentTerms, dr.disputeResolution, oi.otherInformation)
+  def bindMainForm(implicit sessionId: SessionId): Future[Option[LongFormModel]] =
+    loadAllFormData.map { data =>
+      for {
+        ps <- emptyPaymentStatisticsForm.bind((data \\ PaymentStatistics.entryName).headOption.getOrElse(Json.obj())).value
+        pt <- emptyPaymentTermsForm.bind((data \\ PaymentTerms.entryName).headOption.getOrElse(Json.obj())).value
+        dr <- emptyDisputeResolutionForm.bind((data \\ DisputeResolution.entryName).headOption.getOrElse(Json.obj())).value
+        oi <- emptyOtherInformationForm.bind((data \\ OtherInformation.entryName).headOption.getOrElse(Json.obj())).value
+      } yield LongFormModel(ps.paymentStatistics, pt.paymentTerms, dr.disputeResolution, oi.otherInformation)
     }
-  }
 
   def showReview(companiesHouseId: CompaniesHouseId): Action[AnyContent] = companyAuthAction(companiesHouseId).async { implicit request =>
     handleBinding(request, renderReview)
@@ -155,12 +155,14 @@ class LongFormController @Inject()(
 
     val formGroups = ReviewPageData.formGroups(request.companyDetail.companyName, reportingPeriod, longForm)
     val action: Call = routes.LongFormController.postReview(request.companyDetail.companiesHouseId)
+    val urlFunction: ReportId => String = (id: ReportId) => controllers.routes.ReportController.view(id).absoluteURL()
 
     emptyReview.bindForm.fold(
       errs => Future.successful(BadRequest(page(reviewPageTitle)(home, pages.review(errs, formGroups, action)))),
       review => {
         if (review.confirmed) verifyingOAuthScope(request.companyDetail.companiesHouseId, request.oAuthToken) {
-          createReport(request.companyDetail.companiesHouseId, reportingPeriod, longForm, review.confirmedBy).map(rId => Redirect(controllers.routes.ConfirmationController.showConfirmation(rId)))
+          createReport(request.companyDetail, request.emailAddress, reportingPeriod, longForm, review.confirmedBy, urlFunction)
+            .map(reportId => Redirect(controllers.routes.ConfirmationController.showConfirmation(reportId)))
         } else {
           Future.successful(BadRequest(page(reviewPageTitle)(home, pages.review(emptyReview.fill(review), formGroups, action))))
         }
@@ -168,10 +170,9 @@ class LongFormController @Inject()(
     )
   }
 
-  private def createReport(companiesHouseId: CompaniesHouseId, reportingPeriod: ReportingPeriodFormModel, longForm: LongFormModel, confirmedBy: String)(implicit request: CompanyAuthRequest[_]): Future[ReportId] = {
-    val urlFunction: ReportId => String = (id: ReportId) => controllers.routes.ReportController.view(id).absoluteURL()
+  private def createReport(companyDetail: CompanyDetail, emailAddress: String, reportingPeriod: ReportingPeriodFormModel, longForm: LongFormModel, confirmedBy: String, urlFunction: ReportId => String): Future[ReportId] = {
     for {
-      reportId <- reports.createLongReport(request.companyDetail, reportingPeriod, longForm, confirmedBy, request.emailAddress, urlFunction)
+      reportId <- reports.createLongReport(companyDetail, reportingPeriod, longForm, confirmedBy, emailAddress, urlFunction)
       _ <- Future.successful(confirmationActor ! 'poll)
     } yield reportId
   }

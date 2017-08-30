@@ -28,7 +28,7 @@ import models.CompaniesHouseId
 import play.api.i18n.MessagesApi
 import play.api.mvc.Controller
 import play.twirl.api.Html
-import services.{CompanyAuthService, ReportService, SessionService}
+import services.{CompanyAuthService, ReportService, SessionId, SessionService}
 
 import scala.concurrent.ExecutionContext
 
@@ -47,6 +47,8 @@ class ReportingPeriodController @Inject()(
   import views.html.{report => pages}
 
   def reportPageHeader(implicit request: CompanyAuthRequest[_]): Html = h1(s"Publish a report for:<br>${request.companyDetail.companyName}")
+
+  implicit def sessionIdFromRequest(implicit request: CompanyAuthRequest[_]): SessionId = request.sessionId
 
   private def publishTitle(companyName: String) = s"Publish a report for $companyName"
 

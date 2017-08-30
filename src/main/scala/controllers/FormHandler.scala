@@ -18,7 +18,6 @@
 package controllers
 
 import controllers.FormPageModels.FormName
-import play.api.Logger
 import play.api.data.Form
 import play.api.libs.json.JsValue
 import play.api.mvc.{Call, Request}
@@ -33,16 +32,11 @@ case class FormHandler[T, N <: FormName](
   formName: N,
   form: Form[T],
   private val renderPageFunction: (Html, CompanyDetail) => (Form[T]) => Html,
-  pageCall: (CompanyDetail) => Call
+  callPage: (CompanyDetail) => Call
 ) {
   def bind(implicit request: Request[Map[String, Seq[String]]]): FormHandler[T, N] = copy(form = form.bindForm)
 
-  def bind(jsValue: JsValue): FormHandler[T, N] = {
-    Logger.debug(s"trying to bind $jsValue into ${formName.entryName}")
-    val boundForm = form.bind(jsValue)
-    Logger.debug(s"bound form is $boundForm")
-    copy(form = boundForm)
-  }
+  def bind(jsValue: JsValue): FormHandler[T, N] = copy(form = form.bind(jsValue))
 
   def bind(data: Map[String, String]): FormHandler[T, N] = copy(form = form.bind(data))
 

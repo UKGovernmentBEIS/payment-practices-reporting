@@ -31,6 +31,8 @@ import scala.util.Random
 trait FormControllerHelpers[T, N <: FormName] {
   self: Controller with FormSessionHelpers =>
 
+  implicit def sessionIdFromRequest(implicit request: CompanyAuthRequest[_]): SessionId = request.sessionId
+
   def formHandlers: Seq[FormHandler[_, N]]
 
   def bindMainForm(implicit sessionId: SessionId): Future[Option[T]]
@@ -43,13 +45,13 @@ trait FormControllerHelpers[T, N <: FormName] {
     implicit val req: CompanyAuthRequest[A] = request
 
     bindAllPages[N](formHandlers).flatMap {
-      case FormHasErrors(handler) => Future.successful(Redirect(handler.pageCall(request.companyDetail)))
-      case FormIsBlank(handler)   => Future.successful(Redirect(handler.pageCall(request.companyDetail)))
+      case FormHasErrors(handler) => Future.successful(Redirect(handler.callPage(request.companyDetail)))
+      case FormIsBlank(handler)   => Future.successful(Redirect(handler.callPage(request.companyDetail)))
       case FormIsOk(handler, value)      =>
         val forms = for {
           reportingPeriod <- bindReportingPeriod
-          longForm <- bindMainForm
-        } yield (reportingPeriod, longForm)
+          mainForm <- bindMainForm
+        } yield (reportingPeriod, mainForm)
 
         forms.flatMap {
           case (Some(r), Some(lf)) => f(request, r, lf)

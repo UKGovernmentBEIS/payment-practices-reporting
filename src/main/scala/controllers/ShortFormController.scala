@@ -102,7 +102,7 @@ class ShortFormController @Inject()(
     bindUpToPage(formHandlers, formName).map {
       case FormHasErrors(handler)   => BadRequest(page(title)(handler.renderPage(reportPageHeader, companyDetail)))
       case FormIsOk(handler, value) => nextFormHandler(handler) match {
-        case Some(nextHandler) => Redirect(nextHandler.pageCall(companyDetail))
+        case Some(nextHandler) => Redirect(nextHandler.callPage(companyDetail))
         case None              => Redirect(routes.ShortFormController.showReview(companyDetail.companiesHouseId))
       }
       case FormIsBlank(handler)     => Ok(page(title)(handler.renderPage(reportPageHeader, request.companyDetail)))
