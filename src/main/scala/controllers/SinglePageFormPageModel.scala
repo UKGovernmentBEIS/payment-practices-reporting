@@ -20,19 +20,19 @@ package controllers
 import javax.inject.Inject
 
 import config.ServiceConfig
-import controllers.FormPageDefs.{ShortFormHandler, ShortFormName}
-import forms.report.{ReportingPeriodFormModel, ShortFormModel, Validations}
+import controllers.FormPageDefs.{SinglePageFormHandler, SinglePageFormName}
+import forms.report.{LongFormModel, ReportingPeriodFormModel, Validations}
 import org.joda.time.format.DateTimeFormat
 import play.api.data.Form
 import play.api.i18n.MessagesApi
 import play.twirl.api.Html
 import services.CompanyDetail
 
-class ShortFormPageModel @Inject()(validations: Validations, serviceConfig: ServiceConfig)(implicit messagesApi: MessagesApi)
-  extends FormPageModel[ShortFormHandler[_], ShortFormName] {
+class SinglePageFormPageModel @Inject()(validations: Validations, serviceConfig: ServiceConfig)(implicit messagesApi: MessagesApi)
+  extends FormPageModel[SinglePageFormHandler[_], SinglePageFormName] {
 
-  import FormPageDefs.{ShortFormHandler, ShortFormName}
-  import ShortFormName._
+  import FormPageDefs.SinglePageFormName
+  import SinglePageFormName._
   import validations._
   import views.html.{report => pages}
 
@@ -40,9 +40,9 @@ class ShortFormPageModel @Inject()(validations: Validations, serviceConfig: Serv
 
   private val serviceStartDate = serviceConfig.startDate.getOrElse(ServiceConfig.defaultServiceStartDate)
 
-  override def formNames : Seq[ShortFormName] = ShortFormName.values
+  override def formNames : Seq[SinglePageFormName] = SinglePageFormName.values
 
-  override def handlerFor(formName: ShortFormName): ShortFormHandler[_] = formName match {
+  override def handlerFor(formName: SinglePageFormName): SinglePageFormHandler[_] = formName match {
     case ReportingPeriod =>
       FormHandler(
         ReportingPeriod,
@@ -51,11 +51,11 @@ class ShortFormPageModel @Inject()(validations: Validations, serviceConfig: Serv
         (companyDetail: CompanyDetail) => routes.ReportingPeriodController.show(companyDetail.companiesHouseId)
       )
 
-    case ShortForm =>
+    case SinglePageForm =>
       FormHandler(
-        ShortForm,
-        emptyShortForm,
-        (header: Html, companyDetail: CompanyDetail) => (form: Form[ShortFormModel]) => pages.shortForm(header, form, companyDetail.companiesHouseId, df, serviceStartDate),
+        SinglePageForm,
+        emptyLongForm,
+        (header: Html, companyDetail: CompanyDetail) => (form: Form[LongFormModel]) => pages.longForm(header, form, companyDetail.companiesHouseId, df, serviceStartDate),
         (companyDetail: CompanyDetail) => routes.ShortFormController.show(companyDetail.companiesHouseId)
       )
   }

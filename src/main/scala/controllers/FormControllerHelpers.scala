@@ -18,7 +18,7 @@
 package controllers
 
 import actions.CompanyAuthRequest
-import controllers.FormPageModels._
+import controllers.FormPageDefs._
 import forms.report.ReportingPeriodFormModel
 import play.api.data.Form
 import play.api.mvc.{Controller, Result}

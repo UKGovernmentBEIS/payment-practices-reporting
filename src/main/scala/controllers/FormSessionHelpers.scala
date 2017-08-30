@@ -17,7 +17,7 @@
 
 package controllers
 
-import controllers.FormPageModels._
+import controllers.FormPageDefs._
 import org.scalactic.TripleEquals._
 import play.api.data.Form
 import play.api.libs.json.{JsObject, Json}

@@ -17,23 +17,25 @@
 
 package controllers
 
-import controllers.FormPageModels.FormName
+import controllers.FormPageDefs.FormName
 import enumeratum.EnumEntry.Uncapitalised
 import enumeratum.{EnumEntry, PlayEnum}
 import org.scalactic.TripleEquals._
 
 import scala.language.existentials
 
-object FormPageModels {
+object FormPageDefs {
   sealed trait FormName {
     def entryName: String
   }
 
   sealed trait LongFormName extends FormName with EnumEntry with Uncapitalised
   sealed trait ShortFormName extends FormName with EnumEntry with Uncapitalised
+  sealed trait SinglePageFormName extends FormName with EnumEntry with Uncapitalised
 
   type ShortFormHandler[T] = FormHandler[T, ShortFormName]
   type LongFormHandler[T] = FormHandler[T, LongFormName]
+  type SinglePageFormHandler[T] = FormHandler[T, SinglePageFormName]
 
   object ShortFormName extends PlayEnum[ShortFormName] {
     //noinspection TypeAnnotation
@@ -58,6 +60,13 @@ object FormPageModels {
     case object OtherInformation extends LongFormName
   }
 
+  object SinglePageFormName extends PlayEnum[SinglePageFormName] {
+    //noinspection TypeAnnotation
+    override def values = findValues
+    case object ReportingPeriod extends SinglePageFormName
+    case object SinglePageForm extends SinglePageFormName
+  }
+
   sealed trait FormStatus[T, N <: FormName]
   case class FormIsBlank[T, N <: FormName](formHandler: FormHandler[T, N]) extends FormStatus[T, N]
   case class FormHasErrors[T, N <: FormName](formHandler: FormHandler[T, N]) extends FormStatus[T, N]
@@ -65,6 +74,7 @@ object FormPageModels {
 
   type LongFormStatus[T] = FormStatus[T, LongFormName]
   type ShortFormStatus[T] = FormStatus[T, ShortFormName]
+  type SinglePageFormStatus[T] = FormStatus[T, SinglePageFormName]
 }
 
 trait FormPageModel[H <: FormHandler[_, N], N <: FormName] {

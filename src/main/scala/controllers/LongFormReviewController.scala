@@ -22,8 +22,8 @@ import javax.inject.{Inject, Named}
 import actions.{CompanyAuthAction, CompanyAuthRequest}
 import akka.actor.ActorRef
 import config.{PageConfig, ServiceConfig}
-import controllers.FormPageModels.LongFormName._
-import controllers.FormPageModels._
+import controllers.FormPageDefs.LongFormName._
+import controllers.FormPageDefs._
 import forms.report.{LongFormModel, ReportingPeriodFormModel, Validations}
 import models.{CompaniesHouseId, ReportId}
 import play.api.data.Form

@@ -22,7 +22,7 @@ import javax.inject.{Inject, Named}
 import actions.{CompanyAuthAction, CompanyAuthRequest}
 import akka.actor.ActorRef
 import config.{PageConfig, ServiceConfig}
-import controllers.FormPageModels.LongFormName
+import controllers.FormPageDefs.LongFormName
 import forms.report.Validations
 import models.CompaniesHouseId
 import play.api.i18n.MessagesApi
@@ -69,7 +69,8 @@ class ReportingPeriodController @Inject()(
         errs => BadRequest(page(title)(home, pages.reportingPeriod(reportPageHeader, errs, companiesHouseId, df, serviceStartDate))),
         reportingPeriod =>
           if (reportingPeriod.hasQualifyingContracts.toBoolean)
-            Redirect(routes.LongFormController.show(LongFormName.PaymentStatistics, companiesHouseId))
+            if (serviceConfig.multiPageForm) Redirect(routes.SinglePageFormController.show(companiesHouseId))
+            else Redirect(routes.LongFormController.show(LongFormName.PaymentStatistics, companiesHouseId))
           else
             Redirect(routes.ShortFormController.show(companiesHouseId))
       )

@@ -17,7 +17,7 @@
 
 package controllers
 
-import controllers.FormPageModels.FormName
+import controllers.FormPageDefs.FormName
 import play.api.data.Form
 import play.api.libs.json.JsValue
 import play.api.mvc.{Call, Request}

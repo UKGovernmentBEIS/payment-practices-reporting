@@ -21,7 +21,7 @@ import javax.inject.Inject
 
 import actions.{CompanyAuthAction, CompanyAuthRequest}
 import config.{PageConfig, ServiceConfig}
-import controllers.FormPageModels._
+import controllers.FormPageDefs._
 import forms.report.Validations
 import models.CompaniesHouseId
 import org.scalactic.TripleEquals._

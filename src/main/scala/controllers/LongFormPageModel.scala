@@ -20,8 +20,8 @@ package controllers
 import javax.inject.Inject
 
 import config.ServiceConfig
-import controllers.FormPageModels.LongFormName._
-import controllers.FormPageModels.{LongFormHandler, LongFormName}
+import controllers.FormPageDefs.LongFormName._
+import controllers.FormPageDefs.{LongFormHandler, LongFormName}
 import forms.report.{ReportingPeriodFormModel, Validations}
 import org.joda.time.format.DateTimeFormat
 import play.api.data.Forms.mapping

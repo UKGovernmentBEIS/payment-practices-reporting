@@ -1,7 +1,6 @@
 @(
         header: Html,
         longForm: Form[forms.report.LongFormModel],
-        stashData: Map[String, String],
         companyId: CompaniesHouseId,
         df: DateTimeFormatter,
         serviceStartDate: LocalDate
@@ -26,14 +25,14 @@
     @shared._day1Calculation()
 
     <form action="" method="POST" id="longForm-report">
-        @for((k, v) <- stashData) {
-            <input type="hidden" name='@k' value="@HtmlFormat.escape(v)">
-        }
-
         <p class="small-aside">
             Companies House number: @companyId.id
         </p>
 
+        @report._paymentStatistics(longForm)
+        @report._paymentTerms(longForm)
+        @report._disputeResolution(longForm)
+        @report._otherPaymentInfo(longForm)
 
         <input type="submit" class="button" name="Continue" value="Review your answers">
     </form>

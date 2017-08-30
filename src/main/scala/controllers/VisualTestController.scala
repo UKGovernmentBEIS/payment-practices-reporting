@@ -29,7 +29,7 @@ import play.api.data.Form
 import play.api.data.Forms.single
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, Call, Controller}
-import play.twirl.api.{Html, HtmlFormat}
+import play.twirl.api.Html
 import questionnaire._
 import services._
 import utils.YesNo.{No, Yes}
@@ -37,15 +37,15 @@ import utils.{SystemTimeSource, YesNo}
 import views.html.helpers.ReviewPageData
 
 class VisualTestController @Inject()(
-                                      summarizer: Summarizer,
-                                      val pageConfig: PageConfig,
-                                      val serviceConfig: ServiceConfig
-                                    )(implicit messages: MessagesApi) extends Controller with PageHelper {
+  summarizer: Summarizer,
+  val pageConfig: PageConfig,
+  val serviceConfig: ServiceConfig
+)(implicit messages: MessagesApi) extends Controller with PageHelper {
 
   import Questions._
 
   val startDate = new LocalDate(2017, 1, 1)
-  val endDate = new LocalDate(2017, 12, 31)
+  val endDate   = new LocalDate(2017, 12, 31)
 
   def show = Action { implicit request =>
     val df = CalculatorController.df
@@ -58,7 +58,8 @@ class VisualTestController @Inject()(
     val thirdYear: DecisionState = models.DecisionState(Some(Yes), Some(FinancialYear.ThirdOrLater), Thresholds(Some(Yes), Some(Yes), Some(Yes)), Some(Yes), Thresholds(Some(Yes), Some(Yes), Some(Yes)))
 
     val requireds =
-      Seq(views.html.questionnaire.required(summarizer.summarize(secondYear)),
+      Seq(
+        views.html.questionnaire.required(summarizer.summarize(secondYear)),
         views.html.questionnaire.required(summarizer.summarize(thirdYear)))
     val calcs = Seq(
       views.html.calculator.calculator(CalculatorController.emptyForm),
@@ -99,9 +100,9 @@ class VisualTestController @Inject()(
     )
 
     val longForms = Seq(
-      views.html.report.longForm(header, emptyLongForm, dummyReportingPeriodForm.data, id, df, serviceStartDate),
-      views.html.report.longForm(header, emptyLongForm.fill(healthyLongFormModel), dummyReportingPeriodForm.data, id, df, serviceStartDate),
-      views.html.report.longForm(header, emptyLongForm.fillAndValidate(LongFormModel(paymentCodes, unhealthyLongForm)), dummyReportingPeriodForm.data, id, df, serviceStartDate)
+      views.html.report.longForm(header, emptyLongForm, id, df, serviceStartDate),
+      views.html.report.longForm(header, emptyLongForm.fill(healthyLongFormModel), id, df, serviceStartDate),
+      views.html.report.longForm(header, emptyLongForm.fillAndValidate(LongFormModel(paymentCodes, unhealthyLongForm)), id, df, serviceStartDate)
     )
 
     val shortForms = Seq(
@@ -195,7 +196,8 @@ class VisualTestController @Inject()(
 
   val unhealthyLongForm = ContractDetails(
     PaymentStatistics(-1, PercentageSplit(20, 33, 33), 200),
-    PaymentTerms(-1, None, "payment terms", 200, Some("Maximum period is very fair"),
+    PaymentTerms(
+      -1, None, "payment terms", 200, Some("Maximum period is very fair"),
       PaymentTermsChanged(ConditionalText("Payment terms have changed"), Some(ConditionalText("We told everyone"))),
       Some("Other comments")
     ),
