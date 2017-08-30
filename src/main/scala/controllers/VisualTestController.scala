@@ -39,7 +39,8 @@ import views.html.helpers.ReviewPageData
 class VisualTestController @Inject()(
   summarizer: Summarizer,
   val pageConfig: PageConfig,
-  val serviceConfig: ServiceConfig
+  val serviceConfig: ServiceConfig,
+  reviewPageData: ReviewPageData
 )(implicit messages: MessagesApi) extends Controller with PageHelper {
 
   import Questions._
@@ -71,6 +72,7 @@ class VisualTestController @Inject()(
     val reports = Seq(views.html.search.report(healthyReport, df))
     val id = CompaniesHouseId("1234567890")
     val companyName = "ABC Limited"
+    val companyDetail = CompanyDetail(id, companyName)
     val summary = CompanySearchResult(id, companyName, Some("123 Abc Road"))
     val results = PagedResults(Seq(summary, summary, summary), 25, 1, 100)
     val searches = Seq(
@@ -109,7 +111,7 @@ class VisualTestController @Inject()(
       views.html.report.shortForm(header, emptyShortForm, id, df, serviceStartDate)
     )
 
-    val formGroups = ReviewPageData.formGroups(companyName, dummyReportingPeriodModel, healthyLongFormModel)
+    val formGroups = reviewPageData.formGroups(dummyReportingPeriodModel, healthyLongFormModel)(companyDetail)
     val review = Seq(views.html.report.review(emptyReview, formGroups, Call("", "")))
     val published = Seq(views.html.report.filingSuccess(reportId, "foobar@example.com", pageConfig.surveyMonkeyConfig))
     val errors = Seq(

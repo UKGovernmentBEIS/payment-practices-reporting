@@ -69,8 +69,8 @@ class ReportingPeriodController @Inject()(
         errs => BadRequest(page(title)(home, pages.reportingPeriod(reportPageHeader, errs, companiesHouseId, df, serviceStartDate))),
         reportingPeriod =>
           if (reportingPeriod.hasQualifyingContracts.toBoolean)
-            if (serviceConfig.multiPageForm) Redirect(routes.SinglePageFormController.show(companiesHouseId))
-            else Redirect(routes.LongFormController.show(LongFormName.PaymentStatistics, companiesHouseId))
+            if (serviceConfig.multiPageForm) Redirect(routes.LongFormController.show(LongFormName.PaymentStatistics, companiesHouseId))
+            else Redirect(routes.SinglePageFormController.show(companiesHouseId))
           else
             Redirect(routes.ShortFormController.show(companiesHouseId))
       )

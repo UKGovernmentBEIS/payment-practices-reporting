@@ -36,7 +36,7 @@ import services._
 import views.html.helpers.ReviewPageData
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.language.existentials
+import scala.language.{existentials, implicitConversions}
 
 class LongFormReviewController @Inject()(
   reports: ReportService,
@@ -47,6 +47,7 @@ class LongFormReviewController @Inject()(
   val pageConfig: PageConfig,
   val sessionService: SessionService,
   longFormPageModel: LongFormPageModel,
+  reviewPageData: ReviewPageData,
   @Named("confirmation-actor") confirmationActor: ActorRef
 )(implicit val ec: ExecutionContext, messages: MessagesApi)
   extends Controller
@@ -62,6 +63,8 @@ class LongFormReviewController @Inject()(
   private val reviewPageTitle = "Review your report"
 
   private def publishTitle(companyName: String) = s"Publish a report for $companyName"
+
+  implicit def companyDetail(implicit request: CompanyAuthRequest[_]): CompanyDetail = request.companyDetail
 
   def reportPageHeader(companyDetail: CompanyDetail): Html = h1(s"Publish a report for:<br>${companyDetail.companyName}")
 
@@ -99,14 +102,14 @@ class LongFormReviewController @Inject()(
 
     val title = publishTitle(request.companyDetail.companyName)
     val action: Call = routes.LongFormReviewController.postReview(request.companyDetail.companiesHouseId)
-    val formGroups = ReviewPageData.formGroups(request.companyDetail.companyName, r, lf)
+    val formGroups = reviewPageData.formGroups(r, lf)
     Future.successful(Ok(page(title)(views.html.report.review(emptyReview, formGroups, action))))
   }
 
   private def handleReviewPost(request: CompanyAuthRequest[Map[String, Seq[String]]], reportingPeriod: ReportingPeriodFormModel, longForm: LongFormModel): Future[Result] = {
     implicit val req: CompanyAuthRequest[Map[String, Seq[String]]] = request
 
-    val formGroups = ReviewPageData.formGroups(request.companyDetail.companyName, reportingPeriod, longForm)
+    val formGroups = reviewPageData.formGroups(reportingPeriod, longForm)
     val action: Call = routes.LongFormReviewController.postReview(request.companyDetail.companiesHouseId)
     val urlFunction: ReportId => String = (id: ReportId) => controllers.routes.ReportController.view(id).absoluteURL()
 

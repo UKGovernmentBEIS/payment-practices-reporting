@@ -17,14 +17,32 @@
 
 package views.html.helpers
 
+import javax.inject.Inject
+
+import controllers.routes
 import forms.report.{ConditionalText, LongFormModel, ReportingPeriodFormModel, ShortFormModel}
 import org.joda.time.LocalDate
 import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
+import play.api.mvc.Call
 import play.twirl.api.{Html, HtmlFormat}
+import services.CompanyDetail
 import utils.YesNo
 import utils.YesNo.{No, Yes}
 
 import scala.language.implicitConversions
+
+object ReviewPageData {
+  /**
+    * Maps a row label to the value for the row
+    */
+  type RowDescriptor = (String, Html, Option[Call])
+
+  /**
+    * Maps a css class (applied to the `<table>` tag) to a sequence of row descriptors
+    */
+  type TableDescriptor = (String, Seq[RowDescriptor])
+
+}
 
 /**
   * This object holds data that describes how the fields from the report are to be
@@ -35,19 +53,11 @@ import scala.language.implicitConversions
   * should be applied to the `<table>` tag and the second element is a sequence of mappings of
   * a string label to the Html value. These are turned into the `<tr>` elements in the table.
   */
-object ReviewPageData extends HtmlHelpers {
+class ReviewPageData @Inject()(fieldCallTable: FieldCallTable) extends HtmlHelpers {
+  import ReviewPageData._
 
   val df: DateTimeFormatter = DateTimeFormat.forPattern("d MMMM YYYY")
 
-  /**
-    * Maps a row label to the value for the row
-    */
-  type RowDescriptor = (String, Html)
-
-  /**
-    * Maps a css class (applied to the `<table>` tag) to a sequence of row descriptors
-    */
-  type TableDescriptor = (String, Seq[RowDescriptor])
 
   val cssClasses = "check-answers check-answers-essay"
 
@@ -59,75 +69,82 @@ object ReviewPageData extends HtmlHelpers {
     * The review page can be reconfigured by changing this list of tables or by changing
     * the content of the various groups.
     */
-  def formGroups(companyName: String, reportingPeriod: ReportingPeriodFormModel, shortForm: ShortFormModel): Seq[TableDescriptor] = {
+  def formGroups(reportingPeriod: ReportingPeriodFormModel, shortForm: ShortFormModel)(implicit companyDetail: CompanyDetail): Seq[TableDescriptor] = {
     Seq(
-      cssClasses -> group1(companyName, reportingPeriod),
+      cssClasses -> group1(reportingPeriod),
       cssClasses -> group3(shortForm)
     )
   }
 
-  def formGroups(companyName: String, reportingPeriod: ReportingPeriodFormModel, longForm: LongFormModel): Seq[TableDescriptor] = {
+  def formGroups(reportingPeriod: ReportingPeriodFormModel, longForm: LongFormModel)(implicit companyDetail: CompanyDetail): Seq[TableDescriptor] = {
     Seq(
-      cssClasses -> group1(companyName, reportingPeriod),
+      cssClasses -> group1(reportingPeriod),
       cssClasses -> group2(longForm),
       cssClasses -> group3(longForm)
     )
   }
 
-  def group1(companyName: String, reportingPeriod: ReportingPeriodFormModel): Seq[RowDescriptor] =
-    topLevelInfo(companyName) ++ reportingDateRows(reportingPeriod)
+  def group1(reportingPeriod: ReportingPeriodFormModel)(implicit companyDetail: CompanyDetail): Seq[RowDescriptor] =
+    topLevelInfo(companyDetail.companyName) ++ reportingDateRows(reportingPeriod)
 
-  def group2(longForm: LongFormModel): Seq[(String, Html)] = paymentStatisticsRows(longForm) ++ paymentTermsRows(longForm) ++ disputeResolutionRows(longForm)
+  def group2(longForm: LongFormModel)(implicit companyDetail: CompanyDetail): Seq[RowDescriptor] =
+    paymentStatisticsRows(longForm) ++ paymentTermsRows(longForm) ++ disputeResolutionRows(longForm)
 
-  def group3(shortForm: ShortFormModel): Seq[(String, Html)] = paymentCodesRows(shortForm)
+  def group3(shortForm: ShortFormModel)(implicit companyDetail: CompanyDetail): Seq[RowDescriptor] =
+    paymentCodesRows(shortForm)
 
-  def group3(longForm: LongFormModel): Seq[(String, Html)] = otherInfoRows(longForm)
+  def group3(longForm: LongFormModel)(implicit companyDetail: CompanyDetail): Seq[RowDescriptor] =
+    otherInfoRows(longForm)
+
+  import fieldCallTable.call
 
   def topLevelInfo(companyName: String): Seq[RowDescriptor] = Seq(
-    ("Company or limited liability partnership", companyName)
+    ("Company or limited liability partnership", companyName, None)
   )
 
-  def reportingDateRows(r: ReportingPeriodFormModel): Seq[RowDescriptor] = Seq(
-    "Start date of reporting period" -> df.print(r.reportDates.startDate),
-    "End date of reporting period" -> df.print(r.reportDates.endDate)
+  def reportingDateRows(r: ReportingPeriodFormModel)(implicit companyDetail: CompanyDetail): Seq[RowDescriptor] = Seq(
+    ("Start date of reporting period", df.print(r.reportDates.startDate), call("reportDates.startDate")),
+    ("End date of reporting period", df.print(r.reportDates.endDate), call("reportDates.endDate"))
   )
 
-  def paymentStatisticsRows(r: LongFormModel): Seq[RowDescriptor] = Seq(
-    ("Average number of days for making payment", (r.paymentStatistics.averageDaysToPay, "days")),
-    ("Percentage of invoices paid within 30 days", (r.paymentStatistics.percentageSplit.percentWithin30Days, "%")),
-    ("Percentage of invoices paid within 31 to 60 days", (r.paymentStatistics.percentageSplit.percentWithin60Days, "%")),
-    ("Percentage of invoices paid on or after day 61", (r.paymentStatistics.percentageSplit.percentBeyond60Days, "%")),
-    ("Percentage of invoices not paid within agreed terms", (r.paymentStatistics.percentPaidLaterThanAgreedTerms, "%"))
+  def paymentStatisticsRows(r: LongFormModel)(implicit companyDetail: CompanyDetail): Seq[RowDescriptor] = Seq(
+    ("Average number of days for making payment", (r.paymentStatistics.averageDaysToPay, "days"), call("paymentStatistics.averageDaysToPay")),
+    ("Percentage of invoices paid within 30 days", (r.paymentStatistics.percentageSplit.percentWithin30Days, "%"), call("paymentStatistics.percentageSplit.percentWithin30Days")),
+    ("Percentage of invoices paid within 31 to 60 days", (r.paymentStatistics.percentageSplit.percentWithin60Days, "%"), call("paymentStatistics.percentageSplit.percentWithin60Days")),
+    ("Percentage of invoices paid on or after day 61", (r.paymentStatistics.percentageSplit.percentBeyond60Days, "%"), call("paymentStatistics.percentageSplit.percentBeyond60Days")),
+    ("Percentage of invoices not paid within agreed terms", (r.paymentStatistics.percentPaidLaterThanAgreedTerms, "%"), call("paymentStatistics.percentPaidLaterThanAgreedTerms"))
   )
 
-  def paymentTermsRows(r: LongFormModel): Seq[RowDescriptor] = Seq(
-    ("Shortest standard payment period", (r.paymentTerms.shortestPaymentPeriod, "days")),
-    ("Longest standard payment period", (r.paymentTerms.longestPaymentPeriod, "days")),
-    ("Standard payment terms", r.paymentTerms.terms),
-    ("Any changes to standard payment terms", r.paymentTerms.paymentTermsChanged.comment),
+  def paymentTermsRows(r: LongFormModel)(implicit companyDetail: CompanyDetail): Seq[RowDescriptor] = Seq(
+    ("Shortest standard payment period", (r.paymentTerms.shortestPaymentPeriod, "days"), call("paymentTerms.shortestPaymentPeriod")),
+    ("Longest standard payment period", (r.paymentTerms.longestPaymentPeriod, "days"), call("paymentTerms.longestPaymentPeriod")),
+    ("Standard payment terms", r.paymentTerms.terms, call("paymentTerms.terms")),
+    ("Any changes to standard payment terms", r.paymentTerms.paymentTermsChanged.comment, call("paymentTerms.paymentTermsChanged.changed.yesNo")),
     ("Did you consult or notify your suppliers about changes?",
-      r.paymentTerms.paymentTermsChanged.notified.map(conditionalText)),
-    ("Maximum contract period in days", (r.paymentTerms.maximumContractPeriod, "days")),
-    ("Maximum contract period: further information", r.paymentTerms.maximumContractPeriodComment.map(breakLines)),
-    ("Further remarks about your payment terms", r.paymentTerms.paymentTermsComment.map(breakLines))
+      r.paymentTerms.paymentTermsChanged.notified.map(conditionalText), call("paymentTerms.paymentTermsChanged.notified.yesNo")),
+    ("Maximum contract period in days", (r.paymentTerms.maximumContractPeriod, "days"), call("paymentTerms.maximumContractPeriod")),
+    ("Maximum contract period: further information", r.paymentTerms.maximumContractPeriodComment.map(breakLines), call("paymentTerms.maximumContractPeriodComment")),
+    ("Further remarks about your payment terms", r.paymentTerms.paymentTermsComment.map(breakLines), call("paymentTerms.paymentTermsComment"))
   )
 
-  def disputeResolutionRows(r: LongFormModel): Seq[RowDescriptor] = Seq(
-    ("Your dispute resolution process", breakLines(r.disputeResolution.text))
+  def disputeResolutionRows(r: LongFormModel)(implicit companyDetail: CompanyDetail): Seq[RowDescriptor] = Seq(
+    ("Your dispute resolution process", breakLines(r.disputeResolution.text), call("disputeResolution.text"))
   )
 
   private val codeOfConductText = "Are you a member of a code of conduct or standards on payment practices?"
 
-  def otherInfoRows(longForm: LongFormModel): Seq[RowDescriptor] = Seq(
-    ("Do you offer e-invoicing?", longForm.otherInformation.offerEInvoicing),
-    ("Do you offer offer supply chain finance?", longForm.otherInformation.offerSupplyChainFinance),
-    ("Do you have a policy of deducting sums from payments under qualifying contracts as a charge for remaining on a supplier list?", longForm.otherInformation.retentionChargesInPolicy),
-    ("In this reporting period, have you deducted any sum from payments under qualifying contracts as a charge for remaining on a supplier list?", longForm.otherInformation.retentionChargesInPast),
-    (codeOfConductText, longForm.otherInformation.paymentCodes)
+  def otherInfoRows(longForm: LongFormModel)(implicit companyDetail: CompanyDetail): Seq[RowDescriptor] = Seq(
+    ("Do you offer e-invoicing?", longForm.otherInformation.offerEInvoicing, call("otherInformation.offerEInvoicing")),
+    ("Do you offer offer supply chain finance?", longForm.otherInformation.offerSupplyChainFinance, call("otherInformation.offerSupplyChainFinance")),
+    ("Do you have a policy of deducting sums from payments under qualifying contracts as a charge for remaining on a supplier list?",
+      longForm.otherInformation.retentionChargesInPolicy, call("otherInformation.retentionChargesInPolicy")),
+    ("In this reporting period, have you deducted any sum from payments under qualifying contracts as a charge for remaining on a supplier list?",
+      longForm.otherInformation.retentionChargesInPast, call("otherInformation.retentionChargesInPast")),
+    (codeOfConductText, longForm.otherInformation.paymentCodes, call("otherInformation.paymentCodes.yesNo"))
   )
 
   def paymentCodesRows(shortForm: ShortFormModel): Seq[RowDescriptor] = Seq(
-    (codeOfConductText, shortForm.paymentCodes)
+    (codeOfConductText, shortForm.paymentCodes, None)
   )
 
 }

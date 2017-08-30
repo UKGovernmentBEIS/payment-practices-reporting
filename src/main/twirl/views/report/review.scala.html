@@ -1,7 +1,8 @@
 @(
-        review: Form[forms.report.ReportReviewModel],
-        formGroups: Seq[views.html.helpers.ReviewPageData.TableDescriptor],
-        formAction: Call)(implicit messagesApi: MessagesApi)
+    review: Form[forms.report.ReportReviewModel],
+    formGroups: Seq[views.html.helpers.ReviewPageData.TableDescriptor],
+    formAction: Call
+)(implicit messagesApi: MessagesApi)
 
 @checked(field: Field) = @{
     if(field.value.contains("true")) "checked" else ""
@@ -18,17 +19,19 @@
 
     <div class="scannable-wrapper">
 
+        <table class="check-answers check-answers-essay">
         @for((cssClass, rows) <- formGroups) {
-            <table class="@cssClass">
-            @for((name, value) <- rows) {
+            @for((name, value, changeUrl) <- rows) {
                 <tr>
                     <td class="key-column"> @name</td>
                     <td>@value</td>
+                    <td align="right">@changeUrl.map { call =>
+                        <a href="@call.path()">Change</a>
+                    }</td>
                 </tr>
             }
-            </table>
         }
-
+        </table>
         <form action="@formAction" method="POST">
             @shared._textField(review, "confirmedBy")
             <fieldset class='confirmation form-group'>

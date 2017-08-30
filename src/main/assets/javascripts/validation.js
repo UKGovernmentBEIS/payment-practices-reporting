@@ -225,7 +225,7 @@ function validationPlumbing(messages, serviceStartDate) {
         v.validations.multiStartBeforeEnd(serviceStartDate));
 
     v.validateTextInput("paymentStatistics.averageDaysToPay", v.validations.textPositiveInteger);
-    v.validateTextInput("paymentStatistics.percentPaidBeyondAgreedTerms", v.validations.textPercentage);
+    v.validateTextInput("paymentStatistics.percentPaidLaterThanAgreedTerms", v.validations.textPercentage);
     v.validateTextInput("paymentStatistics.percentageSplit.percentWithin30Days", v.validations.textPercentage);
     v.validateTextInput("paymentStatistics.percentageSplit.percentWithin60Days", v.validations.textPercentage);
     v.validateTextInput("paymentStatistics.percentageSplit.percentBeyond60Days", v.validations.textPercentage);

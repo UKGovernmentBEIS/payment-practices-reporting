@@ -54,7 +54,7 @@ class Validations @Inject()(timeSource: TimeSource, serviceConfig: ServiceConfig
   val paymentStatistics: Mapping[PaymentStatistics] = mapping(
     "averageDaysToPay" -> number(min = 0),
     "percentageSplit" -> percentageSplit,
-    "percentPaidBeyondAgreedTerms" -> percentage
+    "percentPaidLaterThanAgreedTerms" -> percentage
   )(PaymentStatistics.apply)(PaymentStatistics.unapply)
 
 
@@ -121,7 +121,7 @@ class Validations @Inject()(timeSource: TimeSource, serviceConfig: ServiceConfig
 
   val otherInformation: Mapping[OtherInformation] = mapping(
     "offerEInvoicing" -> yesNo,
-    "offerSupplyChainFinancing" -> yesNo,
+    "offerSupplyChainFinance" -> yesNo,
     "retentionChargesInPolicy" -> yesNo,
     "retentionChargesInPast" -> yesNo,
     paymentCodesValidation

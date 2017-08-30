@@ -44,6 +44,7 @@ class ShortFormReviewController @Inject()(
   val pageConfig: PageConfig,
   val sessionService: SessionService,
   shortFormPageModel: ShortFormPageModel,
+  reviewPageData: ReviewPageData,
   @Named("confirmation-actor") confirmationActor: ActorRef
 )(implicit val ec: ExecutionContext, messages: MessagesApi)
   extends Controller
@@ -58,6 +59,8 @@ class ShortFormReviewController @Inject()(
   private val reviewPageTitle = "Review your report"
 
   private def publishTitle(companyName: String) = s"Publish a report for $companyName"
+
+  implicit def companyDetail(implicit request: CompanyAuthRequest[_]): CompanyDetail = request.companyDetail
 
   def reportPageHeader(implicit request: CompanyAuthRequest[_]): Html = h1(s"Publish a report for:<br>${request.companyDetail.companyName}")
 
@@ -91,7 +94,7 @@ class ShortFormReviewController @Inject()(
     implicit val req: CompanyAuthRequest[_] = request
 
     val action: Call = routes.ShortFormReviewController.postReview(request.companyDetail.companiesHouseId)
-    val formGroups = ReviewPageData.formGroups(request.companyDetail.companyName, reportingPeriod, shortForm)
+    val formGroups = reviewPageData.formGroups(reportingPeriod, shortForm)
     Future.successful(Ok(page(reviewPageTitle)(home, pages.review(emptyReview, formGroups, action))))
   }
 
@@ -99,7 +102,7 @@ class ShortFormReviewController @Inject()(
     implicit val req: CompanyAuthRequest[Map[String, Seq[String]]] = request
 
     val action: Call = routes.ShortFormReviewController.postReview(request.companyDetail.companiesHouseId)
-    val formGroups = ReviewPageData.formGroups(request.companyDetail.companyName, r, sf)
+    val formGroups = reviewPageData.formGroups(r, sf)
     emptyReview.bindForm.fold(
       errs => Future.successful(BadRequest(page(reviewPageTitle)(home, pages.review(errs, formGroups, action)))),
       review => {
