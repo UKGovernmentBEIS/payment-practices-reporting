@@ -40,14 +40,9 @@ class ShortFormPageModel @Inject()(validations: Validations, serviceConfig: Serv
 
   private val serviceStartDate = serviceConfig.startDate.getOrElse(ServiceConfig.defaultServiceStartDate)
 
-  def formHandlers: Seq[ShortFormHandler[_]] = ShortFormName.values.map(handlerFor)
-  def nextFormName(formName: ShortFormName): Option[ShortFormName] =
-    ShortFormName.values.dropWhile(_ != formName).drop(1).headOption
+  override def formNames : Seq[ShortFormName] = ShortFormName.values
 
-  def nextFormHandler(handler:ShortFormHandler[_]): Option[ShortFormHandler[_]] =
-    nextFormName(handler.formName).map(handlerFor)
-
-  def handlerFor(formName: ShortFormName): ShortFormHandler[_] = formName match {
+  override def handlerFor(formName: ShortFormName): ShortFormHandler[_] = formName match {
     case ReportingPeriod =>
       FormHandler(
         ReportingPeriod,

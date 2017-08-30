@@ -20,6 +20,7 @@ package controllers
 import controllers.FormPageModels.FormName
 import enumeratum.EnumEntry.Uncapitalised
 import enumeratum.{EnumEntry, PlayEnum}
+import org.scalactic.TripleEquals._
 
 import scala.language.existentials
 
@@ -66,8 +67,11 @@ object FormPageModels {
   type ShortFormStatus[T] = FormStatus[T, ShortFormName]
 }
 
-trait FormPageModel[H, N <: FormName] {
-  def formHandlers: Seq[H]
-  def nextFormName(formName: N): Option[N]
-  def nextFormHandler(handler: H): Option[H]
+trait FormPageModel[H <: FormHandler[_, N], N <: FormName] {
+  def formNames: Seq[N]
+  def handlerFor(formName: N): H
+
+  def formHandlers: Seq[H] = formNames.map(handlerFor)
+  def nextFormName(formName: N): Option[N] = formNames.dropWhile(_ !== formName).drop(1).headOption
+  def nextFormHandler(handler: H): Option[H] = nextFormName(handler.formName).map(handlerFor)
 }

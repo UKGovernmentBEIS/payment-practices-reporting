@@ -45,8 +45,6 @@ class LongFormPageModel @Inject()(validations: Validations, serviceConfig: Servi
 
   private val serviceStartDate = serviceConfig.startDate.getOrElse(ServiceConfig.defaultServiceStartDate)
 
-  def formHandlers: Seq[LongFormHandler[_]] = LongFormName.values.map(handlerFor)
-
   val paymentStatisticsFormMapping: Mapping[PaymentStatisticsForm] = mapping(
     PaymentStatistics.entryName -> paymentStatistics
   )(PaymentStatisticsForm.apply)(PaymentStatisticsForm.unapply)
@@ -68,13 +66,9 @@ class LongFormPageModel @Inject()(validations: Validations, serviceConfig: Servi
   val emptyDisputeResolutionForm: Form[DisputeResolutionForm] = Form(disputeResolutionFormMapping)
   val emptyOtherInformationForm : Form[OtherInformationForm]  = Form(otherInformationFormMapping)
 
-  def nextFormName(formName: LongFormName): Option[LongFormName] =
-    LongFormName.values.dropWhile(_ != formName).drop(1).headOption
+  override def formNames: Seq[LongFormName] = LongFormName.values
 
-  def nextFormHandler(handler:LongFormHandler[_]): Option[LongFormHandler[_]] =
-    nextFormName(handler.formName).map(handlerFor)
-
-  def handlerFor(formName: LongFormName): LongFormHandler[_] = formName match {
+  override def handlerFor(formName: LongFormName): LongFormHandler[_] = formName match {
     case ReportingPeriod   =>
       FormHandler(
         ReportingPeriod,
