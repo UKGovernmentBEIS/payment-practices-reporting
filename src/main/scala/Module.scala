@@ -30,6 +30,12 @@ class Module(environment: Environment, configuration: Configuration) extends Abs
 
     val config = new AppConfig(configuration).config
 
+    val dbDriver = configuration.getString("slick.dbs.default.db.driver")
+    dbDriver match {
+      case Some(d) => Logger.debug(s"Using database driver $d")
+      case None => Logger.warn("No database driver is configured!")
+    }
+
     config.companiesHouse match {
       case Some(ch) =>
         bind(classOf[CompaniesHouseConfig]).toInstance(ch)
