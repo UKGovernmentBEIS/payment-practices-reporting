@@ -143,8 +143,8 @@ class ReviewPageData @Inject()(fieldCallTable: FieldCallTable) extends HtmlHelpe
     (codeOfConductText, longForm.otherInformation.paymentCodes, call("otherInformation.paymentCodes.yesNo"))
   )
 
-  def paymentCodesRows(shortForm: ShortFormModel): Seq[RowDescriptor] = Seq(
-    (codeOfConductText, shortForm.paymentCodes, None)
+  def paymentCodesRows(shortForm: ShortFormModel)(implicit companyDetail: CompanyDetail): Seq[RowDescriptor] = Seq(
+    (codeOfConductText, shortForm.paymentCodes, Some(routes.ShortFormController.show(companyDetail.companiesHouseId).withFragment("paymentCodes.yesNo")))
   )
 
 }

@@ -24,28 +24,29 @@ import controllers.FormPageDefs.LongFormName
 import controllers.routes
 import play.api.mvc.Call
 import services.CompanyDetail
+import routes._
 
 class FieldCallTable @Inject()(serviceConfig: ServiceConfig) {
   def call(fieldName: String)(implicit companyDetail: CompanyDetail): Option[Call] = fieldName match {
     case "reportDates.startDate" =>
-      Some(routes.ReportingPeriodController.show(companyDetail.companiesHouseId).withFragment(fieldName))
+      Some(ReportingPeriodController.show(companyDetail.companiesHouseId).withFragment(fieldName))
     case "reportDates.endDate"   =>
-      Some(routes.ReportingPeriodController.show(companyDetail.companiesHouseId).withFragment(fieldName))
+      Some(ReportingPeriodController.show(companyDetail.companiesHouseId).withFragment(fieldName))
 
     case _ if serviceConfig.multiPageForm =>
       multiPageCall(fieldName)
 
     case _ =>
-      Some(routes.SinglePageFormController.show(companyDetail.companiesHouseId).withFragment(fieldName))
+      Some(SinglePageFormController.show(companyDetail.companiesHouseId).withFragment(fieldName))
   }
 
   def multiPageCall(fieldName: String)(implicit companyDetail: CompanyDetail): Option[Call] = fieldName match {
     case s if s.startsWith("paymentStatistics") =>
-      Some(routes.LongFormController.show(LongFormName.PaymentStatistics, companyDetail.companiesHouseId).withFragment(fieldName))
+      Some(LongFormController.show(LongFormName.PaymentStatistics, companyDetail.companiesHouseId).withFragment(fieldName))
     case s if s.startsWith("paymentTerms")      =>
-      Some(routes.LongFormController.show(LongFormName.PaymentTerms, companyDetail.companiesHouseId).withFragment(fieldName))
+      Some(LongFormController.show(LongFormName.PaymentTerms, companyDetail.companiesHouseId).withFragment(fieldName))
     case "disputeResolution.text" =>
-      Some(routes.LongFormController.show(LongFormName.DisputeResolution, companyDetail.companiesHouseId).withFragment(fieldName))
+      Some(LongFormController.show(LongFormName.DisputeResolution, companyDetail.companiesHouseId).withFragment(fieldName))
 
     case _                                      => None
   }
