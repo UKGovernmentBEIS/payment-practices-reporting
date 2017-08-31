@@ -107,22 +107,27 @@ class ReviewPageData @Inject()(fieldCallTable: FieldCallTable) extends HtmlHelpe
     ("End date of reporting period", df.print(r.reportDates.endDate), call("reportDates.endDate"))
   )
 
-  def paymentStatisticsRows(r: LongFormModel)(implicit companyDetail: CompanyDetail): Seq[RowDescriptor] = Seq(
-    ("Average number of days for making payment", (r.paymentStatistics.averageDaysToPay, "days"), call("paymentStatistics.averageDaysToPay")),
-    ("Percentage of invoices paid within 30 days", (r.paymentStatistics.percentageSplit.percentWithin30Days, "%"), call("paymentStatistics.percentageSplit.percentWithin30Days")),
-    ("Percentage of invoices paid within 31 to 60 days", (r.paymentStatistics.percentageSplit.percentWithin60Days, "%"), call("paymentStatistics.percentageSplit.percentWithin60Days")),
-    ("Percentage of invoices paid on or after day 61", (r.paymentStatistics.percentageSplit.percentBeyond60Days, "%"), call("paymentStatistics.percentageSplit.percentBeyond60Days")),
-    ("Percentage of invoices not paid within agreed terms", (r.paymentStatistics.percentPaidLaterThanAgreedTerms, "%"), call("paymentStatistics.percentPaidLaterThanAgreedTerms"))
-  )
+  private val percent = "%"
+  private val days = "days"
+
+  def paymentStatisticsRows(r: LongFormModel)(implicit companyDetail: CompanyDetail): Seq[RowDescriptor] = {
+    Seq(
+      ("Average number of " + days + " for making payment", (r.paymentStatistics.averageDaysToPay, days), call("paymentStatistics.averageDaysToPay")),
+      ("Percentage of invoices paid within 30 " + days, (r.paymentStatistics.percentageSplit.percentWithin30Days, percent), call("paymentStatistics.percentageSplit.percentWithin30Days")),
+      ("Percentage of invoices paid within 31 to 60 " + days, (r.paymentStatistics.percentageSplit.percentWithin60Days, percent), call("paymentStatistics.percentageSplit.percentWithin60Days")),
+      ("Percentage of invoices paid on or after day 61", (r.paymentStatistics.percentageSplit.percentBeyond60Days, percent), call("paymentStatistics.percentageSplit.percentBeyond60Days")),
+      ("Percentage of invoices not paid within agreed terms", (r.paymentStatistics.percentPaidLaterThanAgreedTerms, percent), call("paymentStatistics.percentPaidLaterThanAgreedTerms"))
+    )
+  }
 
   def paymentTermsRows(r: LongFormModel)(implicit companyDetail: CompanyDetail): Seq[RowDescriptor] = Seq(
-    ("Shortest standard payment period", (r.paymentTerms.shortestPaymentPeriod, "days"), call("paymentTerms.shortestPaymentPeriod")),
-    ("Longest standard payment period", (r.paymentTerms.longestPaymentPeriod, "days"), call("paymentTerms.longestPaymentPeriod")),
+    ("Shortest standard payment period", (r.paymentTerms.shortestPaymentPeriod, days), call("paymentTerms.shortestPaymentPeriod")),
+    ("Longest standard payment period", (r.paymentTerms.longestPaymentPeriod, days), call("paymentTerms.longestPaymentPeriod")),
     ("Standard payment terms", r.paymentTerms.terms, call("paymentTerms.terms")),
     ("Any changes to standard payment terms", r.paymentTerms.paymentTermsChanged.comment, call("paymentTerms.paymentTermsChanged.changed.yesNo")),
     ("Did you consult or notify your suppliers about changes?",
       r.paymentTerms.paymentTermsChanged.notified.map(conditionalText), call("paymentTerms.paymentTermsChanged.notified.yesNo")),
-    ("Maximum contract period in days", (r.paymentTerms.maximumContractPeriod, "days"), call("paymentTerms.maximumContractPeriod")),
+    ("Maximum contract period in " + days, (r.paymentTerms.maximumContractPeriod, days), call("paymentTerms.maximumContractPeriod")),
     ("Maximum contract period: further information", r.paymentTerms.maximumContractPeriodComment.map(breakLines), call("paymentTerms.maximumContractPeriodComment")),
     ("Further remarks about your payment terms", r.paymentTerms.paymentTermsComment.map(breakLines), call("paymentTerms.paymentTermsComment"))
   )
@@ -153,7 +158,7 @@ class ReviewPageData @Inject()(fieldCallTable: FieldCallTable) extends HtmlHelpe
   * Various converters to reduce boilerplate in the table and row descriptors
   */
 trait HtmlHelpers {
-  def limitLength(s: String, maxLength: Int = 1000) =
+  def limitLength(s: String, maxLength: Int = 1000): String =
     if (s.length <= maxLength) s else s"${s.take(maxLength)}..."
 
   def yesNo(yn: YesNo): String = yn.entryName.capitalize
