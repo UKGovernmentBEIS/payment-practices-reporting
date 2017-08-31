@@ -10,13 +10,13 @@
 }
 
 <h2 class="heading-large">Payment statistics</h2>
-<p>Round up or down to the nearest whole number</p>
+<p>Round all figures up or down to the nearest whole number.</p>
 
 @_numberField(form, "paymentHistory.averageDaysToPay", Some("days"))
 
 <div class="form-group @errorClass("paymentHistory.percentageSplit")">
     <label class="form-label">
-        <span class="bold-medium">Split of payments made under qualifying contracts in the reporting period</span>
+        <span class="form-label-bold">Split of payments made under qualifying contracts in the reporting period</span>
         <span class="form-hint">Figures A, B and C should add up to 100%</span>
         <span class="error-message">@errorMessage("paymentHistory.percentageSplit")</span>
     </label>

@@ -6,14 +6,14 @@ reason.group.notlargeenough=You should check at the beginning of every financial
 reason.notacompany=This is because you told us it is not a UK incorporated company or a UK registered LLP.
 
 question.iscompanyorllp=Is your business a company incorporated in the UK or a limited liability partnership registered in the UK?
-question.financialyear=Is your business in its first, second or third or later financial year?
+question.financialyear=What financial year is your business in?
 choice.first=First year
 choice.second=Second year
 choice.third=Third year or later
 
 question.hassubsidiaries=Does your business have subsidiaries?
 
-hint.turnover=If your business'' financial year is not 12 months, the thresholds must be proportionally adjusted.
+hint.turnover=If your business''s financial year is not 12 months, the thresholds must be proportionally adjusted.
 hint.balance=
 hint.employees=Calculate how many people were employed for each month, even if they were only employed for a single day in that month. Then add together the monthly totals and divide by the number of months in the financial year.
 
@@ -61,7 +61,7 @@ field.hasQualifyingContracts.label=Did your business enter into qualifying contr
 field.hasQualifyingContracts.hint=
 
 field.paymentHistory.averageDaysToPay.label=Average time to pay in days
-field.paymentHistory.averageDaysToPay.hint=Of the payments you have made under qualifying contracts in the reporting period, the average time it took to pay.
+field.paymentHistory.averageDaysToPay.hint=The average time it took to make payments under qualifying contracts in the reporting period.
 
 field.paymentHistory.percentPaidBeyondAgreedTerms.label=Percentage of payments due in the reporting period which have not been paid within the agreed period
 field.paymentHistory.percentPaidBeyondAgreedTerms.hint=This relates to the number of invoices, not their value.
@@ -87,8 +87,7 @@ field.paymentTerms.longestPaymentPeriod.label=Optional: Enter your longest stand
 field.paymentTerms.longestPaymentPeriod.hint=If you only have one standard payment period, you should use only the first box to enter a figure. If you have more than one standard payment period, you must enter the shortest and longest period in days using both boxes, and then describe in the Standard Payment Terms text box what each of you standard payment periods is for. If you have a range instead of a single figure, you should enter the range and then include information in the Standard Payment Terms text box about how the range is calculated.
 
 field.paymentTerms.maximumContractPeriod.label=Enter your maximum contractual payment period
-field.paymentTerms.maximumContractPeriod.hint=The maximum payment period is the longest period for payment that your business has agreed to, in a qualifying contract entered in the reporting period.
-
+field.paymentTerms.maximumContractPeriod.hint=The maximum payment period is the longest period for payment that your business agreed to in a qualifying contract entered in the reporting period. This could be different to your longest standard payment terms period.
 field.paymentTerms.maximumContractPeriodComment.label=Optional: any further information about your maximum contractual payment period
 field.paymentTerms.maximumContractPeriodComment.hint=For example, if you have different payment periods, depending on the product, company size or any other variation, then you could give the maximum period for each type.
 
