@@ -47,6 +47,8 @@ class FieldCallTable @Inject()(serviceConfig: ServiceConfig) {
       Some(MultiPageFormController.show(MultiPageFormName.PaymentTerms, companyDetail.companiesHouseId).withFragment(fieldName))
     case "disputeResolution.text" =>
       Some(MultiPageFormController.show(MultiPageFormName.DisputeResolution, companyDetail.companiesHouseId).withFragment(fieldName))
+    case s if s.startsWith("otherInformation")      =>
+      Some(MultiPageFormController.show(MultiPageFormName.OtherInformation, companyDetail.companiesHouseId).withFragment(fieldName))
 
     case _                                      => None
   }
