@@ -19,7 +19,7 @@ package views.html.helpers
 
 import forms.report.{ConditionalText, LongFormModel, ReportingPeriodFormModel, ShortFormModel}
 import org.joda.time.LocalDate
-import org.joda.time.format.DateTimeFormat
+import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
 import play.twirl.api.{Html, HtmlFormat}
 import utils.YesNo
 import utils.YesNo.{No, Yes}
@@ -37,7 +37,7 @@ import scala.language.implicitConversions
   */
 object ReviewPageData extends HtmlHelpers {
 
-  val df = DateTimeFormat.forPattern("d MMMM YYYY")
+  val df: DateTimeFormatter = DateTimeFormat.forPattern("d MMMM YYYY")
 
   /**
     * Maps a row label to the value for the row
@@ -61,16 +61,13 @@ object ReviewPageData extends HtmlHelpers {
     */
   def formGroups(companyName: String, reportingPeriod: ReportingPeriodFormModel, shortForm: ShortFormModel): Seq[TableDescriptor] = {
     Seq(
-      cssClasses -> group1(companyName, reportingPeriod),
-      cssClasses -> group3(shortForm)
+      cssClasses -> (group1(companyName, reportingPeriod) ++ group3(shortForm))
     )
   }
 
   def formGroups(companyName: String, reportingPeriod: ReportingPeriodFormModel, longForm: LongFormModel): Seq[TableDescriptor] = {
     Seq(
-      cssClasses -> group1(companyName, reportingPeriod, longForm),
-      cssClasses -> group2(longForm),
-      cssClasses -> group3(longForm)
+      cssClasses -> (group1(companyName, reportingPeriod, longForm) ++ group2(longForm) ++ group3(longForm))
     )
   }
 
@@ -80,10 +77,11 @@ object ReviewPageData extends HtmlHelpers {
   def group1(companyName: String, reportingPeriod: ReportingPeriodFormModel): Seq[RowDescriptor] =
     topLevelInfo(companyName) ++ reportingDateRows(reportingPeriod)
 
-  def group2(r: LongFormModel) = paymentTermsRows(r)
+  def group2(r: LongFormModel): Seq[(String, Html)] = paymentTermsRows(r)
 
-  def group3(shortForm: ShortFormModel) = paymentCodesRows(shortForm)
-  def group3(longForm: LongFormModel) = otherInfoRows(longForm)
+  def group3(shortForm: ShortFormModel): Seq[(String, Html)] = paymentCodesRows(shortForm)
+
+  def group3(longForm: LongFormModel): Seq[(String, Html)] = otherInfoRows(longForm)
 
   def topLevelInfo(companyName: String): Seq[RowDescriptor] = Seq(
     ("Company or limited liability partnership", companyName)
@@ -135,7 +133,7 @@ object ReviewPageData extends HtmlHelpers {
   * Various converters to reduce boilerplate in the table and row descriptors
   */
 trait HtmlHelpers {
-  def limitLength(s: String, maxLength: Int = 1000) =
+  def limitLength(s: String, maxLength: Int = 1000): String =
     if (s.length <= maxLength) s else s"${s.take(maxLength)}..."
 
   def yesNo(yn: YesNo): String = yn.entryName.capitalize
@@ -144,7 +142,7 @@ trait HtmlHelpers {
 
   implicit def conditionalText(ct: ConditionalText): Html = ct.yesNo match {
     case Yes => Html(s"<strong>Yes </strong>&ndash; ${breakLines(ct.text.map(limitLength(_)).getOrElse(""))}")
-    case No => Html("<strong>No</strong>")
+    case No  => Html("<strong>No</strong>")
   }
 
   implicit def stringToHtml(s: String): Html = HtmlFormat.escape(limitLength(s))
