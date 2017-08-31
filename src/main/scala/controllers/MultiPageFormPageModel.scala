@@ -20,8 +20,8 @@ package controllers
 import javax.inject.Inject
 
 import config.ServiceConfig
-import controllers.FormPageDefs.LongFormName._
-import controllers.FormPageDefs.{LongFormHandler, LongFormName}
+import controllers.FormPageDefs.MultiPageFormName._
+import controllers.FormPageDefs.{MultiPageFormHandler, MultiPageFormName}
 import forms.report.{ReportingPeriodFormModel, Validations}
 import org.joda.time.format.DateTimeFormat
 import play.api.data.Forms.mapping
@@ -35,8 +35,8 @@ case class PaymentTermsForm(paymentTerms: forms.report.PaymentTerms)
 case class DisputeResolutionForm(disputeResolution: forms.report.DisputeResolution)
 case class OtherInformationForm(otherInformation: forms.report.OtherInformation)
 
-class LongFormPageModel @Inject()(validations: Validations, serviceConfig: ServiceConfig)(implicit messagesApi: MessagesApi)
-  extends FormPageModel[LongFormHandler[_], LongFormName] {
+class MultiPageFormPageModel @Inject()(validations: Validations, serviceConfig: ServiceConfig)(implicit messagesApi: MessagesApi)
+  extends FormPageModel[MultiPageFormHandler[_], MultiPageFormName] {
 
   import validations._
   import views.html.{report => pages}
@@ -66,9 +66,9 @@ class LongFormPageModel @Inject()(validations: Validations, serviceConfig: Servi
   val emptyDisputeResolutionForm: Form[DisputeResolutionForm] = Form(disputeResolutionFormMapping)
   val emptyOtherInformationForm : Form[OtherInformationForm]  = Form(otherInformationFormMapping)
 
-  override def formNames: Seq[LongFormName] = LongFormName.values
+  override def formNames: Seq[MultiPageFormName] = MultiPageFormName.values
 
-  override def handlerFor(formName: LongFormName): LongFormHandler[_] = formName match {
+  override def handlerFor(formName: MultiPageFormName): MultiPageFormHandler[_] = formName match {
     case ReportingPeriod   =>
       FormHandler(
         ReportingPeriod,
@@ -81,28 +81,28 @@ class LongFormPageModel @Inject()(validations: Validations, serviceConfig: Servi
         PaymentStatistics,
         emptyPaymentStatisticsForm,
         (header: Html, companyDetail: CompanyDetail) => (form: Form[PaymentStatisticsForm]) => pages.paymentStatisticsForm(header, form, companyDetail.companiesHouseId, df, serviceStartDate),
-        (companyDetail: CompanyDetail) => routes.LongFormController.show(PaymentStatistics, companyDetail.companiesHouseId)
+        (companyDetail: CompanyDetail) => routes.MultiPageFormController.show(PaymentStatistics, companyDetail.companiesHouseId)
       )
     case PaymentTerms      =>
       FormHandler(
         PaymentTerms,
         emptyPaymentTermsForm,
         (header: Html, companyDetail: CompanyDetail) => (form: Form[PaymentTermsForm]) => pages.paymentTermsForm(header, form, companyDetail.companiesHouseId, df, serviceStartDate),
-        (companyDetail: CompanyDetail) => routes.LongFormController.show(PaymentTerms, companyDetail.companiesHouseId)
+        (companyDetail: CompanyDetail) => routes.MultiPageFormController.show(PaymentTerms, companyDetail.companiesHouseId)
       )
     case DisputeResolution =>
       FormHandler(
         DisputeResolution,
         emptyDisputeResolutionForm,
         (header: Html, companyDetail: CompanyDetail) => (form: Form[DisputeResolutionForm]) => pages.disputeResolutionForm(header, form, companyDetail.companiesHouseId, df, serviceStartDate),
-        (companyDetail: CompanyDetail) => routes.LongFormController.show(DisputeResolution, companyDetail.companiesHouseId)
+        (companyDetail: CompanyDetail) => routes.MultiPageFormController.show(DisputeResolution, companyDetail.companiesHouseId)
       )
     case OtherInformation  =>
       FormHandler(
         OtherInformation,
         emptyOtherInformationForm,
         (header: Html, companyDetail: CompanyDetail) => (form: Form[OtherInformationForm]) => pages.otherInformationForm(header, form, companyDetail.companiesHouseId, df, serviceStartDate),
-        (companyDetail: CompanyDetail) => routes.LongFormController.show(OtherInformation, companyDetail.companiesHouseId)
+        (companyDetail: CompanyDetail) => routes.MultiPageFormController.show(OtherInformation, companyDetail.companiesHouseId)
       )
   }
 }

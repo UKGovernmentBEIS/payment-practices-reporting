@@ -20,7 +20,7 @@ package views.html.helpers
 import javax.inject.Inject
 
 import config.ServiceConfig
-import controllers.FormPageDefs.LongFormName
+import controllers.FormPageDefs.MultiPageFormName
 import controllers.routes
 import play.api.mvc.Call
 import services.CompanyDetail
@@ -42,11 +42,11 @@ class FieldCallTable @Inject()(serviceConfig: ServiceConfig) {
 
   def multiPageCall(fieldName: String)(implicit companyDetail: CompanyDetail): Option[Call] = fieldName match {
     case s if s.startsWith("paymentStatistics") =>
-      Some(LongFormController.show(LongFormName.PaymentStatistics, companyDetail.companiesHouseId).withFragment(fieldName))
+      Some(MultiPageFormController.show(MultiPageFormName.PaymentStatistics, companyDetail.companiesHouseId).withFragment(fieldName))
     case s if s.startsWith("paymentTerms")      =>
-      Some(LongFormController.show(LongFormName.PaymentTerms, companyDetail.companiesHouseId).withFragment(fieldName))
+      Some(MultiPageFormController.show(MultiPageFormName.PaymentTerms, companyDetail.companiesHouseId).withFragment(fieldName))
     case "disputeResolution.text" =>
-      Some(LongFormController.show(LongFormName.DisputeResolution, companyDetail.companiesHouseId).withFragment(fieldName))
+      Some(MultiPageFormController.show(MultiPageFormName.DisputeResolution, companyDetail.companiesHouseId).withFragment(fieldName))
 
     case _                                      => None
   }

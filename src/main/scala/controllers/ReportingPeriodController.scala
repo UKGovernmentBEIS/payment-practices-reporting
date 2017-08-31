@@ -22,7 +22,7 @@ import javax.inject.{Inject, Named}
 import actions.{CompanyAuthAction, CompanyAuthRequest}
 import akka.actor.ActorRef
 import config.{PageConfig, ServiceConfig}
-import controllers.FormPageDefs.LongFormName
+import controllers.FormPageDefs.MultiPageFormName
 import forms.report.Validations
 import models.CompaniesHouseId
 import play.api.i18n.MessagesApi
@@ -56,7 +56,7 @@ class ReportingPeriodController @Inject()(
 
   //noinspection TypeAnnotation
   def show(companiesHouseId: CompaniesHouseId) = companyAuthAction(companiesHouseId).async { implicit request =>
-    loadFormData(emptyReportingPeriod, LongFormName.ReportingPeriod).map { form =>
+    loadFormData(emptyReportingPeriod, MultiPageFormName.ReportingPeriod).map { form =>
       Ok(page(title)(home, pages.reportingPeriod(reportPageHeader, form, companiesHouseId, df, serviceStartDate)))
     }
   }
@@ -64,12 +64,12 @@ class ReportingPeriodController @Inject()(
   //noinspection TypeAnnotation
   def post(companiesHouseId: CompaniesHouseId) = companyAuthAction(companiesHouseId).async(parse.urlFormEncoded) { implicit request =>
     val reportingPeriodForm = emptyReportingPeriod.bindForm
-    saveFormData(LongFormName.ReportingPeriod, reportingPeriodForm).map { _ =>
+    saveFormData(MultiPageFormName.ReportingPeriod, reportingPeriodForm).map { _ =>
       reportingPeriodForm.fold(
         errs => BadRequest(page(title)(home, pages.reportingPeriod(reportPageHeader, errs, companiesHouseId, df, serviceStartDate))),
         reportingPeriod =>
           if (reportingPeriod.hasQualifyingContracts.toBoolean)
-            if (serviceConfig.multiPageForm) Redirect(routes.LongFormController.show(LongFormName.PaymentStatistics, companiesHouseId))
+            if (serviceConfig.multiPageForm) Redirect(routes.MultiPageFormController.show(MultiPageFormName.PaymentStatistics, companiesHouseId))
             else Redirect(routes.SinglePageFormController.show(companiesHouseId))
           else
             Redirect(routes.ShortFormController.show(companiesHouseId))

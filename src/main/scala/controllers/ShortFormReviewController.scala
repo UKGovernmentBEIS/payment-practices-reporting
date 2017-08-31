@@ -98,16 +98,20 @@ class ShortFormReviewController @Inject()(
     Future.successful(Ok(page(reviewPageTitle)(home, pages.review(emptyReview, formGroups, action))))
   }
 
-  private def handleReviewPost(request: CompanyAuthRequest[Map[String, Seq[String]]], r: ReportingPeriodFormModel, sf: ShortFormModel): Future[Result] = {
+  private def handleReviewPost(request: CompanyAuthRequest[Map[String, Seq[String]]], reportingPeriod: ReportingPeriodFormModel, shortForm: ShortFormModel): Future[Result] = {
     implicit val req: CompanyAuthRequest[Map[String, Seq[String]]] = request
 
     val action: Call = routes.ShortFormReviewController.postReview(request.companyDetail.companiesHouseId)
-    val formGroups = reviewPageData.formGroups(r, sf)
+    val formGroups = reviewPageData.formGroups(reportingPeriod, shortForm)
     emptyReview.bindForm.fold(
       errs => Future.successful(BadRequest(page(reviewPageTitle)(home, pages.review(errs, formGroups, action)))),
       review => {
         if (review.confirmed) verifyingOAuthScope(request.companyDetail.companiesHouseId, request.oAuthToken) {
-          createReport(request.companyDetail.companiesHouseId, r, sf, review.confirmedBy).map(rId => Redirect(controllers.routes.ConfirmationController.showConfirmation(rId)))
+          val urlFunction: ReportId => String = (id: ReportId) => controllers.routes.ReportController.view(id).absoluteURL()
+          for {
+            reportId <- createReport(request.companyDetail, request.emailAddress, reportingPeriod, shortForm, review.confirmedBy, urlFunction)
+            _ <- clearFormData
+          } yield Redirect(controllers.routes.ConfirmationController.showConfirmation(reportId))
         } else {
           Future.successful(BadRequest(page(reviewPageTitle)(home, pages.review(emptyReview.fill(review), formGroups, action))))
         }
@@ -115,10 +119,10 @@ class ShortFormReviewController @Inject()(
     )
   }
 
-  private def createReport(companiesHouseId: CompaniesHouseId, reportingPeriod: ReportingPeriodFormModel, shortForm: ShortFormModel, confirmedBy: String)(implicit request: CompanyAuthRequest[_]): Future[ReportId] = {
-    val urlFunction: ReportId => String = (id: ReportId) => controllers.routes.ReportController.view(id).absoluteURL()
+  private def createReport(companyDetail: CompanyDetail, emailAddress: String, reportingPeriod: ReportingPeriodFormModel, shortForm: ShortFormModel, confirmedBy: String, urlFunction: ReportId => String): Future[ReportId] = {
+
     for {
-      reportId <- reports.createShortReport(request.companyDetail, reportingPeriod, shortForm, confirmedBy, request.emailAddress, urlFunction)
+      reportId <- reports.createShortReport(companyDetail, reportingPeriod, shortForm, confirmedBy, emailAddress, urlFunction)
       _ <- Future.successful(confirmationActor ! 'poll)
     } yield reportId
   }

@@ -29,12 +29,12 @@ object FormPageDefs {
     def entryName: String
   }
 
-  sealed trait LongFormName extends FormName with EnumEntry with Uncapitalised
+  sealed trait MultiPageFormName extends FormName with EnumEntry with Uncapitalised
   sealed trait ShortFormName extends FormName with EnumEntry with Uncapitalised
   sealed trait SinglePageFormName extends FormName with EnumEntry with Uncapitalised
 
   type ShortFormHandler[T] = FormHandler[T, ShortFormName]
-  type LongFormHandler[T] = FormHandler[T, LongFormName]
+  type MultiPageFormHandler[T] = FormHandler[T, MultiPageFormName]
   type SinglePageFormHandler[T] = FormHandler[T, SinglePageFormName]
 
   object ShortFormName extends PlayEnum[ShortFormName] {
@@ -45,7 +45,7 @@ object FormPageDefs {
     case object ShortForm extends ShortFormName
   }
 
-  object LongFormName extends PlayEnum[LongFormName] {
+  object MultiPageFormName extends PlayEnum[MultiPageFormName] {
     //noinspection TypeAnnotation
     override def values = findValues
 
@@ -53,11 +53,11 @@ object FormPageDefs {
      * The order in which the form pages will be displayed to the user is defined
      * by the order in which these enumeration objects are defined.
      */
-    case object ReportingPeriod extends LongFormName
-    case object PaymentStatistics extends LongFormName
-    case object PaymentTerms extends LongFormName
-    case object DisputeResolution extends LongFormName
-    case object OtherInformation extends LongFormName
+    case object ReportingPeriod extends MultiPageFormName
+    case object PaymentStatistics extends MultiPageFormName
+    case object PaymentTerms extends MultiPageFormName
+    case object DisputeResolution extends MultiPageFormName
+    case object OtherInformation extends MultiPageFormName
   }
 
   object SinglePageFormName extends PlayEnum[SinglePageFormName] {
@@ -72,7 +72,7 @@ object FormPageDefs {
   case class FormHasErrors[T, N <: FormName](formHandler: FormHandler[T, N]) extends FormStatus[T, N]
   case class FormIsOk[T, N <: FormName](formHandler: FormHandler[T, N], value: T) extends FormStatus[T, N]
 
-  type LongFormStatus[T] = FormStatus[T, LongFormName]
+  type MultiPageFormStatus[T] = FormStatus[T, MultiPageFormName]
   type ShortFormStatus[T] = FormStatus[T, ShortFormName]
   type SinglePageFormStatus[T] = FormStatus[T, SinglePageFormName]
 }

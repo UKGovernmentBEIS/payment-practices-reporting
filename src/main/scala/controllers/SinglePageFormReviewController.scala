@@ -92,20 +92,24 @@ class SinglePageFormReviewController @Inject()(
     implicit val req: CompanyAuthRequest[_] = request
 
     val action: Call = routes.SinglePageFormReviewController.postReview(request.companyDetail.companiesHouseId)
-    val formGroups = reviewPageData.formGroups( reportingPeriod, longForm)
+    val formGroups = reviewPageData.formGroups(reportingPeriod, longForm)
     Future.successful(Ok(page(reviewPageTitle)(home, pages.review(emptyReview, formGroups, action))))
   }
 
-  private def handleReviewPost(request: CompanyAuthRequest[Map[String, Seq[String]]], r: ReportingPeriodFormModel, sf: LongFormModel): Future[Result] = {
+  private def handleReviewPost(request: CompanyAuthRequest[Map[String, Seq[String]]], reportingPeriod: ReportingPeriodFormModel, longForm: LongFormModel): Future[Result] = {
     implicit val req: CompanyAuthRequest[Map[String, Seq[String]]] = request
 
     val action: Call = routes.SinglePageFormReviewController.postReview(request.companyDetail.companiesHouseId)
-    val formGroups = reviewPageData.formGroups( r, sf)
+    val formGroups = reviewPageData.formGroups(reportingPeriod, longForm)
     emptyReview.bindForm.fold(
       errs => Future.successful(BadRequest(page(reviewPageTitle)(home, pages.review(errs, formGroups, action)))),
       review => {
         if (review.confirmed) verifyingOAuthScope(request.companyDetail.companiesHouseId, request.oAuthToken) {
-          createReport(request.companyDetail.companiesHouseId, r, sf, review.confirmedBy).map(rId => Redirect(controllers.routes.ConfirmationController.showConfirmation(rId)))
+          val urlFunction: ReportId => String = (id: ReportId) => controllers.routes.ReportController.view(id).absoluteURL()
+          for {
+            reportId <- createReport(request.companyDetail, request.emailAddress, reportingPeriod, longForm, review.confirmedBy, urlFunction)
+            _ <- clearFormData
+          } yield Redirect(controllers.routes.ConfirmationController.showConfirmation(reportId))
         } else {
           Future.successful(BadRequest(page(reviewPageTitle)(home, pages.review(emptyReview.fill(review), formGroups, action))))
         }
@@ -113,10 +117,9 @@ class SinglePageFormReviewController @Inject()(
     )
   }
 
-  private def createReport(companiesHouseId: CompaniesHouseId, reportingPeriod: ReportingPeriodFormModel, singlePageForm: LongFormModel, confirmedBy: String)(implicit request: CompanyAuthRequest[_]): Future[ReportId] = {
-    val urlFunction: ReportId => String = (id: ReportId) => controllers.routes.ReportController.view(id).absoluteURL()
+  private def createReport(companyDetail: CompanyDetail, emailAddress: String, reportingPeriod: ReportingPeriodFormModel, longForm: LongFormModel, confirmedBy: String, urlFunction: ReportId => String): Future[ReportId] = {
     for {
-      reportId <- reports.createLongReport(request.companyDetail, reportingPeriod, singlePageForm, confirmedBy, request.emailAddress, urlFunction)
+      reportId <- reports.createLongReport(companyDetail, reportingPeriod, longForm, confirmedBy, emailAddress, urlFunction)
       _ <- Future.successful(confirmationActor ! 'poll)
     } yield reportId
   }

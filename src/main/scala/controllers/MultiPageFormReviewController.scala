@@ -22,7 +22,7 @@ import javax.inject.{Inject, Named}
 import actions.{CompanyAuthAction, CompanyAuthRequest}
 import akka.actor.ActorRef
 import config.{PageConfig, ServiceConfig}
-import controllers.FormPageDefs.LongFormName._
+import controllers.FormPageDefs.MultiPageFormName._
 import controllers.FormPageDefs._
 import forms.report.{LongFormModel, ReportingPeriodFormModel, Validations}
 import models.{CompaniesHouseId, ReportId}
@@ -38,7 +38,7 @@ import views.html.helpers.ReviewPageData
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.{existentials, implicitConversions}
 
-class LongFormReviewController @Inject()(
+class MultiPageFormReviewController @Inject()(
   reports: ReportService,
   validations: Validations,
   val companyAuth: CompanyAuthService,
@@ -46,7 +46,7 @@ class LongFormReviewController @Inject()(
   val serviceConfig: ServiceConfig,
   val pageConfig: PageConfig,
   val sessionService: SessionService,
-  longFormPageModel: LongFormPageModel,
+  longFormPageModel: MultiPageFormPageModel,
   reviewPageData: ReviewPageData,
   @Named("confirmation-actor") confirmationActor: ActorRef
 )(implicit val ec: ExecutionContext, messages: MessagesApi)
@@ -54,7 +54,7 @@ class LongFormReviewController @Inject()(
     with BaseFormController
     with PageHelper
     with FormSessionHelpers
-    with FormControllerHelpers[LongFormModel, LongFormName] {
+    with FormControllerHelpers[LongFormModel, MultiPageFormName] {
 
   import longFormPageModel._
   import validations._
@@ -68,12 +68,12 @@ class LongFormReviewController @Inject()(
 
   def reportPageHeader(companyDetail: CompanyDetail): Html = h1(s"Publish a report for:<br>${companyDetail.companyName}")
 
-  override def formHandlers: Seq[LongFormHandler[_]] = longFormPageModel.formHandlers
+  override def formHandlers: Seq[MultiPageFormHandler[_]] = longFormPageModel.formHandlers
 
   override val emptyReportingPeriod: Form[ReportingPeriodFormModel] = validations.emptyReportingPeriod
 
   override def bindReportingPeriod(implicit sessionId: SessionId): Future[Option[ReportingPeriodFormModel]] =
-    loadFormData(emptyReportingPeriod, LongFormName.ReportingPeriod).map(_.value)
+    loadFormData(emptyReportingPeriod, MultiPageFormName.ReportingPeriod).map(_.value)
 
   override def bindMainForm(implicit sessionId: SessionId): Future[Option[LongFormModel]] =
     loadAllFormData.map { data =>
@@ -101,7 +101,7 @@ class LongFormReviewController @Inject()(
     implicit val req: CompanyAuthRequest[_] = request
 
     val title = publishTitle(request.companyDetail.companyName)
-    val action: Call = routes.LongFormReviewController.postReview(request.companyDetail.companiesHouseId)
+    val action: Call = routes.MultiPageFormReviewController.postReview(request.companyDetail.companiesHouseId)
     val formGroups = reviewPageData.formGroups(r, lf)
     Future.successful(Ok(page(title)(views.html.report.review(emptyReview, formGroups, action))))
   }
@@ -110,15 +110,17 @@ class LongFormReviewController @Inject()(
     implicit val req: CompanyAuthRequest[Map[String, Seq[String]]] = request
 
     val formGroups = reviewPageData.formGroups(reportingPeriod, longForm)
-    val action: Call = routes.LongFormReviewController.postReview(request.companyDetail.companiesHouseId)
+    val action: Call = routes.MultiPageFormReviewController.postReview(request.companyDetail.companiesHouseId)
     val urlFunction: ReportId => String = (id: ReportId) => controllers.routes.ReportController.view(id).absoluteURL()
 
     emptyReview.bindForm.fold(
       errs => Future.successful(BadRequest(page(reviewPageTitle)(home, pages.review(errs, formGroups, action)))),
       review => {
         if (review.confirmed) verifyingOAuthScope(request.companyDetail.companiesHouseId, request.oAuthToken) {
-          createReport(request.companyDetail, request.emailAddress, reportingPeriod, longForm, review.confirmedBy, urlFunction)
-            .map(reportId => Redirect(controllers.routes.ConfirmationController.showConfirmation(reportId)))
+          for {
+            reportId <- createReport(request.companyDetail, request.emailAddress, reportingPeriod, longForm, review.confirmedBy, urlFunction)
+            _ <- clearFormData
+          }yield Redirect(controllers.routes.ConfirmationController.showConfirmation(reportId))
         } else {
           Future.successful(BadRequest(page(reviewPageTitle)(home, pages.review(emptyReview.fill(review), formGroups, action))))
         }

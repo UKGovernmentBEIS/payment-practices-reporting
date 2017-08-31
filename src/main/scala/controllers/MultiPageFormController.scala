@@ -33,13 +33,13 @@ import services._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.existentials
 
-class LongFormController @Inject()(
+class MultiPageFormController @Inject()(
   validations: Validations,
   companyAuthAction: CompanyAuthAction,
   val serviceConfig: ServiceConfig,
   val pageConfig: PageConfig,
   val sessionService: SessionService,
-  longFormPageModel: LongFormPageModel
+  longFormPageModel: MultiPageFormPageModel
 )(implicit val ec: ExecutionContext, messages: MessagesApi)
   extends Controller
     with PageHelper
@@ -52,13 +52,13 @@ class LongFormController @Inject()(
 
   implicit def sessionIdFromRequest(implicit request: CompanyAuthRequest[_]): SessionId = request.sessionId
 
-  def show(formName: LongFormName, companiesHouseId: CompaniesHouseId): Action[AnyContent] = companyAuthAction(companiesHouseId).async { implicit request =>
+  def show(formName: MultiPageFormName, companiesHouseId: CompaniesHouseId): Action[AnyContent] = companyAuthAction(companiesHouseId).async { implicit request =>
     val companyDetail = request.companyDetail
 
     handleShowPage(formName, companyDetail)
   }
 
-  private[controllers] def handleShowPage(formName: LongFormName, companyDetail: CompanyDetail)(implicit sessionId: SessionId, pageContext: PageContext) = {
+  private[controllers] def handleShowPage(formName: MultiPageFormName, companyDetail: CompanyDetail)(implicit sessionId: SessionId, pageContext: PageContext) = {
     val title = publishTitle(companyDetail.companyName)
 
     bindUpToPage(formHandlers, formName).map {
@@ -75,7 +75,7 @@ class LongFormController @Inject()(
   }
 
   //noinspection TypeAnnotation
-  def post(formName: LongFormName, companiesHouseId: CompaniesHouseId) = companyAuthAction(companiesHouseId).async(parse.urlFormEncoded) { implicit request =>
+  def post(formName: MultiPageFormName, companiesHouseId: CompaniesHouseId) = companyAuthAction(companiesHouseId).async(parse.urlFormEncoded) { implicit request =>
     val handler = handlerFor(formName)
 
     for {
@@ -84,7 +84,7 @@ class LongFormController @Inject()(
     } yield result
   }
 
-  private def handlePostFormPage(formName: LongFormName, companyDetail: CompanyDetail)(implicit sessionId: SessionId, pageContext: PageContext): Future[Result] = {
+  private def handlePostFormPage(formName: MultiPageFormName, companyDetail: CompanyDetail)(implicit sessionId: SessionId, pageContext: PageContext): Future[Result] = {
     val title = publishTitle(companyDetail.companyName)
 
     bindUpToPage(formHandlers, formName).map {
@@ -93,7 +93,7 @@ class LongFormController @Inject()(
 
       case FormIsOk(handler, value) => nextFormHandler(handler) match {
         case Some(nextHandler) => Redirect(nextHandler.callPage(companyDetail))
-        case None              => Redirect(routes.LongFormReviewController.showReview(companyDetail.companiesHouseId))
+        case None              => Redirect(routes.MultiPageFormReviewController.showReview(companyDetail.companiesHouseId))
       }
     }
   }

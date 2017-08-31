@@ -73,6 +73,9 @@ trait FormSessionHelpers {
     sessionService.get[JsObject](sessionId, formDataSessionKey).map(_.getOrElse(Json.obj()))
   }
 
+  def clearFormData(implicit sessionId: SessionId) : Future[Unit] =
+    sessionService.clear(sessionId, formDataSessionKey)
+
   protected def loadFormData[T](emptyForm: Form[T], formName: FormName)(implicit sessionId: SessionId): Future[Form[T]] =
     sessionService.get[JsObject](sessionId, formDataSessionKey).map {
       case None       => emptyForm

@@ -6,7 +6,7 @@
     serviceStartDate: LocalDate
 )(implicit messages: MessagesApi, lang: Lang)
 
-@import FormPageDefs.LongFormName
+@import FormPageDefs.MultiPageFormName
 
 <div id=contentStart">
     @shared._errorBox(paymentTerms)
@@ -14,7 +14,7 @@
 <div class="scannable-wrapper">
     @header
 
-    <form action="@routes.LongFormController.post(LongFormName.PaymentTerms, companyId)" method="POST" id="longForm-report">
+    <form action="@routes.MultiPageFormController.post(MultiPageFormName.PaymentTerms, companyId)" method="POST" id="longForm-report">
         <p class="small-aside">
             Companies House number: @companyId.id
         </p>

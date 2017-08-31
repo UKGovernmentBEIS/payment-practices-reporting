@@ -24,7 +24,7 @@
 
     @shared._day1Calculation()
 
-    <form action="" method="POST" id="longForm-report">
+    <form action="@routes.SinglePageFormController.post(companyId)" method="POST" id="longForm-report">
         <p class="small-aside">
             Companies House number: @companyId.id
         </p>

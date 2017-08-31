@@ -30,14 +30,14 @@ GET         /publish/company/:id/apply-for-code               controllers.Report
 GET         /publish/company/:id/file/page/form               controllers.SinglePageFormController.show(id: CompaniesHouseId)
 POST        /publish/company/:id/file/page/form               controllers.SinglePageFormController.post(id: CompaniesHouseId)
 
-GET         /publish/company/:id/file/page/:formName          controllers.LongFormController.show(formName: LongFormName, id: CompaniesHouseId)
-POST        /publish/company/:id/file/page/:formName          controllers.LongFormController.post(formName: LongFormName, id: CompaniesHouseId)
+GET         /publish/company/:id/file/page/:formName          controllers.MultiPageFormController.show(formName: MultiPageFormName, id: CompaniesHouseId)
+POST        /publish/company/:id/file/page/:formName          controllers.MultiPageFormController.post(formName: MultiPageFormName, id: CompaniesHouseId)
 
 GET         /publish/company/:id/file/short                   controllers.ShortFormController.show(id:CompaniesHouseId)
 POST        /publish/company/:id/file/short                   controllers.ShortFormController.post(id:CompaniesHouseId)
 
-GET         /publish/company/:id/review/long                  controllers.LongFormReviewController.showReview(id:CompaniesHouseId)
-POST        /publish/company/:id/review/long                  controllers.LongFormReviewController.postReview(id:CompaniesHouseId)
+GET         /publish/company/:id/review/long                  controllers.MultiPageFormReviewController.showReview(id:CompaniesHouseId)
+POST        /publish/company/:id/review/long                  controllers.MultiPageFormReviewController.postReview(id:CompaniesHouseId)
 
 GET         /publish/company/:id/review/form                  controllers.SinglePageFormReviewController.showReview(id:CompaniesHouseId)
 POST        /publish/company/:id/review/form                  controllers.SinglePageFormReviewController.postReview(id:CompaniesHouseId)
