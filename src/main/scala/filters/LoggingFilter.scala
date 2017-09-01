@@ -36,8 +36,8 @@ class LoggingFilter @Inject()(appConfig: AppConfig)(implicit val mat: Materializ
 
   import appConfig.config
 
-  lazy val logAssets   = config.logAssets.getOrElse(false)
-  lazy val logRequests = config.logRequests.getOrElse(true)
+  private lazy val logAssets   = config.logAssets.getOrElse(false)
+  private lazy val logRequests = config.logRequests.getOrElse(true)
 
   def apply(nextFilter: RequestHeader => Future[Result])
     (requestHeader: RequestHeader): Future[Result] = {
@@ -53,7 +53,7 @@ class LoggingFilter @Inject()(appConfig: AppConfig)(implicit val mat: Materializ
         val endTime = System.currentTimeMillis
         val requestTime = endTime - startTime
 
-        if (logRequests) Logger.info(s"${requestHeader.method} ${requestHeader.uri} took ${requestTime}ms and returned ${result.header.status}")
+        if (logRequests) Logger.info(f"method=${requestHeader.method}%-6s status=${result.header.status} time=$requestTime%7sms url=${requestHeader.uri}")
 
         result.withHeaders("Request-Time" -> requestTime.toString)
       }
