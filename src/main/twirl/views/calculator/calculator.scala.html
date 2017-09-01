@@ -1,9 +1,9 @@
 @(dateForm: Form[forms.DateRange], externalRouter: ExternalRouter)(implicit messages: MessagesApi, lang:Lang)
 
-<div id="contentStart">
+<div id="contentStart" class="grid-row">
     @shared._errorBox(dateForm)
 
-    <div  class="scannable-wrapper">
+    <div class="scannable-wrapper column-two-thirds">
         <h1 class="heading-xlarge">Find out how to report</h1>
 
         <form method="post" action="@controllers.routes.CalculatorController.calculate()">

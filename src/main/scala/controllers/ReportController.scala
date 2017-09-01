@@ -54,17 +54,17 @@ class ReportController @Inject()(
 
   private def publishTitle(companyName: String) = s"Publish a report for $companyName"
 
-  val searchHeader = h1("Publish a report")
-  val searchLink   = routes.ReportController.search(None, None, None).url
-  val companyLink  = { id: CompaniesHouseId => routes.ReportController.start(id).url }
+  private val searchHeader = h1("Publish a report")
+  private val searchLink   = routes.ReportController.search(None, None, None).url
+  private val companyLink  = { id: CompaniesHouseId => routes.ReportController.start(id).url }
 
-  def pageLink(query: Option[String], itemsPerPage: Option[Int], pageNumber: Int) = routes.ReportController.search(query, Some(pageNumber), itemsPerPage).url
+  private def pageLink(query: Option[String], itemsPerPage: Option[Int], pageNumber: Int) = routes.ReportController.search(query, Some(pageNumber), itemsPerPage).url
 
   def search(query: Option[String], pageNumber: Option[Int], itemsPerPage: Option[Int]) = Action.async { implicit request =>
     val externalRouter = implicitly[ExternalRouter]
 
     def resultsPage(q: String, results: Option[PagedResults[CompanySearchResult]], countMap: Map[CompaniesHouseId, Int]) =
-      page(searchPageTitle)(home, searchHeader, views.html.search.search(q, results, countMap, searchLink, companyLink, pageLink(query, itemsPerPage, _), externalRouter))
+      page(searchPageTitle)(home, views.html.search.search(searchHeader, q, results, countMap, searchLink, companyLink, pageLink(query, itemsPerPage, _), externalRouter))
 
     doSearch(query, pageNumber, itemsPerPage, resultsPage).map(Ok(_))
   }

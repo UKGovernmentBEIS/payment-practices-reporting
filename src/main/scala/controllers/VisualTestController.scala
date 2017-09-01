@@ -74,8 +74,8 @@ class VisualTestController @Inject()(
     val summary = CompanySearchResult(id, companyName, Some("123 Abc Road"))
     val results = PagedResults(Seq(summary, summary, summary), 25, 1, 100)
     val searches = Seq(
-      html(h1("Publish a report"), views.html.search.search("cod", Some(results), Map(id -> 3), "", _ => "", _ => "", externalRouter)),
-      html(h1("Search for a report"), views.html.search.search("cod", Some(results), Map(id -> 3), "", _ => "", _ => "", externalRouter))
+      views.html.search.search(html(h1("Publish a report")), "cod", Some(results), Map(id -> 3), "", _ => "", _ => "", externalRouter),
+      views.html.search.search(html(h1("Search for a report")), "cod", Some(results), Map(id -> 3), "", _ => "", _ => "", externalRouter)
     )
     val companies = Seq(views.html.search.company(CompanyDetail(id, companyName), PagedResults(Seq(healthyReport, healthyReport, healthyReport), 25, 1, 100), _ => "", df))
     val start = Seq(views.html.report.start(companyName, id))
