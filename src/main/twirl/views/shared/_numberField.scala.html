@@ -3,7 +3,7 @@
 <fieldset class='form-group @errorClass(form(fieldName))'>
     <label for=@fieldName>
         <span class="form-label-bold">@messages(s"field.$fieldName.label")</span>
-        <span class="form-hint">@messages(s"field.$fieldName.hint")</span>
+        @shared._hint(fieldName)
         <span id="error-@fieldName" class="error-message">@errorMessage(form(fieldName))</span>
     </label>
     <input class="form-control form-control-number-wide"  pattern="?[0-9]*" type="number" id="@fieldName" name="@fieldName" value="@form(fieldName).value">
