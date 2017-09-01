@@ -25,13 +25,19 @@ import services.CompanyDetail
 
 trait RowBuilders {
 
-  def buildReport(companyDetail: CompanyDetail, review: ReportReviewModel, reportingPeriod: ReportingPeriodFormModel, paymentCodes: ConditionalText, confirmationEmail: String) = {
+  def buildReport(
+    companyDetail: CompanyDetail,
+    confirmedBy:String,
+    reportingPeriod: ReportingPeriodFormModel,
+    paymentCodes: ConditionalText,
+    confirmationEmail: String
+  ): ReportRow = {
     ReportRow(
       ReportId(-1),
       companyDetail.companyName,
       companyDetail.companiesHouseId,
       LocalDate.now(),
-      review.confirmedBy,
+      confirmedBy,
       confirmationEmail,
       reportingPeriod.reportDates.startDate,
       reportingPeriod.reportDates.endDate,
@@ -50,15 +56,15 @@ trait RowBuilders {
       longForm.paymentTerms.paymentTermsChanged.comment.text,
       longForm.paymentTerms.paymentTermsChanged.notified.flatMap(_.text),
       longForm.paymentTerms.paymentTermsComment,
-      longForm.paymentTerms.disputeResolution,
-      longForm.offerEInvoicing,
-      longForm.offerSupplyChainFinancing,
-      longForm.retentionChargesInPolicy,
-      longForm.retentionChargesInPast,
-      longForm.paymentHistory.averageDaysToPay,
-      longForm.paymentHistory.percentPaidLaterThanAgreedTerms,
-      longForm.paymentHistory.percentageSplit.percentWithin30Days,
-      longForm.paymentHistory.percentageSplit.percentWithin60Days,
-      longForm.paymentHistory.percentageSplit.percentBeyond60Days
+      longForm.disputeResolution.text,
+      longForm.otherInformation.offerEInvoicing,
+      longForm.otherInformation.offerSupplyChainFinance,
+      longForm.otherInformation.retentionChargesInPolicy,
+      longForm.otherInformation.retentionChargesInPast,
+      longForm.paymentStatistics.averageDaysToPay,
+      longForm.paymentStatistics.percentPaidLaterThanAgreedTerms,
+      longForm.paymentStatistics.percentageSplit.percentWithin30Days,
+      longForm.paymentStatistics.percentageSplit.percentWithin60Days,
+      longForm.paymentStatistics.percentageSplit.percentBeyond60Days
     )
 }

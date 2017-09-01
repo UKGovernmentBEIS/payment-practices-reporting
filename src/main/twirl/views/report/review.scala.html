@@ -1,52 +1,49 @@
 @(
-        review: Form[forms.report.ReportReviewModel],
-        reportData: Map[String, String],
-        formGroups: Seq[views.html.helpers.ReviewPageData.TableDescriptor],
-        formAction: Call)(implicit messagesApi: MessagesApi)
+    review: Form[forms.report.ReportReviewModel],
+    formGroups: Seq[views.html.helpers.ReviewPageData.TableDescriptor],
+    formAction: Call
+)(implicit messagesApi: MessagesApi)
 
-@checked(field: Field) = @{
-    if(field.value.contains("true")) "checked" else ""
-}
+    @checked(field: Field) = @{
+        if(field.value.contains("true")) "checked" else ""
+    }
 
-<div id="contentStart">
-    <h1 class="heading-xlarge">Check your report before publishing</h1>
-    <div class="notice">
-        <i class="icon icon-important"><span class="visually-hidden">Warning</span></i>
-        <strong>If your report is incorrect or misleading, you could face prosecution and a fine.</strong>
-    </div>
+    <div id="contentStart">
+        <h1 class="heading-xlarge">Check your report before publishing</h1>
+        <div class="notice">
+            <i class="icon icon-important"><span class="visually-hidden">Warning</span></i>
+            <strong>If your report is incorrect or misleading, you could face prosecution and a fine.</strong>
+        </div>
 
-    @shared._errorBox(review)
+        @shared._errorBox(review)
 
-    <div class="scannable-wrapper">
-
+        <div class="column-full">
         @for((cssClass, rows) <- formGroups) {
             <table class="@cssClass">
-            @for((name, value) <- rows) {
+            @for((name, value, changeUrl) <- rows) {
                 <tr>
                     <td class="key-column"> @name</td>
                     <td>@value</td>
+                    <td align="right">@changeUrl.map { call =>
+                        <a href="@call.path()">Change</a>
+                    }</td>
                 </tr>
             }
             </table>
         }
-
+        </div>
         <form action="@formAction" method="POST">
-            @for((k, v) <- reportData) {
-                <input type="hidden" name='@k' value="@HtmlFormat.escape(v)">
-            }
-
             @shared._textField(review, "confirmedBy")
-            <fieldset class='confirmation form-group'>
-                <h3 class="bold-medium">Confirm this statement then publish your report</h3>
-                <span id="error-confirmed" class="error-message">@errorMessage(review("confirmed"))</span>
-                <label class="block-label" for="confirmed">
-                    <input type="checkbox" name="confirmed" id="confirmed" value="true" @checked(review("confirmed"))>
-                    I confirm that the information provided in this report is accurate and has been approved by a director of my company or a designated member of my limited liability partnership.
-                </label>
-            </fieldset>
-            <input type="submit" class="button" value="Publish your report">
-            <input type="submit" name="revise" class="button button-secondary" value="Revise">
+        <fieldset class='confirmation form-group'>
+            <h3 class="bold-medium">Confirm this statement then publish your report</h3>
+            <span id="error-confirmed" class="error-message">@errorMessage(review("confirmed"))</span>
+            <label class="block-label" for="confirmed">
+                <input type="checkbox" name="confirmed" id="confirmed" value="true" @checked(review("confirmed"))>
+                I confirm that the information provided in this report is accurate and has been approved by a director of my company or a designated member of my limited liability partnership.
+            </label>
+        </fieldset>
+        <input type="submit" class="button" value="Publish your report">
+        <input type="submit" name="revise" class="button button-secondary" value="Revise">
 
         </form>
     </div>
-</div>

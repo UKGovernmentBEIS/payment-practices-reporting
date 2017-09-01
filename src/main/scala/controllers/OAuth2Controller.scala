@@ -57,7 +57,7 @@ class OAuth2Controller @Inject()(
             _ <- OptionT.liftF(sessionService.put(request.sessionId, oAuthTokenKey, ref))
             _ <- OptionT.liftF(sessionService.put(request.sessionId, companyDetailsKey, companyDetail))
             _ <- OptionT.liftF(sessionService.put(request.sessionId, emailAddressKey, emailAddress))
-          } yield Redirect(controllers.routes.ReportingPeriodController.startReport(companyId))
+          } yield Redirect(controllers.routes.ReportingPeriodController.show(companyId))
         }.value.map {
           case Some(result) => result
           case None => BadRequest(s"Unable to find company details for state $state")

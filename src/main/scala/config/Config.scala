@@ -28,14 +28,14 @@ import scala.util.Try
 case class CompaniesHouseConfig(apiKey: String)
 
 case class NotifyConfig(
-                         apiKey: String,
-                         templateId: String
-                       )
+  apiKey: String,
+  templateId: String
+)
 
 case class OAuthConfig(host: String, callbackURL: String, clientId: String, clientSecret: String) {
   val baseURI = s"https://$host"
 
-  val accessTokenUri = s"$baseURI/oauth2/token"
+  val accessTokenUri     = s"$baseURI/oauth2/token"
   val authorizeSchemeUri = s"$baseURI/oauth2/authorise"
 }
 
@@ -47,11 +47,16 @@ object GoogleAnalyticsConfig {
   val empty = GoogleAnalyticsConfig(None)
 }
 
-case class ServiceConfig(startDate: Option[LocalDate])
+case class FeatureFlags(multiPageForm: Boolean)
+
+case class ServiceConfig(startDate: Option[LocalDate], featureFlags: Option[FeatureFlags]) {
+  def multiPageForm: Boolean = featureFlags.map(_.multiPageForm).getOrElse(ServiceConfig.defaultFeatureFlags.multiPageForm)
+}
 
 object ServiceConfig {
-  val empty = ServiceConfig(None)
+  val empty                   = ServiceConfig(None, None)
   val defaultServiceStartDate = new LocalDate(2017, 4, 6)
+  val defaultFeatureFlags     = FeatureFlags(false)
 }
 
 case class SurveyMonkeyConfig(feedbackFormCode: Option[String])
@@ -69,16 +74,16 @@ object RoutesConfig {
 case class PageConfig(googleAnalytics: GoogleAnalyticsConfig, searchConfig: RoutesConfig, surveyMonkeyConfig: SurveyMonkeyConfig)
 
 case class Config(
-                   service: Option[ServiceConfig],
-                   companiesHouse: Option[CompaniesHouseConfig],
-                   notifyService: Option[NotifyConfig],
-                   oAuth: Option[OAuthConfig],
-                   sessionTimeoutInMinutes: Option[Int],
-                   logAssets: Option[Boolean],
-                   logRequests: Option[Boolean],
-                   printDBTables: Option[Boolean],
-                   pageConfig: PageConfig
-                 )
+  service: Option[ServiceConfig],
+  companiesHouse: Option[CompaniesHouseConfig],
+  notifyService: Option[NotifyConfig],
+  oAuth: Option[OAuthConfig],
+  sessionTimeoutInMinutes: Option[Int],
+  logAssets: Option[Boolean],
+  logRequests: Option[Boolean],
+  printDBTables: Option[Boolean],
+  pageConfig: PageConfig
+)
 
 @Singleton
 class AppConfig @Inject()(configuration: Configuration) {
@@ -93,18 +98,18 @@ class AppConfig @Inject()(configuration: Configuration) {
 
   implicit val localDateConvert: ConfigConvert[LocalDate] = ConfigConvert.stringConvert[LocalDate](s => Try(df.parseLocalDate(s)), df.print(_))
 
-  val service: Option[ServiceConfig] = load[ServiceConfig]("service")
-  val companiesHouse: Option[CompaniesHouseConfig] = load[CompaniesHouseConfig]("companiesHouse")
-  val notifyService: Option[NotifyConfig] = load[NotifyConfig]("notifyService")
-  val oAuth: Option[OAuthConfig] = load[OAuthConfig]("oAuth")
-  val sessionTimeoutInMinutes: Option[Int] = load[Int]("sessionTimeoutInMinutes")
-  val logAssets: Option[Boolean] = load[Boolean]("logAssets")
-  val logRequests: Option[Boolean] = load[Boolean]("logRequests")
-  val printDBTables: Option[Boolean] = load[Boolean]("printDBTables")
+  val service                : Option[ServiceConfig]        = load[ServiceConfig]("service")
+  val companiesHouse         : Option[CompaniesHouseConfig] = load[CompaniesHouseConfig]("companiesHouse")
+  val notifyService          : Option[NotifyConfig]         = load[NotifyConfig]("notifyService")
+  val oAuth                  : Option[OAuthConfig]          = load[OAuthConfig]("oAuth")
+  val sessionTimeoutInMinutes: Option[Int]                  = load[Int]("sessionTimeoutInMinutes")
+  val logAssets              : Option[Boolean]              = load[Boolean]("logAssets")
+  val logRequests            : Option[Boolean]              = load[Boolean]("logRequests")
+  val printDBTables          : Option[Boolean]              = load[Boolean]("printDBTables")
 
-  val googleAnalytics: GoogleAnalyticsConfig = load[GoogleAnalyticsConfig]("googleAnalytics").getOrElse(GoogleAnalyticsConfig(None))
-  val routesConfig: RoutesConfig = load[RoutesConfig]("externalRouter").getOrElse(RoutesConfig.empty)
-  val surveyMonkeyConfig: SurveyMonkeyConfig = load[SurveyMonkeyConfig]("surveyMonkey").getOrElse(SurveyMonkeyConfig.empty)
+  val googleAnalytics   : GoogleAnalyticsConfig = load[GoogleAnalyticsConfig]("googleAnalytics").getOrElse(GoogleAnalyticsConfig(None))
+  val routesConfig      : RoutesConfig          = load[RoutesConfig]("externalRouter").getOrElse(RoutesConfig.empty)
+  val surveyMonkeyConfig: SurveyMonkeyConfig    = load[SurveyMonkeyConfig]("surveyMonkey").getOrElse(SurveyMonkeyConfig.empty)
 
   val pageConfig = PageConfig(googleAnalytics, routesConfig, surveyMonkeyConfig)
 
