@@ -56,6 +56,7 @@ object ReviewPageData {
 class ReviewPageData @Inject()(fieldCallTable: FieldCallTable) extends HtmlHelpers {
   import ReviewPageData._
 
+
   val df: DateTimeFormatter = DateTimeFormat.forPattern("d MMMM YYYY")
 
 
@@ -71,16 +72,13 @@ class ReviewPageData @Inject()(fieldCallTable: FieldCallTable) extends HtmlHelpe
     */
   def formGroups(reportingPeriod: ReportingPeriodFormModel, shortForm: ShortFormModel)(implicit companyDetail: CompanyDetail): Seq[TableDescriptor] = {
     Seq(
-      cssClasses -> group1(reportingPeriod),
-      cssClasses -> group3(shortForm)
+      cssClasses -> (group1(reportingPeriod) ++ group3(shortForm))
     )
   }
 
   def formGroups(reportingPeriod: ReportingPeriodFormModel, longForm: LongFormModel)(implicit companyDetail: CompanyDetail): Seq[TableDescriptor] = {
     Seq(
-      cssClasses -> group1(reportingPeriod),
-      cssClasses -> group2(longForm),
-      cssClasses -> group3(longForm)
+      cssClasses -> (group1(reportingPeriod) ++ group2(longForm) ++ group3(longForm))
     )
   }
 

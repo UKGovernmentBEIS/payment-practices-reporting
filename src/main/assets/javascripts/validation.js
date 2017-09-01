@@ -1,17 +1,19 @@
 /* Validation */
 function Validation(messages) {
     function subscribe(element, eventname, callback) {
-        var old = element[eventname];
-        element[eventname] = function (x) {
-            if (old) {
-                old(x);
-            }
-            return callback(x);
-        };
+        if (element) {
+            var old = element[eventname];
+            element[eventname] = function (x) {
+                if (old) {
+                    old(x);
+                }
+                return callback(x);
+            };
+        }
     }
 
     function clearError(messageContainer, formGroup) {
-        messageContainer.html("&nbsp;");
+        messageContainer.html("");
         formGroup.removeClass("error");
     }
 
@@ -229,7 +231,8 @@ function validationPlumbing(messages, serviceStartDate) {
     v.validateTextInput("paymentStatistics.percentageSplit.percentWithin30Days", v.validations.textPercentage);
     v.validateTextInput("paymentStatistics.percentageSplit.percentWithin60Days", v.validations.textPercentage);
     v.validateTextInput("paymentStatistics.percentageSplit.percentBeyond60Days", v.validations.textPercentage);
-    v.validateTextInput("paymentTerms.paymentPeriod", v.validations.textPositiveInteger);
+    v.validateTextInput("paymentTerms.shortestPaymentPeriod", v.validations.textPositiveInteger);
+    v.validateTextInput("paymentTerms.longestPaymentPeriod", v.validations.textPositiveInteger);
     v.validateTextInput("paymentTerms.maximumContractPeriod", v.validations.textPositiveInteger);
 
     v.validateMultiple([
