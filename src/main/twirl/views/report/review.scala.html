@@ -17,8 +17,9 @@
 
         @shared._errorBox(review)
 
-        <div class="column-full"></div>
+        <div class="column-full">
         @for((cssClass, rows) <- formGroups) {
+            <table class="@cssClass">
             @for((name, value, changeUrl) <- rows) {
                 <tr>
                     <td class="key-column"> @name</td>
@@ -28,8 +29,9 @@
                     }</td>
                 </tr>
             }
+            </table>
         }
-        </table>
+        </div>
         <form action="@formAction" method="POST">
             @shared._textField(review, "confirmedBy")
         <fieldset class='confirmation form-group'>
