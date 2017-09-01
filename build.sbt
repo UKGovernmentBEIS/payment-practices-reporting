@@ -10,6 +10,17 @@ git.useGitDescribe in ThisBuild := true
 
 scalaVersion in ThisBuild := "2.11.8"
 
+val commonScalacOptions = Seq(
+  "-deprecation",
+  "-unchecked",
+  "-feature",
+  "-Xlint",
+  "-Xfatal-warnings",
+  "-language:higherKinds"
+)
+
+scalacOptions ++= commonScalacOptions
+
 lazy val `payment-practices-reporting` = project.in(file("."))
   .enablePlugins(PlayScala)
   .disablePlugins(PlayLayoutPlugin)
@@ -22,6 +33,9 @@ lazy val `payment-practices-reporting` = project.in(file("."))
 resolvers += Resolver.bintrayRepo("gov-uk-notify", "maven")
 
 val playSlickVersion = "2.1.0"
+
+// This is the highest version that supports Play 2.5
+val enumeratumVersion = "1.5.11"
 
 libraryDependencies ++= Seq(
   ws,
@@ -36,8 +50,10 @@ libraryDependencies ++= Seq(
   "org.joda" % "joda-convert" % "1.8.1",
   "com.github.nscala-time" %% "nscala-time" % "2.16.0",
   "org.typelevel" %% "cats-core" % "0.9.0",
-  "com.beachape" %% "enumeratum" % "1.5.2",
-  "com.beachape" %% "enumeratum-play-json" % "1.5.2",
+  "com.beachape" %% "enumeratum" % enumeratumVersion,
+  "com.beachape" %% "enumeratum-play" % enumeratumVersion,
+  "com.beachape" %% "enumeratum-play-json" % enumeratumVersion,
+
   "eu.timepit" %% "refined" % "0.6.1",
   "org.scalactic" %% "scalactic" % "3.0.1",
   "uk.gov.service.notify" % "notifications-java-client" % "3.1.1-RELEASE",
@@ -50,6 +66,9 @@ PlayKeys.devSettings := Seq("play.server.http.port" -> "9000")
 
 routesImport ++= Seq(
   "com.wellfactored.playbindings.ValueClassUrlBinders._",
+  "controllers.FormPageDefs.MultiPageFormName",
+  "controllers.FormPageDefs.ShortFormName",
+  "controllers.FormPageDefs.SinglePageFormName",
   "models._"
 )
 

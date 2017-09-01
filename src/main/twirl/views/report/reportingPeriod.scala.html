@@ -1,10 +1,9 @@
 @(
-        header: Html,
-        reportingPeriodForm: Form[forms.report.ReportingPeriodFormModel],
-        formData: Map[String, String],
-        companyId: CompaniesHouseId,
-        df: DateTimeFormatter,
-        serviceStartDate: LocalDate
+    header: Html,
+    reportingPeriodForm: Form[forms.report.ReportingPeriodFormModel],
+    companyId: CompaniesHouseId,
+    df: DateTimeFormatter,
+    serviceStartDate: LocalDate
 )(implicit messages: MessagesApi, lang: Lang)
 
 <div id=contentStart">
@@ -23,24 +22,20 @@
     <p></p>
 
     <p>
-        The information you provide must relate to 'qualifying contracts'. A qualifying contract is a contract which
+        The information you provide must relate to 'qualifying contracts'. <br />A qualifying contract is a contract which
         satisfies all of the following:
     </p>
     <ul class="list list-bullet">
-        <li>It is between two (or more) businesses</li>
+        <li>It is between 2 (or more) businesses</li>
 
-        <li>It has a significant connection with the United Kingdom.</li>
+        <li>It has a 'significant connection' with the UK</li>
 
-        <li>It is for goods, services or intangible property, including intellectual property.</li>
+        <li>It is for goods, services or intangible property, including intellectual property</li>
 
-        <li>It is not for <a rel="external" target="_blank" href="http://www.legislation.gov.uk/ukpga/2015/26/section/2/enacted">financial services</a>.</li>
+        <li>It is <strong>not</strong> for <a rel="external" target="_blank" href="http://www.legislation.gov.uk/ukpga/2015/26/section/2/enacted">financial services</a></li>
     </ul>
 
     <form action="@routes.ReportingPeriodController.post(companyId)" method="POST" id="longForm-report">
-        @for((k, v) <- formData) {
-            <input type="hidden" name='@k' value="@HtmlFormat.escape(v)">
-        }
-
         <p class="small-aside">
             Companies House number: @companyId.id
         </p>

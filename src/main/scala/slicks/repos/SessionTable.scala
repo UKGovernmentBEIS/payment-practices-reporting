@@ -100,7 +100,7 @@ class SessionTable @Inject()(dbConfigProvider: DatabaseConfigProvider, timeSourc
     * timeout in minutes
     */
   override def refresh(sessionId: SessionId): Future[Unit] = db.run {
-    Logger.debug(s"asked to refresh $sessionId")
+    Logger.trace(s"asked to refresh $sessionId")
     sessionC(sessionId).result.headOption.flatMap {
       case Some(s) => sessionC(sessionId).update(s.copy(expiresAt = sessionExpiryTime))
       case None => DBIO.successful(())

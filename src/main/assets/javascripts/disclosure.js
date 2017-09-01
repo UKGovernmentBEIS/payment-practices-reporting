@@ -3,6 +3,7 @@
 function gradualDisclosure() {
     var data = [
         ["show-if-payment-codes", "paymentCodes.yesNo"],
+        ["show-if-payment-codes", "otherInformation.paymentCodes.yesNo"],
         ["show-if-payment-changes", "paymentTerms.paymentTermsChanged.changed.yesNo"],
         ["show-if-payment-changes-notified", "paymentTerms.paymentTermsChanged.notified.yesNo"]
     ];
@@ -34,7 +35,10 @@ function gradualDisclosure() {
         var panelId = data[j][0];
         var checkboxName = data[j][1];
 
-        showPanelIfYes(panelId, checkboxName);
-        subscribeToChange(panelId, checkboxName);
+        var panel = document.getElementById(panelId);
+        if (panel !== null) {
+            showPanelIfYes(panelId, checkboxName);
+            subscribeToChange(panelId, checkboxName);
+        }
     }
 }

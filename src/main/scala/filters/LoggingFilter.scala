@@ -36,13 +36,13 @@ class LoggingFilter @Inject()(appConfig: AppConfig)(implicit val mat: Materializ
 
   import appConfig.config
 
-  lazy val logAssets = config.logAssets.getOrElse(false)
+  lazy val logAssets   = config.logAssets.getOrElse(false)
   lazy val logRequests = config.logRequests.getOrElse(true)
 
   def apply(nextFilter: RequestHeader => Future[Result])
-           (requestHeader: RequestHeader): Future[Result] = {
+    (requestHeader: RequestHeader): Future[Result] = {
 
-    if (requestHeader.uri.startsWith("/assets") && !logAssets) nextFilter(requestHeader)
+    if ((requestHeader.uri.startsWith("/assets") || requestHeader.uri.startsWith("/public")) && !logAssets) nextFilter(requestHeader)
     else {
       val startTime = System.currentTimeMillis
 

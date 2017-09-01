@@ -1,23 +1,25 @@
 @(
     header: Html,
-    shortForm: Form[forms.report.ShortFormModel],
+    disputeResolution: Form[controllers.DisputeResolutionForm],
     companyId: CompaniesHouseId,
     df: DateTimeFormatter,
     serviceStartDate: LocalDate
 )(implicit messages: MessagesApi, lang: Lang)
 
+@import FormPageDefs.MultiPageFormName
+
 <div id=contentStart">
-    @shared._errorBox(shortForm)
+    @shared._errorBox(disputeResolution)
 
 <div class="scannable-wrapper">
     @header
 
-    <form action="@routes.ShortFormController.post(companyId)" method="POST" id="file-report">
+    <form action="@routes.MultiPageFormController.post(MultiPageFormName.DisputeResolution, companyId)" method="POST" id="longForm-report">
         <p class="small-aside">
             Companies House number: @companyId.id
         </p>
 
-        @report._paymentCodes(shortForm)
+        @report._disputeResolution(disputeResolution)
 
         <input type="submit" class="button" name="Continue" value="Continue">
     </form>
