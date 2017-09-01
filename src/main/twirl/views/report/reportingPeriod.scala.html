@@ -1,10 +1,9 @@
 @(
-        header: Html,
-        reportingPeriodForm: Form[forms.report.ReportingPeriodFormModel],
-        formData: Map[String, String],
-        companyId: CompaniesHouseId,
-        df: DateTimeFormatter,
-        serviceStartDate: LocalDate
+    header: Html,
+    reportingPeriodForm: Form[forms.report.ReportingPeriodFormModel],
+    companyId: CompaniesHouseId,
+    df: DateTimeFormatter,
+    serviceStartDate: LocalDate
 )(implicit messages: MessagesApi, lang: Lang)
 
 <div id=contentStart">
@@ -37,10 +36,6 @@
     </ul>
 
     <form action="@routes.ReportingPeriodController.post(companyId)" method="POST" id="longForm-report">
-        @for((k, v) <- formData) {
-            <input type="hidden" name='@k' value="@HtmlFormat.escape(v)">
-        }
-
         <p class="small-aside">
             Companies House number: @companyId.id
         </p>

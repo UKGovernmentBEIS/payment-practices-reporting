@@ -23,7 +23,7 @@ import play.api.data.FormError
 import utils.SystemTimeSource
 
 class ValidationsTest extends WordSpecLike with Matchers with OptionValues with EitherValues {
-  val sut = new Validations(new SystemTimeSource, new ServiceConfig(None))
+  val sut = new Validations(new SystemTimeSource, new ServiceConfig(None, None))
 
   "paymentTerms" should {
     "raise an error if the shortest payment period is not less than the longest payment period" in {
@@ -36,7 +36,7 @@ class ValidationsTest extends WordSpecLike with Matchers with OptionValues with 
         "disputeResolution" -> "disputeResolution"
       ))
 
-      result.left.value shouldBe List(FormError("paymentTerms.longestPaymentPeriod", List("error.shortestNotLessThanLongest")))
+      result.left.value shouldBe List(FormError("longestPaymentPeriod", List("error.shortestNotLessThanLongest")))
     }
   }
 

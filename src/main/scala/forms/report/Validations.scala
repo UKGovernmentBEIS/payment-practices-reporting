@@ -40,7 +40,7 @@ class Validations @Inject()(timeSource: TimeSource, serviceConfig: ServiceConfig
 
   def isBlank(s: String): Boolean = s.trim() === ""
 
-  val percentage = number.verifying("error.percentage", n => n >= 0 && n <= 100)
+  val percentage: Mapping[Int] = number.verifying("error.percentage", n => n >= 0 && n <= 100)
 
   private val sumTo100 = (ps: PercentageSplit) => (100 - ps.total).abs <= 2
 
@@ -51,11 +51,11 @@ class Validations @Inject()(timeSource: TimeSource, serviceConfig: ServiceConfig
   )(PercentageSplit.apply)(PercentageSplit.unapply)
     .verifying("error.sumto100", sumTo100)
 
-  val paymentHistory: Mapping[PaymentHistory] = mapping(
+  val paymentStatistics: Mapping[PaymentStatistics] = mapping(
     "averageDaysToPay" -> number(min = 0),
-    "percentPaidBeyondAgreedTerms" -> percentage,
-    "percentageSplit" -> percentageSplit
-  )(PaymentHistory.apply)(PaymentHistory.unapply)
+    "percentageSplit" -> percentageSplit,
+    "percentPaidLaterThanAgreedTerms" -> percentage
+  )(PaymentStatistics.apply)(PaymentStatistics.unapply)
 
 
   val errorLongestMessage = "error.shortestNotLessThanLongest"
@@ -67,15 +67,14 @@ class Validations @Inject()(timeSource: TimeSource, serviceConfig: ServiceConfig
     "maximumContractPeriod" -> number(min = 0),
     "maximumContractPeriodComment" -> optional(words(1, maxContractPeriodCommentWordCount)),
     "paymentTermsChanged" -> paymentTermsChanged,
-    "paymentTermsComment" -> optional(words(1, paymentTermsCommentWordCount)),
-    "disputeResolution" -> words(1, disputeResolutionWordCount)
+    "paymentTermsComment" -> optional(words(1, paymentTermsCommentWordCount))
   )(PaymentTerms.apply)(PaymentTerms.unapply)
     .verifying(errorLongestMessage, pt => pt.longestPaymentPeriod.forall(longest => pt.shortestPaymentPeriod < longest))
 
   val paymentTerms: Mapping[PaymentTerms] = AdjustErrors(pt) { (key, errs) =>
     errs.map {
       case FormError(k, messages, args) if messages.headOption.contains(errorLongestMessage) =>
-        FormError(s"paymentTerms.longestPaymentPeriod", messages, args)
+        FormError(s"longestPaymentPeriod", messages, args)
 
       case e => e
     }
@@ -88,8 +87,8 @@ class Validations @Inject()(timeSource: TimeSource, serviceConfig: ServiceConfig
     * dates that are prior to that date. In order to support testing in non-live environments
     * I've provided a config parameter to allow the date to be set to something different.
     */
-  private val serviceStartDate = serviceConfig.startDate.getOrElse(ServiceConfig.defaultServiceStartDate)
-  private val df = DateTimeFormat.forPattern("d MMMM yyyy")
+  private val serviceStartDate       = serviceConfig.startDate.getOrElse(ServiceConfig.defaultServiceStartDate)
+  private val df                     = DateTimeFormat.forPattern("d MMMM yyyy")
   private val serviceStartConstraint = Constraint { dr: DateRange =>
     if (dr.endDate.isBefore(serviceStartDate)) {
       val invalid = Invalid("error.beforeservicestart", df.print(serviceStartDate))
@@ -99,41 +98,55 @@ class Validations @Inject()(timeSource: TimeSource, serviceConfig: ServiceConfig
     else Valid
   }
 
-  private val reportDates =
+  private val reportDates: Mapping[DateRange] =
     dateRange
       .verifying("error.notfuture", dr => !now().isBefore(dr.endDate))
       .verifying(serviceStartConstraint)
 
-  val reportingPeriodFormModel = mapping(
+  val reportingPeriodFormModel: Mapping[ReportingPeriodFormModel] = mapping(
     "reportDates" -> reportDates,
     "hasQualifyingContracts" -> yesNo
   )(ReportingPeriodFormModel.apply)(ReportingPeriodFormModel.unapply)
 
   private val paymentCodesValidation = "paymentCodes" -> conditionalText(paymentCodesWordCount)
 
-  val shortFormModel = mapping(
+  val shortFormModel: Mapping[ShortFormModel] = mapping(
     paymentCodesValidation
   )(ShortFormModel.apply)(ShortFormModel.unapply)
 
-  val reportFormModel = mapping(
-    "paymentHistory" -> paymentHistory,
-    "paymentTerms" -> paymentTerms,
+  val disputeResolution: Mapping[DisputeResolution] = mapping(
+    "text" -> words(1, disputeResolutionWordCount)
+  )(DisputeResolution.apply)(DisputeResolution.unapply)
+
+
+  val otherInformation: Mapping[OtherInformation] = mapping(
     "offerEInvoicing" -> yesNo,
-    "offerSupplyChainFinancing" -> yesNo,
+    "offerSupplyChainFinance" -> yesNo,
     "retentionChargesInPolicy" -> yesNo,
     "retentionChargesInPast" -> yesNo,
     paymentCodesValidation
+  )(OtherInformation.apply)(OtherInformation.unapply)
+
+  val reportFormModel: Mapping[LongFormModel] = mapping(
+    "paymentStatistics" -> paymentStatistics,
+    "paymentTerms" -> paymentTerms,
+    "disputeResolution" -> disputeResolution,
+    "otherInformation" -> otherInformation
   )(LongFormModel.apply)(LongFormModel.unapply)
 
-  val reportReviewModel = mapping(
+  val reportReviewModel: Mapping[ReportReviewModel] = mapping(
     "confirmedBy" -> nonEmptyText(maxLength = 255),
     "confirmed" -> checked("error.confirm")
   )(ReportReviewModel.apply)(ReportReviewModel.unapply)
 
-  val emptyReportingPeriod: Form[ReportingPeriodFormModel] = Form(reportingPeriodFormModel)
-  val emptyLongForm: Form[LongFormModel] = Form(reportFormModel)
-  val emptyShortForm: Form[ShortFormModel] = Form(shortFormModel)
-  val emptyReview: Form[ReportReviewModel] = Form(reportReviewModel)
+  val emptyReportingPeriod  : Form[ReportingPeriodFormModel] = Form(reportingPeriodFormModel)
+  val emptyPaymentStatistics: Form[PaymentStatistics]        = Form(paymentStatistics)
+  val emptyPaymentTerms     : Form[PaymentTerms]             = Form(paymentTerms)
+  val emptyDisputeResolution: Form[DisputeResolution]        = Form(disputeResolution)
+  val emptyOtherInformation : Form[OtherInformation]         = Form(otherInformation)
+  val emptyLongForm         : Form[LongFormModel]            = Form(reportFormModel)
+  val emptyShortForm        : Form[ShortFormModel]           = Form(shortFormModel)
+  val emptyReview           : Form[ReportReviewModel]        = Form(reportReviewModel)
 }
 
 
@@ -159,10 +172,10 @@ object PaymentTermsChangedValidations {
 
   private val answerNotifiedIfChanged = Constraint { ch: PaymentTermsChanged =>
     ch match {
-      case PaymentTermsChanged(ConditionalText(Yes, _), None) => Invalid(errorMustAnswer)
+      case PaymentTermsChanged(ConditionalText(Yes, _), None)                             => Invalid(errorMustAnswer)
       case PaymentTermsChanged(ConditionalText(Yes, _), Some(ConditionalText(Yes, None))) => Invalid(errorNotifiedTextRequired)
-      case PaymentTermsChanged(ConditionalText(No, _), _) => Valid
-      case _ => Valid
+      case PaymentTermsChanged(ConditionalText(No, _), _)                                 => Valid
+      case _                                                                              => Valid
     }
   }
 
@@ -173,7 +186,7 @@ object PaymentTermsChangedValidations {
     .transform(_.normalise, (ptc: PaymentTermsChanged) => ptc)
     .verifying(answerNotifiedIfChanged)
 
-  val paymentTermsChanged = AdjustErrors(ptc) { (key, errs) =>
+  val paymentTermsChanged: AdjustErrors[PaymentTermsChanged] = AdjustErrors(ptc) { (key, errs) =>
     def keyFor(baseKey: String, subKey: String) = if (baseKey === "") subKey else s"$baseKey.$subKey"
 
     errs.map {
@@ -203,7 +216,7 @@ object ConditionalTextValidations {
     * field is discarded. No further validations are applied (so there is no check that the text is
     * supplied when the yesNo is `Yes` - see `conditionalText` for that)
     */
-  def yesNoText(maxWords: Int) = mapping(
+  def yesNoText(maxWords: Int): Mapping[ConditionalText] = mapping(
     "yesNo" -> yesNo,
     "text" -> optional(text)
   )(ConditionalText.apply)(ConditionalText.unapply)
@@ -215,7 +228,7 @@ object ConditionalTextValidations {
   private val textRequiredIfYes = Constraint { ct: ConditionalText =>
     ct match {
       case ConditionalText(Yes, None) => Invalid(errorRequired)
-      case _ => Valid
+      case _                          => Valid
     }
   }
 
@@ -229,10 +242,10 @@ object ConditionalTextValidations {
     * only message we're expecting is the `error.required` generated by the
     * `textRequiredIfYes` constraint.
     */
-  def conditionalText(maxWords: Int) = AdjustErrors(condText(maxWords)) { (key, errs) =>
+  def conditionalText(maxWords: Int): AdjustErrors[ConditionalText] = AdjustErrors(condText(maxWords)) { (key, errs) =>
     errs.map {
       case FormError(k, messages, args) if k === key => FormError(s"$k.text", messages, args)
-      case e => e
+      case e                                         => e
     }
   }
 }
