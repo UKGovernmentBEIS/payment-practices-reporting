@@ -18,7 +18,7 @@
     <label class="form-label">
         <span class="form-label-bold">Split of payments made under qualifying contracts in the reporting period</span>
         <span class="form-hint">Figures A, B and C should add up to 100%</span>
-        <span class="error-message">@errorMessage("percentageSplit")</span>
+        <span class="error-message" id="paymentStatistics.percentageSplit">@errorMessage("paymentStatistics.percentageSplit")</span>
     </label>
 
     @_numberField(form, "paymentStatistics.percentageSplit.percentWithin30Days", Some("%"))
