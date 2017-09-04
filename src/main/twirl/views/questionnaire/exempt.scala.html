@@ -1,11 +1,8 @@
 @(reason: String)(implicit messages: MessagesApi)
 
 <div id="contentStart" class="scannable-wrapper">
-    <h1 class="heading-xlarge">Check if your business needs to report</h1>
-    <div class="panel">
-        <h3 class="bold-medium">Your business does not have to report on its payment practices and performance for this financial year.</h3>
+        <h1 class="heading-large">Your business does not have to report on its payment practices and performance for this financial year.</h1>
         <p id="reason">@Html(messages(reason))</p>
-    </div>
     <p>
         You can <a href="@routes.CalculatorController.start()">publish reports</a> if you want to. These will be available for anyone to read.
     </p>
