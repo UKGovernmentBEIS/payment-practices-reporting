@@ -49,12 +49,13 @@ trait RestService {
     }
   }
 
-  private def loggingAndTiming[T](method: String, request: WSRequest)(body: => T): T = {
+  private def loggingAndTiming[T](method: String, request: WSRequest)(body: => Future[T]): Future[T] = {
     val start = System.currentTimeMillis()
-    val result = body
-    val ms = System.currentTimeMillis() - start
-    Logger.debug(s"$method ${request.url} took $ms ms")
-    result
+    body.map { result =>
+      val ms = System.currentTimeMillis() - start
+      Logger.debug(s"$method ${request.url} took $ms ms")
+      result
+    }
   }
 
   def get[A: Reads](url: String, auth: String): Future[A] = {
@@ -124,7 +125,7 @@ object RestService {
   case class JsonParseException(method: String, request: WSRequest, response: WSResponse, errs: Seq[(JsPath, Seq[ValidationError])]) extends Exception
 
   case class RestFailure(method: String, request: WSRequest, response: WSResponse) extends Exception {
-    val status = response.status
+    val status: Int = response.status
   }
 
 }
