@@ -1,36 +1,46 @@
 @import services.{CompanySearchResult, PagedResults}
 @(
-        searchTerm: String,
-        resultsO: Option[PagedResults[CompanySearchResult]],
-        counts: Map[CompaniesHouseId, Int],
-        searchLink: String,
-        companyLink: models.CompaniesHouseId => String,
-        pageLink: Int => String
+    searchHeader: Html,
+    searchTerm: String,
+    resultsO: Option[PagedResults[CompanySearchResult]],
+    counts: Map[CompaniesHouseId, Int],
+    searchLink: String,
+    companyLink: models.CompaniesHouseId => String,
+    pageLink: Int => String,
+    externalRouter: ExternalRouter
 )
 
-<div id="contentStart" class="scannable-wrapper">
-    <p class="lede">Enter business name or company number</p>
-    @shared._search(searchTerm, searchLink) {
-        @resultsO.map { results =>
-            @if(results.items.isEmpty && searchTerm != "") {
-                <div class="scannable-wrapper">
-                    <p class="bold-medium">We didn’t find any businesses with that company number or name.</p>
-                    <p>Please try searching again using different search terms.</p>
-                </div>
-            }
+<div class="grid-row">
+    <div class="column-two-thirds">
+        <div id="contentStart" class="scannable-wrapper">
+            @searchHeader
+            <p class="lede">Enter business name or company number</p>
+            @shared._search(searchTerm, searchLink) {
+                @resultsO.map { results =>
+                    @if(results.items.isEmpty && searchTerm != "") {
+                        <div class="scannable-wrapper">
+                            <p class="bold-medium">We didn’t find any businesses with that company number or name.</p>
+                            <p>Please try searching again using different search terms.</p>
+                        </div>
+                    }
 
 
-            @if(results.items.nonEmpty) {
-                <ul class="searchresults">
-                @for(result <- results.items) {
-                    @views.html.shared._companySummary(result, counts.getOrElse(result.companiesHouseId, 0), companyLink(result.companiesHouseId))
+                    @if(results.items.nonEmpty) {
+                        <ul class="searchresults">
+                        @for(result <- results.items) {
+                            @views.html.shared._companySummary(result, counts.getOrElse(result.companiesHouseId, 0), companyLink(result.companiesHouseId))
+                        }
+                        </ul>
+                        @shared._pageLinks(results, pageLink)
+                        <p>
+                            @results.totalResults @(if(results.totalResults == 1) "match" else "matches") found
+                        </p>
+                    }
                 }
-                </ul>
-                @shared._pageLinks(results, pageLink)
-                <p>
-                    @results.totalResults @(if(results.totalResults == 1) "match" else "matches") found
-                </p>
             }
-        }
-    }
+
+            </div>
+    </div>
+
+    @shared._sidebar(externalRouter)
 </div>

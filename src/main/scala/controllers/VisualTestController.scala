@@ -51,7 +51,8 @@ class VisualTestController @Inject()(
   def show = Action { implicit request =>
     val df = CalculatorController.df
     val index = views.html.index()
-    val qStart = views.html.questionnaire.start()
+    val externalRouter = implicitly[ExternalRouter]
+    val qStart = views.html.questionnaire.start(externalRouter)
     val reasons = Seq("reason.firstyear", "reason.company.notlargeenough", "reason.group.notlargeenough")
     val exempts = views.html.questionnaire.notACompany("reason.notacompany") +: reasons.map(views.html.questionnaire.exempt(_))
 
@@ -63,8 +64,8 @@ class VisualTestController @Inject()(
         views.html.questionnaire.required(summarizer.summarize(secondYear)),
         views.html.questionnaire.required(summarizer.summarize(thirdYear)))
     val calcs = Seq(
-      views.html.calculator.calculator(CalculatorController.emptyForm),
-      views.html.calculator.calculator(CalculatorController.emptyForm.bind(Map[String, String]())))
+      views.html.calculator.calculator(CalculatorController.emptyForm, externalRouter),
+      views.html.calculator.calculator(CalculatorController.emptyForm.bind(Map[String, String]()), externalRouter))
 
 
     val calc = Calculator(calculator.FinancialYear(DateRange(startDate, endDate)))
@@ -76,8 +77,8 @@ class VisualTestController @Inject()(
     val summary = CompanySearchResult(id, companyName, Some("123 Abc Road"))
     val results = PagedResults(Seq(summary, summary, summary), 25, 1, 100)
     val searches = Seq(
-      html(h1("Publish a report"), views.html.search.search("cod", Some(results), Map(id -> 3), "", _ => "", _ => "")),
-      html(h1("Search for a report"), views.html.search.search("cod", Some(results), Map(id -> 3), "", _ => "", _ => ""))
+      views.html.search.search(html(h1("Publish a report")), "cod", Some(results), Map(id -> 3), "", _ => "", _ => "", externalRouter),
+      views.html.search.search(html(h1("Search for a report")), "cod", Some(results), Map(id -> 3), "", _ => "", _ => "", externalRouter)
     )
     val companies = Seq(views.html.search.company(CompanyDetail(id, companyName), PagedResults(Seq(healthyReport, healthyReport, healthyReport), 25, 1, 100), _ => "", df))
     val start = Seq(views.html.report.start(companyName, id))

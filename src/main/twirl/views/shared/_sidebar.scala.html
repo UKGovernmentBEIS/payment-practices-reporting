@@ -1,0 +1,25 @@
+@(externalRouter: ExternalRouter)
+
+<div class="column-one-third">
+    <aside class="govuk-related-items" role="complementary">
+        <h2 class="bold-medium">
+            Read reports
+        </h2>
+        <ul class="list">
+            <li><a href="@externalRouter.search()">Search for a report</a></li>
+            <li><a href="@externalRouter.download()">Download data for published reports</a></li>
+        </ul>
+
+        <h2 class="bold-medium">
+            Publish a report
+        </h2>
+
+        <ul class="list">
+            <li><a href="@controllers.routes.QuestionnaireController.start()">
+                Find out if your business needs to publish reports</a></li>
+            <li><a href="@controllers.routes.CalculatorController.start()">
+                Determine your reporting deadlines</a></li>
+            <li><a href="@controllers.routes.ReportController.search(None, None, None)">Publish a report</a></li>
+        </ul>
+    </aside>
+</div>
