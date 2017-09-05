@@ -4,10 +4,10 @@
 
     <div class="scannable-wrapper">
         <h1 class="heading-xlarge">Sign in using your Companies House account</h1>
-        <p class="panel">You need a Companies House online account and authentication code to verify your identity.</p>
-        <p class="bold-medium">Do you have a Companies House account and an authentication code?</p>
+        <p class="panel">You nee your Companies House Single Service login details and the business authentication code to verify your identity.</p>
+        <p class="bold-medium">Do you have Companies House Single Service login details and an authentication code?</p>
         <p class="form-hint">
-            If you’re not sure, this is the code you use to submit your Annual Return and Annual Report on the Companies House website.</p>
+            If you’re not sure, this is the authentication code you use to submit your Confirmation Statement through Webfiling on the Companies House website.</p>
 
         <form action="@routes.ReportController.login(company)" method="POST">
             <div class="form-group @errorClass(form(""))" id="account">
