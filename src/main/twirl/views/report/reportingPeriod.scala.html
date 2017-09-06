@@ -4,8 +4,13 @@
     companyId: CompaniesHouseId,
     df: DateTimeFormatter,
     serviceStartDate: LocalDate,
-    change: Option[Boolean] = None
+    change: Option[Boolean]
 )(implicit messages: MessagesApi, lang: Lang)
+
+@buttonLabel = @{
+    if (change.contains(true)) "Review your answers"
+    else "Continue"
+}
 
 <div id=contentStart">
     @shared._errorBox(reportingPeriodForm)
@@ -43,7 +48,7 @@
 
         @report._reportingPeriod(reportingPeriodForm)
 
-        <input type="submit" class="button" name="Continue" value="Continue">
+        <input type="submit" class="button" name="Continue" value="@buttonLabel">
     </form>
 
     @report._scripts(df, serviceStartDate)

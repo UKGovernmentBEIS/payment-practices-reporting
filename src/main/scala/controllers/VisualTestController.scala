@@ -98,7 +98,7 @@ class VisualTestController @Inject()(
     val healthyLongFormModel = LongFormModel(paymentCodes, healthyLongForm)
 
     val reportingPeriods = Seq(
-      views.html.report.reportingPeriod(header, dummyReportingPeriodForm, id, df, serviceStartDate)
+      views.html.report.reportingPeriod(header, dummyReportingPeriodForm, id, df, serviceStartDate, None)
     )
 
     val longForms = Seq(

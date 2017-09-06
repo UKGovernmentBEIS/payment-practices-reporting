@@ -23,7 +23,7 @@ import actions.{CompanyAuthAction, CompanyAuthRequest}
 import akka.actor.ActorRef
 import config.{PageConfig, ServiceConfig}
 import controllers.FormPageDefs.MultiPageFormName
-import forms.report.Validations
+import forms.report.{ReportingPeriodFormModel, Validations}
 import models.CompaniesHouseId
 import play.api.i18n.MessagesApi
 import play.api.mvc.Controller
@@ -55,9 +55,9 @@ class ReportingPeriodController @Inject()(
   private def title(implicit request: CompanyAuthRequest[_]): String = publishTitle(request.companyDetail.companyName)
 
   //noinspection TypeAnnotation
-  def show(companiesHouseId: CompaniesHouseId, change:Option[Boolean]) = companyAuthAction(companiesHouseId).async { implicit request =>
+  def show(companiesHouseId: CompaniesHouseId, change: Option[Boolean]) = companyAuthAction(companiesHouseId).async { implicit request =>
     loadFormData(emptyReportingPeriod, MultiPageFormName.ReportingPeriod).map { form =>
-      Ok(page(title)(home, pages.reportingPeriod(reportPageHeader, form, companiesHouseId, df, serviceStartDate)))
+      Ok(page(title)(home, pages.reportingPeriod(reportPageHeader, form, companiesHouseId, df, serviceStartDate, change)))
     }
   }
 
@@ -66,14 +66,24 @@ class ReportingPeriodController @Inject()(
     val reportingPeriodForm = emptyReportingPeriod.bindForm
     saveFormData(MultiPageFormName.ReportingPeriod, reportingPeriodForm).map { _ =>
       reportingPeriodForm.fold(
-        errs => BadRequest(page(title)(home, pages.reportingPeriod(reportPageHeader, errs, companiesHouseId, df, serviceStartDate))),
-        reportingPeriod =>
-          if (reportingPeriod.hasQualifyingContracts.toBoolean)
-            if (serviceConfig.multiPageForm) Redirect(routes.MultiPageFormController.show(MultiPageFormName.PaymentStatistics, companiesHouseId, change))
-            else Redirect(routes.SinglePageFormController.show(companiesHouseId, change))
-          else
-            Redirect(routes.ShortFormController.show(companiesHouseId, change))
+        errs => BadRequest(page(title)(home, pages.reportingPeriod(reportPageHeader, errs, companiesHouseId, df, serviceStartDate, change))),
+        reportingPeriod => whereNext(companiesHouseId, change, reportingPeriod)
       )
     }
+  }
+
+  private def whereNext(companiesHouseId: CompaniesHouseId, change: Option[Boolean], reportingPeriod: ReportingPeriodFormModel) = {
+    val call = (reportingPeriod.hasQualifyingContracts.toBoolean, serviceConfig.multiPageForm, change.contains(true)) match {
+      case (true, true, true)  => routes.MultiPageFormReviewController.showReview(companiesHouseId)
+      case (true, true, false) => routes.MultiPageFormController.show(MultiPageFormName.PaymentStatistics, companiesHouseId, change)
+
+      case (true, false, true)  => routes.SinglePageFormReviewController.showReview(companiesHouseId)
+      case (true, false, false) => routes.SinglePageFormController.show(companiesHouseId, change)
+
+      case (false, _, true)  => routes.ShortFormReviewController.showReview(companiesHouseId)
+      case (false, _, false) => routes.ShortFormController.show(companiesHouseId, change)
+    }
+
+    Redirect(call)
   }
 }
