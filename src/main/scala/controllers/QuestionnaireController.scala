@@ -36,7 +36,8 @@ class QuestionnaireController @Inject()(summarizer: Summarizer,
   import views.html.{questionnaire => pages}
 
   def start = Action { implicit request =>
-    Ok(page("Find out if your business needs to publish reports")(home, views.html.questionnaire.start()))
+    val externalRouter = implicitly[ExternalRouter]
+    Ok(page("Find out if your business needs to publish reports")(home, views.html.questionnaire.start(externalRouter)))
   }
 
   val emptyForm = Form(decisionStateMapping)
