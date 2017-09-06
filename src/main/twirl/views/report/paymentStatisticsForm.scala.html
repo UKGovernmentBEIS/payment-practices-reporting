@@ -3,10 +3,16 @@
     form: Form[controllers.PaymentStatisticsForm],
     companyId: CompaniesHouseId,
     df: DateTimeFormatter,
-    serviceStartDate: LocalDate
+    serviceStartDate: LocalDate,
+    change: Option[Boolean]
 )(implicit messages: MessagesApi, lang: Lang)
 
 @import FormPageDefs.MultiPageFormName
+
+@buttonLabel = @{
+    if (change.contains(true)) "Review your answers"
+    else "Continue"
+}
 
 <div id=contentStart">
     @shared._errorBox(form)
@@ -26,14 +32,14 @@
 
     @shared._day1Calculation()
 
-    <form action="@routes.MultiPageFormController.post(MultiPageFormName.PaymentStatistics, companyId)" method="POST" id="longForm-report">
+    <form action="@routes.MultiPageFormController.post(MultiPageFormName.PaymentStatistics, companyId, change)" method="POST" id="longForm-report">
         <p class="small-aside">
             Companies House number: @companyId.id
         </p>
 
         @report._paymentStatistics(form)
 
-        <input type="submit" class="button" name="Continue" value="Continue">
+        <input type="submit" class="button" name="Continue" value="@buttonLabel">
     </form>
 
     @report._scripts(df, serviceStartDate)

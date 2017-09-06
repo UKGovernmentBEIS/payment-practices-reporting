@@ -55,24 +55,24 @@ class ReportingPeriodController @Inject()(
   private def title(implicit request: CompanyAuthRequest[_]): String = publishTitle(request.companyDetail.companyName)
 
   //noinspection TypeAnnotation
-  def show(companiesHouseId: CompaniesHouseId) = companyAuthAction(companiesHouseId).async { implicit request =>
+  def show(companiesHouseId: CompaniesHouseId, change:Option[Boolean]) = companyAuthAction(companiesHouseId).async { implicit request =>
     loadFormData(emptyReportingPeriod, MultiPageFormName.ReportingPeriod).map { form =>
       Ok(page(title)(home, pages.reportingPeriod(reportPageHeader, form, companiesHouseId, df, serviceStartDate)))
     }
   }
 
   //noinspection TypeAnnotation
-  def post(companiesHouseId: CompaniesHouseId) = companyAuthAction(companiesHouseId).async(parse.urlFormEncoded) { implicit request =>
+  def post(companiesHouseId: CompaniesHouseId, change: Option[Boolean]) = companyAuthAction(companiesHouseId).async(parse.urlFormEncoded) { implicit request =>
     val reportingPeriodForm = emptyReportingPeriod.bindForm
     saveFormData(MultiPageFormName.ReportingPeriod, reportingPeriodForm).map { _ =>
       reportingPeriodForm.fold(
         errs => BadRequest(page(title)(home, pages.reportingPeriod(reportPageHeader, errs, companiesHouseId, df, serviceStartDate))),
         reportingPeriod =>
           if (reportingPeriod.hasQualifyingContracts.toBoolean)
-            if (serviceConfig.multiPageForm) Redirect(routes.MultiPageFormController.show(MultiPageFormName.PaymentStatistics, companiesHouseId))
-            else Redirect(routes.SinglePageFormController.show(companiesHouseId))
+            if (serviceConfig.multiPageForm) Redirect(routes.MultiPageFormController.show(MultiPageFormName.PaymentStatistics, companiesHouseId, change))
+            else Redirect(routes.SinglePageFormController.show(companiesHouseId, change))
           else
-            Redirect(routes.ShortFormController.show(companiesHouseId))
+            Redirect(routes.ShortFormController.show(companiesHouseId, change))
       )
     }
   }

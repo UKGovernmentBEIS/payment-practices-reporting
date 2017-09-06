@@ -31,8 +31,8 @@ import services.CompanyDetail
 case class FormHandler[T, N <: FormName](
   formName: N,
   form: Form[T],
-  private val renderPageFunction: (Html, CompanyDetail) => (Form[T]) => Html,
-  callPage: (CompanyDetail) => Call
+  private val renderPageFunction: (Html, CompanyDetail, Boolean) => (Form[T]) => Html,
+  private val callPageFunction: (CompanyDetail, Boolean) => Call
 ) {
   def bind(implicit request: Request[Map[String, Seq[String]]]): FormHandler[T, N] = copy(form = form.bindForm)
 
@@ -40,6 +40,9 @@ case class FormHandler[T, N <: FormName](
 
   def bind(data: Map[String, String]): FormHandler[T, N] = copy(form = form.bind(data))
 
-  def renderPage(reportPageHeader: Html, companyDetail: CompanyDetail): Html =
-    renderPageFunction(reportPageHeader, companyDetail)(form)
+  def callPage(companyDetail: CompanyDetail, change: Boolean): Call =
+    callPageFunction(companyDetail, change)
+
+  def renderPage(reportPageHeader: Html, companyDetail: CompanyDetail, change: Boolean): Html =
+    renderPageFunction(reportPageHeader, companyDetail, change)(form)
 }

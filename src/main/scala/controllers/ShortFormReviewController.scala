@@ -86,7 +86,7 @@ class ShortFormReviewController @Inject()(
     val f: (CompanyAuthRequest[Map[String, Seq[String]]], ReportingPeriodFormModel, ShortFormModel) => Future[Result] = handleReviewPost
     val revise: Boolean = Form(single("revise" -> text)).bindForm.value.contains("Revise")
 
-    if (revise) Future.successful(Redirect(routes.ReportingPeriodController.show(companiesHouseId)))
+    if (revise) Future.successful(Redirect(routes.ReportingPeriodController.show(companiesHouseId, None)))
     else handleBinding(request, f)
   }
 
