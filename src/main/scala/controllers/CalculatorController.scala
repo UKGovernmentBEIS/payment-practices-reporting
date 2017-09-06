@@ -34,7 +34,8 @@ class CalculatorController @Inject()(implicit messages: MessagesApi,
 
   import CalculatorController._
 
-  def calculatorPage(form: Form[DateRange])(implicit rh: RequestHeader) = page("Calculate reporting periods and deadlines")(home, views.html.calculator.calculator(form))
+  def calculatorPage(form: Form[DateRange])(implicit rh: RequestHeader) =
+    page("Calculate reporting periods and deadlines")(home, views.html.calculator.calculator(form, implicitly[ExternalRouter]))
 
   def start = Action { implicit request =>
     Ok(calculatorPage(emptyForm))
