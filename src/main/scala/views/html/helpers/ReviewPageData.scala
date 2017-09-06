@@ -124,7 +124,11 @@ class ReviewPageData @Inject()(fieldCallTable: FieldCallTable) extends HtmlHelpe
     ("Standard payment terms", r.paymentTerms.terms, call("paymentTerms.terms")),
     ("Any changes to standard payment terms", r.paymentTerms.paymentTermsChanged.comment, call("paymentTerms.paymentTermsChanged.changed.yesNo")),
     ("Did you consult or notify your suppliers about changes?",
-      r.paymentTerms.paymentTermsChanged.notified.map(conditionalText), call("paymentTerms.paymentTermsChanged.notified.yesNo")),
+      if (r.paymentTerms.paymentTermsChanged.notified.exists(_.yesNo.toBoolean)) r.paymentTerms.paymentTermsChanged.notified.map(conditionalText)
+      else "N/A",
+      if (r.paymentTerms.paymentTermsChanged.notified.exists(_.yesNo.toBoolean)) call("paymentTerms.paymentTermsChanged.notified.yesNo")
+      else None
+    ),
     ("Maximum contract period in " + days, (r.paymentTerms.maximumContractPeriod, days), call("paymentTerms.maximumContractPeriod")),
     ("Maximum contract period: further information", r.paymentTerms.maximumContractPeriodComment.map(breakLines), call("paymentTerms.maximumContractPeriodComment")),
     ("Further remarks about your payment terms", r.paymentTerms.paymentTermsComment.map(breakLines), call("paymentTerms.paymentTermsComment"))
