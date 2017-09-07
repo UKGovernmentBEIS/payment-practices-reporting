@@ -34,8 +34,7 @@ class SecurityHeadersFilter @Inject()(env: Environment)(implicit val mat: Materi
         result.withHeaders(
           "X-XSS-Protection" -> "1; mode=block",
           "Strict-Transport-Security" -> "max-age=31536000; includeSubDomains",
-          "X-Content-Type-Options" -> "nosniff",
-          "Cache-control" -> "no-store, no-cache"
+          "X-Content-Type-Options" -> "nosniff"
         )
       }
     } else {
