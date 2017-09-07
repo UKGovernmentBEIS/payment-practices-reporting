@@ -124,8 +124,7 @@ class ReviewPageData @Inject()(fieldCallTable: FieldCallTable) extends HtmlHelpe
     ("Standard payment terms", r.paymentTerms.terms, call("paymentTerms.terms")),
     ("Any changes to standard payment terms", r.paymentTerms.paymentTermsChanged.comment, call("paymentTerms.paymentTermsChanged.changed.yesNo")),
     ("Did you consult or notify your suppliers about changes?",
-      if (r.paymentTerms.paymentTermsChanged.notified.exists(_.yesNo.toBoolean)) r.paymentTerms.paymentTermsChanged.notified.map(conditionalText)
-      else "N/A",
+      r.paymentTerms.paymentTermsChanged.notified.map(conditionalText).getOrElse("N/A"),
       if (r.paymentTerms.paymentTermsChanged.notified.exists(_.yesNo.toBoolean)) call("paymentTerms.paymentTermsChanged.notified.yesNo")
       else None
     ),
