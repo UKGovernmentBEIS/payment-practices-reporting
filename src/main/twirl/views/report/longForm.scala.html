@@ -1,9 +1,10 @@
 @(
-        header: Html,
-        longForm: Form[forms.report.LongFormModel],
-        companyId: CompaniesHouseId,
-        df: DateTimeFormatter,
-        serviceStartDate: LocalDate
+    header: Html,
+    longForm: Form[forms.report.LongFormModel],
+    companyId: CompaniesHouseId,
+    df: DateTimeFormatter,
+    serviceStartDate: LocalDate,
+    change: Option[Boolean]
 )(implicit messages: MessagesApi, lang: Lang)
 
 <div id=contentStart">
@@ -24,7 +25,7 @@
 
     @shared._day1Calculation()
 
-    <form action="@routes.SinglePageFormController.post(companyId)" method="POST" id="longForm-report">
+    <form action="@routes.SinglePageFormController.post(companyId, change)" method="POST" id="longForm-report">
         <p class="small-aside">
             Companies House number: @companyId.id
         </p>

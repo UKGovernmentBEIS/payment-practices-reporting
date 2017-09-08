@@ -93,7 +93,7 @@ class MultiPageFormReviewController @Inject()(
   def postReview(companiesHouseId: CompaniesHouseId) = companyAuthAction(companiesHouseId).async(parse.urlFormEncoded) { implicit request =>
     val revise: Boolean = Form(single("revise" -> text)).bindForm.value.contains("Revise")
 
-    if (revise) Future.successful(Redirect(routes.ReportingPeriodController.show(companiesHouseId)))
+    if (revise) Future.successful(Redirect(routes.ReportingPeriodController.show(companiesHouseId, None)))
     else handleBinding(request, handleReviewPost)
   }
 

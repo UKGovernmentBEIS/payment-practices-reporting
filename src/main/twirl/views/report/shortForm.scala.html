@@ -3,7 +3,8 @@
     shortForm: Form[forms.report.ShortFormModel],
     companyId: CompaniesHouseId,
     df: DateTimeFormatter,
-    serviceStartDate: LocalDate
+    serviceStartDate: LocalDate,
+    change: Option[Boolean]
 )(implicit messages: MessagesApi, lang: Lang)
 
 <div id=contentStart">
@@ -12,7 +13,7 @@
 <div class="scannable-wrapper">
     @header
 
-    <form action="@routes.ShortFormController.post(companyId)" method="POST" id="file-report">
+    <form action="@routes.ShortFormController.post(companyId, change)" method="POST" id="file-report">
         <p class="small-aside">
             Companies House number: @companyId.id
         </p>

@@ -47,16 +47,20 @@ class ShortFormPageModel @Inject()(validations: Validations, serviceConfig: Serv
       FormHandler(
         ReportingPeriod,
         emptyReportingPeriod,
-        (header: Html, companyDetail: CompanyDetail) => (form: Form[ReportingPeriodFormModel]) => pages.reportingPeriod(header, form, companyDetail.companiesHouseId, df, serviceStartDate),
-        (companyDetail: CompanyDetail) => routes.ReportingPeriodController.show(companyDetail.companiesHouseId)
+        (header: Html, companyDetail: CompanyDetail, change: Boolean) => (form: Form[ReportingPeriodFormModel]) =>
+          pages.reportingPeriod(header, form, companyDetail.companiesHouseId, df, serviceStartDate, if (change) Some(true) else None),
+        (companyDetail: CompanyDetail, change:Boolean) =>
+          routes.ReportingPeriodController.show(companyDetail.companiesHouseId, if (change) Some(true) else None)
       )
 
     case ShortForm =>
       FormHandler(
         ShortForm,
         emptyShortForm,
-        (header: Html, companyDetail: CompanyDetail) => (form: Form[ShortFormModel]) => pages.shortForm(header, form, companyDetail.companiesHouseId, df, serviceStartDate),
-        (companyDetail: CompanyDetail) => routes.ShortFormController.show(companyDetail.companiesHouseId)
+        (header: Html, companyDetail: CompanyDetail, change:Boolean) => (form: Form[ShortFormModel]) =>
+          pages.shortForm(header, form, companyDetail.companiesHouseId, df, serviceStartDate, if (change) Some(true) else None),
+        (companyDetail: CompanyDetail, change:Boolean) =>
+          routes.ShortFormController.show(companyDetail.companiesHouseId, if (change) Some(true) else None)
       )
   }
 }

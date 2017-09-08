@@ -3,7 +3,7 @@
 @import shared._hint
 
 <div class="form-group @errorClass(form(fieldName))">
-    <fieldset>
+    <fieldset id="@fieldName-question">
         <label for="@fieldName">
             <span class="form-label-bold">@messages(s"field.$fieldName.label")</span>
 

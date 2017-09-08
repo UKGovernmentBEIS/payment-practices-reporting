@@ -3,8 +3,14 @@
     reportingPeriodForm: Form[forms.report.ReportingPeriodFormModel],
     companyId: CompaniesHouseId,
     df: DateTimeFormatter,
-    serviceStartDate: LocalDate
+    serviceStartDate: LocalDate,
+    change: Option[Boolean]
 )(implicit messages: MessagesApi, lang: Lang)
+
+@buttonLabel = @{
+    if (change.contains(true)) "Review your answers"
+    else "Continue"
+}
 
 <div id=contentStart">
     @shared._errorBox(reportingPeriodForm)
@@ -35,14 +41,14 @@
         <li>It is <strong>not</strong> for <a rel="external" target="_blank" href="http://www.legislation.gov.uk/ukpga/2015/26/section/2/enacted">financial services</a></li>
     </ul>
 
-    <form action="@routes.ReportingPeriodController.post(companyId)" method="POST" id="longForm-report">
+    <form action="@routes.ReportingPeriodController.post(companyId, change)" method="POST" id="longForm-report">
         <p class="small-aside">
             Companies House number: @companyId.id
         </p>
 
         @report._reportingPeriod(reportingPeriodForm)
 
-        <input type="submit" class="button" name="Continue" value="Continue">
+        <input type="submit" class="button" name="Continue" value="@buttonLabel">
     </form>
 
     @report._scripts(df, serviceStartDate)
