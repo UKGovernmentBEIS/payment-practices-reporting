@@ -1,8 +1,7 @@
-@import services.{CompanySearchResult, PagedResults}
 @(
     searchHeader: Html,
     searchTerm: String,
-    resultsO: Option[PagedResults[CompanySearchResult]],
+    resultsO: Option[services.PagedResults[services.CompanySearchResult]],
     counts: Map[CompaniesHouseId, Int],
     searchLink: String,
     companyLink: models.CompaniesHouseId => String,
@@ -14,7 +13,7 @@
     <div class="column-two-thirds">
         <div id="contentStart" class="scannable-wrapper">
             @searchHeader
-            <p class="lede">Enter business name or company number</p>
+        <p class="lede">Enter business name or company number</p>
             @shared._search(searchTerm, searchLink) {
                 @resultsO.map { results =>
                     @if(results.items.isEmpty && searchTerm != "") {
@@ -24,22 +23,21 @@
                         </div>
                     }
 
-
                     @if(results.items.nonEmpty) {
                         <ul class="searchresults">
-                        @for(result <- results.items) {
-                            @views.html.shared._companySummary(result, counts.getOrElse(result.companiesHouseId, 0), companyLink(result.companiesHouseId))
-                        }
+                            <p>
+                                @results.totalResults @(if(results.totalResults == 1) "match" else "matches") found
+                            </p>
+                            @for(result <- results.items) {
+                                @views.html.shared._companySummary(result, counts.getOrElse(result.companiesHouseId, 0), companyLink(result.companiesHouseId))
+                            }
                         </ul>
                         @shared._pageLinks(results, pageLink)
-                        <p>
-                            @results.totalResults @(if(results.totalResults == 1) "match" else "matches") found
-                        </p>
                     }
                 }
             }
 
-            </div>
+        </div>
     </div>
 
     @shared._sidebar(externalRouter)

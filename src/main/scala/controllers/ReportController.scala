@@ -49,7 +49,7 @@ class ReportController @Inject()(
 
   import views.html.{report => pages}
 
-  private val searchPageTitle = "Search for a company"
+  private val searchPageTitle = "Publish a report"
   private val signInPageTitle = "Sign in using your Companies House account"
 
   private def publishTitle(companyName: String) = s"Publish a report for $companyName"
