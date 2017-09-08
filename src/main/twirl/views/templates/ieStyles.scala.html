@@ -1,6 +1,6 @@
 @(name: String)
 
-<!--[if gt IE 8]><!--><link href="@controllers.routes.Assets.at(s"stylesheets/$name.css")" media="screen" rel="stylesheet" type="text/css" /><!--<![endif]-->
-<!--[if IE 6]><link href="@controllers.routes.Assets.at(s"stylesheets/$name-ie6.css")" media="screen" rel="stylesheet" type="text/css" /><![endif]-->
-<!--[if IE 7]><link href="@controllers.routes.Assets.at(s"stylesheets/$name-ie7.css")" media="screen" rel="stylesheet" type="text/css" /><![endif]-->
-<!--[if IE 8]><link href="@controllers.routes.Assets.at(s"stylesheets/$name-ie8.css")" media="screen" rel="stylesheet" type="text/css" /><![endif]-->
+<!--[if gt IE 8]><!--><link href="@controllers.routes.Assets.versioned(s"stylesheets/$name.css")" media="screen" rel="stylesheet" type="text/css" /><!--<![endif]-->
+<!--[if IE 6]><link href="@controllers.routes.Assets.versioned(s"stylesheets/$name-ie6.css")" media="screen" rel="stylesheet" type="text/css" /><![endif]-->
+<!--[if IE 7]><link href="@controllers.routes.Assets.versioned(s"stylesheets/$name-ie7.css")" media="screen" rel="stylesheet" type="text/css" /><![endif]-->
+<!--[if IE 8]><link href="@controllers.routes.Assets.versioned(s"stylesheets/$name-ie8.css")" media="screen" rel="stylesheet" type="text/css" /><![endif]-->
