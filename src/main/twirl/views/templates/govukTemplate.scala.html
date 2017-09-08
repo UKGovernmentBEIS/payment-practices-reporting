@@ -28,44 +28,44 @@
 
       @ieStyles("application")
       @ieStyles("govuk-template")
-    <link href="@controllers.routes.Assets.at("stylesheets/govuk-template-print.css")" media="print" rel="stylesheet" type="text/css" />
-    <link href="@controllers.routes.Assets.at("stylesheets/main.css")" media="screen" rel="stylesheet" type="text/css" />
-    <link href="@controllers.routes.Assets.at("stylesheets/vendor/jquery/jquery-ui.min.css")" media="screen" rel="stylesheet" type="text/css" />
-    <link href="@controllers.routes.Assets.at("stylesheets/vendor/jquery/jquery-ui.structure.min.css")" media="screen" rel="stylesheet" type="text/css" />
-    <link href="@controllers.routes.Assets.at("stylesheets/vendor/jquery/jquery-select-to-autocomplete.css")" media="screen" rel="stylesheet" type="text/css" />
-    <link href="@controllers.routes.Assets.at("stylesheets/footer.css")" media="screen" rel="stylesheet" type="text/css" />
+    <link href="@controllers.routes.Assets.versioned("stylesheets/govuk-template-print.css")" media="print" rel="stylesheet" type="text/css" />
+    <link href="@controllers.routes.Assets.versioned("stylesheets/main.css")" media="screen" rel="stylesheet" type="text/css" />
+    <link href="@controllers.routes.Assets.versioned("stylesheets/vendor/jquery/jquery-ui.min.css")" media="screen" rel="stylesheet" type="text/css" />
+    <link href="@controllers.routes.Assets.versioned("stylesheets/vendor/jquery/jquery-ui.structure.min.css")" media="screen" rel="stylesheet" type="text/css" />
+    <link href="@controllers.routes.Assets.versioned("stylesheets/vendor/jquery/jquery-select-to-autocomplete.css")" media="screen" rel="stylesheet" type="text/css" />
+    <link href="@controllers.routes.Assets.versioned("stylesheets/footer.css")" media="screen" rel="stylesheet" type="text/css" />
 
       <!--[if IE 8]>
     <script>
       (function(){if(window.opera){return;}
        setTimeout(function(){var a=document,g,b={families:(g=
-       ["nta"]),urls:["@controllers.routes.Assets.at("stylesheets/fonts-ie8.css")"]},
-      c="@controllers.routes.Assets.at("javascripts/vendor/goog/webfont-debug.js")",d="script",
+       ["nta"]),urls:["@controllers.routes.Assets.versioned("stylesheets/fonts-ie8.css")"]},
+      c="@controllers.routes.Assets.versioned("javascripts/vendor/goog/webfont-debug.js")",d="script",
       e=a.createElement(d),f=a.getElementsByTagName(d)[0],h=g.length;WebFontConfig
       ={custom:b},e.src=c,f.parentNode.insertBefore(e,f);for(;h=h-1;a.documentElement
       .className+=' wf-'+g[h].replace(/\s/g,'').toLowerCase()+'-n4-loading');},0)
       })()
     </script>
     <![endif]-->
-    <!--[if gte IE 9]><!--><link href="@controllers.routes.Assets.at("stylesheets/fonts.css")" media="all" rel="stylesheet" type="text/css" /><!--<![endif]-->
-    <!--[if lt IE 9]><script src="@controllers.routes.Assets.at("javascripts/ie.js")"></script><![endif]-->
+    <!--[if gte IE 9]><!--><link href="@controllers.routes.Assets.versioned("stylesheets/fonts.css")" media="all" rel="stylesheet" type="text/css" /><!--<![endif]-->
+    <!--[if lt IE 9]><script src="@controllers.routes.Assets.versioned("javascripts/ie.js")"></script><![endif]-->
 
 
-    <script src="@controllers.routes.Assets.at("javascripts/vendor/jquery/jquery-1.12.4.min.js")"></script>
-    <script src="@controllers.routes.Assets.at("javascripts/vendor/jquery/jquery-ui.min.js")"></script>
-    <script src="@controllers.routes.Assets.at("javascripts/vendor/jquery/jquery.select-to-autocomplete.min.js")"></script>
+    <script src="@controllers.routes.Assets.versioned("javascripts/vendor/jquery/jquery-1.12.4.min.js")"></script>
+    <script src="@controllers.routes.Assets.versioned("javascripts/vendor/jquery/jquery-ui.min.js")"></script>
+    <script src="@controllers.routes.Assets.versioned("javascripts/vendor/jquery/jquery.select-to-autocomplete.min.js")"></script>
 
 
-    <link rel="shortcut icon" href="@controllers.routes.Assets.at("images/favicon.ico")" type="image/x-icon" />
-    <link rel="mask-icon" href="@controllers.routes.Assets.at("images/gov.uk_logotype_crown.svg")" color="#0b0c0c">
-    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="@controllers.routes.Assets.at("images/apple-touch-icon-152x152.png")">
-    <link rel="apple-touch-icon-precomposed" sizes="120x120" href="@controllers.routes.Assets.at("images/apple-touch-icon-120x120.png")">
-    <link rel="apple-touch-icon-precomposed" sizes="76x76" href="@controllers.routes.Assets.at("images/apple-touch-icon-76x76.png")">
-    <link rel="apple-touch-icon-precomposed" href="@controllers.routes.Assets.at("images/apple-touch-icon-60x60.png")">
+    <link rel="shortcut icon" href="@controllers.routes.Assets.versioned("images/favicon.ico")" type="image/x-icon" />
+    <link rel="mask-icon" href="@controllers.routes.Assets.versioned("images/gov.uk_logotype_crown.svg")" color="#0b0c0c">
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="@controllers.routes.Assets.versioned("images/apple-touch-icon-152x152.png")">
+    <link rel="apple-touch-icon-precomposed" sizes="120x120" href="@controllers.routes.Assets.versioned("images/apple-touch-icon-120x120.png")">
+    <link rel="apple-touch-icon-precomposed" sizes="76x76" href="@controllers.routes.Assets.versioned("images/apple-touch-icon-76x76.png")">
+    <link rel="apple-touch-icon-precomposed" href="@controllers.routes.Assets.versioned("images/apple-touch-icon-60x60.png")">
 
     <meta name="robots" content="noindex, nofollow">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta property="og:image" content="@controllers.routes.Assets.at("images/opengraph-image.png")">
+    <meta property="og:image" content="@controllers.routes.Assets.versioned("images/opengraph-image.png")">
 
     @head
   </head>
@@ -93,7 +93,7 @@
         <div class="header-global">
           <div class="header-logo">
             <a href="@homepageUrl.getOrElse("https://www.gov.uk/")" title="@logoLinkTitle.getOrElse("Go to the GOV.UK homepage")" id="logo" class="content">
-              <img src="@controllers.routes.Assets.at("images/gov.uk_logotype_crown_invert_trans.png")" width="35" height="31" alt=""> @globalHeaderText.getOrElse("GOV.UK")
+              <img src="@controllers.routes.Assets.versioned("images/gov.uk_logotype_crown_invert_trans.png")" width="35" height="31" alt=""> @globalHeaderText.getOrElse("GOV.UK")
             </a>
           </div>
           @insideHeader
@@ -135,8 +135,8 @@
 
     <div id="global-app-error" class="app-error hidden"></div>
 
-    <script src="@controllers.routes.Assets.at("javascripts/govuk-template.js")"></script>
-    <script src="@controllers.routes.Assets.at("javascripts/vendor/details.polyfill.js")"></script>
+    <script src="@controllers.routes.Assets.versioned("javascripts/govuk-template.js")"></script>
+    <script src="@controllers.routes.Assets.versioned("javascripts/vendor/details.polyfill.js")"></script>
 
     @bodyEnd
     </body>

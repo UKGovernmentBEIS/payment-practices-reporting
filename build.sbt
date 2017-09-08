@@ -27,10 +27,13 @@ lazy val `payment-practices-reporting` = project.in(file("."))
   .enablePlugins(GitVersioning)
   .enablePlugins(GitBranchPrompt)
   .enablePlugins(BuildInfoPlugin)
+  .enablePlugins(SbtWeb)
   .configs(IntegrationTest.extend(Test)) // integration tests use utility classes from unit tests
   .settings(Defaults.itSettings: _*)
 
 resolvers += Resolver.bintrayRepo("gov-uk-notify", "maven")
+
+pipelineStages := Seq(digest)
 
 val playSlickVersion = "2.1.0"
 
