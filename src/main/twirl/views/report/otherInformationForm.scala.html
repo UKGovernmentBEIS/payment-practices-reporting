@@ -3,7 +3,8 @@
     otherInformation: Form[controllers.OtherInformationForm],
     companyId: CompaniesHouseId,
     df: DateTimeFormatter,
-    serviceStartDate: LocalDate
+    serviceStartDate: LocalDate,
+    change: Option[Boolean]
 )(implicit messages: MessagesApi, lang: Lang)
 
     @import FormPageDefs.MultiPageFormName
@@ -14,7 +15,7 @@
     <div class="scannable-wrapper">
         @header
 
-        <form action="@routes.MultiPageFormController.post(MultiPageFormName.OtherInformation, companyId)" method="POST" id="longForm-report">
+        <form action="@routes.MultiPageFormController.post(MultiPageFormName.OtherInformation, companyId, change)" method="POST" id="longForm-report">
             <p class="small-aside">
                 Companies House number: @companyId.id
             </p>

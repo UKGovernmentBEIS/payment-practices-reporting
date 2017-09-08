@@ -54,37 +54,37 @@ class SinglePageFormController @Inject()(
   implicit def sessionIdFromRequest(implicit request: CompanyAuthRequest[_]): SessionId = request.sessionId
 
   //noinspection TypeAnnotation
-  def show(companiesHouseId: CompaniesHouseId) = companyAuthAction(companiesHouseId).async { implicit request =>
+  def show(companiesHouseId: CompaniesHouseId, change: Option[Boolean]) = companyAuthAction(companiesHouseId).async { implicit request =>
     val title = publishTitle(request.companyDetail.companyName)
 
     checkValidFromSession(emptyReportingPeriod, SinglePageFormName.ReportingPeriod.entryName).flatMap {
-      case false => Future.successful(Redirect(routes.ReportingPeriodController.show(companiesHouseId)))
+      case false => Future.successful(Redirect(routes.ReportingPeriodController.show(companiesHouseId, change)))
       case true  => loadFormData(emptyLongForm, SinglePageFormName.SinglePageForm).map { form =>
-        Ok(page(title)(home, pages.longForm(reportPageHeader, form, companiesHouseId, df, serviceStartDate)))
+        Ok(page(title)(home, pages.longForm(reportPageHeader, form, companiesHouseId, df, serviceStartDate, change)))
       }
     }
   }
 
   //noinspection TypeAnnotation
-  def post(companiesHouseId: CompaniesHouseId) = companyAuthAction(companiesHouseId).async(parse.urlFormEncoded) { implicit request =>
+  def post(companiesHouseId: CompaniesHouseId, change: Option[Boolean]) = companyAuthAction(companiesHouseId).async(parse.urlFormEncoded) { implicit request =>
     val handler = handlerFor(SinglePageFormName.SinglePageForm)
 
     for {
       _ <- saveFormData(handler.formName, handler.bind.form)
-      result <- handlePostFormPage(handler.formName, request.companyDetail)
+      result <- handlePostFormPage(handler.formName, request.companyDetail, change.contains(true))
     } yield result
   }
 
-  private def handlePostFormPage(formName: SinglePageFormName, companyDetail: CompanyDetail)(implicit request: CompanyAuthRequest[Map[String, Seq[String]]]): Future[Result] = {
+  private def handlePostFormPage(formName: SinglePageFormName, companyDetail: CompanyDetail, change:Boolean)(implicit request: CompanyAuthRequest[Map[String, Seq[String]]]): Future[Result] = {
     val title = publishTitle(companyDetail.companyName)
 
     bindUpToPage(formHandlers, formName).map {
-      case FormHasErrors(handler)   => BadRequest(page(title)(handler.renderPage(reportPageHeader, companyDetail)))
+      case FormHasErrors(handler)   => BadRequest(page(title)(handler.renderPage(reportPageHeader, companyDetail, change)))
       case FormIsOk(handler, value) => nextFormHandler(handler) match {
-        case Some(nextHandler) => Redirect(nextHandler.callPage(companyDetail))
+        case Some(nextHandler) => Redirect(nextHandler.callPage(companyDetail, change))
         case None              => Redirect(routes.SinglePageFormReviewController.showReview(companyDetail.companiesHouseId))
       }
-      case FormIsBlank(handler)     => Ok(page(title)(handler.renderPage(reportPageHeader, request.companyDetail)))
+      case FormIsBlank(handler)     => Ok(page(title)(handler.renderPage(reportPageHeader, request.companyDetail, change)))
     }
   }
 }

@@ -37,29 +37,29 @@ trait FormControllerHelpers[T, N <: FormName] {
 
   def bindMainForm(implicit sessionId: SessionId): Future[Option[T]]
 
-  def bindReportingPeriod(implicit sessionId:SessionId):Future[Option[ReportingPeriodFormModel]]
+  def bindReportingPeriod(implicit sessionId: SessionId): Future[Option[ReportingPeriodFormModel]]
 
   def emptyReportingPeriod: Form[ReportingPeriodFormModel]
 
-  def handleBinding[A](request: CompanyAuthRequest[A], f: (CompanyAuthRequest[A], ReportingPeriodFormModel, T) => Future[Result]): Future[Result] = {
+  def handleBinding[A](request: CompanyAuthRequest[A], successHandler: (CompanyAuthRequest[A], ReportingPeriodFormModel, T) => Future[Result]): Future[Result] = {
     implicit val req: CompanyAuthRequest[A] = request
 
     bindAllPages[N](formHandlers).flatMap {
-      case FormHasErrors(handler) => Future.successful(Redirect(handler.callPage(request.companyDetail)))
-      case FormIsBlank(handler)   => Future.successful(Redirect(handler.callPage(request.companyDetail)))
-      case FormIsOk(handler, value)      =>
+      case FormHasErrors(handler) => Future.successful(Redirect(handler.callPage(request.companyDetail, change = true)))
+      case FormIsBlank(handler)   => Future.successful(Redirect(handler.callPage(request.companyDetail, change = true)))
+      case FormIsOk(_, _)         =>
         val forms = for {
           reportingPeriod <- bindReportingPeriod
           mainForm <- bindMainForm
         } yield (reportingPeriod, mainForm)
 
         forms.flatMap {
-          case (Some(r), Some(lf)) => f(request, r, lf)
+          case (Some(r), Some(t)) => successHandler(request, r, t)
 
           // The following cases should not happen - if one of them does it indicates
           // some kind of mismatch between the FormHandlers and the base form models
           case (_, _) =>
-            val ref = Random.nextInt(1000000)
+            val ref = Random.nextInt(1000000) // for cross-referencing the error in the logs
             Logger.error(s"Error reference $ref: The reporting period and/or main form did not bind correctly")
             throw UnexpectedException(Some(s"Error reference $ref"))
         }

@@ -99,17 +99,17 @@ class VisualTestController @Inject()(
     val healthyLongFormModel = LongFormModel(paymentCodes, healthyLongForm)
 
     val reportingPeriods = Seq(
-      views.html.report.reportingPeriod(header, dummyReportingPeriodForm, id, df, serviceStartDate)
+      views.html.report.reportingPeriod(header, dummyReportingPeriodForm, id, df, serviceStartDate, None)
     )
 
     val longForms = Seq(
-      views.html.report.longForm(header, emptyLongForm, id, df, serviceStartDate),
-      views.html.report.longForm(header, emptyLongForm.fill(healthyLongFormModel), id, df, serviceStartDate),
-      views.html.report.longForm(header, emptyLongForm.fillAndValidate(LongFormModel(paymentCodes, unhealthyLongForm)), id, df, serviceStartDate)
+      views.html.report.longForm(header, emptyLongForm, id, df, serviceStartDate, None),
+      views.html.report.longForm(header, emptyLongForm.fill(healthyLongFormModel), id, df, serviceStartDate, None),
+      views.html.report.longForm(header, emptyLongForm.fillAndValidate(LongFormModel(paymentCodes, unhealthyLongForm)), id, df, serviceStartDate, None)
     )
 
     val shortForms = Seq(
-      views.html.report.shortForm(header, emptyShortForm, id, df, serviceStartDate)
+      views.html.report.shortForm(header, emptyShortForm, id, df, serviceStartDate, None)
     )
 
     val formGroups = reviewPageData.formGroups(dummyReportingPeriodModel, healthyLongFormModel)(companyDetail)

@@ -21,35 +21,36 @@ import javax.inject.Inject
 
 import config.ServiceConfig
 import controllers.FormPageDefs.MultiPageFormName
-import controllers.routes
+import controllers.routes._
 import play.api.mvc.Call
 import services.CompanyDetail
-import routes._
 
 class FieldCallTable @Inject()(serviceConfig: ServiceConfig) {
+  private def questionId(fieldName: String): String = s"$fieldName-question"
+
   def call(fieldName: String)(implicit companyDetail: CompanyDetail): Option[Call] = fieldName match {
     case "reportDates.startDate" =>
-      Some(ReportingPeriodController.show(companyDetail.companiesHouseId).withFragment(fieldName))
+      Some(ReportingPeriodController.show(companyDetail.companiesHouseId, Some(true)).withFragment(questionId(fieldName)))
     case "reportDates.endDate"   =>
-      Some(ReportingPeriodController.show(companyDetail.companiesHouseId).withFragment(fieldName))
+      Some(ReportingPeriodController.show(companyDetail.companiesHouseId, Some(true)).withFragment(questionId(fieldName)))
 
     case _ if serviceConfig.multiPageForm =>
       multiPageCall(fieldName)
 
     case _ =>
-      Some(SinglePageFormController.show(companyDetail.companiesHouseId).withFragment(fieldName))
+      Some(SinglePageFormController.show(companyDetail.companiesHouseId, Some(true)).withFragment(questionId(fieldName)))
   }
 
   def multiPageCall(fieldName: String)(implicit companyDetail: CompanyDetail): Option[Call] = fieldName match {
     case s if s.startsWith("paymentStatistics") =>
-      Some(MultiPageFormController.show(MultiPageFormName.PaymentStatistics, companyDetail.companiesHouseId).withFragment(fieldName))
+      Some(MultiPageFormController.show(MultiPageFormName.PaymentStatistics, companyDetail.companiesHouseId, Some(true)).withFragment(questionId(fieldName)))
     case s if s.startsWith("paymentTerms")      =>
-      Some(MultiPageFormController.show(MultiPageFormName.PaymentTerms, companyDetail.companiesHouseId).withFragment(fieldName))
-    case "disputeResolution.text" =>
-      Some(MultiPageFormController.show(MultiPageFormName.DisputeResolution, companyDetail.companiesHouseId).withFragment(fieldName))
-    case s if s.startsWith("otherInformation")      =>
-      Some(MultiPageFormController.show(MultiPageFormName.OtherInformation, companyDetail.companiesHouseId).withFragment(fieldName))
+      Some(MultiPageFormController.show(MultiPageFormName.PaymentTerms, companyDetail.companiesHouseId, Some(true)).withFragment(questionId(fieldName)))
+    case "disputeResolution.text"               =>
+      Some(MultiPageFormController.show(MultiPageFormName.DisputeResolution, companyDetail.companiesHouseId, Some(true)).withFragment(questionId(fieldName)))
+    case s if s.startsWith("otherInformation")  =>
+      Some(MultiPageFormController.show(MultiPageFormName.OtherInformation, companyDetail.companiesHouseId, Some(true)).withFragment(questionId(fieldName)))
 
-    case _                                      => None
+    case _ => None
   }
 }

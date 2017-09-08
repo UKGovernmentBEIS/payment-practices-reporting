@@ -1,6 +1,6 @@
 @(form: Form[_], fieldName: String, unitText: Option[String] = None)(implicit messages: MessagesApi)
 
-<fieldset class='form-group @errorClass(form(fieldName))'>
+<fieldset id="@fieldName-question" class='form-group @errorClass(form(fieldName))'>
     <label for=@fieldName>
         <span class="form-label-bold">@messages(s"field.$fieldName.label")</span>
         @shared._hint(fieldName)

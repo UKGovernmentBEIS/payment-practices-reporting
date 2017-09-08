@@ -38,6 +38,7 @@ class OAuth2Controller @Inject()(
     Redirect(companyAuthService.authoriseUrl(companiesHouseId), companyAuthService.authoriseParams(companiesHouseId))
   }
 
+  //noinspection TypeAnnotation
   def claimCallback(code: Option[String], state: Option[String], error: Option[String], errorDescription: Option[String], errorCode: Option[String]) =
     SessionAction.async { implicit request =>
       val tokenDetails: Future[Either[Result, OAuthToken]] = code match {
@@ -57,7 +58,7 @@ class OAuth2Controller @Inject()(
             _ <- OptionT.liftF(sessionService.put(request.sessionId, oAuthTokenKey, ref))
             _ <- OptionT.liftF(sessionService.put(request.sessionId, companyDetailsKey, companyDetail))
             _ <- OptionT.liftF(sessionService.put(request.sessionId, emailAddressKey, emailAddress))
-          } yield Redirect(controllers.routes.ReportingPeriodController.show(companyId))
+          } yield Redirect(controllers.routes.ReportingPeriodController.show(companyId, None))
         }.value.map {
           case Some(result) => result
           case None => BadRequest(s"Unable to find company details for state $state")
