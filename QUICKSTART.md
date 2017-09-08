@@ -1,6 +1,6 @@
 # Running the application in a standalone mode
 
-The script `start` will bootstrap the application from clean into a full running application
+The script `quickstart` will bootstrap the application from clean into a full running application
 in a completely standalone setup. Mock versions of components to handle company search,
 authentication and GDS notify will be wired in, and the application will use an in-memory
 database instance, which will not be persisted between runs.
