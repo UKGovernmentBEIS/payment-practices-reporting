@@ -63,15 +63,15 @@ class MultiPageFormController @Inject()(
     val title = publishTitle(companyDetail.companyName)
 
     bindUpToPage(formHandlers, formName).map {
-      case FormHasErrors(boundHandler) if boundHandler.formName !== formName => Redirect(boundHandler.callPage(companyDetail, change))
-      case FormIsBlank(boundHandler) if boundHandler.formName !== formName   => Redirect(boundHandler.callPage(companyDetail, change))
+      case FormHasErrors(boundHandler) if boundHandler.formName !== formName => Redirect(boundHandler.callPage(companyDetail.companiesHouseId, change))
+      case FormIsBlank(boundHandler) if boundHandler.formName !== formName   => Redirect(boundHandler.callPage(companyDetail.companiesHouseId, change))
 
-      case FormHasErrors(boundHandler) => BadRequest(page(title)(boundHandler.renderPage(reportPageHeader(companyDetail), companyDetail, change)))
+      case FormHasErrors(boundHandler) => BadRequest(page(title)(boundHandler.renderPage(reportPageHeader(companyDetail), companyDetail.companiesHouseId, change)))
       // Form is blank, so the user hasn't filled it in yet. In this case we don't
       // want to show errors, so use the empty form handler for the formName
-      case FormIsBlank(_) => Ok(page(title)(handlerFor(formName).renderPage(reportPageHeader(companyDetail), companyDetail, change)))
+      case FormIsBlank(_) => Ok(page(title)(handlerFor(formName).renderPage(reportPageHeader(companyDetail), companyDetail.companiesHouseId, change)))
 
-      case FormIsOk(handler, value) => Ok(page(title)(handler.renderPage(reportPageHeader(companyDetail), companyDetail, change)))
+      case FormIsOk(handler, value) => Ok(page(title)(handler.renderPage(reportPageHeader(companyDetail), companyDetail.companiesHouseId, change)))
     }
   }
 
@@ -89,11 +89,11 @@ class MultiPageFormController @Inject()(
     val title = publishTitle(companyDetail.companyName)
 
     bindUpToPage(formHandlers, formName).map {
-      case FormHasErrors(handler) => BadRequest(page(title)(handler.renderPage(reportPageHeader(companyDetail), companyDetail, change)))
-      case FormIsBlank(handler)   => BadRequest(page(title)(handler.renderPage(reportPageHeader(companyDetail), companyDetail, change)))
+      case FormHasErrors(handler) => BadRequest(page(title)(handler.renderPage(reportPageHeader(companyDetail), companyDetail.companiesHouseId, change)))
+      case FormIsBlank(handler)   => BadRequest(page(title)(handler.renderPage(reportPageHeader(companyDetail), companyDetail.companiesHouseId, change)))
 
       case FormIsOk(handler, value) => nextFormHandler(handler) match {
-        case Some(nextHandler) if !change => Redirect(nextHandler.callPage(companyDetail, change))
+        case Some(nextHandler) if !change => Redirect(nextHandler.callPage(companyDetail.companiesHouseId, change))
         case _                            => Redirect(routes.MultiPageFormReviewController.showReview(companyDetail.companiesHouseId))
       }
     }

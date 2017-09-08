@@ -45,8 +45,8 @@ trait FormControllerHelpers[T, N <: FormName] {
     implicit val req: CompanyAuthRequest[A] = request
 
     bindAllPages[N](formHandlers).flatMap {
-      case FormHasErrors(handler) => Future.successful(Redirect(handler.callPage(request.companyDetail, change = true)))
-      case FormIsBlank(handler)   => Future.successful(Redirect(handler.callPage(request.companyDetail, change = true)))
+      case FormHasErrors(handler) => Future.successful(Redirect(handler.callPage(request.companyDetail.companiesHouseId, change = true)))
+      case FormIsBlank(handler)   => Future.successful(Redirect(handler.callPage(request.companyDetail.companiesHouseId, change = true)))
       case FormIsOk(_, _)         =>
         val forms = for {
           reportingPeriod <- bindReportingPeriod

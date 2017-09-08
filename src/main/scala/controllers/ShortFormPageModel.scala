@@ -22,11 +22,11 @@ import javax.inject.Inject
 import config.ServiceConfig
 import controllers.FormPageDefs.{ShortFormHandler, ShortFormName}
 import forms.report.{ReportingPeriodFormModel, ShortFormModel, Validations}
+import models.CompaniesHouseId
 import org.joda.time.format.DateTimeFormat
 import play.api.data.Form
 import play.api.i18n.MessagesApi
 import play.twirl.api.Html
-import services.CompanyDetail
 
 class ShortFormPageModel @Inject()(validations: Validations, serviceConfig: ServiceConfig)(implicit messagesApi: MessagesApi)
   extends FormPageModel[ShortFormHandler[_], ShortFormName] {
@@ -47,20 +47,20 @@ class ShortFormPageModel @Inject()(validations: Validations, serviceConfig: Serv
       FormHandler(
         ReportingPeriod,
         emptyReportingPeriod,
-        (header: Html, companyDetail: CompanyDetail, change: Boolean) => (form: Form[ReportingPeriodFormModel]) =>
-          pages.reportingPeriod(header, form, companyDetail.companiesHouseId, df, serviceStartDate, if (change) Some(true) else None),
-        (companyDetail: CompanyDetail, change:Boolean) =>
-          routes.ReportingPeriodController.show(companyDetail.companiesHouseId, if (change) Some(true) else None)
+        (header: Html, companiesHouseId: CompaniesHouseId, change: Boolean) => (form: Form[ReportingPeriodFormModel]) =>
+          pages.reportingPeriod(header, form, companiesHouseId, df, serviceStartDate, if (change) Some(true) else None),
+        (companiesHouseId: CompaniesHouseId, change:Boolean) =>
+          routes.ReportingPeriodController.show(companiesHouseId, if (change) Some(true) else None)
       )
 
     case ShortForm =>
       FormHandler(
         ShortForm,
         emptyShortForm,
-        (header: Html, companyDetail: CompanyDetail, change:Boolean) => (form: Form[ShortFormModel]) =>
-          pages.shortForm(header, form, companyDetail.companiesHouseId, df, serviceStartDate, if (change) Some(true) else None),
-        (companyDetail: CompanyDetail, change:Boolean) =>
-          routes.ShortFormController.show(companyDetail.companiesHouseId, if (change) Some(true) else None)
+        (header: Html, companiesHouseId: CompaniesHouseId, change:Boolean) => (form: Form[ShortFormModel]) =>
+          pages.shortForm(header, form, companiesHouseId, df, serviceStartDate, if (change) Some(true) else None),
+        (companiesHouseId: CompaniesHouseId, change:Boolean) =>
+          routes.ShortFormController.show(companiesHouseId, if (change) Some(true) else None)
       )
   }
 }

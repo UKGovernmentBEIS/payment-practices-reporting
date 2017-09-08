@@ -18,11 +18,11 @@
 package controllers
 
 import controllers.FormPageDefs.FormName
+import models.CompaniesHouseId
 import play.api.data.Form
 import play.api.libs.json.JsValue
 import play.api.mvc.{Call, Request}
 import play.twirl.api.Html
-import services.CompanyDetail
 
 /**
   * @tparam T the type of the form that is being processed by this page
@@ -31,8 +31,8 @@ import services.CompanyDetail
 case class FormHandler[T, N <: FormName](
   formName: N,
   form: Form[T],
-  private val renderPageFunction: (Html, CompanyDetail, Boolean) => (Form[T]) => Html,
-  private val callPageFunction: (CompanyDetail, Boolean) => Call
+  private val renderPageFunction: (Html, CompaniesHouseId, Boolean) => (Form[T]) => Html,
+  private val callPageFunction: (CompaniesHouseId, Boolean) => Call
 ) {
   def bind(implicit request: Request[Map[String, Seq[String]]]): FormHandler[T, N] = copy(form = form.bindForm)
 
@@ -40,9 +40,9 @@ case class FormHandler[T, N <: FormName](
 
   def bind(data: Map[String, String]): FormHandler[T, N] = copy(form = form.bind(data))
 
-  def callPage(companyDetail: CompanyDetail, change: Boolean): Call =
-    callPageFunction(companyDetail, change)
+  def callPage(companiesHouseId: CompaniesHouseId, change: Boolean): Call =
+    callPageFunction(companiesHouseId, change)
 
-  def renderPage(reportPageHeader: Html, companyDetail: CompanyDetail, change: Boolean): Html =
-    renderPageFunction(reportPageHeader, companyDetail, change)(form)
+  def renderPage(reportPageHeader: Html, companiesHouseId: CompaniesHouseId, change: Boolean): Html =
+    renderPageFunction(reportPageHeader, companiesHouseId, change)(form)
 }

@@ -23,6 +23,7 @@ import config.ServiceConfig
 import controllers.FormPageDefs.MultiPageFormName._
 import controllers.FormPageDefs.{MultiPageFormHandler, MultiPageFormName}
 import forms.report.{ReportingPeriodFormModel, Validations}
+import models.CompaniesHouseId
 import org.joda.time.format.DateTimeFormat
 import play.api.data.Forms.mapping
 import play.api.data.{Form, Mapping}
@@ -73,46 +74,46 @@ class MultiPageFormPageModel @Inject()(validations: Validations, serviceConfig: 
       FormHandler(
         ReportingPeriod,
         emptyReportingPeriod,
-        (header: Html, companyDetail: CompanyDetail, change: Boolean) => (form: Form[ReportingPeriodFormModel]) =>
-          pages.reportingPeriod(header, form, companyDetail.companiesHouseId, df, serviceStartDate, if (change) Some(true) else None),
-        (companyDetail: CompanyDetail, change: Boolean) =>
-          routes.ReportingPeriodController.show(companyDetail.companiesHouseId, if (change) Some(true) else None)
+        (header: Html, companiesHouseId: CompaniesHouseId, change: Boolean) => (form: Form[ReportingPeriodFormModel]) =>
+          pages.reportingPeriod(header, form, companiesHouseId, df, serviceStartDate, if (change) Some(true) else None),
+        (companiesHouseId: CompaniesHouseId, change: Boolean) =>
+          routes.ReportingPeriodController.show(companiesHouseId, if (change) Some(true) else None)
       )
     case PaymentStatistics =>
       FormHandler(
         PaymentStatistics,
         emptyPaymentStatisticsForm,
-        (header: Html, companyDetail: CompanyDetail, change: Boolean) =>
-          (form: Form[PaymentStatisticsForm]) => pages.paymentStatisticsForm(header, form, companyDetail.companiesHouseId, df, serviceStartDate, if (change) Some(true) else None),
-        (companyDetail: CompanyDetail, change: Boolean) =>
-          routes.MultiPageFormController.show(PaymentStatistics, companyDetail.companiesHouseId, if (change) Some(true) else None)
+        (header: Html, companiesHouseId: CompaniesHouseId, change: Boolean) =>
+          (form: Form[PaymentStatisticsForm]) => pages.paymentStatisticsForm(header, form, companiesHouseId, df, serviceStartDate, if (change) Some(true) else None),
+        (companiesHouseId: CompaniesHouseId, change: Boolean) =>
+          routes.MultiPageFormController.show(PaymentStatistics, companiesHouseId, if (change) Some(true) else None)
       )
     case PaymentTerms      =>
       FormHandler(
         PaymentTerms,
         emptyPaymentTermsForm,
-        (header: Html, companyDetail: CompanyDetail, change: Boolean) =>
-          (form: Form[PaymentTermsForm]) => pages.paymentTermsForm(header, form, companyDetail.companiesHouseId, df, serviceStartDate, if (change) Some(true) else None),
-        (companyDetail: CompanyDetail, change: Boolean) =>
-          routes.MultiPageFormController.show(PaymentTerms, companyDetail.companiesHouseId, if (change) Some(true) else None)
+        (header: Html, companiesHouseId: CompaniesHouseId, change: Boolean) =>
+          (form: Form[PaymentTermsForm]) => pages.paymentTermsForm(header, form, companiesHouseId, df, serviceStartDate, if (change) Some(true) else None),
+        (companiesHouseId: CompaniesHouseId, change: Boolean) =>
+          routes.MultiPageFormController.show(PaymentTerms, companiesHouseId, if (change) Some(true) else None)
       )
     case DisputeResolution =>
       FormHandler(
         DisputeResolution,
         emptyDisputeResolutionForm,
-        (header: Html, companyDetail: CompanyDetail, change: Boolean) =>
-          (form: Form[DisputeResolutionForm]) => pages.disputeResolutionForm(header, form, companyDetail.companiesHouseId, df, serviceStartDate, if (change) Some(true) else None),
-        (companyDetail: CompanyDetail, change: Boolean) =>
-          routes.MultiPageFormController.show(DisputeResolution, companyDetail.companiesHouseId, if (change) Some(true) else None)
+        (header: Html, companiesHouseId: CompaniesHouseId, change: Boolean) =>
+          (form: Form[DisputeResolutionForm]) => pages.disputeResolutionForm(header, form, companiesHouseId, df, serviceStartDate, if (change) Some(true) else None),
+        (companiesHouseId: CompaniesHouseId, change: Boolean) =>
+          routes.MultiPageFormController.show(DisputeResolution, companiesHouseId, if (change) Some(true) else None)
       )
     case OtherInformation  =>
       FormHandler(
         OtherInformation,
         emptyOtherInformationForm,
-        (header: Html, companyDetail: CompanyDetail, change: Boolean) =>
-          (form: Form[OtherInformationForm]) => pages.otherInformationForm(header, form, companyDetail.companiesHouseId, df, serviceStartDate, if (change) Some(true) else None),
-        (companyDetail: CompanyDetail, change: Boolean) =>
-          routes.MultiPageFormController.show(OtherInformation, companyDetail.companiesHouseId, if (change) Some(true) else None)
+        (header: Html, companiesHouseId: CompaniesHouseId, change: Boolean) =>
+          (form: Form[OtherInformationForm]) => pages.otherInformationForm(header, form, companiesHouseId, df, serviceStartDate, if (change) Some(true) else None),
+        (companiesHouseId: CompaniesHouseId, change: Boolean) =>
+          routes.MultiPageFormController.show(OtherInformation, companiesHouseId, if (change) Some(true) else None)
       )
   }
 }
