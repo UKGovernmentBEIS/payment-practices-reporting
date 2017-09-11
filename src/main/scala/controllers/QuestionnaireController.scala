@@ -30,6 +30,7 @@ import questionnaire._
 object QuestionnaireController {
   val startTitle = "Find out if your business needs to publish reports"
   val startButtonId = "start-button"
+  val exemptTitle = "Your business does not need to publish reports"
 }
 
 class QuestionnaireController @Inject()(summarizer: Summarizer,
@@ -57,8 +58,6 @@ class QuestionnaireController @Inject()(summarizer: Summarizer,
     // are passing into the next question form. We don't want those other values
     // being rendered as hidden fields.
     val formData = emptyForm.fill(currentState).data
-
-    val exemptTitle = "Your business does not need to publish reports"
 
     Decider.calculateDecision(currentState) match {
       case AskQuestion(q) =>

@@ -15,15 +15,14 @@ class QuestionnaireControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
 
   import QuestionnaireController._
   import ResultDecoder._
-  import questionnaire.Questions._
 
   implicit val client: WebClient = app.injector.instanceOf[WebClient]
-  val messages = app.injector.instanceOf[MessagesApi]
+  val messages: MessagesApi = app.injector.instanceOf[MessagesApi]
 
-  def navigateTo(page: Page): Future[Document] = client.get[Document](page.call)
+  def navigateTo(page: PageInfo): Future[Document] = client.get[Document](page.call)
 
   implicit class DocSyntax(doc: Document) {
-    def clickOn(id: String): Future[Document] = Option(doc.getElementById(id)) match {
+    def clickLink(id: String): Future[Document] = Option(doc.getElementById(id)) match {
       case None                                    => fail(s"Could not find element with id '$id'")
       case Some(e) if e.tagName.toLowerCase == "a" => client.getUrl[Document](e.attr("href"))
     }
@@ -31,17 +30,17 @@ class QuestionnaireControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
 
   "questionnaire controller" should {
     "show start page" in {
-      QuestionnaireStartPage.open.map { doc =>
+      QuestionnaireStartPageInfo.open.map { doc =>
         doc.title() mustBe startTitle
       }.futureValue(timeout(10 seconds))
     }
 
     "should show first question" in {
       for {
-        startPage <- QuestionnaireStartPage.open
-        doc <- startPage.clickOn(QuestionnaireController.startButtonId)
+        startPage <- QuestionnaireStartPageInfo.open
+        page <- startPage.clickLink(startButtonId).map(CompanyOrLLPQuestionPage(_, messages))
       } yield {
-        doc.title() mustBe messages(isCompanyOrLLPQuestion.textKey)
+        page.title mustBe CompanyOrLLPQuestionPageInfo(messages).title
       }
     }.futureValue(timeout(10 seconds))
   }
