@@ -27,17 +27,23 @@ import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, Controller}
 import questionnaire._
 
+object QuestionnaireController {
+  val startTitle = "Find out if your business needs to publish reports"
+  val startButtonId = "start-button"
+}
+
 class QuestionnaireController @Inject()(summarizer: Summarizer,
                                         val pageConfig: PageConfig,
                                         val serviceConfig: ServiceConfig)
                                        (implicit messages: MessagesApi) extends Controller with PageHelper {
 
+  import QuestionnaireController._
   import QuestionnaireValidations._
   import views.html.{questionnaire => pages}
 
   def start = Action { implicit request =>
     val externalRouter = implicitly[ExternalRouter]
-    Ok(page("Find out if your business needs to publish reports")(home, views.html.questionnaire.start(externalRouter)))
+    Ok(page(startTitle)(home, views.html.questionnaire.start(externalRouter)))
   }
 
   val emptyForm = Form(decisionStateMapping)

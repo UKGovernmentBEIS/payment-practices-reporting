@@ -59,7 +59,15 @@ libraryDependencies ++= Seq(
   "uk.gov.service.notify" % "notifications-java-client" % "3.1.1-RELEASE",
 
   "org.scalatest" %% "scalatest" % "3.0.1" % Test,
-  "org.scalacheck" %% "scalacheck" % "1.13.4" % Test)
+  "org.scalacheck" %% "scalacheck" % "1.13.4" % Test) ++
+  serverTestDependencies.map(_ % "it,test")
+
+
+lazy val serverTestDependencies = Seq(
+  "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.0",
+  "com.h2database" % "h2" % "1.4.191",
+  "org.jsoup" % "jsoup" % "1.10.2"
+)
 
 
 PlayKeys.devSettings := Seq("play.server.http.port" -> "9000")
@@ -85,13 +93,15 @@ def playJavaOptions(mode: String): Seq[String] =
     "-Dconfig.file=src/main/resources/standalone.application.conf",
     "-Dlogger.file=src/main/resources/development.logger.xml"
   ) else Seq(
-    s"-Dconfig.resource=$mode.application.conf",
-    s"-Dlogger.resource=$mode.logback.xml"
+    s"-Dconfig.file=src/main/resources/$mode.application.conf",
+    s"-Dlogger.file=src/main/resources/$mode.logger.xml"
   )
 
 javaOptions := playJavaOptions("development")
 
+fork in IntegrationTest := true
 javaOptions in IntegrationTest ++= playJavaOptions("it")
+parallelExecution in IntegrationTest := false
 
 // need this because we've disabled the PlayLayoutPlugin. without it twirl templates won't get
 // re-compiled on change in dev mode
