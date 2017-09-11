@@ -80,10 +80,18 @@ TwirlKeys.templateImports ++= Seq(
 
 val standalone: Boolean = sys.props.contains("STANDALONE")
 
-javaOptions := {
-  if (standalone) Seq("-Dconfig.file=src/main/resources/standalone.application.conf", "-Dlogger.file=src/main/resources/development.logger.xml")
-  else Seq("-Dconfig.file=src/main/resources/development.application.conf", "-Dlogger.file=src/main/resources/development.logger.xml")
-}
+def playJavaOptions(mode: String): Seq[String] =
+  if (standalone) Seq(
+    "-Dconfig.file=src/main/resources/standalone.application.conf",
+    "-Dlogger.file=src/main/resources/development.logger.xml"
+  ) else Seq(
+    s"-Dconfig.resource=$mode.application.conf",
+    s"-Dlogger.resource=$mode.logback.xml"
+  )
+
+javaOptions := playJavaOptions("development")
+
+javaOptions in IntegrationTest ++= playJavaOptions("it")
 
 // need this because we've disabled the PlayLayoutPlugin. without it twirl templates won't get
 // re-compiled on change in dev mode
