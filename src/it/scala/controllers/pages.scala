@@ -4,6 +4,7 @@ import java.net.URLEncoder
 import javax.inject.Inject
 
 import org.jsoup.nodes.{Document, Element}
+import org.scalactic.TripleEquals._
 import play.api.i18n.MessagesApi
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.mvc.Call
@@ -56,7 +57,7 @@ case class Form(element: Element) {
         val cloned = element.clone()
         val choices = cloned.getElementsByAttributeValue("name", radio.attr("name"))
         choices.toList.map { r =>
-          if (r.id == id) r.attr("selected", "")
+          if (r.id === id) r.attr("selected", "")
           else r.removeAttr("selected")
         }
         Form(cloned)

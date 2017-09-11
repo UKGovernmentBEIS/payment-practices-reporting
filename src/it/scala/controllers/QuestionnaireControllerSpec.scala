@@ -25,8 +25,8 @@ class QuestionnaireControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
 
   implicit class DocSyntax(doc: Document) {
     def clickLink(id: String): Future[Document] = Option(doc.getElementById(id)) match {
-      case None                                    => fail(s"Could not find element with id '$id'")
-      case Some(e) if e.tagName.toLowerCase == "a" => client.getUrl[Document](e.attr("href"))
+      case None                                     => fail(s"Could not find element with id '$id'")
+      case Some(e) if e.tagName.toLowerCase === "a" => client.getUrl[Document](e.attr("href"))
     }
   }
 
