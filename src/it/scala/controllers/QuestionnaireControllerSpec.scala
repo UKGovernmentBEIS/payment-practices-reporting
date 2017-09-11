@@ -1,5 +1,7 @@
 package controllers
 
+import cats.data.OptionT
+import cats.instances.future._
 import org.jsoup.nodes.Document
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.play.PlaySpec
@@ -43,5 +45,16 @@ class QuestionnaireControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
         page.title mustBe CompanyOrLLPQuestionPageInfo(messages).title
       }
     }.futureValue(timeout(10 seconds))
+
+    "should show 'No need to report' page if first question is answered 'No'" in {
+      for {
+        startPage <- OptionT.liftF(QuestionnaireStartPageInfo.open)
+        q1Page <- OptionT.liftF(startPage.clickLink(startButtonId).map(CompanyOrLLPQuestionPage(_, messages)))
+        form <- OptionT.fromOption(q1Page.form("question-form"))
+        noNeed <- OptionT.liftF(form.selectRadio("no").submit.map(NoNeedToReportPage))
+      } yield {
+        noNeed.title mustBe NoNeedToReportPageInfo.title
+      }
+    }.value.futureValue(timeout(10 seconds))
   }
 }

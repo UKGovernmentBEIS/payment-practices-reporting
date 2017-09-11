@@ -52,6 +52,12 @@ class WebClient @Inject()(ws: WSClient) {
       .post(Json.toJson(body))
       .flatMap(_.decodeAs[B](baseUrl))
 
+  def postForm[B: ResultDecoder](url: String)(body: String)(implicit ec: ExecutionContext): Future[B] =
+    ws.url(baseUrl + url)
+      .withHeaders("Content-Type" -> "application/x-www-form-urlencoded; charset=utf-8")
+      .post(body)
+      .flatMap(_.decodeAs[B](baseUrl))
+
   def put[A: Writes, B: Reads : ResultDecoder](call: Call)(body: A)(implicit ec: ExecutionContext): Future[B] =
     ws.url(call)
       .put(Json.toJson(body))

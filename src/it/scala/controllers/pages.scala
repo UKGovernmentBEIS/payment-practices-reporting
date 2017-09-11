@@ -1,5 +1,6 @@
 package controllers
 
+import java.net.URLEncoder
 import javax.inject.Inject
 
 import org.jsoup.nodes.{Document, Element}
@@ -30,6 +31,12 @@ trait PageInfo {
 }
 
 case class Form(element: Element) {
+  implicit class ElementSyntax(element: Element) {
+    def attrO(attrName: String): Option[String] =
+      if (element.hasAttr(attrName)) Some(element.attr(attrName))
+      else None
+  }
+
   def values: Map[String, Seq[String]] = {
     val vs: Seq[(String, String)] = element.getElementsByTag("input").toList.flatMap { e =>
       e.attr("type").toLowerCase match {
@@ -37,7 +44,6 @@ case class Form(element: Element) {
         case "radio"                          => None
         case _                                => Some(e.attr("name") -> e.attr("value"))
       }
-
     }
 
     vs.groupBy(_._1).map { case (key, ks) => (key, ks.map(_._2)) }
@@ -56,6 +62,17 @@ case class Form(element: Element) {
         Form(cloned)
     }
   }
+
+  def method: String = element.attrO("method").map(_.toUpperCase).getOrElse("GET")
+
+  def action: String = element.attrO("action").getOrElse("")
+
+  def urlEncoded: String = values.flatMap(item => item._2.map(c => item._1 + "=" + URLEncoder.encode(c, "UTF-8"))).mkString("&")
+
+  def submit(implicit webClient: WebClient): Future[Document] = method match {
+    case "POST" => webClient.postForm[Document](action)(urlEncoded)
+  }
+
 }
 
 trait Page {
@@ -71,6 +88,8 @@ trait Page {
       }
     }
   }
+
+  def errors: Seq[String] = document.getElementsByClass("error-summary-list").toList.map(li => li.child(0).`val`)
 }
 
 object QuestionnaireStartPageInfo extends PageInfo {
@@ -93,6 +112,10 @@ object NoNeedToReportPageInfo extends PageInfo {
   override def call: Call = ???
 
   override val title: String = QuestionnaireController.exemptTitle
+}
+
+case class NoNeedToReportPage(override val document: Document) extends Page {
+  override val pageInfo: PageInfo = NoNeedToReportPageInfo
 }
 
 case class QuestionnaireStartPage(override val document: Document) extends Page {

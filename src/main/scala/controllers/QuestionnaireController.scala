@@ -22,6 +22,7 @@ import javax.inject.Inject
 import config.{PageConfig, ServiceConfig}
 import models.{DecisionState, Question}
 import org.scalactic.TripleEquals._
+import play.api.Logger
 import play.api.data.{Form, FormError}
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, Controller}
@@ -49,7 +50,13 @@ class QuestionnaireController @Inject()(summarizer: Summarizer,
 
   val emptyForm = Form(decisionStateMapping)
 
-  def nextQuestion = Action { implicit request =>
+  def firstQuestion = Action { implicit request =>
+    val formData = emptyForm.fill(DecisionState.empty).data
+    val q = Questions.isCompanyOrLLPQuestion
+    Ok(page(messages(q.textKey))(home, pages.question(q, formData, None)))
+  }
+
+  def nextQuestion: Action[Map[String, Seq[String]]] = Action(parse.urlFormEncoded) { implicit request =>
     val form = emptyForm.bindFromRequest
     val currentState = form.fold(_ => DecisionState.empty, s => s)
 
