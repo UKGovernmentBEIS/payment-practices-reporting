@@ -19,5 +19,12 @@
     {
       "url": "heroku/scala"
     }
-  ]
+  ],
+  "environments": {
+    "test": {
+      "scripts": {
+        "test": "sbt test it:test"
+      }
+    }
+  }
 }
