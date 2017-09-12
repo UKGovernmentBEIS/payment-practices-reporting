@@ -16,11 +16,18 @@ class QuestionnaireControllerYear2Spec extends PlaySpec with WebSpec with Questi
   val messages: MessagesApi = app.injector.instanceOf[MessagesApi]
 
   "questionnaire controller in year 2" should {
-    "No need to report without subsidiaries" in webSpec {
-      NavigateToSecondYear andThen
-        ChooseAndContinue("no") andThen
-        ChooseAndContinue("no") should
-        ShowPage(NoNeedToReportPage) withMessage "You should check at the beginning of every financial year to see if you need to report."
+    val companyAnswers = Seq(
+      Seq("no", "no"),
+      Seq("no", "yes", "no"),
+      Seq("yes", "no", "no")
+    )
+    companyAnswers.foreach { answers =>
+      val path = answers.foldLeft(NavigateToSecondYear)(_ andThen ChooseAndContinue(_))
+
+      s"No need to report if company answers are ${answers.mkString(", ")}" in webSpec {
+        path should
+          ShowPage(NoNeedToReportPage) withMessage "You should check at the beginning of every financial year to see if you need to report."
+      }
     }
   }
 }
