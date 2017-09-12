@@ -68,7 +68,11 @@ class QuestionnaireController @Inject()(summarizer: Summarizer,
 
     Decider.calculateDecision(currentState) match {
       case AskQuestion(q) =>
-        Ok(page(messages(q.textKey))(home, pages.question(q, formData, questionError(q, form("question-key").value))))
+        questionError(q, form("question-key").value) match {
+          case None => Ok(page(messages(q.textKey))(home, pages.question(q, formData, None)))
+          case Some(error) => BadRequest(page(messages(q.textKey))(home, pages.question(q, formData, Some(error))))
+        }
+
       case NotACompany(reason) => Ok(page(exemptTitle)(home, pages.notACompany(reason)))
       case Exempt(reason) => Ok(page(exemptTitle)(home, pages.exempt(reason)))
       case Required => Ok(page("Your business must publish reports")(home, pages.required(summarizer.summarize(currentState))))

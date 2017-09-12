@@ -1,7 +1,8 @@
 <configuration>
   <include resource="common.stdout.logger.xml" />
 
-  <logger name="application"                                               level="DEBUG" />
+  <logger name="application"                                               level="INFO" />
+  <logger name="play.api"                                                  level="INFO" />
   <logger name="slicks.modules"                                            level="WARN" />
   <logger name="io.netty"                                                  level="INFO" />
   <logger name="ch.qos.logback"                                            level="OFF"   />
@@ -11,6 +12,7 @@
   <logger name="org.apache.http"                                           level="INFO"  />
   <logger name="org.asynchttpclient.netty"                                 level="INFO"  />
   <logger name="akka.stream.impl"                                          level="INFO"  />
+  <logger name="akka.event"                                                level="INFO"  />
   <logger name="io.netty.util.internal"                                    level="INFO"  />
   <logger name="slick"                                                     level="INFO"  />
   <logger name="slick.ast"                                                 level="INFO"  />
@@ -18,6 +20,8 @@
   <logger name="slick.jdbc.JdbcBackend.statement"                          level="INFO" />
   <logger name="slick.jdbc.StatementInvoker.result"                        level="INFO"  />
   <logger name="slick.jdbc.JdbcBackend.benchmark"                          level="INFO"  />
+  <logger name="com.gargoylesoftware.htmlunit"                             level="INFO"  />
+
 
   <root level="DEBUG">
     <appender-ref ref="OUTPUT" />
