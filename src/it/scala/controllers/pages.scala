@@ -12,33 +12,28 @@ trait PageInfo {
     */
   def name: String
 
-  def call: Call
-
   /**
     * @return the title that appears on the page itself
     */
   def title: String
-
 }
 
-object QuestionnaireStartPageInfo extends PageInfo {
+trait EntryPoint {
+  def call: Call
+}
+
+object QuestionnaireStartPage extends PageInfo with EntryPoint {
   val name : String = "Questionnaire Start Page"
-  val call : Call   = routes.QuestionnaireController.start()
   val title: String = QuestionnaireController.startTitle
+  val call : Call   = routes.QuestionnaireController.start()
 }
 
-case class CompanyOrLLPQuestionPageInfo(messages: MessagesApi) extends PageInfo {
+case class CompanyOrLLPQuestionPage(messages: MessagesApi) extends PageInfo {
   override val name = "Company or LLP Question"
-
-  override def call: Call = ???
-
   override val title = messages(isCompanyOrLLPQuestion.textKey)
 }
 
-object NoNeedToReportPageInfo extends PageInfo {
+object NoNeedToReportPage extends PageInfo {
   override val name: String = "No need to report"
-
-  override def call: Call = ???
-
   override val title: String = QuestionnaireController.exemptTitle
 }

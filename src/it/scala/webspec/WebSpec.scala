@@ -1,15 +1,19 @@
-package support
+package webspec
 
 import cats.data.Kleisli
 import com.gargoylesoftware.htmlunit.WebClient
 import com.gargoylesoftware.htmlunit.html.{HtmlElement, HtmlPage, HtmlRadioButtonInput, HtmlSubmitInput}
-import controllers.PageInfo
+import controllers.{EntryPoint, PageInfo}
+import org.scalatest.EitherValues
+import org.scalatest.concurrent.Eventually
+import org.scalatestplus.play.PlaySpec
 import play.api.mvc.Call
 import play.api.test.Helpers
 
 import scala.util.{Failure, Success, Try}
 
-object syntax {
+trait WebSpec {
+  self: PlaySpec with Eventually with EitherValues =>
   lazy val baseUrl =
     s"http://localhost:${Helpers.testServerPort}"
 
@@ -53,9 +57,20 @@ object syntax {
     }.toEither("submitForm")
   }
 
+  implicit class ExtraKleisliSyntax[F[_], A, B](k: Kleisli[F, A, B]) {
+    def should(f: F[B] => F[B]): Kleisli[F, A, B] = k.mapF(f)
+  }
+
   type PageCall[T] = Kleisli[ErrorOr, T, HtmlPage]
 
-  def ShowPage(pageInfo: PageInfo): PageCall[WebClient] = Kleisli((webClient:WebClient) => webClient.show(pageInfo.call))
+  def ShowPage(pageInfo: PageInfo): ErrorOr[HtmlPage] => ErrorOr[HtmlPage] = { result: ErrorOr[HtmlPage] =>
+    result mustBe a[Right[_, _]]
+    eventually(result.right.value.getTitleText mustBe pageInfo.title)
+
+    result
+  }
+
+  def OpenPage(entryPoint: EntryPoint): PageCall[WebClient] = Kleisli((webClient: WebClient) => webClient.show(entryPoint.call))
 
   def ClickLink(name: String): PageCall[HtmlPage] = Kleisli((page: HtmlPage) => page.clickLink(name))
 
