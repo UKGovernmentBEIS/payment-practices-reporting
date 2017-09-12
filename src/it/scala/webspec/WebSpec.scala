@@ -1,8 +1,9 @@
 package webspec
 
 import cats.data.Kleisli
+import cats.syntax.either._
 import com.gargoylesoftware.htmlunit.WebClient
-import com.gargoylesoftware.htmlunit.html.{HtmlElement, HtmlPage, HtmlRadioButtonInput, HtmlSubmitInput}
+import com.gargoylesoftware.htmlunit.html._
 import controllers.{EntryPoint, PageInfo}
 import org.scalatest.EitherValues
 import org.scalatest.concurrent.Eventually
@@ -14,8 +15,8 @@ import play.api.test.Helpers
 
 import scala.util.{Failure, Success, Try}
 
-trait WebSpec {
-  self: PlaySpec with Eventually with EitherValues with OneBrowserPerTest =>
+trait WebSpec extends EitherValues {
+  self: PlaySpec with Eventually with OneBrowserPerTest =>
   lazy val baseUrl =
     s"http://localhost:${Helpers.testServerPort}"
 
@@ -24,6 +25,9 @@ trait WebSpec {
   def url(call: Call): String = baseUrl + call.url
 
   type ErrorOr[T] = Either[String, T]
+
+  def webSpec(spec: PageCall[WebClient])(implicit wc: WebClient): ErrorOr[HtmlPage] =
+    spec run wc
 
   implicit class TrySyntax[T](t: Try[T]) {
     def toEither(prefix: String): ErrorOr[T] = t match {
@@ -57,6 +61,10 @@ trait WebSpec {
         page = submit.click[HtmlPage]()
       } yield page
     }.toEither("submitForm")
+
+    def paragraphText(id: String): ErrorOr[String] = {
+      byId[HtmlParagraph](id).map(_.getTextContent)
+    }
   }
 
   implicit class ExtraKleisliSyntax[F[_], A, B](k: Kleisli[F, A, B]) {
@@ -79,4 +87,5 @@ trait WebSpec {
   def ChooseRadioButton(id: String): PageCall[HtmlPage] = Kleisli((page: HtmlPage) => page.chooseRadioButton(id))
 
   def SubmitForm(buttonName: String): PageCall[HtmlPage] = Kleisli((page: HtmlPage) => page.submitForm(buttonName))
+
 }
