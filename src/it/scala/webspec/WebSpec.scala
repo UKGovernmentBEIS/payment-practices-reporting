@@ -6,14 +6,16 @@ import com.gargoylesoftware.htmlunit.html.{HtmlElement, HtmlPage, HtmlRadioButto
 import controllers.{EntryPoint, PageInfo}
 import org.scalatest.EitherValues
 import org.scalatest.concurrent.Eventually
-import org.scalatestplus.play.PlaySpec
+import org.scalatest.concurrent.PatienceConfiguration.Timeout
+import org.scalatest.time.{Seconds, Span}
+import org.scalatestplus.play.{OneBrowserPerTest, PlaySpec}
 import play.api.mvc.Call
 import play.api.test.Helpers
 
 import scala.util.{Failure, Success, Try}
 
 trait WebSpec {
-  self: PlaySpec with Eventually with EitherValues =>
+  self: PlaySpec with Eventually with EitherValues with OneBrowserPerTest =>
   lazy val baseUrl =
     s"http://localhost:${Helpers.testServerPort}"
 
@@ -65,7 +67,7 @@ trait WebSpec {
 
   def ShowPage(pageInfo: PageInfo): ErrorOr[HtmlPage] => ErrorOr[HtmlPage] = { result: ErrorOr[HtmlPage] =>
     result mustBe a[Right[_, _]]
-    eventually(result.right.value.getTitleText mustBe pageInfo.title)
+    eventually(Timeout(Span(2, Seconds)))(result.right.value.getTitleText mustBe pageInfo.title)
 
     result
   }
