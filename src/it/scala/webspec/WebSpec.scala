@@ -4,7 +4,6 @@ import cats.data.Kleisli
 import cats.syntax.either._
 import com.gargoylesoftware.htmlunit.WebClient
 import com.gargoylesoftware.htmlunit.html._
-import controllers.{EntryPoint, PageInfo}
 import org.scalatest.EitherValues
 import org.scalatest.concurrent.Eventually
 import org.scalatest.concurrent.PatienceConfiguration.Timeout
@@ -17,6 +16,10 @@ import scala.util.{Failure, Success, Try}
 
 trait WebSpec extends EitherValues {
   self: PlaySpec with Eventually with OneBrowserPerTest =>
+
+  implicit val webClient: WebClient = new com.gargoylesoftware.htmlunit.WebClient()
+  webClient.getOptions.setJavaScriptEnabled(false)
+
   lazy val baseUrl =
     s"http://localhost:${Helpers.testServerPort}"
 
@@ -47,6 +50,9 @@ trait WebSpec extends EitherValues {
 
     def clickLink(name: String): ErrorOr[HtmlPage] =
       Try(page.getAnchorByName(name).click[HtmlPage]()).toEither("clickLink")
+
+    def clickButton(id: String): ErrorOr[HtmlPage] =
+      Try(page.getHtmlElementById[HtmlButton](id).click[HtmlPage]()).toEither("clickButton")
 
     def chooseRadioButton(id: String): ErrorOr[HtmlPage] = {
       for {
@@ -83,6 +89,8 @@ trait WebSpec extends EitherValues {
   def OpenPage(entryPoint: EntryPoint): PageCall[WebClient] = Kleisli((webClient: WebClient) => webClient.show(entryPoint.call))
 
   def ClickLink(name: String): PageCall[HtmlPage] = Kleisli((page: HtmlPage) => page.clickLink(name))
+
+  def ClickButton(id: String): PageCall[HtmlPage] = Kleisli((page: HtmlPage) => page.clickButton(id))
 
   def ChooseRadioButton(id: String): PageCall[HtmlPage] = Kleisli((page: HtmlPage) => page.chooseRadioButton(id))
 

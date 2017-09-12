@@ -3,24 +3,7 @@ package controllers
 import play.api.i18n.MessagesApi
 import play.api.mvc.Call
 import questionnaire.Questions.isCompanyOrLLPQuestion
-
-trait PageInfo {
-
-  /**
-    * @return an name that identifies the page in testing. It does not need to
-    *         correspond to any name or text for the page itself.
-    */
-  def name: String
-
-  /**
-    * @return the title that appears on the page itself
-    */
-  def title: String
-}
-
-trait EntryPoint {
-  def call: Call
-}
+import webspec.{EntryPoint, PageInfo}
 
 object QuestionnaireStartPage extends PageInfo with EntryPoint {
   val name : String = "Questionnaire Start Page"

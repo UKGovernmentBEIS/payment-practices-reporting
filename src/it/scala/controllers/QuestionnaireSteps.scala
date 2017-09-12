@@ -11,9 +11,6 @@ import webspec.WebSpec
 trait QuestionnaireSteps {
   self: WebSpec with PlaySpec =>
 
-  implicit val webClient: WebClient = new com.gargoylesoftware.htmlunit.WebClient()
-  webClient.getOptions.setJavaScriptEnabled(false)
-
   implicit class PageCallSyntax[T](k: PageCall[T]) {
     def withMessage(message: String): PageCall[T] =
       k andThen WithMessage(message)

@@ -35,6 +35,16 @@ import utils.YesNo
 
 import scala.concurrent.ExecutionContext
 
+object ReportController {
+  val searchPageTitle = "Publish a report"
+  val signInPageTitle = "Sign in using your Companies House account"
+
+  def publishTitle(companyName: String) = s"Publish a report for $companyName"
+
+  val searchLink : String                       = routes.ReportController.search(None, None, None).url
+  val companyLink: (CompaniesHouseId) => String = { id: CompaniesHouseId => routes.ReportController.start(id).url }
+}
+
 class ReportController @Inject()(
   companyAuth: CompanyAuthService,
   val companySearch: CompanySearchService,
@@ -47,16 +57,10 @@ class ReportController @Inject()(
     with SearchHelper
     with CompanyHelper {
 
+  import ReportController._
   import views.html.{report => pages}
 
-  private val searchPageTitle = "Publish a report"
-  private val signInPageTitle = "Sign in using your Companies House account"
-
-  private def publishTitle(companyName: String) = s"Publish a report for $companyName"
-
   private val searchHeader = h1("Publish a report")
-  private val searchLink   = routes.ReportController.search(None, None, None).url
-  private val companyLink  = { id: CompaniesHouseId => routes.ReportController.start(id).url }
 
   private def pageLink(query: Option[String], itemsPerPage: Option[Int], pageNumber: Int) = routes.ReportController.search(query, Some(pageNumber), itemsPerPage).url
 

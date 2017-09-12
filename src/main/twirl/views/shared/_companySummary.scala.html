@@ -1,7 +1,7 @@
 @(result: services.CompanySearchResult, reportCount:Int, link: String)
 <li class="searchresult">
     <h2 class="heading-medium">
-        <a href=@link>@result.companyName</a>
+        <a name="@result.companyName" href=@link>@result.companyName</a>
         (@reportCount @(if(reportCount == 1) "report" else "reports"))
     </h2>
     <p>
