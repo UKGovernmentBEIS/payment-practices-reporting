@@ -37,3 +37,8 @@ object NoNeedToReportPage extends PageInfo {
   override val name: String = "No need to report"
   override val title: String = QuestionnaireController.exemptTitle
 }
+
+object HasSubsidiariesPage extends PageInfo {
+  override val name: String = "Has Subsidiaries"
+  override val title: String = "Does your business have subsidiaries?"
+}
