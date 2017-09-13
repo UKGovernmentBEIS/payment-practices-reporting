@@ -2,48 +2,27 @@ package reports
 
 import cats.instances.either._
 import com.gargoylesoftware.htmlunit.WebClient
-import com.gargoylesoftware.htmlunit.html.{HtmlForm, HtmlPage, HtmlParagraph}
+import com.gargoylesoftware.htmlunit.html.{HtmlForm, HtmlParagraph}
 import controllers.{ReportController, ReportingPeriodController, ShortFormController}
+import forms.DateFields
 import org.openqa.selenium.WebDriver
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import org.scalatestplus.play.{HtmlUnitFactory, OneBrowserPerTest, PlaySpec}
 import play.api.i18n.MessagesApi
-import services.mocks.MockCompanySearch
 import webspec.WebSpec
 
 import scala.language.postfixOps
 
-class ShortReportSpec extends PlaySpec with WebSpec with GuiceOneServerPerSuite with OneBrowserPerTest with HtmlUnitFactory {
+class ShortReportSpec extends PlaySpec with WebSpec with GuiceOneServerPerSuite with OneBrowserPerTest with HtmlUnitFactory with ReportingSteps {
 
   override def createWebDriver(): WebDriver = HtmlUnitFactory.createWebDriver(false)
 
   val messages: MessagesApi = app.injector.instanceOf[MessagesApi]
 
-  private val NavigateToSearchPage = OpenPage(ReportingStartPage)
-
-  private val testCompany     = MockCompanySearch.companies.head
-  private val testCompanyName = testCompany.companyName
-
-  def StartPublishingForCompany(companyName: String): PageCall[WebClient] =
-    NavigateToSearchPage andThen
-      ClickButton(ReportController.searchButtonId) andThen
-      ClickLink(companyName)
-
-  def ChooseAndContinue(choice: String): PageCall[HtmlPage] =
-    ChooseRadioButton(choice) andThen SubmitForm("Continue")
-
-  private def NavigateToReportingPeriodForm(companyName: String): PageCall[WebClient] = {
-    StartPublishingForCompany(testCompanyName) andThen
-      ClickLink("start-button") andThen
-      ChooseAndContinue("account-yes") andThen
-      SubmitForm("submit") andThen
-      SubmitForm("submit")
-  }
-
-  private def NavigateToShortForm(companyName: String): PageCall[WebClient] = {
+  private def NavigateToShortForm(companyName: String, startDate: DateFields = DateFields(1, 5, 2017), endDate: DateFields = DateFields(1, 6, 2017)): PageCall[WebClient] = {
     NavigateToReportingPeriodForm(testCompanyName) andThen
-      SetDateFields("reportDates.startDate", 1, 5, 2017) andThen
-      SetDateFields("reportDates.endDate", 1, 6, 2017) andThen
+      SetDateFields("reportDates.startDate", startDate) andThen
+      SetDateFields("reportDates.endDate", endDate) andThen
       ChooseAndContinue("hasQualifyingContracts-no")
   }
 

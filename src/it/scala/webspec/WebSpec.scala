@@ -5,6 +5,7 @@ import cats.data.Kleisli
 import cats.syntax.either._
 import com.gargoylesoftware.htmlunit.WebClient
 import com.gargoylesoftware.htmlunit.html._
+import forms.DateFields
 import org.scalatest.EitherValues
 import org.scalatest.concurrent.Eventually
 import org.scalatest.concurrent.PatienceConfiguration.Timeout
@@ -151,11 +152,11 @@ trait WebSpec extends EitherValues {
 
   def SubmitForm(buttonName: String): PageCall[HtmlPage] = Kleisli((page: HtmlPage) => page.submitForm(buttonName))
 
-  def SetDateFields(id: String, day: Int, month: Int, year: Int): PageCall[HtmlPage] = Kleisli[ErrorOr, HtmlPage, HtmlPage] { page =>
+  def SetDateFields(id: String, dateFields: DateFields): PageCall[HtmlPage] = Kleisli[ErrorOr, HtmlPage, HtmlPage] { page =>
     for {
-      _ <- page.setNumberField(s"$id.day", day)
-      _ <- page.setNumberField(s"$id.month", month)
-      _ <- page.setNumberField(s"$id.year", year)
+      _ <- page.setNumberField(s"$id.day", dateFields.day)
+      _ <- page.setNumberField(s"$id.month", dateFields.month)
+      _ <- page.setNumberField(s"$id.year", dateFields.year)
     } yield page
   }
 
