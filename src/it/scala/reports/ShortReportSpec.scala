@@ -40,6 +40,13 @@ class ShortReportSpec extends PlaySpec with WebSpec with GuiceOneServerPerSuite 
       SubmitForm("submit")
   }
 
+  private def NavigateToShortForm(companyName: String): PageCall[WebClient] = {
+    NavigateToReportingPeriodForm(testCompanyName) andThen
+      SetDateFields("reportDates.startDate", 1, 5, 2017) andThen
+      SetDateFields("reportDates.endDate", 1, 6, 2017) andThen
+      ChooseAndContinue("hasQualifyingContracts-no")
+  }
+
   "the search page" should {
     "let me navigate to publishing start page" in webSpec {
       StartPublishingForCompany(testCompanyName) should
@@ -57,13 +64,8 @@ class ShortReportSpec extends PlaySpec with WebSpec with GuiceOneServerPerSuite 
 
   "entering valid dates and selecting No Qualifying Contracts" should {
     "show the short form" in webSpec {
-      NavigateToReportingPeriodForm(testCompanyName) andThen
-        SetDateFields("reportDates.startDate", 1, 5, 2017) andThen
-        SetDateFields("reportDates.endDate", 1, 6, 2017) andThen
-        ChooseAndContinue("hasQualifyingContracts-no") should
+      NavigateToShortForm(testCompany.companyName) should
         ShowPage(ShortFormPage(testCompany)) withElementById[HtmlForm] ShortFormController.shortFormId
     }
   }
-
-
 }
