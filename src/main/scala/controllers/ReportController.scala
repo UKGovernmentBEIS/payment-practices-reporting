@@ -63,7 +63,7 @@ class ReportController @Inject()(
   import ReportController._
   import views.html.{report => pages}
 
-  private val searchHeader = h1("Publish a report")
+  private val searchHeader = h1(searchPageTitle)
 
   private def pageLink(query: Option[String], itemsPerPage: Option[Int], pageNumber: Int) = routes.ReportController.search(query, Some(pageNumber), itemsPerPage).url
 

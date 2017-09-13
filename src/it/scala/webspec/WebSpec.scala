@@ -113,7 +113,7 @@ trait WebSpec extends EitherValues {
     def should[C](k2: Kleisli[F, B, C])(implicit F: FlatMap[F]): Kleisli[F, A, C] = k andThen k2
   }
 
-  implicit class PageCallSyntax[A](k: PageCall[A])(implicit F: FlatMap[ErrorOr]) {
+  implicit class PageCallSyntax[A](k: PageCall[A])(implicit flatMapErrorOr: FlatMap[ErrorOr]) {
     def withElementById[E <: HtmlElement](id: String): PageCall[A] =
       k andThen Kleisli[ErrorOr, HtmlPage, HtmlPage]((page: HtmlPage) => page.containsElementWithId[E](id))
 
