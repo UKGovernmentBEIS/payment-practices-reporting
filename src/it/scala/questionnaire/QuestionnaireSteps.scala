@@ -5,7 +5,10 @@ import cats.instances.either._
 import cats.syntax.either._
 import com.gargoylesoftware.htmlunit.WebClient
 import com.gargoylesoftware.htmlunit.html.HtmlPage
+import enumeratum.EnumEntry
 import org.scalatestplus.play.PlaySpec
+import questionnaire.FinancialYear.Second
+import utils.YesNo.Yes
 import webspec.WebSpec
 
 import scala.util.Try
@@ -29,9 +32,12 @@ trait QuestionnaireSteps {
 
   val NavigateToSecondYear: PageCall[WebClient] =
     NavigateToFirstQuestion andThen
-      ChooseAndContinue("yes") andThen
-      ChooseAndContinue("second")
+      ChooseAndContinue(Yes) andThen
+      ChooseAndContinue(Second)
 
   def ChooseAndContinue(choice: String): PageCall[HtmlPage] =
     ChooseRadioButton(choice) andThen SubmitForm("Continue")
+
+  def ChooseAndContinue(choice: EnumEntry): PageCall[HtmlPage] =
+    ChooseAndContinue(choice.entryName)
 }

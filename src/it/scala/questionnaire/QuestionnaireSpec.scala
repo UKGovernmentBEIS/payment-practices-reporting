@@ -5,6 +5,8 @@ import org.openqa.selenium.WebDriver
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import org.scalatestplus.play.{HtmlUnitFactory, OneBrowserPerTest, PlaySpec}
 import play.api.i18n.MessagesApi
+import questionnaire.FinancialYear.First
+import utils.YesNo.{No, Yes}
 import webspec.WebSpec
 
 import scala.language.postfixOps
@@ -28,14 +30,14 @@ class QuestionnaireSpec extends PlaySpec with WebSpec with QuestionnaireSteps wi
 
     "should show 'No need to report' page if first question is answered 'No'" in webSpec {
       NavigateToFirstQuestion andThen
-        ChooseAndContinue("no") should
+        ChooseAndContinue(No) should
         ShowPage(NoNeedToReportPage)
     }
 
-    "should show 'No need to report' page in first year of operation" in webSpec {
+    "should show 'No need to report' page in first year of operation" in  webSpec {
       NavigateToFirstQuestion andThen
-        ChooseAndContinue("yes") andThen
-        ChooseAndContinue("first") should
+        ChooseAndContinue(Yes) andThen
+        ChooseAndContinue(First) should
         ShowPage(NoNeedToReportPage)
     }
   }

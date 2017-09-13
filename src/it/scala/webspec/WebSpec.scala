@@ -73,7 +73,7 @@ trait WebSpec extends EitherValues {
         radio <- Try(page.getHtmlElementById[HtmlRadioButtonInput](id))
         _ = radio.setChecked(true)
       } yield page
-    }.toErrorOr(s"Could not find radio button with id '$id'")
+    }.toErrorOr(s"Could not find radio button with id '$id'. Page title is ${page.getTitleText}")
 
     def submitForm(buttonName: String): ErrorOr[HtmlPage] = {
       for {

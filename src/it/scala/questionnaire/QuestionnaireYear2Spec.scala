@@ -28,7 +28,7 @@ class QuestionnaireYear2Spec extends PlaySpec with WebSpec with QuestionnaireSte
 
     forAll(companyAnswers) { (a, b, c) =>
       val answers: Seq[YesNo] = Seq(Some(a), Some(b), c).flatten
-      val path = answers.foldLeft(NavigateToSecondYear)((step, choice) => step andThen ChooseAndContinue(choice.entryName))
+      val path = answers.foldLeft(NavigateToSecondYear)((step, choice) => step andThen ChooseAndContinue(choice))
 
       s"not need to report if company answers are ${answers.mkString(", ")}" in webSpec {
         path should
@@ -47,7 +47,7 @@ class QuestionnaireYear2Spec extends PlaySpec with WebSpec with QuestionnaireSte
 
     forAll(companyAnswers) { (a, b, c) =>
       val answers: Seq[YesNo] = Seq(Some(a), Some(b), c).flatten
-      val path = answers.foldLeft(NavigateToSecondYear)((step, choice) => step andThen ChooseAndContinue(choice.entryName))
+      val path = answers.foldLeft(NavigateToSecondYear)((step, choice) => step andThen ChooseAndContinue(choice))
 
       s"check subsidiaries if company answers are ${answers.mkString(", ")}" in webSpec {
         path should ShowPage(HasSubsidiariesPage)
@@ -56,18 +56,21 @@ class QuestionnaireYear2Spec extends PlaySpec with WebSpec with QuestionnaireSte
   }
 
   "questionnaire controller in year 2 - no need to report after checking subsidiaries" should {
-    val companyAnswers = Seq(Yes, Yes)
-    val subsidiaryAnswers = Seq(
-      Seq(No, No),
-      Seq(No, Yes, No),
-      Seq(Yes, No, No)
+    val subsidiaryAnswers = Table(
+      ("turnover", "balance", "employees"),
+      (No, No, None),
+      (No, Yes, Some(No)),
+      (Yes, No, Some(No))
     )
 
     val navigateToSubsidiaryQuestions =
-      companyAnswers.foldLeft(NavigateToSecondYear)((step, choice) => step andThen ChooseAndContinue(choice.entryName))
+      NavigateToSecondYear andThen
+        ChooseAndContinue(Yes) andThen
+        ChooseAndContinue(Yes)
 
-    subsidiaryAnswers.foreach { answers =>
-      val path2 = answers.foldLeft(ChooseAndContinue("yes"))((step, choice) => step andThen ChooseAndContinue(choice.entryName))
+    forAll(subsidiaryAnswers) { (a, b, c) =>
+      val answers: Seq[YesNo] = Seq(Some(a), Some(b), c).flatten
+      val path2 = answers.foldLeft(ChooseAndContinue(Yes))((step, choice) => step andThen ChooseAndContinue(choice))
 
       s"not need to report if subsidiary answers are ${answers.mkString(", ")}" in webSpec {
         navigateToSubsidiaryQuestions andThen
