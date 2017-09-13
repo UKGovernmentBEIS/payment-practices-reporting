@@ -49,12 +49,17 @@ object GoogleAnalyticsConfig {
 
 case class FeatureFlags(multiPageForm: Boolean)
 
-case class ServiceConfig(startDate: Option[LocalDate], featureFlags: Option[FeatureFlags]) {
+case class ServiceConfig(
+  startDate: Option[LocalDate],
+  featureFlags: Option[FeatureFlags],
+  logRequests: Option[Boolean],
+  logAssets: Option[Boolean],
+  sessionTimeoutInMinutes: Option[Int]) {
   def multiPageForm: Boolean = featureFlags.map(_.multiPageForm).getOrElse(ServiceConfig.defaultFeatureFlags.multiPageForm)
 }
 
 object ServiceConfig {
-  val empty                   = ServiceConfig(None, None)
+  val empty                   = ServiceConfig(None, None, None, None, None)
   val defaultServiceStartDate = new LocalDate(2017, 4, 6)
   val defaultFeatureFlags     = FeatureFlags(false)
 }
@@ -78,16 +83,12 @@ case class Config(
   companiesHouse: Option[CompaniesHouseConfig],
   notifyService: Option[NotifyConfig],
   oAuth: Option[OAuthConfig],
-  sessionTimeoutInMinutes: Option[Int],
-  logAssets: Option[Boolean],
-  logRequests: Option[Boolean],
-  printDBTables: Option[Boolean],
   pageConfig: PageConfig
 )
 
 @Singleton
 class AppConfig @Inject()(configuration: Configuration) {
-  val df = DateTimeFormat.forPattern("yyyy-M-d")
+  private val df = DateTimeFormat.forPattern("yyyy-M-d")
 
   import pureconfig._
   import ConfigConvert._
@@ -98,20 +99,16 @@ class AppConfig @Inject()(configuration: Configuration) {
 
   implicit val localDateConvert: ConfigConvert[LocalDate] = ConfigConvert.stringConvert[LocalDate](s => Try(df.parseLocalDate(s)), df.print(_))
 
-  val service                : Option[ServiceConfig]        = load[ServiceConfig]("service")
-  val companiesHouse         : Option[CompaniesHouseConfig] = load[CompaniesHouseConfig]("companiesHouse")
-  val notifyService          : Option[NotifyConfig]         = load[NotifyConfig]("notifyService")
-  val oAuth                  : Option[OAuthConfig]          = load[OAuthConfig]("oAuth")
-  val sessionTimeoutInMinutes: Option[Int]                  = load[Int]("sessionTimeoutInMinutes")
-  val logAssets              : Option[Boolean]              = load[Boolean]("logAssets")
-  val logRequests            : Option[Boolean]              = load[Boolean]("logRequests")
-  val printDBTables          : Option[Boolean]              = load[Boolean]("printDBTables")
+  private val service                : Option[ServiceConfig]        = load[ServiceConfig]("service")
+  private val companiesHouse         : Option[CompaniesHouseConfig] = load[CompaniesHouseConfig]("companiesHouse")
+  private val notifyService          : Option[NotifyConfig]         = load[NotifyConfig]("notifyService")
+  private val oAuth                  : Option[OAuthConfig]          = load[OAuthConfig]("oAuth")
 
-  val googleAnalytics   : GoogleAnalyticsConfig = load[GoogleAnalyticsConfig]("googleAnalytics").getOrElse(GoogleAnalyticsConfig(None))
-  val routesConfig      : RoutesConfig          = load[RoutesConfig]("externalRouter").getOrElse(RoutesConfig.empty)
-  val surveyMonkeyConfig: SurveyMonkeyConfig    = load[SurveyMonkeyConfig]("surveyMonkey").getOrElse(SurveyMonkeyConfig.empty)
+  private val googleAnalytics   : GoogleAnalyticsConfig = load[GoogleAnalyticsConfig]("googleAnalytics").getOrElse(GoogleAnalyticsConfig(None))
+  private val routesConfig      : RoutesConfig          = load[RoutesConfig]("externalRouter").getOrElse(RoutesConfig.empty)
+  private val surveyMonkeyConfig: SurveyMonkeyConfig    = load[SurveyMonkeyConfig]("surveyMonkey").getOrElse(SurveyMonkeyConfig.empty)
 
-  val pageConfig = PageConfig(googleAnalytics, routesConfig, surveyMonkeyConfig)
+  private val pageConfig = PageConfig(googleAnalytics, routesConfig, surveyMonkeyConfig)
 
-  val config = Config(service, companiesHouse, notifyService, oAuth, sessionTimeoutInMinutes, logAssets, logRequests, printDBTables, pageConfig)
+  val config = Config(service, companiesHouse, notifyService, oAuth, pageConfig)
 }
