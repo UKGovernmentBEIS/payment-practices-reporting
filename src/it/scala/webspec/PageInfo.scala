@@ -6,7 +6,7 @@ trait PageInfo {
     * @return an name that identifies the page in testing. It does not need to
     *         correspond to any name or text for the page itself.
     */
-  def name: String
+  def url: String = ""
 
   /**
     * @return the title that appears on the page itself

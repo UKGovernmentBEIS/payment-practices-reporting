@@ -28,7 +28,7 @@ trait WebSpec extends EitherValues {
 
   def url(call: Call): String = baseUrl + call.url
 
-  case class SpecError(message: String, t: Option[Throwable] = None)
+  case class SpecError(message: String, t: Option[Throwable] = None, page: Option[HtmlPage])
   type ErrorOr[T] = Either[SpecError, T]
 
   def webSpec(spec: PageCall[WebClient])(implicit wc: WebClient): Unit =
@@ -41,9 +41,9 @@ trait WebSpec extends EitherValues {
     }
 
   implicit class TrySyntax[T](t: Try[T]) {
-    def toErrorOr(message: String): ErrorOr[T] = t match {
+    def toErrorOr(message: String, page: Option[HtmlPage] = None): ErrorOr[T] = t match {
       case Success(v)         => Right(v)
-      case Failure(throwable) => Left(SpecError(message, Some(throwable)))
+      case Failure(throwable) => Left(SpecError(message, Some(throwable), page))
     }
   }
 
@@ -88,11 +88,21 @@ trait WebSpec extends EitherValues {
 
     def containsElementWithId[E <: HtmlElement](id: String): ErrorOr[HtmlPage] = Try {
       page.getHtmlElementById[E](id)
-    }.toErrorOr(s"Element with $id was not found").map(_ => page)
+    }.toErrorOr(s"Element with id '$id' was not found", Some(page)).map(_ => page)
 
     def findElementWithId[E <: HtmlElement](id: String): ErrorOr[E] = Try {
       page.getHtmlElementById[E](id)
-    }.toErrorOr(s"Element with $id was not found")
+    }.toErrorOr(s"Element with id '$id' was not found", Some(page))
+
+    def setTextField(id: String, value: String): ErrorOr[HtmlPage] = for {
+      e <- findElementWithId[HtmlTextInput](id)
+      _ <- Try(e.setText(value)).toErrorOr(s"could not set text for element with id $id")
+    } yield page
+
+    def setNumberField(id: String, value: Int): ErrorOr[HtmlPage] = for {
+      e <- findElementWithId[HtmlNumberInput](id)
+      _ <- Try(e.setText(value.toString)).toErrorOr(s"could not set text for element with id $id")
+    } yield page
   }
 
   implicit class ExtraKleisliSyntax[F[_], A, B](k: Kleisli[F, A, B]) {
@@ -109,7 +119,7 @@ trait WebSpec extends EitherValues {
     /**
       * Try to find an element by id and then check that it matches a predicate
       *
-      * @param id the id of the element to find
+      * @param id   the id of the element to find
       * @param pred a predicate to check a condition on the element
       * @tparam E the type of the element to find (a subclass of HtmlElement)
       * @return a new PageCall composed of the wrapped call andThen the element test
@@ -118,7 +128,7 @@ trait WebSpec extends EitherValues {
       k andThen Kleisli[ErrorOr, HtmlPage, HtmlPage] { page: HtmlPage =>
         for {
           e <- page.findElementWithId[E](id)
-          _ <- if (pred(e)) Right(e) else Left(SpecError("element did not satisfy predicate", None))
+          _ <- if (pred(e)) Right(e) else Left(SpecError("element did not satisfy predicate", None, None))
         } yield page
       }
   }
@@ -128,7 +138,7 @@ trait WebSpec extends EitherValues {
   def ShowPage(pageInfo: PageInfo): PageCall[HtmlPage] = Kleisli[ErrorOr, HtmlPage, HtmlPage] { page: HtmlPage =>
     Try {
       eventually(Timeout(Span(2, Seconds)))(page.getTitleText mustBe pageInfo.title)
-    }.toErrorOr("").map(_ => page)
+    }.toErrorOr(s"page title was '${page.getTitleText}' but expected ${pageInfo.title}").map(_ => page)
   }
 
   def OpenPage(entryPoint: EntryPoint): PageCall[WebClient] = Kleisli((webClient: WebClient) => webClient.show(entryPoint.call))
@@ -140,5 +150,13 @@ trait WebSpec extends EitherValues {
   def ChooseRadioButton(id: String): PageCall[HtmlPage] = Kleisli((page: HtmlPage) => page.chooseRadioButton(id))
 
   def SubmitForm(buttonName: String): PageCall[HtmlPage] = Kleisli((page: HtmlPage) => page.submitForm(buttonName))
+
+  def SetDateFields(id: String, day: Int, month: Int, year: Int): PageCall[HtmlPage] = Kleisli[ErrorOr, HtmlPage, HtmlPage] { page =>
+    for {
+      _ <- page.setNumberField(s"$id.day", day)
+      _ <- page.setNumberField(s"$id.month", month)
+      _ <- page.setNumberField(s"$id.year", year)
+    } yield page
+  }
 
 }
