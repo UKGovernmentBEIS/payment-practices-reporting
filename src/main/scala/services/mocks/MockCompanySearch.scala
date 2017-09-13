@@ -26,10 +26,11 @@ import services.{CompanyDetail, CompanySearchResult, CompanySearchService, Paged
 import scala.concurrent.{ExecutionContext, Future}
 
 object MockCompanySearch {
-  val companies: Seq[CompanySearchResult] = Seq(
-    CompanySearchResult(CompaniesHouseId("000000001"), "The Testing Company", Some("1 Testing Way, Mockington, Stubshire")),
-    CompanySearchResult(CompaniesHouseId("000000002"), "Another company", Some("1 Any Other Way, Stubbsville, Mockshire, ST13 3MO"))
-  )
+
+  val company1 = CompanySearchResult(CompaniesHouseId("000000001"), "The Testing Company", Some("1 Testing Way, Mockington, Stubshire"))
+  val company2 = CompanySearchResult(CompaniesHouseId("000000002"), "Another company", Some("1 Any Other Way, Stubbsville, Mockshire, ST13 3MO"))
+
+  val companies: Seq[CompanySearchResult] = Seq(company1, company2)
 }
 
 class MockCompanySearch @Inject()(implicit ec: ExecutionContext) extends CompanySearchService {

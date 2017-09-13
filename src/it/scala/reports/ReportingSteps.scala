@@ -13,7 +13,7 @@ trait ReportingSteps {
   self: WebSpec with PlaySpec =>
 
   val NavigateToSearchPage: PageCall[WebClient] = OpenPage(ReportingStartPage)
-  val testCompany         : CompanySearchResult = MockCompanySearch.companies.head
+  val testCompany         : CompanySearchResult = MockCompanySearch.company1
   val testCompanyName     : String              = testCompany.companyName
 
   def StartPublishingForCompany(companyName: String): PageCall[WebClient] =
@@ -31,6 +31,4 @@ trait ReportingSteps {
       SubmitForm("submit") andThen
       SubmitForm("submit")
   }
-
-
 }
