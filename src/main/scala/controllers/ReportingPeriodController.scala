@@ -32,6 +32,10 @@ import services.{CompanyAuthService, ReportService, SessionId, SessionService}
 
 import scala.concurrent.ExecutionContext
 
+object ReportingPeriodController {
+  val reportingPeriodFormId = "reporting-period-form"
+}
+
 class ReportingPeriodController @Inject()(
   reports: ReportService,
   validations: Validations,

@@ -41,7 +41,7 @@
         <li>It is <strong>not</strong> for <a rel="external" target="_blank" href="http://www.legislation.gov.uk/ukpga/2015/26/section/2/enacted">financial services</a></li>
     </ul>
 
-    <form action="@routes.ReportingPeriodController.post(companyId, change)" method="POST" id="longForm-report">
+    <form action="@routes.ReportingPeriodController.post(companyId, change)" method="POST" id="@ReportingPeriodController.reportingPeriodFormId">
         <p class="small-aside">
             Companies House number: @companyId.id
         </p>

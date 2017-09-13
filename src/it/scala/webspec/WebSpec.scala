@@ -85,6 +85,14 @@ trait WebSpec extends EitherValues {
     def paragraphText(id: String): ErrorOr[String] = {
       byId[HtmlParagraph](id).map(_.getTextContent)
     }
+
+    def containsElementWithId[E <: HtmlElement](id: String): ErrorOr[HtmlPage] = Try {
+      page.getHtmlElementById[E](id)
+    }.toErrorOr(s"Element with $id was not found").map(_ => page)
+
+    def findElementWithId[E <: HtmlElement](id: String): ErrorOr[E] = Try {
+      page.getHtmlElementById[E](id)
+    }.toErrorOr(s"Element with $id was not found")
   }
 
   implicit class ExtraKleisliSyntax[F[_], A, B](k: Kleisli[F, A, B]) {
@@ -92,6 +100,27 @@ trait WebSpec extends EitherValues {
       * Alias for Kleisli.andThen
       */
     def should[C](k2: Kleisli[F, B, C])(implicit F: FlatMap[F]): Kleisli[F, A, C] = k andThen k2
+  }
+
+  implicit class PageCallSyntax[A](k: PageCall[A])(implicit F: FlatMap[ErrorOr]) {
+    def withElementById[E <: HtmlElement](id: String): PageCall[A] =
+      k andThen Kleisli[ErrorOr, HtmlPage, HtmlPage]((page: HtmlPage) => page.containsElementWithId[E](id))
+
+    /**
+      * Try to find an element by id and then check that it matches a predicate
+      *
+      * @param id the id of the element to find
+      * @param pred a predicate to check a condition on the element
+      * @tparam E the type of the element to find (a subclass of HtmlElement)
+      * @return a new PageCall composed of the wrapped call andThen the element test
+      */
+    def containingElement[E <: HtmlElement](id: String)(pred: E => Boolean): PageCall[A] =
+      k andThen Kleisli[ErrorOr, HtmlPage, HtmlPage] { page: HtmlPage =>
+        for {
+          e <- page.findElementWithId[E](id)
+          _ <- if (pred(e)) Right(e) else Left(SpecError("element did not satisfy predicate", None))
+        } yield page
+      }
   }
 
   type PageCall[T] = Kleisli[ErrorOr, T, HtmlPage]

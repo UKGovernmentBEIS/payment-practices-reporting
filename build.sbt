@@ -65,8 +65,7 @@ libraryDependencies ++= Seq(
 
 lazy val serverTestDependencies = Seq(
   "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.0",
-  "com.h2database" % "h2" % "1.4.191",
-  "org.jsoup" % "jsoup" % "1.10.2"
+  "com.h2database" % "h2" % "1.4.191"
 )
 
 

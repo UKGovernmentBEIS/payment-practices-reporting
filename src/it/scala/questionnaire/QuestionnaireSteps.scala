@@ -16,7 +16,7 @@ import scala.util.Try
 trait QuestionnaireSteps {
   self: WebSpec with PlaySpec =>
 
-  implicit class PageCallSyntax[T](k: PageCall[T]) {
+  implicit class ExtraQuestionnaireSyntax[T](k: PageCall[T]) {
     def withMessage(message: String): PageCall[T] =
       k andThen WithMessage(message)
   }

@@ -39,8 +39,11 @@ object ReportController {
   val searchPageTitle = "Publish a report"
   val signInPageTitle = "Sign in using your Companies House account"
 
+  val companyNumberParagraphId = "company-number"
+
   def publishTitle(companyName: String) = s"Publish a report for $companyName"
 
+  val searchButtonId                            = "search-submit"
   val searchLink : String                       = routes.ReportController.search(None, None, None).url
   val companyLink: (CompaniesHouseId) => String = { id: CompaniesHouseId => routes.ReportController.start(id).url }
 }
