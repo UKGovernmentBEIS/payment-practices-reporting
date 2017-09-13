@@ -14,6 +14,7 @@ import org.scalatestplus.play.{OneBrowserPerTest, PlaySpec}
 import play.api.mvc.Call
 import play.api.test.Helpers
 
+import scala.collection.JavaConversions._
 import scala.util.{Failure, Success, Try}
 
 trait WebSpec extends EitherValues {
@@ -63,6 +64,15 @@ trait WebSpec extends EitherValues {
     def byId[T <: HtmlElement](id: String): ErrorOr[T] =
       Try(page.getHtmlElementById[T](id)).toErrorOr("byId")
 
+    /**
+      * @return first table found in the page
+      */
+    def findTable: ErrorOr[HtmlTable] =
+      page.getElementsByTagName("table").toList.headOption match {
+        case None        => Left(SpecError("No tables found in page", None, Some(page)))
+        case Some(table) => Right(table.asInstanceOf[HtmlTable])
+      }
+
     def clickLink(name: String): ErrorOr[HtmlPage] =
       Try(page.getAnchorByName(name).click[HtmlPage]()).toErrorOr("clickLink")
 
@@ -106,11 +116,23 @@ trait WebSpec extends EitherValues {
     } yield page
   }
 
+  implicit class TableSyntax(table: HtmlTable) {
+    def getRowWithName(rowName: String): ErrorOr[HtmlTableRow] =
+      table.getRows.toList.find { row =>
+        row.getCell(0).getTextContent.trim === rowName
+      } match {
+        case None      => Left(SpecError(s"table does not have a row with name '$rowName'", None, None))
+        case Some(row) => Right(row)
+      }
+  }
+
   implicit class ExtraKleisliSyntax[F[_], A, B](k: Kleisli[F, A, B]) {
     /**
-      * Alias for Kleisli.andThen
+      * Aliases for Kleisli.andThen
       */
     def should[C](k2: Kleisli[F, B, C])(implicit F: FlatMap[F]): Kleisli[F, A, C] = k andThen k2
+
+    def and[C](k2: Kleisli[F, B, C])(implicit F: FlatMap[F]): Kleisli[F, A, C] = k andThen k2
   }
 
   implicit class PageCallSyntax[A](k: PageCall[A])(implicit flatMapErrorOr: FlatMap[ErrorOr]) {

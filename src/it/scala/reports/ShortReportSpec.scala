@@ -43,8 +43,19 @@ class ShortReportSpec extends PlaySpec with WebSpec with GuiceOneServerPerSuite 
 
   "entering valid dates and selecting No Qualifying Contracts" should {
     "show the short form" in webSpec {
-      NavigateToShortForm(testCompany.companyName) should
+      NavigateToShortForm(testCompanyName) should
         ShowPage(ShortFormPage(testCompany)) withElementById[HtmlForm] ShortFormController.shortFormId
+    }
+  }
+
+  "selecting no and submitting" should {
+    "show the review page" in webSpec {
+      NavigateToShortForm(testCompanyName) andThen
+        ChooseAndContinue("paymentCodes.yesNo-no") should
+        ShowPage(ShortReviewPage) and
+        TableRowShouldHaveValue("Start date of reporting period", "1 May 2017") and
+        TableRowShouldHaveValue("End date of reporting period", "1 June 2017") and
+        TableRowShouldHaveValue("Are you a member of a code of conduct or standards on payment practices?", "No")
     }
   }
 }

@@ -22,3 +22,6 @@ case class ShortFormPage(company:CompanySearchResult) extends PageInfo {
 
   override val title: String = ShortFormController.publishTitle(company.companyName)
 }
+object ShortReviewPage extends PageInfo {
+  override def title = "Review your report"
+}
