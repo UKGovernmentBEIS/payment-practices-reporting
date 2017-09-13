@@ -1,5 +1,6 @@
 package webspec
 
+import cats.FlatMap
 import cats.data.Kleisli
 import cats.syntax.either._
 import com.gargoylesoftware.htmlunit.WebClient
@@ -27,46 +28,59 @@ trait WebSpec extends EitherValues {
 
   def url(call: Call): String = baseUrl + call.url
 
-  type ErrorOr[T] = Either[String, T]
+  case class SpecError(message: String, t: Option[Throwable] = None)
+  type ErrorOr[T] = Either[SpecError, T]
 
-  def webSpec(spec: PageCall[WebClient])(implicit wc: WebClient): ErrorOr[HtmlPage] =
-    spec run wc
+  def webSpec(spec: PageCall[WebClient])(implicit wc: WebClient): Unit =
+    spec run wc match {
+      case Right(_) => Unit
+      case Left(e)  => e.t match {
+        case None    => fail(e.message)
+        case Some(t) => fail(e.message, t)
+      }
+    }
 
   implicit class TrySyntax[T](t: Try[T]) {
-    def toEither(prefix: String): ErrorOr[T] = t match {
+    def toErrorOr(message: String): ErrorOr[T] = t match {
       case Success(v)         => Right(v)
-      case Failure(throwable) => Left(s"$prefix: ${throwable.getMessage}")
+      case Failure(throwable) => Left(SpecError(message, Some(throwable)))
     }
   }
 
   implicit class WebClientSyntax(webClient: WebClient) {
     def show(call: Call): ErrorOr[HtmlPage] =
-      Try(webClient.getPage[HtmlPage](url(call))).toEither("show")
+      Try(webClient.getPage[HtmlPage](url(call))).toErrorOr("show")
   }
 
+  /**
+    * Here are a bunch of pimped methods that attempt to bring some sanity
+    * to the java-style Page api
+    *
+    * @param page the HtmlPage to wrap.
+    */
   implicit class PageSyntax(page: HtmlPage) {
     def byId[T <: HtmlElement](id: String): ErrorOr[T] =
-      Try(page.getHtmlElementById[T](id)).toEither("byId")
+      Try(page.getHtmlElementById[T](id)).toErrorOr("byId")
 
     def clickLink(name: String): ErrorOr[HtmlPage] =
-      Try(page.getAnchorByName(name).click[HtmlPage]()).toEither("clickLink")
+      Try(page.getAnchorByName(name).click[HtmlPage]()).toErrorOr("clickLink")
 
     def clickButton(id: String): ErrorOr[HtmlPage] =
-      Try(page.getHtmlElementById[HtmlButton](id).click[HtmlPage]()).toEither("clickButton")
+      Try(page.getHtmlElementById[HtmlButton](id).click[HtmlPage]()).toErrorOr("clickButton")
 
     def chooseRadioButton(id: String): ErrorOr[HtmlPage] = {
       for {
         radio <- Try(page.getHtmlElementById[HtmlRadioButtonInput](id))
         _ = radio.setChecked(true)
       } yield page
-    }.toEither("chooseRadioButton")
+    }.toErrorOr(s"Could not find radio button with id '$id'")
 
     def submitForm(buttonName: String): ErrorOr[HtmlPage] = {
       for {
         submit <- Try(page.getElementByName[HtmlSubmitInput](buttonName))
         page = submit.click[HtmlPage]()
       } yield page
-    }.toEither("submitForm")
+    }.toErrorOr("submitForm")
 
     def paragraphText(id: String): ErrorOr[String] = {
       byId[HtmlParagraph](id).map(_.getTextContent)
@@ -74,16 +88,18 @@ trait WebSpec extends EitherValues {
   }
 
   implicit class ExtraKleisliSyntax[F[_], A, B](k: Kleisli[F, A, B]) {
-    def should(f: F[B] => F[B]): Kleisli[F, A, B] = k.mapF(f)
+    /**
+      * Alias for Kleisli.andThen
+      */
+    def should[C](k2: Kleisli[F, B, C])(implicit F: FlatMap[F]): Kleisli[F, A, C] = k andThen k2
   }
 
   type PageCall[T] = Kleisli[ErrorOr, T, HtmlPage]
 
-  def ShowPage(pageInfo: PageInfo): ErrorOr[HtmlPage] => ErrorOr[HtmlPage] = { result: ErrorOr[HtmlPage] =>
-    result mustBe a[Right[_, _]]
-    eventually(Timeout(Span(2, Seconds)))(result.right.value.getTitleText mustBe pageInfo.title)
-
-    result
+  def ShowPage(pageInfo: PageInfo): PageCall[HtmlPage] = Kleisli[ErrorOr, HtmlPage, HtmlPage] { page: HtmlPage =>
+    Try {
+      eventually(Timeout(Span(2, Seconds)))(page.getTitleText mustBe pageInfo.title)
+    }.toErrorOr("").map(_ => page)
   }
 
   def OpenPage(entryPoint: EntryPoint): PageCall[WebClient] = Kleisli((webClient: WebClient) => webClient.show(entryPoint.call))

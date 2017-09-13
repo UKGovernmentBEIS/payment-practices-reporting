@@ -1,5 +1,6 @@
-package controllers
+package questionnaire
 
+import controllers.{QuestionnaireController, routes}
 import play.api.i18n.MessagesApi
 import play.api.mvc.Call
 import questionnaire.Questions.isCompanyOrLLPQuestion

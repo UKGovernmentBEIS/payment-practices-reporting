@@ -1,7 +1,8 @@
-package controllers
+package questionnaire
 
-import cats.instances.either._
 import org.openqa.selenium.WebDriver
+import cats.instances.either._
+import cats.syntax.either._
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import org.scalatestplus.play.{HtmlUnitFactory, OneBrowserPerTest, PlaySpec}
 import play.api.i18n.MessagesApi
@@ -10,7 +11,7 @@ import webspec.WebSpec
 
 import scala.language.postfixOps
 
-class QuestionnaireControllerYear2Spec extends PlaySpec with WebSpec with QuestionnaireSteps with GuiceOneServerPerSuite with OneBrowserPerTest with HtmlUnitFactory {
+class QuestionnaireYear2Spec extends PlaySpec with WebSpec with QuestionnaireSteps with GuiceOneServerPerSuite with OneBrowserPerTest with HtmlUnitFactory {
 
   override def createWebDriver(): WebDriver = HtmlUnitFactory.createWebDriver(false)
 

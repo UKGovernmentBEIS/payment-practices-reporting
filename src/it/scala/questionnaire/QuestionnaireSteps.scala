@@ -1,4 +1,4 @@
-package controllers
+package questionnaire
 
 import cats.data.Kleisli
 import cats.instances.either._
@@ -7,6 +7,8 @@ import com.gargoylesoftware.htmlunit.WebClient
 import com.gargoylesoftware.htmlunit.html.HtmlPage
 import org.scalatestplus.play.PlaySpec
 import webspec.WebSpec
+
+import scala.util.Try
 
 trait QuestionnaireSteps {
   self: WebSpec with PlaySpec =>
@@ -17,9 +19,8 @@ trait QuestionnaireSteps {
   }
 
   def WithMessage(message: String): PageCall[HtmlPage] = Kleisli[ErrorOr, HtmlPage, HtmlPage] { page: HtmlPage =>
-    page.paragraphText("reason").map { text =>
-      text mustBe message
-      page
+    page.paragraphText("reason").flatMap { text =>
+      Try(text mustBe message).toErrorOr(s"Text of the 'reason' field did not match '$message'").map(_ => page)
     }
   }
 

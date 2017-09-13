@@ -1,4 +1,4 @@
-package controllers
+package questionnaire
 
 import cats.instances.either._
 import org.openqa.selenium.WebDriver
@@ -9,7 +9,7 @@ import webspec.WebSpec
 
 import scala.language.postfixOps
 
-class QuestionnaireControllerSpec extends PlaySpec with WebSpec with QuestionnaireSteps with GuiceOneServerPerSuite with OneBrowserPerTest with HtmlUnitFactory {
+class QuestionnaireSpec extends PlaySpec with WebSpec with QuestionnaireSteps with GuiceOneServerPerSuite with OneBrowserPerTest with HtmlUnitFactory {
 
   override def createWebDriver(): WebDriver = HtmlUnitFactory.createWebDriver(false)
 
