@@ -22,7 +22,7 @@
 
         @question.detailText.map { text => @text <br/> }
 
-        <form method="POST" action="@controllers.routes.QuestionnaireController.nextQuestion()">
+        <form name="question-form" method="POST" action="@controllers.routes.QuestionnaireController.nextQuestion()">
             @for((k, v) <- currentState) {
                 <input type="hidden" name='@k' value="@HtmlFormat.escape(v)">
             }

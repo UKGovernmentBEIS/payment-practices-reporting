@@ -66,7 +66,7 @@ class Module(environment: Environment, configuration: Configuration) extends Abs
 
     bind(classOf[Int])
       .annotatedWith(Names.named("session timeout"))
-      .toInstance(config.sessionTimeoutInMinutes.getOrElse(60))
+      .toInstance(config.service.flatMap(_.sessionTimeoutInMinutes).getOrElse(60))
 
     bind(classOf[PageConfig]).toInstance(config.pageConfig)
 

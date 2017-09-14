@@ -36,8 +36,8 @@ class LoggingFilter @Inject()(appConfig: AppConfig)(implicit val mat: Materializ
 
   import appConfig.config
 
-  private lazy val logAssets   = config.logAssets.getOrElse(false)
-  private lazy val logRequests = config.logRequests.getOrElse(true)
+  private lazy val logAssets   = config.service.flatMap(_.logAssets).getOrElse(false)
+  private lazy val logRequests = config.service.flatMap(_.logRequests).getOrElse(true)
 
   def apply(nextFilter: RequestHeader => Future[Result])
     (requestHeader: RequestHeader): Future[Result] = {

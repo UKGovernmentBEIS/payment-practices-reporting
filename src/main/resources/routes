@@ -11,7 +11,7 @@ GET         /wip                                              controllers.Defaul
 GET         /visual-test                                      controllers.VisualTestController.show
 
 GET         /decide                                           controllers.QuestionnaireController.start
-GET         /decide/questions                                 controllers.QuestionnaireController.nextQuestion
+GET         /decide/questions                                 controllers.QuestionnaireController.firstQuestion
 POST        /decide/questions                                 controllers.QuestionnaireController.nextQuestion
 
 GET         /deadlines                                        controllers.CalculatorController.start()

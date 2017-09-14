@@ -19,10 +19,10 @@
 
         <div class="column-full">
         @for((cssClass, rows) <- formGroups) {
-            <table class="@cssClass">
+            <table id="review-table" class="@cssClass">
             @for((name, value, changeUrl) <- rows) {
                 <tr>
-                    <td class="key-column"> @name</td>
+                    <td class="key-column">@name</td>
                     <td>@value</td>
                     <td align="right">@changeUrl.map { call =>
                         <a href="@call.path()">Change</a>

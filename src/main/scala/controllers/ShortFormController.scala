@@ -31,6 +31,12 @@ import services._
 
 import scala.concurrent.{ExecutionContext, Future}
 
+object ShortFormController {
+  val shortFormId = "short-report-form"
+
+  def publishTitle(companyName: String) = s"Publish a report for $companyName"
+}
+
 class ShortFormController @Inject()(
   validations: Validations,
   companyAuthAction: CompanyAuthAction,
@@ -43,11 +49,10 @@ class ShortFormController @Inject()(
     with PageHelper
     with FormSessionHelpers {
 
+  import ShortFormController._
   import shortFormPageModel._
   import validations._
   import views.html.{report => pages}
-
-  private def publishTitle(companyName: String) = s"Publish a report for $companyName"
 
   private def reportPageHeader(implicit request: CompanyAuthRequest[_]): Html = h1(s"Publish a report for:<br>${request.companyDetail.companyName}")
 
@@ -75,7 +80,7 @@ class ShortFormController @Inject()(
     } yield result
   }
 
-  private def handlePostFormPage(formName: ShortFormName, companyDetail: CompanyDetail, change:Boolean)(implicit request: CompanyAuthRequest[Map[String, Seq[String]]]): Future[Result] = {
+  private def handlePostFormPage(formName: ShortFormName, companyDetail: CompanyDetail, change: Boolean)(implicit request: CompanyAuthRequest[Map[String, Seq[String]]]): Future[Result] = {
     val title = publishTitle(companyDetail.companyName)
 
     bindUpToPage(formHandlers, formName).map {

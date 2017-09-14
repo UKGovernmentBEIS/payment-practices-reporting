@@ -13,7 +13,7 @@
 <div class="scannable-wrapper">
     @header
 
-    <form action="@routes.ShortFormController.post(companyId, change)" method="POST" id="file-report">
+    <form action="@routes.ShortFormController.post(companyId, change)" method="POST" id="@ShortFormController.shortFormId">
         <p class="small-aside">
             Companies House number: @companyId.id
         </p>

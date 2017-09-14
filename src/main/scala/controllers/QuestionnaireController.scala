@@ -22,27 +22,41 @@ import javax.inject.Inject
 import config.{PageConfig, ServiceConfig}
 import models.{DecisionState, Question}
 import org.scalactic.TripleEquals._
+import play.api.Logger
 import play.api.data.{Form, FormError}
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, Controller}
 import questionnaire._
+
+object QuestionnaireController {
+  val startTitle = "Find out if your business needs to publish reports"
+  val startButtonId = "start-button"
+  val exemptTitle = "Your business does not need to publish reports"
+}
 
 class QuestionnaireController @Inject()(summarizer: Summarizer,
                                         val pageConfig: PageConfig,
                                         val serviceConfig: ServiceConfig)
                                        (implicit messages: MessagesApi) extends Controller with PageHelper {
 
+  import QuestionnaireController._
   import QuestionnaireValidations._
   import views.html.{questionnaire => pages}
 
   def start = Action { implicit request =>
     val externalRouter = implicitly[ExternalRouter]
-    Ok(page("Find out if your business needs to publish reports")(home, views.html.questionnaire.start(externalRouter)))
+    Ok(page(startTitle)(home, views.html.questionnaire.start(externalRouter)))
   }
 
   val emptyForm = Form(decisionStateMapping)
 
-  def nextQuestion = Action { implicit request =>
+  def firstQuestion = Action { implicit request =>
+    val formData = emptyForm.fill(DecisionState.empty).data
+    val q = Questions.isCompanyOrLLPQuestion
+    Ok(page(messages(q.textKey))(home, pages.question(q, formData, None)))
+  }
+
+  def nextQuestion: Action[Map[String, Seq[String]]] = Action(parse.urlFormEncoded) { implicit request =>
     val form = emptyForm.bindFromRequest
     val currentState = form.fold(_ => DecisionState.empty, s => s)
 
@@ -52,11 +66,13 @@ class QuestionnaireController @Inject()(summarizer: Summarizer,
     // being rendered as hidden fields.
     val formData = emptyForm.fill(currentState).data
 
-    val exemptTitle = "Your business does not need to publish reports"
-
     Decider.calculateDecision(currentState) match {
       case AskQuestion(q) =>
-        Ok(page(messages(q.textKey))(home, pages.question(q, formData, questionError(q, form("question-key").value))))
+        questionError(q, form("question-key").value) match {
+          case None => Ok(page(messages(q.textKey))(home, pages.question(q, formData, None)))
+          case Some(error) => BadRequest(page(messages(q.textKey))(home, pages.question(q, formData, Some(error))))
+        }
+
       case NotACompany(reason) => Ok(page(exemptTitle)(home, pages.notACompany(reason)))
       case Exempt(reason) => Ok(page(exemptTitle)(home, pages.exempt(reason)))
       case Required => Ok(page("Your business must publish reports")(home, pages.required(summarizer.summarize(currentState))))
