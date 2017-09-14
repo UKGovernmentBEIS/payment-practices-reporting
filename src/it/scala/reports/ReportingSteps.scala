@@ -4,7 +4,7 @@ import cats.data.Kleisli
 import cats.instances.either._
 import cats.syntax.either._
 import com.gargoylesoftware.htmlunit.WebClient
-import com.gargoylesoftware.htmlunit.html.HtmlPage
+import com.gargoylesoftware.htmlunit.html.{HtmlPage, HtmlTable, HtmlTableRow}
 import controllers.ReportController
 import org.scalatestplus.play.PlaySpec
 import services.CompanySearchResult
@@ -42,5 +42,17 @@ trait ReportingSteps {
       row <- table.getRowWithName(rowName)
       _ <- Try(row.getCell(1).getTextContent mustBe value).toErrorOr(s"Row '$rowName' has incorrect value")
     } yield page
+  }
+
+  //noinspection TypeAnnotation
+  def ContainRow(rowName: String) = Kleisli[ErrorOr, HtmlTable, (HtmlTable, HtmlTableRow)] { table =>
+    table.getRowWithName(rowName).map((table, _))
+  }
+
+  //noinspection TypeAnnotation
+  def Value(v: String) = Kleisli[ErrorOr, HtmlTableRow, HtmlTableRow] { row =>
+    val content = row.getCell(1).getTextContent
+    if (content.trim === v) Right(row)
+    else Left(SpecError(s"Expected text '$v' but found '$content'", None, None))
   }
 }

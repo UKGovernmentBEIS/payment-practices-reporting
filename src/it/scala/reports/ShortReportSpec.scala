@@ -5,6 +5,7 @@ import com.gargoylesoftware.htmlunit.WebClient
 import com.gargoylesoftware.htmlunit.html.{HtmlForm, HtmlParagraph}
 import controllers.{ReportController, ReportingPeriodController, ShortFormController}
 import forms.DateFields
+import org.apache.xalan.xsltc.compiler.Choose
 import org.openqa.selenium.WebDriver
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import org.scalatestplus.play.{HtmlUnitFactory, OneBrowserPerTest, PlaySpec}
@@ -48,14 +49,33 @@ class ShortReportSpec extends PlaySpec with WebSpec with GuiceOneServerPerSuite 
     }
   }
 
-  "selecting no and submitting" should {
+  "selecting no payment codes and submitting" should {
     "show the review page" in webSpec {
       NavigateToShortForm(testCompanyName) andThen
         ChooseAndContinue("paymentCodes.yesNo-no") should
-        ShowPage(ShortReviewPage) and
-        TableRowShouldHaveValue("Start date of reporting period", "1 May 2017") and
-        TableRowShouldHaveValue("End date of reporting period", "1 June 2017") and
-        TableRowShouldHaveValue("Are you a member of a code of conduct or standards on payment practices?", "No")
+        ShowPage(ShortReviewPage) where {
+        Table("review-table") should {
+          ContainRow("Start date of reporting period") having Value("1 May 2017") and
+            ContainRow("End date of reporting period") having Value("1 June 2017") and
+            ContainRow("Are you a member of a code of conduct or standards on payment practices?") having Value("No")
+        }
+      }
+    }
+  }
+
+  "entering a value for payment code and submitting" should {
+    "show the review page" in webSpec {
+      NavigateToShortForm(testCompanyName) andThen
+        ChooseRadioButton("paymentCodes.yesNo-yes") andThen
+        SetTextField("paymentCodes.text", "payment codes") andThen
+        SubmitForm("Continue") should
+        ShowPage(ShortReviewPage) where {
+        Table("review-table") should {
+          ContainRow("Start date of reporting period") having Value("1 May 2017") and
+            ContainRow("End date of reporting period") having Value("1 June 2017") and
+            ContainRow("Are you a member of a code of conduct or standards on payment practices?") having Value("Yes – payment codes")
+        }
+      }
     }
   }
 }

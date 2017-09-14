@@ -2,6 +2,7 @@ package webspec
 
 import cats.FlatMap
 import cats.data.Kleisli
+import cats.instances.either._
 import cats.syntax.either._
 import com.gargoylesoftware.htmlunit.WebClient
 import com.gargoylesoftware.htmlunit.html._
@@ -73,6 +74,11 @@ trait WebSpec extends EitherValues {
         case Some(table) => Right(table.asInstanceOf[HtmlTable])
       }
 
+    /**
+      * @return first table found in the page
+      */
+    def findTable(id: String): ErrorOr[HtmlTable] = page.byId[HtmlTable](id)
+
     def clickLink(name: String): ErrorOr[HtmlPage] =
       Try(page.getAnchorByName(name).click[HtmlPage]()).toErrorOr("clickLink")
 
@@ -126,6 +132,17 @@ trait WebSpec extends EitherValues {
       }
   }
 
+  implicit class ElementSyntax[E1, E2 <: HtmlElement](k: Kleisli[ErrorOr, E1, (E1, E2)]) {
+    def should(k2: Kleisli[ErrorOr, E2, E2]): Kleisli[ErrorOr, E1, E1] = {
+      k.flatMapF { case (t1, t) =>
+        val value1: ErrorOr[E2] = k2.run(t)
+        value1.map(_ => t1)
+      }
+    }
+
+    def having(k2: Kleisli[ErrorOr, E2, E2]): Kleisli[ErrorOr, E1, E1] = should(k2)
+  }
+
   implicit class ExtraKleisliSyntax[F[_], A, B](k: Kleisli[F, A, B]) {
     /**
       * Aliases for Kleisli.andThen
@@ -133,9 +150,11 @@ trait WebSpec extends EitherValues {
     def should[C](k2: Kleisli[F, B, C])(implicit F: FlatMap[F]): Kleisli[F, A, C] = k andThen k2
 
     def and[C](k2: Kleisli[F, B, C])(implicit F: FlatMap[F]): Kleisli[F, A, C] = k andThen k2
+
+    def where[C](k2: Kleisli[F, B, C])(implicit F: FlatMap[F]): Kleisli[F, A, C] = k andThen k2
   }
 
-  implicit class PageCallSyntax[A](k: PageCall[A])(implicit flatMapErrorOr: FlatMap[ErrorOr]) {
+  implicit class PageCallSyntax[A](k: PageCall[A]) {
     def withElementById[E <: HtmlElement](id: String): PageCall[A] =
       k andThen Kleisli[ErrorOr, HtmlPage, HtmlPage]((page: HtmlPage) => page.containsElementWithId[E](id))
 
@@ -165,21 +184,22 @@ trait WebSpec extends EitherValues {
   }
 
   def OpenPage(entryPoint: EntryPoint): PageCall[WebClient] = Kleisli((webClient: WebClient) => webClient.show(entryPoint.call))
-
   def ClickLink(name: String): PageCall[HtmlPage] = Kleisli((page: HtmlPage) => page.clickLink(name))
-
   def ClickButton(id: String): PageCall[HtmlPage] = Kleisli((page: HtmlPage) => page.clickButton(id))
-
   def ChooseRadioButton(id: String): PageCall[HtmlPage] = Kleisli((page: HtmlPage) => page.chooseRadioButton(id))
-
   def SubmitForm(buttonName: String): PageCall[HtmlPage] = Kleisli((page: HtmlPage) => page.submitForm(buttonName))
+  def SetNumberField(id: String, value: Int): PageCall[HtmlPage] = Kleisli((page: HtmlPage) => page.setNumberField(id, value))
+  def SetTextField(id: String, value: String): PageCall[HtmlPage] = Kleisli((page: HtmlPage) => page.setTextField(id, value))
 
-  def SetDateFields(id: String, dateFields: DateFields): PageCall[HtmlPage] = Kleisli[ErrorOr, HtmlPage, HtmlPage] { page =>
-    for {
-      _ <- page.setNumberField(s"$id.day", dateFields.day)
-      _ <- page.setNumberField(s"$id.month", dateFields.month)
-      _ <- page.setNumberField(s"$id.year", dateFields.year)
-    } yield page
+  def SetDateFields(id: String, dateFields: DateFields): PageCall[HtmlPage] =
+    SetNumberField(s"$id.day", dateFields.day) andThen
+      SetNumberField(s"$id.month", dateFields.month) andThen
+      SetNumberField(s"$id.year", dateFields.year)
+
+  //noinspection TypeAnnotation
+  def Table(id: String) = Kleisli[ErrorOr, HtmlPage, (HtmlPage, HtmlTable)] { page =>
+    page.findTable(id).map((page, _))
   }
+
 
 }
