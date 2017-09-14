@@ -20,7 +20,7 @@ class ShortReportSpec extends PlaySpec with WebSpec with GuiceOneServerPerSuite 
 
   val messages: MessagesApi = app.injector.instanceOf[MessagesApi]
 
-  private def NavigateToShortForm(companyName: String, startDate: DateFields = DateFields(1, 5, 2017), endDate: DateFields = DateFields(1, 6, 2017)): PageCall[WebClient] = {
+  private def NavigateToShortForm(companyName: String, startDate: DateFields = DateFields(1, 5, 2017), endDate: DateFields = DateFields(1, 6, 2017)): PageStep[WebClient] = {
     NavigateToReportingPeriodForm(testCompanyName) andThen
       SetDateFields("reportDates.startDate", startDate) andThen
       SetDateFields("reportDates.endDate", endDate) andThen

@@ -16,19 +16,19 @@ import scala.util.Try
 trait ReportingSteps {
   self: WebSpec with PlaySpec =>
 
-  val NavigateToSearchPage: PageCall[WebClient] = OpenPage(ReportingStartPage)
+  val NavigateToSearchPage: PageStep[WebClient] = OpenPage(ReportingStartPage)
   val testCompany         : CompanySearchResult = MockCompanySearch.company1
   val testCompanyName     : String              = testCompany.companyName
 
-  def StartPublishingForCompany(companyName: String): PageCall[WebClient] =
+  def StartPublishingForCompany(companyName: String): PageStep[WebClient] =
     NavigateToSearchPage andThen
       ClickButton(ReportController.searchButtonId) andThen
       ClickLink(companyName)
 
-  def ChooseAndContinue(choice: String): PageCall[HtmlPage] =
+  def ChooseAndContinue(choice: String): PageStep[HtmlPage] =
     ChooseRadioButton(choice) andThen SubmitForm("Continue")
 
-  def NavigateToReportingPeriodForm(companyName: String): PageCall[WebClient] = {
+  def NavigateToReportingPeriodForm(companyName: String): PageStep[WebClient] = {
     StartPublishingForCompany(testCompanyName) andThen
       ClickLink("start-button") andThen
       ChooseAndContinue("account-yes") andThen
@@ -36,7 +36,7 @@ trait ReportingSteps {
       SubmitForm("submit")
   }
 
-  def TableRowShouldHaveValue(rowName: String, value: String): PageCall[HtmlPage] = Kleisli[ErrorOr, HtmlPage, HtmlPage] { page: HtmlPage =>
+  def TableRowShouldHaveValue(rowName: String, value: String): PageStep[HtmlPage] = Kleisli[ErrorOr, HtmlPage, HtmlPage] { page: HtmlPage =>
     for {
       table <- page.findTable
       row <- table.getRowWithName(rowName)

@@ -16,28 +16,28 @@ import scala.util.Try
 trait QuestionnaireSteps {
   self: WebSpec with PlaySpec =>
 
-  implicit class ExtraQuestionnaireSyntax[T](k: PageCall[T]) {
-    def withMessage(message: String): PageCall[T] =
+  implicit class ExtraQuestionnaireSyntax[T](k: PageStep[T]) {
+    def withMessage(message: String): PageStep[T] =
       k andThen WithMessage(message)
   }
 
-  def WithMessage(message: String): PageCall[HtmlPage] = Kleisli[ErrorOr, HtmlPage, HtmlPage] { page: HtmlPage =>
+  def WithMessage(message: String): PageStep[HtmlPage] = Kleisli[ErrorOr, HtmlPage, HtmlPage] { page: HtmlPage =>
     page.paragraphText("reason").flatMap { text =>
       Try(text mustBe message).toErrorOr(s"Text of the 'reason' field did not match '$message'").map(_ => page)
     }
   }
 
-  val NavigateToFirstQuestion: PageCall[WebClient] =
+  val NavigateToFirstQuestion: PageStep[WebClient] =
     OpenPage(QuestionnaireStartPage) andThen ClickLink("Start now")
 
-  val NavigateToSecondYear: PageCall[WebClient] =
+  val NavigateToSecondYear: PageStep[WebClient] =
     NavigateToFirstQuestion andThen
       ChooseAndContinue(Yes) andThen
       ChooseAndContinue(Second)
 
-  def ChooseAndContinue(choice: String): PageCall[HtmlPage] =
+  def ChooseAndContinue(choice: String): PageStep[HtmlPage] =
     ChooseRadioButton(choice) andThen SubmitForm("Continue")
 
-  def ChooseAndContinue(choice: EnumEntry): PageCall[HtmlPage] =
+  def ChooseAndContinue(choice: EnumEntry): PageStep[HtmlPage] =
     ChooseAndContinue(choice.entryName)
 }

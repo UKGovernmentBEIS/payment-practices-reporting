@@ -34,7 +34,7 @@ trait WebSpec extends EitherValues {
   case class SpecError(message: String, t: Option[Throwable] = None, page: Option[HtmlPage])
   type ErrorOr[T] = Either[SpecError, T]
 
-  def webSpec(spec: PageCall[WebClient])(implicit wc: WebClient): Unit =
+  def webSpec(spec: PageStep[WebClient])(implicit wc: WebClient): Unit =
     spec run wc match {
       case Right(_) => Unit
       case Left(e)  => e.t match {
@@ -132,7 +132,15 @@ trait WebSpec extends EitherValues {
       }
   }
 
-  implicit class ElementSyntax[E1, E2 <: HtmlElement](k: Kleisli[ErrorOr, E1, (E1, E2)]) {
+  /**
+    * These functions will work with a step that has sub-tests, by taking a
+    * step that outputs a pair, and another step that processes the right side
+    * of the pair. This accumulates any errors in the sub-test, but the overall
+    * result is a step that outputs the value from the right of the pair.
+    *
+    * e.g. `Table("id") should {ContainRow("rowname") having Value("value")`
+    */
+  implicit class SubCheckSyntax[E1, E2](k: Kleisli[ErrorOr, E1, (E1, E2)]) {
     def should(k2: Kleisli[ErrorOr, E2, E2]): Kleisli[ErrorOr, E1, E1] = {
       k.flatMapF { case (t1, t) =>
         val value1: ErrorOr[E2] = k2.run(t)
@@ -154,8 +162,8 @@ trait WebSpec extends EitherValues {
     def where[C](k2: Kleisli[F, B, C])(implicit F: FlatMap[F]): Kleisli[F, A, C] = k andThen k2
   }
 
-  implicit class PageCallSyntax[A](k: PageCall[A]) {
-    def withElementById[E <: HtmlElement](id: String): PageCall[A] =
+  implicit class PageCallSyntax[A](k: PageStep[A]) {
+    def withElementById[E <: HtmlElement](id: String): PageStep[A] =
       k andThen Kleisli[ErrorOr, HtmlPage, HtmlPage]((page: HtmlPage) => page.containsElementWithId[E](id))
 
     /**
@@ -166,7 +174,7 @@ trait WebSpec extends EitherValues {
       * @tparam E the type of the element to find (a subclass of HtmlElement)
       * @return a new PageCall composed of the wrapped call andThen the element test
       */
-    def containingElement[E <: HtmlElement](id: String)(pred: E => Boolean): PageCall[A] =
+    def containingElement[E <: HtmlElement](id: String)(pred: E => Boolean): PageStep[A] =
       k andThen Kleisli[ErrorOr, HtmlPage, HtmlPage] { page: HtmlPage =>
         for {
           e <- page.findElementWithId[E](id)
@@ -175,23 +183,23 @@ trait WebSpec extends EitherValues {
       }
   }
 
-  type PageCall[T] = Kleisli[ErrorOr, T, HtmlPage]
+  type PageStep[T] = Kleisli[ErrorOr, T, HtmlPage]
 
-  def ShowPage(pageInfo: PageInfo): PageCall[HtmlPage] = Kleisli[ErrorOr, HtmlPage, HtmlPage] { page: HtmlPage =>
+  def ShowPage(pageInfo: PageInfo): PageStep[HtmlPage] = Kleisli[ErrorOr, HtmlPage, HtmlPage] { page: HtmlPage =>
     Try {
       eventually(Timeout(Span(2, Seconds)))(page.getTitleText mustBe pageInfo.title)
     }.toErrorOr(s"page title was '${page.getTitleText}' but expected ${pageInfo.title}").map(_ => page)
   }
 
-  def OpenPage(entryPoint: EntryPoint): PageCall[WebClient] = Kleisli((webClient: WebClient) => webClient.show(entryPoint.call))
-  def ClickLink(name: String): PageCall[HtmlPage] = Kleisli((page: HtmlPage) => page.clickLink(name))
-  def ClickButton(id: String): PageCall[HtmlPage] = Kleisli((page: HtmlPage) => page.clickButton(id))
-  def ChooseRadioButton(id: String): PageCall[HtmlPage] = Kleisli((page: HtmlPage) => page.chooseRadioButton(id))
-  def SubmitForm(buttonName: String): PageCall[HtmlPage] = Kleisli((page: HtmlPage) => page.submitForm(buttonName))
-  def SetNumberField(id: String, value: Int): PageCall[HtmlPage] = Kleisli((page: HtmlPage) => page.setNumberField(id, value))
-  def SetTextField(id: String, value: String): PageCall[HtmlPage] = Kleisli((page: HtmlPage) => page.setTextField(id, value))
+  def OpenPage(entryPoint: EntryPoint): PageStep[WebClient] = Kleisli((webClient: WebClient) => webClient.show(entryPoint.call))
+  def ClickLink(name: String): PageStep[HtmlPage] = Kleisli((page: HtmlPage) => page.clickLink(name))
+  def ClickButton(id: String): PageStep[HtmlPage] = Kleisli((page: HtmlPage) => page.clickButton(id))
+  def ChooseRadioButton(id: String): PageStep[HtmlPage] = Kleisli((page: HtmlPage) => page.chooseRadioButton(id))
+  def SubmitForm(buttonName: String): PageStep[HtmlPage] = Kleisli((page: HtmlPage) => page.submitForm(buttonName))
+  def SetNumberField(id: String, value: Int): PageStep[HtmlPage] = Kleisli((page: HtmlPage) => page.setNumberField(id, value))
+  def SetTextField(id: String, value: String): PageStep[HtmlPage] = Kleisli((page: HtmlPage) => page.setTextField(id, value))
 
-  def SetDateFields(id: String, dateFields: DateFields): PageCall[HtmlPage] =
+  def SetDateFields(id: String, dateFields: DateFields): PageStep[HtmlPage] =
     SetNumberField(s"$id.day", dateFields.day) andThen
       SetNumberField(s"$id.month", dateFields.month) andThen
       SetNumberField(s"$id.year", dateFields.year)
