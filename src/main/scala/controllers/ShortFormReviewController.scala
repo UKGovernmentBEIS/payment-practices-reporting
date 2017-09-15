@@ -35,6 +35,10 @@ import views.html.helpers.ReviewPageData
 
 import scala.concurrent.{ExecutionContext, Future}
 
+object ReviewPage {
+  val reviewTableId = "review-table"
+}
+
 class ShortFormReviewController @Inject()(
   reports: ReportService,
   validations: Validations,

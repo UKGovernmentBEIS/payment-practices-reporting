@@ -1,7 +1,7 @@
 package reports
 
 import com.gargoylesoftware.htmlunit.html.{HtmlPage, HtmlParagraph}
-import controllers.{ReportController, ReportingPeriodController, ShortFormController}
+import controllers.{ReportController, ReportingPeriodController, ReviewPage, ShortFormController}
 import forms.DateFields
 import org.openqa.selenium.WebDriver
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
@@ -61,7 +61,7 @@ class ShortReportSpec extends PlaySpec with WebSpec with GuiceOneServerPerSuite 
       NavigateToShortForm(testCompanyName) andThen
         ChooseAndContinue("paymentCodes.yesNo-no") should {
         ShowPage(ShortReviewPage) where {
-          Table("review-table") should {
+          Table(ReviewPage.reviewTableId) should {
             ContainRow("Start date of reporting period") having Value("1 May 2017") and
               ContainRow("End date of reporting period") having Value("1 June 2017") and
               ContainRow("Are you a member of a code of conduct or standards on payment practices?") having Value("No")
@@ -78,7 +78,7 @@ class ShortReportSpec extends PlaySpec with WebSpec with GuiceOneServerPerSuite 
         SetTextField("paymentCodes.text", "payment codes") andThen
         SubmitForm("Continue") should {
         ShowPage(ShortReviewPage) where {
-          Table("review-table") should {
+          Table(ReviewPage.reviewTableId) should {
             ContainRow("Start date of reporting period") having Value("1 May 2017") and
               ContainRow("End date of reporting period") having Value("1 June 2017") and
               ContainRow("Are you a member of a code of conduct or standards on payment practices?") having Value("Yes – payment codes")
