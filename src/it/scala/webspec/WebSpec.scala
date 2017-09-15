@@ -1,8 +1,8 @@
 package webspec
 
 import cats.syntax.either._
-import com.gargoylesoftware.htmlunit.WebClient
 import com.gargoylesoftware.htmlunit.html._
+import com.gargoylesoftware.htmlunit.{ElementNotFoundException, WebClient}
 import forms.DateFields
 import org.scalatest.EitherValues
 import org.scalatest.concurrent.Eventually
@@ -60,8 +60,12 @@ trait WebSpec extends EitherValues {
     * @param page the HtmlPage to wrap.
     */
   implicit class PageSyntax(page: HtmlPage) {
-    def byId[T <: HtmlElement](id: String): ErrorOr[Option[T]] =
-      Right(Try(page.getHtmlElementById[T](id)).toOption)
+    def byId[T <: HtmlElement](id: String): ErrorOr[Option[T]] = Try {
+      Option(page.getHtmlElementById[T](id))
+    }.recover {
+      case _: ElementNotFoundException => None
+    }.toErrorOr(s"Element with id was found but was wrong type", Some(page))
+
 
     /**
       * @return first table found in the page
@@ -139,7 +143,7 @@ trait WebSpec extends EitherValues {
   def ShowPage(pageInfo: PageInfo): PageStep = Step { page: HtmlPage =>
     Try {
       eventually(Timeout(Span(2, Seconds)))(page.getTitleText mustBe pageInfo.title)
-    }.toErrorOr(s"page title was '${page.getTitleText}' but expected ${pageInfo.title}").map(_ => page)
+    }.toErrorOr(s"page title was '${page.getTitleText}' but expected '${pageInfo.title}'").map(_ => page)
   }
 
   def OpenPage(entryPoint: EntryPoint): Scenario[HtmlPage] = Step((webClient: WebClient) => webClient.show(entryPoint.call))
@@ -150,6 +154,11 @@ trait WebSpec extends EitherValues {
   def SubmitForm(buttonName: String): PageStep = Step((page: HtmlPage) => page.submitForm(buttonName))
   def SetNumberField(id: String, value: Int): PageStep = Step((page: HtmlPage) => page.setNumberField(id, value))
   def SetTextField(id: String, value: String): PageStep = Step((page: HtmlPage) => page.setTextField(id, value))
+
+  def PrintPage: PageStep = Step { (page: HtmlPage) =>
+    println(page.asXml())
+    Right(page)
+  }
 
   def SetDateFields(id: String, dateFields: DateFields): PageStep =
     SetNumberField(s"$id.day", dateFields.day) andThen
@@ -167,6 +176,11 @@ trait WebSpec extends EitherValues {
   }
 
   //noinspection TypeAnnotation
+  def List(id: String) = OptionalSideStep[HtmlPage, HtmlUnorderedList] { page: HtmlPage =>
+    page.byId[HtmlUnorderedList](id).map((page, _))
+  }
+
+  //noinspection TypeAnnotation
   def Element[E <: HtmlElement](id: String) = OptionalSideStep[HtmlPage, E] { page: HtmlPage =>
     page.byId(id).map { e: Option[E] => (page, e) }
   }
@@ -176,5 +190,12 @@ trait WebSpec extends EitherValues {
     val content = e.getTextContent
     if (content.contains(text)) Right((e, content))
     else Left(SpecError(s"Element did not contain text '$text'"))
+  }
+
+  //noinspection TypeAnnotation
+  def ContainItems(items: Seq[String]) = SideStep[HtmlUnorderedList, HtmlUnorderedList] { ul: HtmlUnorderedList =>
+    val lis = ul.getElementsByTagName("li").toList.map(_.getTextContent).toSet
+    if (items.toSet === lis) Right((ul, ul))
+    else Left(SpecError(s"Expected items '${items.toSet}' but got $lis"))
   }
 }

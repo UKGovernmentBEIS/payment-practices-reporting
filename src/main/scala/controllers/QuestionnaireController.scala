@@ -22,22 +22,24 @@ import javax.inject.Inject
 import config.{PageConfig, ServiceConfig}
 import models.{DecisionState, Question}
 import org.scalactic.TripleEquals._
-import play.api.Logger
 import play.api.data.{Form, FormError}
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, Controller}
 import questionnaire._
 
 object QuestionnaireController {
-  val startTitle = "Find out if your business needs to publish reports"
-  val startButtonId = "start-button"
-  val exemptTitle = "Your business does not need to publish reports"
+  val startTitle      = "Find out if your business needs to publish reports"
+  val startButtonId   = "start-button"
+  val exemptTitle     = "Your business does not need to publish reports"
+  val mustReportTitle = "Your business must publish reports"
 }
 
-class QuestionnaireController @Inject()(summarizer: Summarizer,
-                                        val pageConfig: PageConfig,
-                                        val serviceConfig: ServiceConfig)
-                                       (implicit messages: MessagesApi) extends Controller with PageHelper {
+class QuestionnaireController @Inject()(
+  summarizer: Summarizer,
+  val pageConfig: PageConfig,
+  val serviceConfig: ServiceConfig
+)
+  (implicit messages: MessagesApi) extends Controller with PageHelper {
 
   import QuestionnaireController._
   import QuestionnaireValidations._
@@ -69,13 +71,13 @@ class QuestionnaireController @Inject()(summarizer: Summarizer,
     Decider.calculateDecision(currentState) match {
       case AskQuestion(q) =>
         questionError(q, form("question-key").value) match {
-          case None => Ok(page(messages(q.textKey))(home, pages.question(q, formData, None)))
+          case None        => Ok(page(messages(q.textKey))(home, pages.question(q, formData, None)))
           case Some(error) => BadRequest(page(messages(q.textKey))(home, pages.question(q, formData, Some(error))))
         }
 
       case NotACompany(reason) => Ok(page(exemptTitle)(home, pages.notACompany(reason)))
-      case Exempt(reason) => Ok(page(exemptTitle)(home, pages.exempt(reason)))
-      case Required => Ok(page("Your business must publish reports")(home, pages.required(summarizer.summarize(currentState))))
+      case Exempt(reason)      => Ok(page(exemptTitle)(home, pages.exempt(reason)))
+      case Required            => Ok(page(mustReportTitle)(home, pages.required(summarizer.summarize(currentState))))
     }
   }
 
@@ -86,6 +88,6 @@ class QuestionnaireController @Inject()(summarizer: Summarizer,
     */
   private def questionError(q: Question, questionKey: Option[String]): Option[FormError] = questionKey.flatMap {
     case k if k === q.fieldKey => Some(FormError(k, "error.needchoicetocontinue"))
-    case _ => None
+    case _                     => None
   }
 }

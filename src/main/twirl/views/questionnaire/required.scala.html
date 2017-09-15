@@ -21,7 +21,7 @@
             This is because you told us that your business is a company incorporated in the UK or limited liability partnership registered in the UK and:
         </p>
 
-        <ul class="list list-bullet">
+        <ul id="company-reasons" class="list list-bullet">
         @messageGroup1.map { s =>
             <li class="reason">@s</li>
         }
@@ -31,7 +31,7 @@
             <p>
                 You also told us that your business has subsidiaries and that together the group:
             </p>
-            <ul class="list list-bullet">
+            <ul id="subsidiary-reasons" class="list list-bullet">
             @messageGroup2.map { s =>
                 <li class="reason">@s</li>
             }
