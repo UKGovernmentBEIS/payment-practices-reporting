@@ -1,5 +1,3 @@
-import sbtbuildinfo.BuildInfoPlugin.autoImport._
-
 name := "payment-practices-reporting"
 
 startYear := Some(2017)
@@ -26,7 +24,6 @@ lazy val `payment-practices-reporting` = project.in(file("."))
   .disablePlugins(PlayLayoutPlugin)
   .enablePlugins(GitVersioning)
   .enablePlugins(GitBranchPrompt)
-  .enablePlugins(BuildInfoPlugin)
   .configs(IntegrationTest.extend(Test)) // integration tests use utility classes from unit tests
   .settings(Defaults.itSettings: _*)
 
@@ -105,10 +102,6 @@ parallelExecution in IntegrationTest := false
 // need this because we've disabled the PlayLayoutPlugin. without it twirl templates won't get
 // re-compiled on change in dev mode
 PlayKeys.playMonitoredFiles ++= (sourceDirectories in(Compile, TwirlKeys.compileTemplates)).value
-
-buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion)
-buildInfoPackage := "buildinfo"
-buildInfoOptions ++= Seq(BuildInfoOption.ToJson, BuildInfoOption.BuildTime)
 
 fork in Test in ThisBuild := true
 testForkedParallel in ThisBuild := true
