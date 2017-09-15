@@ -1,6 +1,5 @@
 package questionnaire
 
-import com.gargoylesoftware.htmlunit.html.{HtmlPage, HtmlParagraph}
 import org.openqa.selenium.WebDriver
 import org.scalatest.prop.TableDrivenPropertyChecks
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
@@ -8,17 +7,17 @@ import org.scalatestplus.play.{HtmlUnitFactory, OneBrowserPerTest, PlaySpec}
 import play.api.i18n.MessagesApi
 import utils.YesNo
 import utils.YesNo.{No, Yes}
-import webspec.{OptionalSideStep, WebSpec}
+import webspec.WebSpec
 
 import scala.language.postfixOps
 
-class QuestionnaireYear2Spec extends PlaySpec with WebSpec with QuestionnaireSteps with GuiceOneServerPerSuite with OneBrowserPerTest with HtmlUnitFactory with TableDrivenPropertyChecks {
+class QuestionnaireYear3Spec extends PlaySpec with WebSpec with QuestionnaireSteps with GuiceOneServerPerSuite with OneBrowserPerTest with HtmlUnitFactory with TableDrivenPropertyChecks {
 
   override def createWebDriver(): WebDriver = HtmlUnitFactory.createWebDriver(false)
 
   val messages: MessagesApi = app.injector.instanceOf[MessagesApi]
 
-  "questionnaire controller in year 2 - no need to check subsidiaries" should {
+  "questionnaire controller in year 3 - no need to check subsidiaries" should {
     val companyAnswers = Table(
       ("turnover", "balance", "employees"),
       (No, No, None),
@@ -28,7 +27,7 @@ class QuestionnaireYear2Spec extends PlaySpec with WebSpec with QuestionnaireSte
 
     forAll(companyAnswers) { (a, b, c) =>
       val answers: Seq[YesNo] = Seq(Some(a), Some(b), c).flatten
-      val path = answers.foldLeft(NavigateToSecondYear)((step, choice) => step andThen ChooseAndContinue(choice))
+      val path = answers.foldLeft(NavigateToThirdYear)((step, choice) => step andThen ChooseAndContinue(choice))
 
       s"not need to report if company answers are ${answers.mkString(", ")}" in webSpec {
         path should
@@ -37,7 +36,7 @@ class QuestionnaireYear2Spec extends PlaySpec with WebSpec with QuestionnaireSte
     }
   }
 
-  "questionnaire controller in year 2 - check subsidiaries" should {
+  "questionnaire controller in year 3 - check subsidiaries" should {
     val companyAnswers = Table(
       ("turnover", "balance", "employees"),
       (Yes, Yes, None),
@@ -47,7 +46,7 @@ class QuestionnaireYear2Spec extends PlaySpec with WebSpec with QuestionnaireSte
 
     forAll(companyAnswers) { (a, b, c) =>
       val answers: Seq[YesNo] = Seq(Some(a), Some(b), c).flatten
-      val path = answers.foldLeft(NavigateToSecondYear)((step, choice) => step andThen ChooseAndContinue(choice))
+      val path = answers.foldLeft(NavigateToThirdYear)((step, choice) => step andThen ChooseAndContinue(choice))
 
       s"check subsidiaries if company answers are ${answers.mkString(", ")}" in webSpec {
         path should ShowPage(HasSubsidiariesPage)
@@ -55,14 +54,14 @@ class QuestionnaireYear2Spec extends PlaySpec with WebSpec with QuestionnaireSte
     }
   }
 
-  "questionnaire controller in year 2 - no need to report after checking subsidiaries" should {
+  "questionnaire controller in year 3 - no need to report after checking subsidiaries" should {
     val subsidiaryAnswers = Table(
       ("turnover", "balance", "employees"),
       (No, No, None),
       (No, Yes, Some(No)),
       (Yes, No, Some(No))
     )
-
+    
 
     forAll(subsidiaryAnswers) { (a, b, c) =>
       val answers: Seq[YesNo] = Seq(Some(a), Some(b), c).flatten

@@ -3,6 +3,8 @@ package webspec
 import cats.data.Kleisli
 import cats.instances.either._
 import cats.syntax.either._
+import com.gargoylesoftware.htmlunit.html.HtmlElement
+import org.scalactic.TripleEquals._
 
 final case class Step[T1, T2](private val k: Kleisli[ErrorOr, T1, T2]) {
   val run: (T1) => ErrorOr[T2] = k.run
@@ -47,7 +49,7 @@ object SideStep {
   * @tparam T1 - the type of the value on the main flow
   * @tparam T2 - the type of the value on the side flow.
   */
-final case class OptionalSideStep[T1, T2](private val k: Kleisli[ErrorOr, T1, (T1, Option[T2])]) {
+final case class OptionalSideStep[T1, T2 <: HtmlElement](private val k: Kleisli[ErrorOr, T1, (T1, Option[T2])]) {
   /**
     * If the side flow element is present then the step will be applied to it, otherwise
     * it is bypassed.
@@ -77,9 +79,18 @@ final case class OptionalSideStep[T1, T2](private val k: Kleisli[ErrorOr, T1, (T
     }
   }
 
+  def is(text: String): SideStep[T1, T2] = SideStep[T1, T2] {
+    k.flatMapF {
+      case (_, None)      => Left(SpecError("does not exist"))
+      case (v1, Some(v2)) =>
+        if (v2.getTextContent.trim === text) Right((v1, v2))
+        else Left(SpecError(s"Expected value '$text' but was '$v2'"))
+    }
+  }
+
 }
 
 object OptionalSideStep {
-  def apply[T1, T2](f: T1 => ErrorOr[(T1, Option[T2])]): OptionalSideStep[T1, T2] = new OptionalSideStep[T1, T2](Kleisli(f))
+  def apply[T1, T2 <: HtmlElement](f: T1 => ErrorOr[(T1, Option[T2])]): OptionalSideStep[T1, T2] = new OptionalSideStep[T1, T2](Kleisli(f))
 }
 

@@ -1,12 +1,13 @@
 package questionnaire
 
 import cats.syntax.either._
-import com.gargoylesoftware.htmlunit.html.HtmlPage
+import com.gargoylesoftware.htmlunit.WebClient
+import com.gargoylesoftware.htmlunit.html.{HtmlPage, HtmlParagraph}
 import enumeratum.EnumEntry
 import org.scalatestplus.play.PlaySpec
-import questionnaire.FinancialYear.Second
+import questionnaire.FinancialYear._
 import utils.YesNo.Yes
-import webspec.{PageStep, Scenario, Step, WebSpec}
+import webspec._
 
 import scala.util.Try
 
@@ -32,9 +33,21 @@ trait QuestionnaireSteps {
       ChooseAndContinue(Yes) andThen
       ChooseAndContinue(Second)
 
+  val NavigateToThirdYear: Scenario[HtmlPage] =
+    NavigateToFirstQuestion andThen
+      ChooseAndContinue(Yes) andThen
+      ChooseAndContinue(ThirdOrLater)
+
   def ChooseAndContinue(choice: String): PageStep =
     ChooseRadioButton(choice) andThen SubmitForm("Continue")
 
   def ChooseAndContinue(choice: EnumEntry): PageStep =
     ChooseAndContinue(choice.entryName)
+
+  val reason: OptionalSideStep[HtmlPage, HtmlParagraph] = Element[HtmlParagraph]("reason")
+
+  val NavigateToSubsidiaryQuestions: Scenario[HtmlPage] =
+    NavigateToSecondYear andThen
+      ChooseAndContinue(Yes) andThen
+      ChooseAndContinue(Yes)
 }
