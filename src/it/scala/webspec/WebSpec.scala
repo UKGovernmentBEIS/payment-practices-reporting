@@ -1,8 +1,5 @@
 package webspec
 
-import cats.FlatMap
-import cats.data.Kleisli
-import cats.instances.either._
 import cats.syntax.either._
 import com.gargoylesoftware.htmlunit.WebClient
 import com.gargoylesoftware.htmlunit.html._
@@ -18,6 +15,9 @@ import play.api.test.Helpers
 import scala.collection.JavaConversions._
 import scala.util.{Failure, Success, Try}
 
+case class SpecError(message: String, t: Option[Throwable] = None, page: Option[HtmlPage] = None)
+
+
 trait WebSpec extends EitherValues {
   self: PlaySpec with Eventually with OneBrowserPerTest =>
 
@@ -31,10 +31,8 @@ trait WebSpec extends EitherValues {
 
   def url(call: Call): String = baseUrl + call.url
 
-  case class SpecError(message: String, t: Option[Throwable] = None, page: Option[HtmlPage])
-  type ErrorOr[T] = Either[SpecError, T]
 
-  def webSpec(spec: PageStep[WebClient])(implicit wc: WebClient): Unit =
+  def webSpec[T](spec: Scenario[T])(implicit wc: WebClient): Unit =
     spec run wc match {
       case Right(_) => Unit
       case Left(e)  => e.t match {
@@ -62,8 +60,8 @@ trait WebSpec extends EitherValues {
     * @param page the HtmlPage to wrap.
     */
   implicit class PageSyntax(page: HtmlPage) {
-    def byId[T <: HtmlElement](id: String): ErrorOr[T] =
-      Try(page.getHtmlElementById[T](id)).toErrorOr("byId")
+    def byId[T <: HtmlElement](id: String): ErrorOr[Option[T]] =
+      Right(Try(page.getHtmlElementById[T](id)).toOption)
 
     /**
       * @return first table found in the page
@@ -77,7 +75,9 @@ trait WebSpec extends EitherValues {
     /**
       * @return first table found in the page
       */
-    def findTable(id: String): ErrorOr[HtmlTable] = page.byId[HtmlTable](id)
+    def findTable(id: String): ErrorOr[Option[HtmlTable]] = page.byId[HtmlTable](id)
+
+    def findForm(id: String): ErrorOr[Option[HtmlForm]] = page.byId[HtmlForm](id)
 
     def clickLink(name: String): ErrorOr[HtmlPage] =
       Try(page.getAnchorByName(name).click[HtmlPage]()).toErrorOr("clickLink")
@@ -100,7 +100,10 @@ trait WebSpec extends EitherValues {
     }.toErrorOr("submitForm")
 
     def paragraphText(id: String): ErrorOr[String] = {
-      byId[HtmlParagraph](id).map(_.getTextContent)
+      byId[HtmlParagraph](id).flatMap {
+        case Some(p) => Right(p.getTextContent)
+        case None    => Left(SpecError(s"No paragraph found with id '$id'"))
+      }
     }
 
     def containsElementWithId[E <: HtmlElement](id: String): ErrorOr[HtmlPage] = Try {
@@ -132,82 +135,46 @@ trait WebSpec extends EitherValues {
       }
   }
 
-  /**
-    * These functions will work with a step that has sub-tests, by taking a
-    * step that outputs a pair, and another step that processes the right side
-    * of the pair. This accumulates any errors in the sub-test, but the overall
-    * result is a step that outputs the value from the right of the pair.
-    *
-    * e.g. `Table("id") should {ContainRow("rowname") having Value("value")`
-    */
-  implicit class SubCheckSyntax[E1, E2](k: Kleisli[ErrorOr, E1, (E1, E2)]) {
-    def should(k2: Kleisli[ErrorOr, E2, E2]): Kleisli[ErrorOr, E1, E1] = {
-      k.flatMapF { case (t1, t) =>
-        val value1: ErrorOr[E2] = k2.run(t)
-        value1.map(_ => t1)
-      }
-    }
 
-    def having(k2: Kleisli[ErrorOr, E2, E2]): Kleisli[ErrorOr, E1, E1] = should(k2)
-  }
-
-  implicit class ExtraKleisliSyntax[F[_], A, B](k: Kleisli[F, A, B]) {
-    /**
-      * Aliases for Kleisli.andThen
-      */
-    def should[C](k2: Kleisli[F, B, C])(implicit F: FlatMap[F]): Kleisli[F, A, C] = k andThen k2
-
-    def and[C](k2: Kleisli[F, B, C])(implicit F: FlatMap[F]): Kleisli[F, A, C] = k andThen k2
-
-    def where[C](k2: Kleisli[F, B, C])(implicit F: FlatMap[F]): Kleisli[F, A, C] = k andThen k2
-  }
-
-  implicit class PageCallSyntax[A](k: PageStep[A]) {
-    def withElementById[E <: HtmlElement](id: String): PageStep[A] =
-      k andThen Kleisli[ErrorOr, HtmlPage, HtmlPage]((page: HtmlPage) => page.containsElementWithId[E](id))
-
-    /**
-      * Try to find an element by id and then check that it matches a predicate
-      *
-      * @param id   the id of the element to find
-      * @param pred a predicate to check a condition on the element
-      * @tparam E the type of the element to find (a subclass of HtmlElement)
-      * @return a new PageCall composed of the wrapped call andThen the element test
-      */
-    def containingElement[E <: HtmlElement](id: String)(pred: E => Boolean): PageStep[A] =
-      k andThen Kleisli[ErrorOr, HtmlPage, HtmlPage] { page: HtmlPage =>
-        for {
-          e <- page.findElementWithId[E](id)
-          _ <- if (pred(e)) Right(e) else Left(SpecError("element did not satisfy predicate", None, None))
-        } yield page
-      }
-  }
-
-  type PageStep[T] = Kleisli[ErrorOr, T, HtmlPage]
-
-  def ShowPage(pageInfo: PageInfo): PageStep[HtmlPage] = Kleisli[ErrorOr, HtmlPage, HtmlPage] { page: HtmlPage =>
+  def ShowPage(pageInfo: PageInfo): PageStep = Step { page: HtmlPage =>
     Try {
       eventually(Timeout(Span(2, Seconds)))(page.getTitleText mustBe pageInfo.title)
     }.toErrorOr(s"page title was '${page.getTitleText}' but expected ${pageInfo.title}").map(_ => page)
   }
 
-  def OpenPage(entryPoint: EntryPoint): PageStep[WebClient] = Kleisli((webClient: WebClient) => webClient.show(entryPoint.call))
-  def ClickLink(name: String): PageStep[HtmlPage] = Kleisli((page: HtmlPage) => page.clickLink(name))
-  def ClickButton(id: String): PageStep[HtmlPage] = Kleisli((page: HtmlPage) => page.clickButton(id))
-  def ChooseRadioButton(id: String): PageStep[HtmlPage] = Kleisli((page: HtmlPage) => page.chooseRadioButton(id))
-  def SubmitForm(buttonName: String): PageStep[HtmlPage] = Kleisli((page: HtmlPage) => page.submitForm(buttonName))
-  def SetNumberField(id: String, value: Int): PageStep[HtmlPage] = Kleisli((page: HtmlPage) => page.setNumberField(id, value))
-  def SetTextField(id: String, value: String): PageStep[HtmlPage] = Kleisli((page: HtmlPage) => page.setTextField(id, value))
+  def OpenPage(entryPoint: EntryPoint): Scenario[HtmlPage] = Step((webClient: WebClient) => webClient.show(entryPoint.call))
 
-  def SetDateFields(id: String, dateFields: DateFields): PageStep[HtmlPage] =
+  def ClickLink(name: String): Step[HtmlPage, HtmlPage] = Step((page: HtmlPage) => page.clickLink(name))
+  def ClickButton(id: String): PageStep = Step((page: HtmlPage) => page.clickButton(id))
+  def ChooseRadioButton(id: String): PageStep = Step((page: HtmlPage) => page.chooseRadioButton(id))
+  def SubmitForm(buttonName: String): PageStep = Step((page: HtmlPage) => page.submitForm(buttonName))
+  def SetNumberField(id: String, value: Int): PageStep = Step((page: HtmlPage) => page.setNumberField(id, value))
+  def SetTextField(id: String, value: String): PageStep = Step((page: HtmlPage) => page.setTextField(id, value))
+
+  def SetDateFields(id: String, dateFields: DateFields): PageStep =
     SetNumberField(s"$id.day", dateFields.day) andThen
       SetNumberField(s"$id.month", dateFields.month) andThen
       SetNumberField(s"$id.year", dateFields.year)
 
   //noinspection TypeAnnotation
-  def Table(id: String) = Kleisli[ErrorOr, HtmlPage, (HtmlPage, HtmlTable)] { page =>
+  def Table(id: String) = OptionalSideStep[HtmlPage, HtmlTable] { page: HtmlPage =>
     page.findTable(id).map((page, _))
   }
 
+  //noinspection TypeAnnotation
+  def Form(id: String) = OptionalSideStep[HtmlPage, HtmlForm] { page: HtmlPage =>
+    page.findForm(id).map((page, _))
+  }
 
+  //noinspection TypeAnnotation
+  def Element[E <: HtmlElement](id: String) = OptionalSideStep[HtmlPage, E] { page: HtmlPage =>
+    page.byId(id).map { e: Option[E] => (page, e) }
+  }
+
+  //noinspection TypeAnnotation
+  def ContainText[E <: HtmlElement](text: String) = SideStep[E, String] { e: E =>
+    val content = e.getTextContent
+    if (content.contains(text)) Right((e, content))
+    else Left(SpecError(s"Element did not contain text '$text'"))
+  }
 }

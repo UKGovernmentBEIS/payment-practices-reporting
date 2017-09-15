@@ -1,6 +1,5 @@
 package questionnaire
 
-import cats.instances.either._
 import org.openqa.selenium.WebDriver
 import org.scalatest.prop.TableDrivenPropertyChecks
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
@@ -32,7 +31,7 @@ class QuestionnaireYear2Spec extends PlaySpec with WebSpec with QuestionnaireSte
 
       s"not need to report if company answers are ${answers.mkString(", ")}" in webSpec {
         path should
-          ShowPage(NoNeedToReportPage) withMessage "You should check at the beginning of every financial year to see if you need to report."
+          ShowPage(NoNeedToReportPage).withMessage("You should check at the beginning of every financial year to see if you need to report.")
       }
     }
   }
@@ -75,7 +74,7 @@ class QuestionnaireYear2Spec extends PlaySpec with WebSpec with QuestionnaireSte
       s"not need to report if subsidiary answers are ${answers.mkString(", ")}" in webSpec {
         navigateToSubsidiaryQuestions andThen
           path2 should
-          ShowPage(NoNeedToReportPage) withMessage "You should check at the beginning of every financial year to see if you need to report."
+          ShowPage(NoNeedToReportPage).withMessage("You should check at the beginning of every financial year to see if you need to report.")
       }
     }
   }
