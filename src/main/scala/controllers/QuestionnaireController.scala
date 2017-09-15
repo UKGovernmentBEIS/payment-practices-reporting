@@ -28,10 +28,12 @@ import play.api.mvc.{Action, Controller}
 import questionnaire._
 
 object QuestionnaireController {
-  val startTitle      = "Find out if your business needs to publish reports"
-  val startButtonId   = "start-button"
-  val exemptTitle     = "Your business does not need to publish reports"
-  val mustReportTitle = "Your business must publish reports"
+  val startTitle              = "Find out if your business needs to publish reports"
+  val startButtonId           = "start-button"
+  val exemptTitle             = "Your business does not need to publish reports"
+  val mustReportTitle         = "Your business must publish reports"
+  val companyReasonsListId    = "company-reasons"
+  val subsidiaryReasonsListId = "subsidiary-reasons"
 }
 
 class QuestionnaireController @Inject()(

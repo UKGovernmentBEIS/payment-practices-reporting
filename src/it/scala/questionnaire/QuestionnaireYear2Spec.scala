@@ -1,5 +1,6 @@
 package questionnaire
 
+import controllers.QuestionnaireController
 import org.openqa.selenium.WebDriver
 import org.scalatest.prop.TableDrivenPropertyChecks
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
@@ -78,15 +79,17 @@ class QuestionnaireYear2Spec extends PlaySpec with WebSpec with QuestionnaireSte
     }
   }
 
-  "questionnaire controller in year 2 - need to report, without checking subsidiaries" should {
-    val examples = Table(
-      ("turnover", "balance", "employees", "reasons"),
-      (Yes, Yes, None, Seq("company.turnover.y2", "company.balance.y2")),
-      (Yes, No, Some(Yes), Seq("company.turnover.y2", "company.employees.y2")),
-      (No, Yes, Some(Yes), Seq("company.balance.y2", "company.employees.y2"))
-    )
+  val companyData = Table(
+    ("turnover", "balance", "employees", "reasons"),
+    (Yes, Yes, None, Seq("company.turnover.y2", "company.balance.y2")),
+    (Yes, No, Some(Yes), Seq("company.turnover.y2", "company.employees.y2")),
+    (No, Yes, Some(Yes), Seq("company.balance.y2", "company.employees.y2"))
+  )
 
-    forAll(examples) { (a, b, c, results) =>
+
+  "questionnaire controller in year 2 - need to report, without checking subsidiaries" should {
+
+    forAll(companyData) { (a, b, c, results) =>
       val answers: Seq[YesNo] = Seq(a, b) ++ c.toList
       val expectedReasons = results.map(key => messages(s"summary.$key"))
       val path = answers.foldLeft(NavigateToSecondYear)((step, choice) => step andThen ChooseAndContinue(choice))
@@ -94,7 +97,37 @@ class QuestionnaireYear2Spec extends PlaySpec with WebSpec with QuestionnaireSte
       s"need to report when company answers are ${answers.mkString(", ")}" in webSpec {
         path andThen ChooseAndContinue(No) should {
           ShowPage(MustReportPage) where {
-            List("company-reasons") should ContainItems(expectedReasons)
+            List(QuestionnaireController.companyReasonsListId) should ContainItems(expectedReasons)
+          }
+        }
+      }
+    }
+  }
+
+  "questionnaire controller in year 2 - need to report after checking subsidiaries" should {
+    val subsidiaryData = Table(
+      ("turnover", "balance", "employees", "reasons"),
+      (Yes, Yes, None, Seq("subsidiaries.turnover.y2", "subsidiaries.balance.y2")),
+      (Yes, No, Some(Yes), Seq("subsidiaries.turnover.y2", "subsidiaries.employees.y2")),
+      (No, Yes, Some(Yes), Seq("subsidiaries.balance.y2", "subsidiaries.employees.y2"))
+    )
+
+    forAll(companyData) { (a, b, c, companyReasons) =>
+      val companyAnswers: Seq[YesNo] = Seq(a, b) ++ c.toList
+      val expectedCompanyReasons = companyReasons.map(key => messages(s"summary.$key"))
+      val companyPath = companyAnswers.foldLeft(NavigateToSecondYear)((step, choice) => step andThen ChooseAndContinue(choice))
+
+      forAll(subsidiaryData) { (a, b, c, subsidiaryReasons) =>
+        val subsidiaryAnswers: Seq[YesNo] = Seq(a, b) ++ c.toList
+        val expectedSubsidiaryReasons = subsidiaryReasons.map(key => messages(s"summary.$key"))
+        val subsidiaryPath = subsidiaryAnswers.foldLeft(ChooseAndContinue(Yes))((step, choice) => step andThen ChooseAndContinue(choice))
+
+        s"need to report if company answers are ${companyAnswers.mkString(", ")} and subsidiary answers are ${subsidiaryAnswers.mkString(", ")}" in webSpec {
+          companyPath andThen subsidiaryPath should {
+            ShowPage(MustReportPage) where {
+              (List(QuestionnaireController.companyReasonsListId) should ContainItems(expectedCompanyReasons)) and
+                (List(QuestionnaireController.subsidiaryReasonsListId) should ContainItems(expectedSubsidiaryReasons))
+            }
           }
         }
       }
