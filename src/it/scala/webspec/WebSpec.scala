@@ -198,4 +198,11 @@ trait WebSpec extends EitherValues {
     if (items.toSet === lis) Right((ul, ul))
     else Left(SpecError(s"Expected items '${items.toSet}' but got $lis"))
   }
+
+  //noinspection TypeAnnotation
+  def Text[E <: HtmlElement](v: String) = Step[E, E] { e: E =>
+    val content = e.getTextContent
+    if (content.trim === v) Right(e)
+    else Left(SpecError(s"Expected text '$v' but found '$content'", None, None))
+  }
 }

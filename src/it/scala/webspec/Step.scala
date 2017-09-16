@@ -29,6 +29,8 @@ final case class SideStep[T1, T2](k: Kleisli[ErrorOr, T1, (T1, T2)]) {
     }
   }
 
+  def has(check: Step[T2, T2]): SideStep[T1, T2] = having(check)
+
   def and(step: SideStep[T1, T2]): SideStep[T1, T2] = SideStep {
     k.flatMapF {
       case (v1, _) => step.k.run(v1)
@@ -83,8 +85,9 @@ final case class OptionalSideStep[T1, T2 <: HtmlElement](k: Kleisli[ErrorOr, T1,
     k.flatMapF {
       case (_, None)      => Left(SpecError("does not exist"))
       case (v1, Some(v2)) =>
-        if (v2.getTextContent.trim === text) Right((v1, v2))
-        else Left(SpecError(s"Expected value '$text' but was '$v2'"))
+        val content = v2.getTextContent
+        if (content.trim === text) Right((v1, v2))
+        else Left(SpecError(s"Expected value '$text' but was '$content'"))
     }
   }
 
