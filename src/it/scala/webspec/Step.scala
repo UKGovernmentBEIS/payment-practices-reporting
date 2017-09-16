@@ -14,6 +14,7 @@ final case class Step[T1, T2](k: Kleisli[ErrorOr, T1, T2]) {
   def should[T3]: (Step[T2, T3]) => Step[T1, T3] = andThen
 
   def where[T3](side: SideStep[T2, T3]): Step[T1, T2] = Step(k andThen side.k.map(x => x._1))
+  def having[T3](side: SideStep[T2, T3]): Step[T1, T2] = where(side)
 }
 
 object Step {
