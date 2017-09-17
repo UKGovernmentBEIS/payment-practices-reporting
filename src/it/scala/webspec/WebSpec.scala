@@ -23,6 +23,7 @@ trait WebSpec extends EitherValues {
 
   implicit val webClient: WebClient = new com.gargoylesoftware.htmlunit.WebClient()
   webClient.getOptions.setJavaScriptEnabled(false)
+  webClient.getOptions.setThrowExceptionOnFailingStatusCode(false)
 
   lazy val baseUrl =
     s"http://localhost:${Helpers.testServerPort}"
@@ -143,6 +144,15 @@ trait WebSpec extends EitherValues {
   def ShowPage(pageInfo: PageInfo): PageStep = Step { page: HtmlPage =>
     Try {
       eventually(Timeout(Span(2, Seconds)))(page.getTitleText mustBe pageInfo.title)
+    }.toErrorOr(s"page title was '${page.getTitleText}' but expected '${pageInfo.title}'").map(_ => page)
+  }
+
+  def ShowPageWithErrors(pageInfo: PageInfo): PageStep = Step { page: HtmlPage =>
+    Try {
+      eventually(Timeout(Span(2, Seconds))) {
+        page.getTitleText mustBe pageInfo.title
+        page.getWebResponse.getStatusCode mustBe 400
+      }
     }.toErrorOr(s"page title was '${page.getTitleText}' but expected '${pageInfo.title}'").map(_ => page)
   }
 
