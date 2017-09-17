@@ -36,14 +36,14 @@ trait ReportingSteps {
   def TableRowShouldHaveValue(rowName: String, value: String): PageStep = Step { page: HtmlPage =>
     for {
       table <- page.findTable
-      row <- table.getRowWithName(rowName)
+      row <- table.findRowWithName(rowName)
       _ <- Try(row.getCell(1).getTextContent mustBe value).toErrorOr(s"Row '$rowName' has incorrect value")
     } yield page
   }
 
   //noinspection TypeAnnotation
   def ContainRow(rowName: String) = SideStep[HtmlTable, HtmlTableRow] { table: HtmlTable =>
-    table.getRowWithName(rowName).map((table, _))
+    table.findRowWithName(rowName).map((table, _))
   }
 
   //noinspection TypeAnnotation

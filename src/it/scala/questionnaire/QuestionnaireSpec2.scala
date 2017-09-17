@@ -142,7 +142,7 @@ class QuestionnaireSpec2 extends PlaySpec with WebSpec with QuestionnaireSteps w
 
   Seq(2,3).foreach { year =>
 
-    val startingPoint = if (year == 2) NavigateToSecondYear else NavigateToThirdYear
+    val startingPoint = if (year === 2) NavigateToSecondYear else NavigateToThirdYear
 
     val companyData = Table(
       ("turnover", "balance", "employees", "reasons"),

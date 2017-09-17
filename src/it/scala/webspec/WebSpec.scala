@@ -131,7 +131,7 @@ trait WebSpec extends EitherValues {
   }
 
   implicit class TableSyntax(table: HtmlTable) {
-    def getRowWithName(rowName: String): ErrorOr[HtmlTableRow] =
+    def findRowWithName(rowName: String): ErrorOr[HtmlTableRow] =
       table.getRows.toList.find { row =>
         row.getCell(0).getTextContent.trim === rowName
       } match {

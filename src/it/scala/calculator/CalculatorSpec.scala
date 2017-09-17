@@ -34,12 +34,12 @@ class CalculatorSpec extends PlaySpec with WebSpec with GuiceOneServerPerSuite w
         Period(1, "1 January 2018", "30 September 2018", "30 October 2018")
     }
 
-    forAll(periodTable) { (start, end, periods) =>
+    forAll(testCases) { (start, end, periods) =>
       val expectedPeriods: SideStep[HtmlPage, _] = periods.zipWithIndex.map { case (d, i) =>
         Period(i + 1, d.startDate, d.endDate, d.deadline)
       }.reduce((p1, p2) => p1 and p2)
 
-      s"calculate periods and deadlines for start date $start and end date $end" in webSpec {
+      s"calculate ${periods.length} periods and deadlines for start date $start and end date $end" in webSpec {
         OpenPage(CalculatorPage) andThen
           SetDateFields("startDate", start) andThen
           SetDateFields("endDate", end) andThen
@@ -51,7 +51,11 @@ class CalculatorSpec extends PlaySpec with WebSpec with GuiceOneServerPerSuite w
     }
   }
 
-  lazy val periodTable = Table(
+  /**
+    * These test cases have been supplied by the policy department and demonstrate various edge-cases
+    * in the behaviour of the calculator.
+    */
+  lazy val testCases = Table(
     ("Start date", "End date", "Expected periods"),
     (DateFields(1, 1, 2017), DateFields(31, 12, 2017), Seq(
       PeriodData("1 January 2018", "30 June 2018", "30 July 2018"),
@@ -72,6 +76,31 @@ class CalculatorSpec extends PlaySpec with WebSpec with GuiceOneServerPerSuite w
     (DateFields(1, 3, 2018), DateFields(28, 2, 2019), Seq(
       PeriodData("1 March 2018", "31 August 2018", "30 September 2018"),
       PeriodData("1 September 2018", "28 February 2019", "30 March 2019"))
+    ),
+    (DateFields(1, 1, 2018), DateFields(1, 4, 2019), Seq(
+      PeriodData("1 January 2018", "30 June 2018", "30 July 2018"),
+      PeriodData("1 July 2018", "31 December 2018", "30 January 2019"),
+      PeriodData("1 January 2019","1 April 2019","1 May 2019"))
+    ),
+    (DateFields(1, 1, 2018), DateFields(30, 9, 2019), Seq(
+      PeriodData("1 January 2018", "30 June 2018", "30 July 2018"),
+      PeriodData("1 July 2018", "31 December 2018", "30 January 2019"),
+      PeriodData("1 January 2019","30 September 2019","30 October 2019"))
+    ),
+    (DateFields(1, 1, 2018), DateFields(1, 10, 2019), Seq(
+      PeriodData("1 January 2018", "30 June 2018", "30 July 2018"),
+      PeriodData("1 July 2018", "31 December 2018", "30 January 2019"),
+      PeriodData("1 January 2019","1 October 2019","31 October 2019"))
+    ),
+    (DateFields(31, 8, 2017), DateFields(30,8,2019), Seq(
+      PeriodData("31 August 2017", "27 February 2018", "29 March 2018"),
+      PeriodData("28 February 2018", "30 August 2018", "29 September 2018"),
+      PeriodData("31 August 2018","30 August 2019","29 September 2019"))
+    ),
+    (DateFields(28, 8, 2017), DateFields(27,8,2019), Seq(
+      PeriodData("28 August 2017", "27 February 2018", "29 March 2018"),
+      PeriodData("28 February 2018", "27 August 2018", "26 September 2018"),
+      PeriodData("28 August 2018","27 August 2019","26 September 2019"))
     )
   )
 }
