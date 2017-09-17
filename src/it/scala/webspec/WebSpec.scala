@@ -143,18 +143,19 @@ trait WebSpec extends EitherValues {
 
   def ShowPage(pageInfo: PageInfo): PageStep = Step { page: HtmlPage =>
     Try {
-      eventually(Timeout(Span(2, Seconds)))(page.getTitleText mustBe pageInfo.title)
-    }.toErrorOr(s"page title was '${page.getTitleText}' but expected '${pageInfo.title}'").map(_ => page)
-  }
-
-  def ShowPageWithErrors(pageInfo: PageInfo): PageStep = Step { page: HtmlPage =>
-    Try {
       eventually(Timeout(Span(2, Seconds))) {
         page.getTitleText mustBe pageInfo.title
-        page.getWebResponse.getStatusCode mustBe 400
       }
     }.toErrorOr(s"page title was '${page.getTitleText}' but expected '${pageInfo.title}'").map(_ => page)
   }
+
+  def ShowPageWithErrors(pageInfo: PageInfo): PageStep =
+    ShowPage(pageInfo) andThen Step { page: HtmlPage =>
+      val statusCode = page.getWebResponse.getStatusCode
+      Try {
+        statusCode mustBe 400
+      }.toErrorOr(s"Expected response code 400 but got $statusCode").map(_ => page)
+    }
 
   def OpenPage(entryPoint: EntryPoint): Scenario[HtmlPage] = Step((webClient: WebClient) => webClient.show(entryPoint.call))
 
