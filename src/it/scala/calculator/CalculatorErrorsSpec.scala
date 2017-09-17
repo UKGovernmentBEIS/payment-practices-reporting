@@ -18,9 +18,9 @@ class CalculatorErrorsSpec extends PlaySpec with WebSpec with GuiceOneServerPerS
   val messages: MessagesApi = app.injector.instanceOf[MessagesApi]
 
   "calculator" should {
+    val Continue = SubmitForm("Continue")
     "show errors when no data is entered" in webSpec {
-      OpenPage(CalculatorPage) andThen
-        SubmitForm("Continue") should
+      OpenPage(CalculatorPage) andThen Continue should
         ShowPageWithErrors(CalculatorPage) where {
         Element[HtmlSpan]("form-errors") is "These dates are not valid" and
           (Element[HtmlSpan]("error-startDate") is "This date is not valid") and
@@ -32,7 +32,7 @@ class CalculatorErrorsSpec extends PlaySpec with WebSpec with GuiceOneServerPerS
       OpenPage(CalculatorPage) andThen
         SetDateFields("startDate", DateFields(1, 1, 2018)) andThen
         SetDateFields("endDate", DateFields(1, 11, 2017)) andThen
-        SubmitForm("Continue") should
+        Continue should
         ShowPageWithErrors(CalculatorPage) where {
         Element[HtmlSpan]("form-errors") is "The end date must be later than the start date"
       }
@@ -41,7 +41,7 @@ class CalculatorErrorsSpec extends PlaySpec with WebSpec with GuiceOneServerPerS
     "show an error when the start date is invalid" in webSpec {
       OpenPage(CalculatorPage) andThen
         SetDateFields("startDate", DateFields(31, 2, 2017)) andThen
-        SubmitForm("Continue") should
+        Continue should
         ShowPageWithErrors(CalculatorPage) where {
         Element[HtmlSpan]("form-errors") is "These dates are not valid" and
           (Element[HtmlSpan]("error-startDate") is "This date is not valid")
@@ -50,7 +50,7 @@ class CalculatorErrorsSpec extends PlaySpec with WebSpec with GuiceOneServerPerS
     "show an error when the end date is invalid" in webSpec {
       OpenPage(CalculatorPage) andThen
         SetDateFields("endDate", DateFields(31, 2, 2017)) andThen
-        SubmitForm("Continue") should
+        Continue should
         ShowPageWithErrors(CalculatorPage) where {
         Element[HtmlSpan]("form-errors") is "These dates are not valid" and
           (Element[HtmlSpan]("error-endDate") is "This date is not valid")

@@ -25,11 +25,13 @@ class CalculatorSpec extends PlaySpec with WebSpec with GuiceOneServerPerSuite w
       (Element[HtmlSpan](s"deadline-$periodNum") is deadline)
 
   "calculator" should {
+    val Continue = SubmitForm("Continue")
+
     "calculate one period and deadline" in webSpec {
       OpenPage(CalculatorPage) andThen
         SetDateFields("startDate", DateFields(1, 1, 2018)) andThen
         SetDateFields("endDate", DateFields(30, 9, 2018)) andThen
-        SubmitForm("Continue") should
+        Continue should
         ShowPage(ReportingPeriodsAndDeadlinesPage) having
         Period(1, "1 January 2018", "30 September 2018", "30 October 2018")
     }
@@ -43,7 +45,7 @@ class CalculatorSpec extends PlaySpec with WebSpec with GuiceOneServerPerSuite w
         OpenPage(CalculatorPage) andThen
           SetDateFields("startDate", start) andThen
           SetDateFields("endDate", end) andThen
-          SubmitForm("Continue") should
+          Continue should
           ShowPage(ReportingPeriodsAndDeadlinesPage) having {
           expectedPeriods
         }
