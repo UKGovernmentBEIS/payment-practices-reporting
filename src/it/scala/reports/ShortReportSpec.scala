@@ -7,6 +7,7 @@ import org.openqa.selenium.WebDriver
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import org.scalatestplus.play.{HtmlUnitFactory, OneBrowserPerTest, PlaySpec}
 import play.api.i18n.MessagesApi
+import views.html.helpers.ReviewPageData
 import webspec.{Scenario, WebSpec}
 
 import scala.language.postfixOps
@@ -81,7 +82,7 @@ class ShortReportSpec extends PlaySpec with WebSpec with GuiceOneServerPerSuite 
           Table(ReviewPage.reviewTableId) should {
             ContainRow("Start date of reporting period") having Value("1 May 2017") and
               ContainRow("End date of reporting period") having Value("1 June 2017") and
-              ContainRow("Are you a member of a code of conduct or standards on payment practices?") having Value("Yes – payment codes")
+              ContainRow(ReviewPageData.codeOfConductText) having Value("Yes – payment codes")
           }
         }
       }

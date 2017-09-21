@@ -42,6 +42,9 @@ object ReviewPageData {
     */
   type TableDescriptor = (String, Seq[RowDescriptor])
 
+
+  val codeOfConductText = "Are you a member of a code of conduct or standards on payment practices?"
+
 }
 
 /**
@@ -136,8 +139,6 @@ class ReviewPageData @Inject()(fieldCallTable: FieldCallTable) extends HtmlHelpe
   def disputeResolutionRows(r: LongFormModel)(implicit companyDetail: CompanyDetail): Seq[RowDescriptor] = Seq(
     ("Your dispute resolution process", breakLines(r.disputeResolution.text), call("disputeResolution.text"))
   )
-
-  private val codeOfConductText = "Are you a member of a code of conduct or standards on payment practices?"
 
   def otherInfoRows(longForm: LongFormModel)(implicit companyDetail: CompanyDetail): Seq[RowDescriptor] = Seq(
     ("Do you offer e-invoicing?", longForm.otherInformation.offerEInvoicing, call("otherInformation.offerEInvoicing")),
