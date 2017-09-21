@@ -20,12 +20,11 @@ package controllers
 import javax.inject.Inject
 
 import config.{PageConfig, ServiceConfig}
-import models.{DecisionState, Question}
 import org.scalactic.TripleEquals._
 import play.api.data.{Form, FormError}
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, Controller}
-import questionnaire._
+import questionnaire.{DecisionState, _}
 
 object QuestionnaireController {
   val startTitle              = "Find out if your business needs to publish reports"
@@ -71,15 +70,15 @@ class QuestionnaireController @Inject()(
     val formData = emptyForm.fill(currentState).data
 
     Decider.calculateDecision(currentState) match {
-      case AskQuestion(q) =>
+      case Left(q) =>
         questionError(q, form("question-key").value) match {
           case None        => Ok(page(messages(q.textKey))(home, pages.question(q, formData, None)))
           case Some(error) => BadRequest(page(messages(q.textKey))(home, pages.question(q, formData, Some(error))))
         }
 
-      case NotACompany(reason) => Ok(page(exemptTitle)(home, pages.notACompany(reason)))
-      case Exempt(reason)      => Ok(page(exemptTitle)(home, pages.exempt(reason)))
-      case Required            => Ok(page(mustReportTitle)(home, pages.required(summarizer.summarize(currentState))))
+      case Right(NotACompany(reason)) => Ok(page(exemptTitle)(home, pages.notACompany(reason)))
+      case Right(Exempt(reason))      => Ok(page(exemptTitle)(home, pages.exempt(reason)))
+      case Right(Required)            => Ok(page(mustReportTitle)(home, pages.required(summarizer.summarize(currentState))))
     }
   }
 

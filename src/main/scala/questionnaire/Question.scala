@@ -15,12 +15,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package models
+package questionnaire
 
 import play.twirl.api.Html
 import utils.YesNo
-
-case class Choice(label: String, value: String)
 
 sealed trait Question {
   def choices: Seq[Choice]
@@ -36,18 +34,23 @@ sealed trait Question {
   def detailText: Option[Html]
 }
 
-case class YesNoQuestion(fieldKey: String, textKey: String, hintKey: Option[String], detailText: Option[Html] = None) extends Question {
-  override def choices: Seq[Choice] = Seq(Choice("Yes", YesNo.Yes.entryName), Choice("No", YesNo.No.entryName))
+case class FinancialYearQuestion(fieldKey: String, textKey: String, hintKey: Option[String], detailText: Option[Html] = None) extends Question {
 
-  override def inline = true
-}
+  override def choices =
+    Seq(
+      Choice("choice.first", FinancialYear.First.entryName),
+      Choice("choice.second", FinancialYear.Second.entryName),
+      Choice("choice.third", FinancialYear.ThirdOrLater.entryName)
+    )
 
-case class MultipleChoiceQuestion(fieldKey: String, textKey: String, hintKey: Option[String], choices: Seq[Choice], detailText: Option[Html] = None) extends Question {
   override def inline = false
 }
 
-case class ThresholdQuestions(
-                               turnoverQuestion: YesNoQuestion,
-                               balanceSheetQuestion: YesNoQuestion,
-                               employeesQuestion: YesNoQuestion
-                             )
+case class YesNoQuestion(fieldKey: String, textKey: String, hintKey: Option[String], detailText: Option[Html] = None) extends Question {
+
+  import YesNo._
+
+  override def choices: Seq[Choice] = Seq(Choice("Yes", Yes.entryName), Choice("No", No.entryName))
+
+  override def inline = true
+}

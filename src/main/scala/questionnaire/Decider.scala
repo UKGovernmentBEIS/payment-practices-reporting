@@ -17,12 +17,9 @@
 
 package questionnaire
 
-import models.{DecisionState, Question, ThresholdQuestions}
 import utils.YesNo
 
 sealed trait Decision
-
-case class AskQuestion(question: Question) extends Decision
 
 case class Exempt(reason: String) extends Decision
 
@@ -40,52 +37,58 @@ object Decider {
   import Questions._
   import YesNo._
 
-  def calculateDecision(state: DecisionState): Decision = state.isCompanyOrLLP match {
-    case None => AskQuestion(isCompanyOrLLPQuestion)
-    case Some(No) => NotACompany("reason.notacompany")
+  def calculateDecision(state: DecisionState): Either[Question, Decision] = state.isCompanyOrLLP match {
+    case None      => Left(isCompanyOrLLPQuestion)
+    case Some(No)  => Right(NotACompany("reason.notacompany"))
     case Some(Yes) => checkFinancialYear(state)
   }
 
-  def checkFinancialYear(state: DecisionState): Decision = state.financialYear match {
-    case None => AskQuestion(financialYearQuestion)
-    case Some(First) => Exempt("reason.firstyear")
-    case Some(fy) => checkCompanyThresholds(state, fy)
+  def checkFinancialYear(state: DecisionState): Either[Question, Decision] = state.financialYear match {
+    case None        => Left(financialYearQuestion)
+    case Some(First) => Right(Exempt("reason.firstyear"))
+    case Some(fy)    => checkCompanyThresholds(state, fy)
   }
 
-  def companyQuestions(financialYear: FinancialYear) = financialYear match {
+  def companyQuestions(financialYear: FinancialYear): ThresholdQuestions = financialYear match {
     case ThirdOrLater => companyQuestionGroupY3
-    case _ => companyQuestionGroupY2
+    case _            => companyQuestionGroupY2
   }
 
   val companyNotLargeEnough = "reason.company.notlargeenough"
 
-  def checkCompanyThresholds(state: DecisionState, financialYear: FinancialYear): Decision = decideThresholds(
+  def checkCompanyThresholds(state: DecisionState, financialYear: FinancialYear): Either[Question, Decision] = decideThresholds(
     state.companyThresholds,
     companyQuestions(financialYear),
     checkIfSubsidiaries(state, financialYear),
-    Exempt(companyNotLargeEnough))
+    Right(Exempt(companyNotLargeEnough)))
 
 
-  def checkIfSubsidiaries(state: DecisionState, financialYear: FinancialYear): Decision = state.subsidiaries match {
-    case None => AskQuestion(hasSubsidiariesQuestion)
-    case Some(No) => Required
+  def checkIfSubsidiaries(state: DecisionState, financialYear: FinancialYear): Either[Question, Decision] = state.subsidiaries match {
+    case None      => Left(hasSubsidiariesQuestion)
+    case Some(No)  => Right(Required)
     case Some(Yes) => checkSubsidiaryThresholds(state, financialYear)
   }
 
-  def subsidiariesQuestions(financialYear: FinancialYear) = financialYear match {
+  def subsidiariesQuestions(financialYear: FinancialYear): ThresholdQuestions = financialYear match {
     case ThirdOrLater => subsidiariesQuestionGroupY3
-    case _ => subsidiariesQuestionGroupY2
+    case _            => subsidiariesQuestionGroupY2
   }
 
   val groupNotLargeEnough = "reason.group.notlargeenough"
 
-  def checkSubsidiaryThresholds(state: DecisionState, financialYear: FinancialYear): Decision = decideThresholds(
-    state.subsidiaryThresholds,
-    subsidiariesQuestions(financialYear),
-    Required,
-    Exempt(groupNotLargeEnough))
+  def checkSubsidiaryThresholds(state: DecisionState, financialYear: FinancialYear): Either[Question, Decision] =
+    decideThresholds(
+      state.subsidiaryThresholds,
+      subsidiariesQuestions(financialYear),
+      Right(Required),
+      Right(Exempt(groupNotLargeEnough)))
 
-  private def decideThresholds(answers: Thresholds, questions: ThresholdQuestions, yesesHaveIt: => Decision, noesHaveIt: => Decision) = {
+  private def decideThresholds(
+    answers: Thresholds,
+    questions: ThresholdQuestions,
+    yesesHaveIt: => Either[Question, Decision],
+    noesHaveIt: => Either[Question, Decision]
+  ): Either[Question, Decision] = {
     answers match {
       // See if there are two Yeses
       case Thresholds(Some(Yes), Some(Yes), _) |
@@ -97,9 +100,9 @@ object Decider {
            Thresholds(Some(No), _, Some(No)) |
            Thresholds(_, Some(No), Some(No)) => noesHaveIt
 
-      case Thresholds(None, _, _) => AskQuestion(questions.turnoverQuestion)
-      case Thresholds(Some(_), None, _) => AskQuestion(questions.balanceSheetQuestion)
-      case Thresholds(Some(_), Some(_), None) => AskQuestion(questions.employeesQuestion)
+      case Thresholds(None, _, _)             => Left(questions.turnoverQuestion)
+      case Thresholds(Some(_), None, _)       => Left(questions.balanceSheetQuestion)
+      case Thresholds(Some(_), Some(_), None) => Left(questions.employeesQuestion)
     }
   }
 }

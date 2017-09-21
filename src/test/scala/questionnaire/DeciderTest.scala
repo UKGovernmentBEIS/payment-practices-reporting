@@ -17,7 +17,6 @@
 
 package questionnaire
 
-import models.{DecisionState, ThresholdQuestions}
 import org.scalatest.prop.TableDrivenPropertyChecks
 import org.scalatest.{Matchers, WordSpecLike}
 import utils.YesNo.{No, Yes}
@@ -55,11 +54,11 @@ object DeciderTestData {
 
   val empty = DecisionState.empty
 
-  val basicData: Seq[(DecisionState, Decision)] = Seq(
-    (empty, AskQuestion(Questions.isCompanyOrLLPQuestion)),
-    (empty.copy(isCompanyOrLLP = Some(No)), NotACompany("reason.notacompany")),
-    (empty.copy(isCompanyOrLLP = Some(Yes)), AskQuestion(Questions.financialYearQuestion)),
-    (empty.copy(isCompanyOrLLP = Some(Yes)).copy(financialYear = Some(FinancialYear.First)), Exempt("reason.firstyear"))
+  val basicData: Seq[(DecisionState, Either[Question, Decision])] = Seq(
+    (empty, Left(Questions.isCompanyOrLLPQuestion)),
+    (empty.copy(isCompanyOrLLP = Some(No)), Right(NotACompany("reason.notacompany"))),
+    (empty.copy(isCompanyOrLLP = Some(Yes)), Left(Questions.financialYearQuestion)),
+    (empty.copy(isCompanyOrLLP = Some(Yes)).copy(financialYear = Some(FinancialYear.First)), Right(Exempt("reason.firstyear")))
   )
 
   val year2Data = new FYData(FinancialYear.Second, Questions.companyQuestionGroupY2, Questions.subsidiariesQuestionGroupY2).expectedDecisions
@@ -89,26 +88,26 @@ class FYData(financialYear: FinancialYear, companyQuestions: ThresholdQuestions,
   val YYyNYY = YYyNY.copy(subsidiaryThresholds = Thresholds(Some(No), Some(Yes), Some(Yes)))
   val YYyNYN = YYyNY.copy(subsidiaryThresholds = Thresholds(Some(No), Some(Yes), Some(No)))
 
-  val expectedDecisions: Seq[(DecisionState, Decision)] =
+  val expectedDecisions: Seq[(DecisionState, Either[Question, Decision])] =
     Seq(
-      (startState, AskQuestion(companyQuestions.turnoverQuestion)),
-      (Y, AskQuestion(companyQuestions.balanceSheetQuestion)),
-      (N, AskQuestion(companyQuestions.balanceSheetQuestion)),
-      (NY, AskQuestion(companyQuestions.employeesQuestion)),
-      (NN, Exempt("reason.company.notlargeenough")),
-      (NYN, Exempt("reason.company.notlargeenough")),
+      (startState, Left(companyQuestions.turnoverQuestion)),
+      (Y, Left(companyQuestions.balanceSheetQuestion)),
+      (N, Left(companyQuestions.balanceSheetQuestion)),
+      (NY, Left(companyQuestions.employeesQuestion)),
+      (NN, Right(Exempt("reason.company.notlargeenough"))),
+      (NYN, Right(Exempt("reason.company.notlargeenough"))),
 
-      (NYY, AskQuestion(Questions.hasSubsidiariesQuestion)),
-      (YY, AskQuestion(Questions.hasSubsidiariesQuestion)),
+      (NYY, Left(Questions.hasSubsidiariesQuestion)),
+      (YY, Left(Questions.hasSubsidiariesQuestion)),
 
-      (YYy, AskQuestion(subsidiaryQuestions.turnoverQuestion)),
-      (YYn, Required),
-      (YYyY, AskQuestion(subsidiaryQuestions.balanceSheetQuestion)),
-      (YYyYY, Required),
-      (YYyYN, AskQuestion(subsidiaryQuestions.employeesQuestion)),
-      (YYyYNN, Exempt("reason.group.notlargeenough")),
-      (YYyNYN, Exempt("reason.group.notlargeenough")),
-      (YYyYNY, Required),
-      (YYyNYY, Required)
+      (YYy, Left(subsidiaryQuestions.turnoverQuestion)),
+      (YYn, Right(Required)),
+      (YYyY, Left(subsidiaryQuestions.balanceSheetQuestion)),
+      (YYyYY, Right(Required)),
+      (YYyYN, Left(subsidiaryQuestions.employeesQuestion)),
+      (YYyYNN, Right(Exempt("reason.group.notlargeenough"))),
+      (YYyNYN, Right(Exempt("reason.group.notlargeenough"))),
+      (YYyYNY, Right(Required)),
+      (YYyNYY, Right(Required))
     )
 }

@@ -23,7 +23,7 @@ import calculator.Calculator
 import config.{PageConfig, ServiceConfig}
 import forms.report._
 import forms.{DateRange, Validations}
-import models.{CompaniesHouseId, DecisionState, ReportId}
+import models.{CompaniesHouseId, ReportId}
 import org.joda.time.LocalDate
 import play.api.data.Form
 import play.api.data.Forms.single
@@ -56,8 +56,8 @@ class VisualTestController @Inject()(
     val reasons = Seq("reason.firstyear", "reason.company.notlargeenough", "reason.group.notlargeenough")
     val exempts = views.html.questionnaire.notACompany("reason.notacompany") +: reasons.map(views.html.questionnaire.exempt(_))
 
-    val secondYear: DecisionState = models.DecisionState(Some(Yes), Some(FinancialYear.Second), Thresholds(Some(Yes), Some(Yes), Some(Yes)), Some(Yes), Thresholds(Some(Yes), Some(Yes), Some(Yes)))
-    val thirdYear: DecisionState = models.DecisionState(Some(Yes), Some(FinancialYear.ThirdOrLater), Thresholds(Some(Yes), Some(Yes), Some(Yes)), Some(Yes), Thresholds(Some(Yes), Some(Yes), Some(Yes)))
+    val secondYear: DecisionState = questionnaire.DecisionState(Some(Yes), Some(FinancialYear.Second), Thresholds(Some(Yes), Some(Yes), Some(Yes)), Some(Yes), Thresholds(Some(Yes), Some(Yes), Some(Yes)))
+    val thirdYear: DecisionState = questionnaire.DecisionState(Some(Yes), Some(FinancialYear.ThirdOrLater), Thresholds(Some(Yes), Some(Yes), Some(Yes)), Some(Yes), Thresholds(Some(Yes), Some(Yes), Some(Yes)))
 
     val requireds =
       Seq(

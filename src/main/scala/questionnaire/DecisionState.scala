@@ -15,9 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package models
+package questionnaire
 
-import questionnaire.{FinancialYear, Thresholds}
 import utils.YesNo
 
 /**
@@ -26,13 +25,15 @@ import utils.YesNo
   * the `Summarizer` to decide which reason messages to show the user when they need to report.
   */
 case class DecisionState(
-                          isCompanyOrLLP: Option[YesNo],
-                          financialYear: Option[FinancialYear],
-                          companyThresholds: Thresholds,
-                          subsidiaries: Option[YesNo],
-                          subsidiaryThresholds: Thresholds
-                        )
+  isCompanyOrLLP: Option[YesNo],
+  financialYear: Option[FinancialYear],
+  companyThresholds: Thresholds,
+  subsidiaries: Option[YesNo],
+  subsidiaryThresholds: Thresholds
+)
 
 object DecisionState {
-  val empty: DecisionState = models.DecisionState(None, None, Thresholds.empty, None, Thresholds.empty)
+  val empty: DecisionState = questionnaire.DecisionState(None, None, Thresholds.empty, None, Thresholds.empty)
 }
+
+

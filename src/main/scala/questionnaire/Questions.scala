@@ -17,46 +17,40 @@
 
 package questionnaire
 
-import models.{Choice, MultipleChoiceQuestion, ThresholdQuestions, YesNoQuestion}
-
 object Questions {
   val isCompanyOrLLPQuestion = YesNoQuestion("isCompanyOrLLP", "question.iscompanyorllp", None)
-  val financialYearQuestion = MultipleChoiceQuestion("financialYear", "question.financialyear", None,
-    Seq(Choice("choice.first", FinancialYear.First.entryName),
-      Choice("choice.second", FinancialYear.Second.entryName),
-      Choice("choice.third", FinancialYear.ThirdOrLater.entryName)
-    ))
+  val financialYearQuestion  = FinancialYearQuestion("financialYear", "question.financialyear", None)
 
   private val hasSubsidiariesDetail = views.html.questionnaire._hasSubsidiariesReveal()
   val hasSubsidiariesQuestion = YesNoQuestion("subsidiaries", "question.hassubsidiaries", None, Some(hasSubsidiariesDetail))
 
-  private val turnoverHint = Some("hint.turnover")
-  private val balanceHint = Some("hint.balance")
+  private val turnoverHint  = Some("hint.turnover")
+  private val balanceHint   = Some("hint.balance")
   private val employeesHint = Some("hint.employees")
 
   private val balanceSheetTotalDetail = views.html.questionnaire._balanceSheetTotalReveal()
 
-  val companyTurnoverQuestionY2 = YesNoQuestion("companyThresholds.turnover", "question.company.turnover.y2", turnoverHint)
+  val companyTurnoverQuestionY2     = YesNoQuestion("companyThresholds.turnover", "question.company.turnover.y2", turnoverHint)
   val companyBalanceSheetQuestionY2 = YesNoQuestion("companyThresholds.balanceSheet", "question.company.balance.y2", balanceHint, Some(balanceSheetTotalDetail))
-  val companyEmployeesQuestionY2 = YesNoQuestion("companyThresholds.employees", "question.company.employees.y2", employeesHint)
+  val companyEmployeesQuestionY2    = YesNoQuestion("companyThresholds.employees", "question.company.employees.y2", employeesHint)
 
-  val companyTurnoverQuestionY3 = YesNoQuestion("companyThresholds.turnover", "question.company.turnover.y3", turnoverHint)
+  val companyTurnoverQuestionY3     = YesNoQuestion("companyThresholds.turnover", "question.company.turnover.y3", turnoverHint)
   val companyBalanceSheetQuestionY3 = YesNoQuestion("companyThresholds.balanceSheet", "question.company.balance.y3", balanceHint, Some(balanceSheetTotalDetail))
-  val companyEmployeesQuestionY3 = YesNoQuestion("companyThresholds.employees", "question.company.employees.y3", employeesHint)
+  val companyEmployeesQuestionY3    = YesNoQuestion("companyThresholds.employees", "question.company.employees.y3", employeesHint)
 
   val companyQuestionGroupY2 = ThresholdQuestions(companyTurnoverQuestionY2, companyBalanceSheetQuestionY2, companyEmployeesQuestionY2)
   val companyQuestionGroupY3 = ThresholdQuestions(companyTurnoverQuestionY3, companyBalanceSheetQuestionY3, companyEmployeesQuestionY3)
 
   private val subsidiariesThresholdHint = Some("hint.subsidiaries")
-  private val aggregateDetail = views.html.questionnaire._aggregationDetail()
+  private val aggregateDetail           = views.html.questionnaire._aggregationDetail()
 
-  val subsidiaryTurnoverQuestionY2 = YesNoQuestion("subsidiaryThresholds.turnover", "question.subsidiaries.turnover.y2", subsidiariesThresholdHint, Some(aggregateDetail))
+  val subsidiaryTurnoverQuestionY2     = YesNoQuestion("subsidiaryThresholds.turnover", "question.subsidiaries.turnover.y2", subsidiariesThresholdHint, Some(aggregateDetail))
   val subsidiaryBalanceSheetQuestionY2 = YesNoQuestion("subsidiaryThresholds.balanceSheet", "question.subsidiaries.balance.y2", subsidiariesThresholdHint, Some(aggregateDetail))
-  val subsidiaryEmployeesQuestionY2 = YesNoQuestion("subsidiaryThresholds.employees", "question.subsidiaries.employees.y2", employeesHint)
+  val subsidiaryEmployeesQuestionY2    = YesNoQuestion("subsidiaryThresholds.employees", "question.subsidiaries.employees.y2", employeesHint)
 
-  val subsidiaryTurnoverQuestionY3 = YesNoQuestion("subsidiaryThresholds.turnover", "question.subsidiaries.turnover.y3", subsidiariesThresholdHint, Some(aggregateDetail))
+  val subsidiaryTurnoverQuestionY3     = YesNoQuestion("subsidiaryThresholds.turnover", "question.subsidiaries.turnover.y3", subsidiariesThresholdHint, Some(aggregateDetail))
   val subsidiaryBalanceSheetQuestionY3 = YesNoQuestion("subsidiaryThresholds.balanceSheet", "question.subsidiaries.balance.y3", subsidiariesThresholdHint, Some(aggregateDetail))
-  val subsidiaryEmployeesQuestionY3 = YesNoQuestion("subsidiaryThresholds.employees", "question.subsidiaries.employees.y3", employeesHint)
+  val subsidiaryEmployeesQuestionY3    = YesNoQuestion("subsidiaryThresholds.employees", "question.subsidiaries.employees.y3", employeesHint)
 
   val subsidiariesQuestionGroupY2 = ThresholdQuestions(subsidiaryTurnoverQuestionY2, subsidiaryBalanceSheetQuestionY2, subsidiaryEmployeesQuestionY2)
   val subsidiariesQuestionGroupY3 = ThresholdQuestions(subsidiaryTurnoverQuestionY3, subsidiaryBalanceSheetQuestionY3, subsidiaryEmployeesQuestionY3)
