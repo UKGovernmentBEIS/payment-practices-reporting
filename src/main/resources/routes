@@ -11,6 +11,7 @@ GET         /wip                                            controllers.Default.
 
 GET         /decide                                         controllers.QuestionnaireController.start
 GET         /decide/questions                               controllers.QuestionnaireController.nextQuestion
+GET         /decide/back                                    controllers.QuestionnaireController.back
 POST        /decide/answer/:question                        controllers.QuestionnaireController.answer(question:Question)
 
 GET         /deadlines                                      controllers.CalculatorController.start()

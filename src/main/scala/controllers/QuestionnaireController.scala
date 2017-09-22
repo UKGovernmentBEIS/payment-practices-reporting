@@ -125,6 +125,15 @@ class QuestionnaireController @Inject()(
     }
   }
 
+  //noinspection TypeAnnotation
+  def back = withSession.async { implicit request =>
+    sessionService.get[Seq[Answer]](request.sessionId, answersKey).map(_.getOrElse(Seq())).flatMap { answers =>
+      sessionService.put(request.sessionId, answersKey, answers.dropRight(1)).map {_=>
+        Redirect(routes.QuestionnaireController.nextQuestion())
+      }
+    }
+  }
+
   /**
     * Is the question to ask next the same as the one we just asked? If so, this indicates the form
     * was posted without an answer (i.e. the user did not select a choice), in which case we should
