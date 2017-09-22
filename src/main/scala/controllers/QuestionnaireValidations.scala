@@ -17,15 +17,25 @@
 
 package controllers
 
-import play.api.data.Forms.{mapping, optional}
+import play.api.data.Forms._
 import play.api.data.{Forms, Mapping}
-import questionnaire.{DecisionState, FinancialYear, Thresholds}
+import questionnaire._
 import utils.YesNo
 
 object QuestionnaireValidations {
   val yesNo: Mapping[YesNo] = Forms.of[YesNo]
 
   val financialYear: Mapping[FinancialYear] = Forms.of[FinancialYear]
+
+  val yesNoAnswer: Mapping[YesNoAnswer] = mapping(
+    "questionId" -> number,
+    "answer" -> yesNo
+  )(YesNoAnswer.apply)(YesNoAnswer.unapply)
+
+  val yearAnswer: Mapping[FinancialYearAnswer] = mapping(
+    "questionId" -> number,
+    "answer" -> financialYear
+  )(FinancialYearAnswer.apply)(FinancialYearAnswer.unapply)
 
   val thresholds: Mapping[Thresholds] = mapping(
     "turnover" -> optional(yesNo),
@@ -42,5 +52,5 @@ object QuestionnaireValidations {
   )(DecisionState.apply)(DecisionState.unapply)
 
 
-  val emptyState = decisionStateMapping.unbind(DecisionState.empty)
+  val emptyState: Map[String, String] = decisionStateMapping.unbind(DecisionState.empty)
 }

@@ -78,6 +78,7 @@ PlayKeys.devSettings := Seq("play.server.http.port" -> "9000")
 
 routesImport ++= Seq(
   "com.wellfactored.playbindings.ValueClassUrlBinders._",
+  "questionnaire.Question",
   "controllers.FormPageDefs.MultiPageFormName",
   "controllers.FormPageDefs.ShortFormName",
   "controllers.FormPageDefs.SinglePageFormName",

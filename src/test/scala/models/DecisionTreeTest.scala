@@ -34,11 +34,11 @@ class DecisionTreeTest extends WordSpecLike with Matchers with EitherValues with
   }
 
   "wrong answer should return error" in {
-    val answers = Seq(YesNoAnswer(hasSubsidiariesQuestion, Yes))
+    val answers = Seq(YesNoAnswer(hasSubsidiariesQuestion.id, Yes))
 
     val result = checkAnswers(answers)
     result shouldBe a[Left[String, _]]
-    result.left.value shouldBe "Answer subsidiaries=yes did not match question question.iscompanyorllp"
+    result.left.value shouldBe "Answer YesNoAnswer(3,Yes) did not match question 1"
   }
 
 }

@@ -21,10 +21,10 @@ import play.api.data.{Field, FormError}
 import play.api.i18n.{Lang, MessagesApi}
 
 object FieldHelpers {
-  def errorMessage(field: Field)(implicit messages: MessagesApi) =
+  def errorMessage(field: Field)(implicit messages: MessagesApi): Option[String] =
     field.error.map(e => messages(e.message, e.args: _*))
 
-  def errorClass(field: Field) = if (field.hasErrors) "error" else ""
+  def errorClass(field: Field): String = if (field.hasErrors) "error" else ""
 
   def messageFor(key: String)(implicit messages: MessagesApi, lang: Lang): Option[String] =
     if (messages.isDefinedAt(key)) Some(messages(key)) else None

@@ -43,7 +43,7 @@ class SessionTable @Inject()(dbConfigProvider: DatabaseConfigProvider, timeSourc
 
   import profile.api._
 
-  def sessionQ(sessionId: Rep[SessionId]) = sessionTable.filter(s => s.id === sessionId && s.expiresAt >= timeSource.now())
+  private def sessionQ(sessionId: Rep[SessionId]) = sessionTable.filter(s => s.id === sessionId && s.expiresAt >= timeSource.now())
 
   val sessionC = Compiled(sessionQ _)
 
@@ -86,7 +86,7 @@ class SessionTable @Inject()(dbConfigProvider: DatabaseConfigProvider, timeSourc
   }
 
   override def clear(sessionId: SessionId, key: String): Future[Unit] = db.run {
-    sessionC(sessionId).result.headOption.map {
+    sessionC(sessionId).result.headOption.flatMap {
       case Some(s) =>
         val newSessionData = s.sessionData - key
         sessionC(sessionId).update(s.copy(sessionData = newSessionData))
