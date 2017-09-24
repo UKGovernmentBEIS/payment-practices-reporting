@@ -110,7 +110,6 @@ class QuestionnaireController @Inject()(
   //noinspection TypeAnnotation
   def nextQuestion = withSession.async { implicit request =>
     sessionService.get[Seq[Answer]](request.sessionId, answersKey).map(_.getOrElse(Seq())).flatMap { answers =>
-      Logger.debug(s"Current $answers are: $answers")
       DecisionTree.checkAnswers(answers) match {
         case Left(error) =>
           Logger.warn(error)
