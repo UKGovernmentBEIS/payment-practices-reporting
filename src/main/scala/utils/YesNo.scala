@@ -18,13 +18,13 @@
 package utils
 
 import enumeratum.EnumEntry.Lowercase
-import enumeratum.{Enum, EnumEntry}
+import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
 
 sealed trait YesNo extends EnumEntry with Lowercase {
   def toBoolean: Boolean
 }
 
-object YesNo extends Enum[YesNo] with EnumFormatter[YesNo] {
+object YesNo extends Enum[YesNo] with PlayJsonEnum[YesNo] with EnumFormatter[YesNo] {
   override def values = findValues
 
   def fromBoolean(b: Boolean): YesNo = if (b) Yes else No

@@ -56,6 +56,12 @@ trait SessionService {
     */
   def get[T: Reads](sessionId: SessionId, key: String): Future[Option[T]]
 
+/**
+    * Retrieve a sub-section of the session data corresponding to the `key` and attempt
+    * to convert it to a value of type `T`
+    */
+  def getOrElse[T: Reads](sessionId: SessionId, key: String, default:T): Future[T]
+
   /**
     * Accept a value of type `T` and store it into the session, associated with the
     * given `key`. Any previous value associated with `key` will be replaced.

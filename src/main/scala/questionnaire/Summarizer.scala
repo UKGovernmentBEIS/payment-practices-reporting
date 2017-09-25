@@ -19,40 +19,63 @@ package questionnaire
 
 import javax.inject.Inject
 
-import models.DecisionState
+import monocle.macros.Lenses
 import play.api.i18n.MessagesApi
-import utils.YesNo
+import utils.YesNo.Yes
 
+@Lenses
 case class ThresholdSummary(turnover: Option[String], balance: Option[String], employees: Option[String])
 
+object ThresholdSummary {
+  val empty: ThresholdSummary = ThresholdSummary(None, None, None)
+}
+
+@Lenses
 case class StateSummary(companyOrLLP: Option[String], companyThresholdSummary: ThresholdSummary, groupThresholdSummary: ThresholdSummary)
+
+object StateSummary {
+  val empty: StateSummary = StateSummary.this (None, ThresholdSummary.empty, ThresholdSummary.empty)
+}
 
 class Summarizer @Inject()(messages: MessagesApi) {
 
-  def ifYes(q: Option[YesNo], messageKey: String): Option[String] = q.flatMap {
-    case YesNo.Yes => Some(messages(messageKey))
-    case _ => None
-  }
+  import Questions._
 
-  def keyForFinancialYear(decisionState: DecisionState, keyBase: String): String = decisionState.financialYear match {
-    case Some(FinancialYear.ThirdOrLater) => s"$keyBase.y3"
-    case _ => s"$keyBase.y2"
-  }
+  private val companyThreshold = StateSummary.companyThresholdSummary
+  private val companyTurnover  = companyThreshold composeLens ThresholdSummary.turnover
+  private val companyBalance   = companyThreshold composeLens ThresholdSummary.balance
+  private val companyEmployees = companyThreshold composeLens ThresholdSummary.employees
 
-  def summarize(decisionState: DecisionState): StateSummary = {
-    StateSummary(
-      ifYes(decisionState.isCompanyOrLLP, "summary.iscompanyorllp"),
-      ThresholdSummary(
-        ifYes(decisionState.companyThresholds.turnover, keyForFinancialYear(decisionState, "summary.company.turnover")),
-        ifYes(decisionState.companyThresholds.balanceSheet, keyForFinancialYear(decisionState, "summary.company.balance")),
-        ifYes(decisionState.companyThresholds.employees, keyForFinancialYear(decisionState, "summary.company.employees"))
-      ),
-      ThresholdSummary(
-        ifYes(decisionState.subsidiaryThresholds.turnover, keyForFinancialYear(decisionState, "summary.subsidiaries.turnover")),
-        ifYes(decisionState.subsidiaryThresholds.balanceSheet, keyForFinancialYear(decisionState, "summary.subsidiaries.balance")),
-        ifYes(decisionState.subsidiaryThresholds.employees, keyForFinancialYear(decisionState, "summary.subsidiaries.employees"))
-      )
-    )
+  private val groupThreshold = StateSummary.groupThresholdSummary
+  private val groupTurnover  = groupThreshold composeLens ThresholdSummary.turnover
+  private val groupBalance   = groupThreshold composeLens ThresholdSummary.balance
+  private val groupEmployees = groupThreshold composeLens ThresholdSummary.employees
 
+  def summarize(answers: Seq[Answer]): StateSummary = {
+    answers.foldLeft(StateSummary.empty) { case (summary, answer) =>
+      answer match {
+        case YesNoAnswer(isCompanyOrLLPQuestion.id, Yes) => summary.copy(companyOrLLP = Some(messages("summary.iscompanyorllp")))
+
+        case YesNoAnswer(companyTurnoverQuestionY2.id, Yes) => companyTurnover.set(Some(messages("summary.company.turnover.y2")))(summary)
+        case YesNoAnswer(companyTurnoverQuestionY3.id, Yes) => companyTurnover.set(Some(messages("summary.company.turnover.y3")))(summary)
+
+        case YesNoAnswer(companyBalanceSheetQuestionY2.id, Yes) => companyBalance.set(Some(messages("summary.company.balance.y2")))(summary)
+        case YesNoAnswer(companyBalanceSheetQuestionY3.id, Yes) => companyBalance.set(Some(messages("summary.company.balance.y3")))(summary)
+
+        case YesNoAnswer(companyEmployeesQuestionY2.id, Yes) => companyEmployees.set(Some(messages("summary.company.employees.y2")))(summary)
+        case YesNoAnswer(companyEmployeesQuestionY3.id, Yes) => companyEmployees.set(Some(messages("summary.company.employees.y3")))(summary)
+
+        case YesNoAnswer(subsidiaryTurnoverQuestionY2.id, Yes) => groupTurnover.set(Some(messages("summary.subsidiaries.turnover.y2")))(summary)
+        case YesNoAnswer(subsidiaryTurnoverQuestionY3.id, Yes) => groupTurnover.set(Some(messages("summary.subsidiaries.turnover.y3")))(summary)
+
+        case YesNoAnswer(subsidiaryBalanceSheetQuestionY2.id, Yes) => groupBalance.set(Some(messages("summary.subsidiaries.balance.y2")))(summary)
+        case YesNoAnswer(subsidiaryBalanceSheetQuestionY3.id, Yes) => groupBalance.set(Some(messages("summary.subsidiaries.balance.y3")))(summary)
+
+        case YesNoAnswer(subsidiaryEmployeesQuestionY2.id, Yes) => groupEmployees.set(Some(messages("summary.subsidiaries.employees.y2")))(summary)
+        case YesNoAnswer(subsidiaryEmployeesQuestionY3.id, Yes) => groupEmployees.set(Some(messages("summary.subsidiaries.employees.y3")))(summary)
+
+        case _ => summary
+      }
+    }
   }
 }

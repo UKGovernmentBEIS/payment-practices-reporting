@@ -19,13 +19,18 @@ package controllers
 
 import javax.inject.Inject
 
+import actions.SessionAction
+import cats.syntax.either._
 import config.{PageConfig, ServiceConfig}
-import models.{DecisionState, Question}
 import org.scalactic.TripleEquals._
-import play.api.data.{Form, FormError}
+import play.api.Logger
+import play.api.data.FormError
 import play.api.i18n.MessagesApi
-import play.api.mvc.{Action, Controller}
+import play.api.mvc.Controller
 import questionnaire._
+import services.SessionService
+
+import scala.concurrent.{ExecutionContext, Future}
 
 object QuestionnaireController {
   val startTitle              = "Find out if your business needs to publish reports"
@@ -39,47 +44,99 @@ object QuestionnaireController {
 class QuestionnaireController @Inject()(
   summarizer: Summarizer,
   val pageConfig: PageConfig,
-  val serviceConfig: ServiceConfig
+  val serviceConfig: ServiceConfig,
+  sessionAction: SessionAction,
+  sessionService: SessionService
 )
-  (implicit messages: MessagesApi) extends Controller with PageHelper {
+  (implicit messages: MessagesApi, ec: ExecutionContext) extends Controller with PageHelper {
 
   import QuestionnaireController._
-  import QuestionnaireValidations._
   import views.html.{questionnaire => pages}
 
-  def start = Action { implicit request =>
+  private val answersKey = "answers"
+
+  /**
+    * The default behaviour of the session action is to kick the user to a timeout page if it
+    * detects that the application session (identified by the session id on the Play session) has
+    * timed out. For the questionnaire we're happy that if their application session has timed out
+    * we simply create a new one for them and carry on.
+    */
+  private val withSession: SessionAction = sessionAction.refreshOnTimeout
+
+  //noinspection TypeAnnotation
+  def start = withSession.async { implicit request =>
     val externalRouter = implicitly[ExternalRouter]
-    Ok(page(startTitle)(home, views.html.questionnaire.start(externalRouter)))
+    sessionService.clear(request.sessionId, answersKey).map { _ =>
+      Ok(page(startTitle)(home, views.html.questionnaire.start(externalRouter)))
+    }
   }
 
-  val emptyForm = Form(decisionStateMapping)
+  //noinspection TypeAnnotation
+  def answer(question: Question) = withSession.async(parse.urlFormEncoded) { implicit request =>
+    val formAnswer = question.bindAnswer(request.body)
 
-  def firstQuestion = Action { implicit request =>
-    val formData = emptyForm.fill(DecisionState.empty).data
-    val q = Questions.isCompanyOrLLPQuestion
-    Ok(page(messages(q.textKey))(home, pages.question(q, formData, None)))
-  }
-
-  def nextQuestion: Action[Map[String, Seq[String]]] = Action(parse.urlFormEncoded) { implicit request =>
-    val form = emptyForm.bindFromRequest
-    val currentState = form.fold(_ => DecisionState.empty, s => s)
-
-    // By filling the empty form from the current state we ensure that we filter
-    // out any submitted values (such as the submit button) from the data we
-    // are passing into the next question form. We don't want those other values
-    // being rendered as hidden fields.
-    val formData = emptyForm.fill(currentState).data
-
-    Decider.calculateDecision(currentState) match {
-      case AskQuestion(q) =>
-        questionError(q, form("question-key").value) match {
-          case None        => Ok(page(messages(q.textKey))(home, pages.question(q, formData, None)))
-          case Some(error) => BadRequest(page(messages(q.textKey))(home, pages.question(q, formData, Some(error))))
+    formAnswer match {
+      case Left(error)   => Future.successful(BadRequest(page(messages(question.textKey))(home, pages.question(question, Some(error)))))
+      case Right(answer) =>
+        val checkAnswer = sessionService.get[Seq[Answer]](request.sessionId, answersKey).map(_.getOrElse(Seq())).map { currentAnswers =>
+          // If the user has gone back and answered an earlier question then drop later answers
+          val adjustedAnswers = currentAnswers.takeWhile(_.questionId !== answer.questionId)
+          for {
+            expectedAnswer <- DecisionTree.checkAnswers(adjustedAnswers)
+            updatedAnswers <- checkQuestionMatches(adjustedAnswers, answer, expectedAnswer)
+          } yield updatedAnswers
         }
 
-      case NotACompany(reason) => Ok(page(exemptTitle)(home, pages.notACompany(reason)))
-      case Exempt(reason)      => Ok(page(exemptTitle)(home, pages.exempt(reason)))
-      case Required            => Ok(page(mustReportTitle)(home, pages.required(summarizer.summarize(currentState))))
+        checkAnswer.flatMap {
+          case Left(error) =>
+            Logger.warn(error)
+            Future.successful(Unit)
+
+          case Right(updatedAnswers) =>
+            sessionService.put(request.sessionId, answersKey, updatedAnswers)
+        }.map(_ => Redirect(routes.QuestionnaireController.nextQuestion()))
+    }
+  }
+
+  private def checkQuestionMatches(currentAnswers: Seq[Answer], formAnswer: Answer, expectedAnswer: DecisionTree): Either[String, Seq[Answer]] = {
+    expectedAnswer match {
+      case YesNoNode(q, _, _) if q.id === formAnswer.questionId   => Right(currentAnswers :+ formAnswer)
+      case YearNode(q, _, _, _) if q.id === formAnswer.questionId => Right(currentAnswers :+ formAnswer)
+      case _                                                      => Left(s"$formAnswer does not match the expected answer")
+    }
+  }
+
+  //noinspection TypeAnnotation
+  def nextQuestion = withSession.async { implicit request =>
+    sessionService.get[Seq[Answer]](request.sessionId, answersKey).map(_.getOrElse(Seq())).flatMap { answers =>
+      val back = breadcrumbs(Breadcrumb(routes.QuestionnaireController.back(), "Back"))
+      val startAgain = breadcrumbs(Breadcrumb(routes.QuestionnaireController.start(), "Back"))
+
+      DecisionTree.checkAnswers(answers) match {
+        case Left(error) =>
+          Logger.warn(error)
+          sessionService.clear(request.sessionId, answersKey).map(_ => Redirect(routes.QuestionnaireController.nextQuestion()))
+
+        case Right(YesNoNode(q, _, _))   => Future.successful(Ok(page(messages(q.textKey))(back, pages.question(q, None))))
+        case Right(YearNode(q, _, _, _)) => Future.successful(Ok(page(messages(q.textKey))(back, pages.question(q, None))))
+
+        case Right(DecisionNode(NotACompany(reason))) => Future.successful(Ok(page(exemptTitle)(startAgain, pages.notACompany(reason))))
+        case Right(DecisionNode(Exempt(reason)))      => Future.successful(Ok(page(exemptTitle)(startAgain, pages.exempt(reason))))
+        case Right(DecisionNode(Required))            => Future.successful(Ok(page(mustReportTitle)(startAgain, pages.required(summarizer.summarize(answers)))))
+      }
+    }
+  }
+
+  //noinspection TypeAnnotation
+  def back = withSession.async { implicit request =>
+    sessionService.getOrElse[Seq[Answer]](request.sessionId, answersKey, Seq()).flatMap {
+      case Nil =>
+        Future.successful(Redirect(routes.QuestionnaireController.start()))
+
+      case answers =>
+        sessionService.put(request.sessionId, answersKey, answers.dropRight(1)).map { _ =>
+          Redirect(routes.QuestionnaireController.nextQuestion())
+        }
     }
   }
 
