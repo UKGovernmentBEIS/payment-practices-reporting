@@ -80,7 +80,7 @@ class QuestionnaireController @Inject()(
       case Right(answer) =>
         val checkAnswer = sessionService.get[Seq[Answer]](request.sessionId, answersKey).map(_.getOrElse(Seq())).map { currentAnswers =>
           // If the user has gone back and answered an earlier question then drop later answers
-          val adjustedAnswers = currentAnswers.takeWhile(_.questionId != answer.questionId)
+          val adjustedAnswers = currentAnswers.takeWhile(_.questionId !== answer.questionId)
           for {
             expectedAnswer <- DecisionTree.checkAnswers(adjustedAnswers)
             updatedAnswers <- checkQuestionMatches(adjustedAnswers, answer, expectedAnswer)
@@ -129,11 +129,12 @@ class QuestionnaireController @Inject()(
   //noinspection TypeAnnotation
   def back = withSession.async { implicit request =>
     sessionService.getOrElse[Seq[Answer]](request.sessionId, answersKey, Seq()).flatMap { answers =>
-      answers.dropRight(1) match {
+      val updatedAnswers = answers.dropRight(1)
+      updatedAnswers match {
         case Nil =>
           Future.successful(Redirect(routes.QuestionnaireController.start()))
 
-        case updatedAnswers =>
+        case _ =>
           sessionService.put(request.sessionId, answersKey, updatedAnswers).map { _ =>
             Redirect(routes.QuestionnaireController.nextQuestion())
           }
