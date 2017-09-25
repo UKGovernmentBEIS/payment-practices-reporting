@@ -24,10 +24,10 @@ import cats.syntax.either._
 import config.{PageConfig, ServiceConfig}
 import org.scalactic.TripleEquals._
 import play.api.Logger
-import play.api.data.{Form, FormError}
+import play.api.data.FormError
 import play.api.i18n.MessagesApi
-import play.api.mvc.{Action, Controller}
-import questionnaire.{DecisionState, _}
+import play.api.mvc.Controller
+import questionnaire._
 import services.SessionService
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -51,7 +51,6 @@ class QuestionnaireController @Inject()(
   (implicit messages: MessagesApi, ec: ExecutionContext) extends Controller with PageHelper {
 
   import QuestionnaireController._
-  import QuestionnaireValidations._
   import views.html.{questionnaire => pages}
 
   private val answersKey = "answers"
@@ -62,14 +61,6 @@ class QuestionnaireController @Inject()(
     sessionService.clear(request.sessionId, answersKey).map { _ =>
       Ok(page(startTitle)(home, views.html.questionnaire.start(externalRouter)))
     }
-  }
-
-  val emptyForm = Form(decisionStateMapping)
-
-  def firstQuestion = Action { implicit request =>
-    val formData = emptyForm.fill(DecisionState.empty).data
-    val q = Questions.isCompanyOrLLPQuestion
-    Ok(page(messages(q.textKey))(home, pages.question(q, None)))
   }
 
   //noinspection TypeAnnotation

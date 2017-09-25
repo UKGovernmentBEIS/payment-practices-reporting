@@ -42,15 +42,4 @@ object QuestionnaireValidations {
     "balanceSheet" -> optional(yesNo),
     "employees" -> optional(yesNo)
   )(Thresholds.apply)(Thresholds.unapply)
-
-  val decisionStateMapping: Mapping[DecisionState] = mapping(
-    "isCompanyOrLLP" -> optional(yesNo),
-    "financialYear" -> optional(financialYear),
-    "companyThresholds" -> thresholds,
-    "subsidiaries" -> optional(yesNo),
-    "subsidiaryThresholds" -> thresholds
-  )(DecisionState.apply)(DecisionState.unapply)
-
-
-  val emptyState: Map[String, String] = decisionStateMapping.unbind(DecisionState.empty)
 }

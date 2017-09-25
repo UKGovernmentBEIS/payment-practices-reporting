@@ -21,7 +21,6 @@ import javax.inject.Inject
 
 import monocle.macros.Lenses
 import play.api.i18n.MessagesApi
-import utils.YesNo
 import utils.YesNo.Yes
 
 @Lenses
@@ -39,11 +38,6 @@ object StateSummary {
 }
 
 class Summarizer @Inject()(messages: MessagesApi) {
-  def keyForFinancialYear(decisionState: DecisionState, keyBase: String): String = decisionState.financialYear match {
-    case Some(FinancialYear.ThirdOrLater) => s"$keyBase.y3"
-    case _                                => s"$keyBase.y2"
-  }
-
   import Questions._
 
   private val companyTurnover  = StateSummary.companyThresholdSummary composeLens ThresholdSummary.turnover

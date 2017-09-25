@@ -23,6 +23,11 @@ import play.api.libs.json._
 import utils.YesNo
 import utils.YesNo.{No, Yes}
 
+sealed trait Decision
+case class Exempt(reason: String) extends Decision
+case class NotACompany(reason: String) extends Decision
+case object Required extends Decision
+
 sealed trait DecisionTree
 case class YesNoNode(question: YesNoQuestion, yes: DecisionTree, no: DecisionTree) extends DecisionTree {
   override def toString: String = s"YesNoNode(${question.id})"
