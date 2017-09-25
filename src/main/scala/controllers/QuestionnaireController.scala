@@ -128,17 +128,14 @@ class QuestionnaireController @Inject()(
 
   //noinspection TypeAnnotation
   def back = withSession.async { implicit request =>
-    sessionService.getOrElse[Seq[Answer]](request.sessionId, answersKey, Seq()).flatMap { answers =>
-      val updatedAnswers = answers.dropRight(1)
-      updatedAnswers match {
-        case Nil =>
-          Future.successful(Redirect(routes.QuestionnaireController.start()))
+    sessionService.getOrElse[Seq[Answer]](request.sessionId, answersKey, Seq()).flatMap {
+      case Nil =>
+        Future.successful(Redirect(routes.QuestionnaireController.start()))
 
-        case _ =>
-          sessionService.put(request.sessionId, answersKey, updatedAnswers).map { _ =>
-            Redirect(routes.QuestionnaireController.nextQuestion())
-          }
-      }
+      case answers =>
+        sessionService.put(request.sessionId, answersKey, answers.dropRight(1)).map { _ =>
+          Redirect(routes.QuestionnaireController.nextQuestion())
+        }
     }
   }
 
