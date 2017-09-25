@@ -45,7 +45,7 @@ class QuestionnaireController @Inject()(
   summarizer: Summarizer,
   val pageConfig: PageConfig,
   val serviceConfig: ServiceConfig,
-  withSession: SessionAction,
+  sessionAction: SessionAction,
   sessionService: SessionService
 )
   (implicit messages: MessagesApi, ec: ExecutionContext) extends Controller with PageHelper {
@@ -54,6 +54,14 @@ class QuestionnaireController @Inject()(
   import views.html.{questionnaire => pages}
 
   private val answersKey = "answers"
+
+  /**
+    * The default behaviour of the session action is to kick the user to a timeout page if it
+    * detects that the application session (identified by the session id on the Play session) has
+    * timed out. For the questionnaire we're happy that if their application session has timed out
+    * we simply create a new one for them and carry on.
+    */
+  private val withSession: SessionAction = sessionAction.refreshOnTimeout
 
   //noinspection TypeAnnotation
   def start = withSession.async { implicit request =>
