@@ -109,25 +109,34 @@ class QuestionnaireController @Inject()(
   //noinspection TypeAnnotation
   def nextQuestion = withSession.async { implicit request =>
     sessionService.get[Seq[Answer]](request.sessionId, answersKey).map(_.getOrElse(Seq())).flatMap { answers =>
+
+      val back = breadcrumbs(Breadcrumb(routes.QuestionnaireController.back(), "Back"))
+
       DecisionTree.checkAnswers(answers) match {
         case Left(error) =>
           Logger.warn(error)
           sessionService.clear(request.sessionId, answersKey).map(_ => Redirect(routes.QuestionnaireController.nextQuestion()))
 
-        case Right(YesNoNode(q, _, _))                => Future.successful(Ok(page(messages(q.textKey))(home, pages.question(q, None))))
-        case Right(YearNode(q, _, _, _))              => Future.successful(Ok(page(messages(q.textKey))(home, pages.question(q, None))))
-        case Right(DecisionNode(NotACompany(reason))) => Future.successful(Ok(page(exemptTitle)(home, pages.notACompany(reason))))
-        case Right(DecisionNode(Exempt(reason)))      => Future.successful(Ok(page(exemptTitle)(home, pages.exempt(reason))))
-        case Right(DecisionNode(Required))            => Future.successful(Ok(page(mustReportTitle)(home, pages.required(summarizer.summarize(answers)))))
+        case Right(YesNoNode(q, _, _))                => Future.successful(Ok(page(messages(q.textKey))(back, pages.question(q, None))))
+        case Right(YearNode(q, _, _, _))              => Future.successful(Ok(page(messages(q.textKey))(back, pages.question(q, None))))
+        case Right(DecisionNode(NotACompany(reason))) => Future.successful(Ok(page(exemptTitle)(back, pages.notACompany(reason))))
+        case Right(DecisionNode(Exempt(reason)))      => Future.successful(Ok(page(exemptTitle)(back, pages.exempt(reason))))
+        case Right(DecisionNode(Required))            => Future.successful(Ok(page(mustReportTitle)(back, pages.required(summarizer.summarize(answers)))))
       }
     }
   }
 
   //noinspection TypeAnnotation
   def back = withSession.async { implicit request =>
-    sessionService.get[Seq[Answer]](request.sessionId, answersKey).map(_.getOrElse(Seq())).flatMap { answers =>
-      sessionService.put(request.sessionId, answersKey, answers.dropRight(1)).map {_=>
-        Redirect(routes.QuestionnaireController.nextQuestion())
+    sessionService.getOrElse[Seq[Answer]](request.sessionId, answersKey, Seq()).flatMap { answers =>
+      answers.dropRight(1) match {
+        case Nil =>
+          Future.successful(Redirect(routes.QuestionnaireController.start()))
+
+        case updatedAnswers =>
+          sessionService.put(request.sessionId, answersKey, updatedAnswers).map { _ =>
+            Redirect(routes.QuestionnaireController.nextQuestion())
+          }
       }
     }
   }

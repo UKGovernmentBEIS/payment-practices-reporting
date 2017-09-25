@@ -66,9 +66,20 @@ class SessionTable @Inject()(dbConfigProvider: DatabaseConfigProvider, timeSourc
       _.flatMap { row =>
         (row.sessionData \ key).validateOpt[T] match {
           case JsSuccess(t, _) => t
-          case JsError(_) => None
+          case JsError(_)      => None
         }
       }
+    }
+  }
+
+  override def getOrElse[T: Reads](sessionId: SessionId, key: String, default: T): Future[T] = db.run {
+    sessionC(sessionId).result.headOption.map {
+      _.flatMap { row =>
+        (row.sessionData \ key).validateOpt[T] match {
+          case JsSuccess(t, _) => t
+          case JsError(_)      => None
+        }
+      }.getOrElse(default)
     }
   }
 
@@ -77,7 +88,7 @@ class SessionTable @Inject()(dbConfigProvider: DatabaseConfigProvider, timeSourc
       _.flatMap { row =>
         row.sessionData.validateOpt[T] match {
           case JsSuccess(t, _) => t
-          case JsError(errs) =>
+          case JsError(errs)   =>
             Logger.debug(errs.toString)
             None
         }
@@ -103,7 +114,7 @@ class SessionTable @Inject()(dbConfigProvider: DatabaseConfigProvider, timeSourc
     Logger.trace(s"asked to refresh $sessionId")
     sessionC(sessionId).result.headOption.flatMap {
       case Some(s) => sessionC(sessionId).update(s.copy(expiresAt = sessionExpiryTime))
-      case None => DBIO.successful(())
+      case None    => DBIO.successful(())
     }.transactionally.map(_ => ())
   }
 
