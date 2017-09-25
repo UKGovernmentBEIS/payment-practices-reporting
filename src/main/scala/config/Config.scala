@@ -61,7 +61,7 @@ case class ServiceConfig(
 object ServiceConfig {
   val empty                   = ServiceConfig(None, None, None, None, None)
   val defaultServiceStartDate = new LocalDate(2017, 4, 6)
-  val defaultFeatureFlags     = FeatureFlags(false)
+  val defaultFeatureFlags     = FeatureFlags(true)
 }
 
 case class SurveyMonkeyConfig(feedbackFormCode: Option[String])
