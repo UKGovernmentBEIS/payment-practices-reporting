@@ -55,6 +55,9 @@ class QuestionnaireController @Inject()(
 
   private val answersKey = "answers"
 
+  private val backCrumb = breadcrumbs("link-back", Breadcrumb(routes.QuestionnaireController.back().url, "Back"))
+  private val startAgain = breadcrumbs("link-back", Breadcrumb(routes.QuestionnaireController.start().url, "Back"))
+
   /**
     * The default behaviour of the session action is to kick the user to a timeout page if it
     * detects that the application session (identified by the session id on the Play session) has
@@ -76,7 +79,7 @@ class QuestionnaireController @Inject()(
     val formAnswer = question.bindAnswer(request.body)
 
     formAnswer match {
-      case Left(error)   => Future.successful(BadRequest(page(messages(question.textKey))(home, pages.question(question, Some(error)))))
+      case Left(error)   => Future.successful(BadRequest(page(messages(question.textKey))(backCrumb, pages.question(question, Some(error)))))
       case Right(answer) =>
         val checkAnswer = sessionService.get[Seq[Answer]](request.sessionId, answersKey).map(_.getOrElse(Seq())).map { currentAnswers =>
           // If the user has gone back and answered an earlier question then drop later answers
@@ -109,16 +112,15 @@ class QuestionnaireController @Inject()(
   //noinspection TypeAnnotation
   def nextQuestion = withSession.async { implicit request =>
     sessionService.get[Seq[Answer]](request.sessionId, answersKey).map(_.getOrElse(Seq())).flatMap { answers =>
-      val back = breadcrumbs(Breadcrumb(routes.QuestionnaireController.back(), "Back"))
-      val startAgain = breadcrumbs(Breadcrumb(routes.QuestionnaireController.start(), "Back"))
+
 
       DecisionTree.checkAnswers(answers) match {
         case Left(error) =>
           Logger.warn(error)
           sessionService.clear(request.sessionId, answersKey).map(_ => Redirect(routes.QuestionnaireController.nextQuestion()))
 
-        case Right(YesNoNode(q, _, _))   => Future.successful(Ok(page(messages(q.textKey))(back, pages.question(q, None))))
-        case Right(YearNode(q, _, _, _)) => Future.successful(Ok(page(messages(q.textKey))(back, pages.question(q, None))))
+        case Right(YesNoNode(q, _, _))   => Future.successful(Ok(page(messages(q.textKey))(backCrumb, pages.question(q, None))))
+        case Right(YearNode(q, _, _, _)) => Future.successful(Ok(page(messages(q.textKey))(backCrumb, pages.question(q, None))))
 
         case Right(DecisionNode(NotACompany(reason))) => Future.successful(Ok(page(exemptTitle)(startAgain, pages.notACompany(reason))))
         case Right(DecisionNode(Exempt(reason)))      => Future.successful(Ok(page(exemptTitle)(startAgain, pages.exempt(reason))))

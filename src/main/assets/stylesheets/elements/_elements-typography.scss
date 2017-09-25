@@ -227,7 +227,10 @@ p {
   @include ie-lte(8) {
     background: file-url("icon-arrow-left.png") no-repeat 0 4px;
   }
+}
 
+.link-back a {
+  text-decoration: none;
 }
 
 // Code styles

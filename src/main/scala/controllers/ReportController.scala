@@ -114,7 +114,7 @@ class ReportController @Inject()(
     val f = for {
       report <- OptionT(reportService.find(reportId))
     } yield {
-      val crumbs = breadcrumbs(homeBreadcrumb)
+      val crumbs = breadcrumbs("", homeBreadcrumb)
       Ok(page(s"Payment practice report for ${report.companyName}")(crumbs, views.html.search.report(report, df)))
     }
 
