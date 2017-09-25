@@ -38,38 +38,41 @@ object StateSummary {
 }
 
 class Summarizer @Inject()(messages: MessagesApi) {
+
   import Questions._
 
-  private val companyTurnover  = StateSummary.companyThresholdSummary composeLens ThresholdSummary.turnover
-  private val companyBalance   = StateSummary.companyThresholdSummary composeLens ThresholdSummary.balance
-  private val companyEmployees = StateSummary.companyThresholdSummary composeLens ThresholdSummary.employees
+  private val companyThreshold = StateSummary.companyThresholdSummary
+  private val companyTurnover  = companyThreshold composeLens ThresholdSummary.turnover
+  private val companyBalance   = companyThreshold composeLens ThresholdSummary.balance
+  private val companyEmployees = companyThreshold composeLens ThresholdSummary.employees
 
-  private val groupTurnover  = StateSummary.groupThresholdSummary composeLens ThresholdSummary.turnover
-  private val groupBalance   = StateSummary.groupThresholdSummary composeLens ThresholdSummary.balance
-  private val groupEmployees = StateSummary.groupThresholdSummary composeLens ThresholdSummary.employees
+  private val groupThreshold = StateSummary.groupThresholdSummary
+  private val groupTurnover  = groupThreshold composeLens ThresholdSummary.turnover
+  private val groupBalance   = groupThreshold composeLens ThresholdSummary.balance
+  private val groupEmployees = groupThreshold composeLens ThresholdSummary.employees
 
   def summarize(answers: Seq[Answer]): StateSummary = {
     answers.foldLeft(StateSummary.empty) { case (summary, answer) =>
       answer match {
         case YesNoAnswer(isCompanyOrLLPQuestion.id, Yes) => summary.copy(companyOrLLP = Some(messages("summary.iscompanyorllp")))
 
-        case YesNoAnswer(companyTurnoverQuestionY2.id, Yes)     => companyTurnover.set(Some(messages("summary.company.turnover.y2")))(summary)
-        case YesNoAnswer(companyTurnoverQuestionY3.id, Yes)     => companyTurnover.set(Some(messages("summary.company.turnover.y3")))(summary)
+        case YesNoAnswer(companyTurnoverQuestionY2.id, Yes) => companyTurnover.set(Some(messages("summary.company.turnover.y2")))(summary)
+        case YesNoAnswer(companyTurnoverQuestionY3.id, Yes) => companyTurnover.set(Some(messages("summary.company.turnover.y3")))(summary)
 
         case YesNoAnswer(companyBalanceSheetQuestionY2.id, Yes) => companyBalance.set(Some(messages("summary.company.balance.y2")))(summary)
         case YesNoAnswer(companyBalanceSheetQuestionY3.id, Yes) => companyBalance.set(Some(messages("summary.company.balance.y3")))(summary)
 
-        case YesNoAnswer(companyEmployeesQuestionY2.id, Yes)    => companyEmployees.set(Some(messages("summary.company.employees.y2")))(summary)
-        case YesNoAnswer(companyEmployeesQuestionY3.id, Yes)    => companyEmployees.set(Some(messages("summary.company.employees.y3")))(summary)
+        case YesNoAnswer(companyEmployeesQuestionY2.id, Yes) => companyEmployees.set(Some(messages("summary.company.employees.y2")))(summary)
+        case YesNoAnswer(companyEmployeesQuestionY3.id, Yes) => companyEmployees.set(Some(messages("summary.company.employees.y3")))(summary)
 
-        case YesNoAnswer(subsidiaryTurnoverQuestionY2.id, Yes)     => groupTurnover.set(Some(messages("summary.subsidiaries.turnover.y2")))(summary)
-        case YesNoAnswer(subsidiaryTurnoverQuestionY3.id, Yes)     => groupTurnover.set(Some(messages("summary.subsidiaries.turnover.y3")))(summary)
+        case YesNoAnswer(subsidiaryTurnoverQuestionY2.id, Yes) => groupTurnover.set(Some(messages("summary.subsidiaries.turnover.y2")))(summary)
+        case YesNoAnswer(subsidiaryTurnoverQuestionY3.id, Yes) => groupTurnover.set(Some(messages("summary.subsidiaries.turnover.y3")))(summary)
 
         case YesNoAnswer(subsidiaryBalanceSheetQuestionY2.id, Yes) => groupBalance.set(Some(messages("summary.subsidiaries.balance.y2")))(summary)
         case YesNoAnswer(subsidiaryBalanceSheetQuestionY3.id, Yes) => groupBalance.set(Some(messages("summary.subsidiaries.balance.y3")))(summary)
 
-        case YesNoAnswer(subsidiaryEmployeesQuestionY2.id, Yes)    => groupEmployees.set(Some(messages("summary.subsidiaries.employees.y2")))(summary)
-        case YesNoAnswer(subsidiaryEmployeesQuestionY3.id, Yes)    => groupEmployees.set(Some(messages("summary.subsidiaries.employees.y3")))(summary)
+        case YesNoAnswer(subsidiaryEmployeesQuestionY2.id, Yes) => groupEmployees.set(Some(messages("summary.subsidiaries.employees.y2")))(summary)
+        case YesNoAnswer(subsidiaryEmployeesQuestionY3.id, Yes) => groupEmployees.set(Some(messages("summary.subsidiaries.employees.y3")))(summary)
 
         case _ => summary
       }

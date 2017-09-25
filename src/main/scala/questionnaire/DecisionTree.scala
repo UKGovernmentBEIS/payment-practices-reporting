@@ -122,27 +122,30 @@ object DecisionTree {
     answers.foldLeft(start) {
       // If an earlier iteration returned an error then just return that error
       case (e@Left(_), _) => e
+      case (Right(node), answer) => handleNode(node, answer)
+    }
+  }
 
-      case (Right(tree), answer) => (tree, answer) match {
-        case (YesNoNode(qq, y, n), YesNoAnswer(aq, yn)) if qq.id === aq => Right {
-          yn match {
-            case Yes => y
-            case No  => n
-          }
+  private def handleNode(tree: DecisionTree, answer: Answer) = {
+    (tree, answer) match {
+      case (YesNoNode(qq, y, n), YesNoAnswer(aq, yn)) if qq.id === aq => Right {
+        yn match {
+          case Yes => y
+          case No  => n
         }
-
-        case (YearNode(qq, y1, y2, y3), FinancialYearAnswer(aq, y)) if qq.id === aq => Right {
-          y match {
-            case FinancialYear.First        => y1
-            case FinancialYear.Second       => y2
-            case FinancialYear.ThirdOrLater => y3
-          }
-        }
-
-        case (DecisionNode(decision), a) => Left(s"Expected a question for answer $a but got decision $decision")
-        case (YesNoNode(q, _, _), a)     => Left(s"Answer $a did not match question ${q.id}")
-        case (YearNode(q, _, _, _), a)   => Left(s"Answer $a did not match question ${q.id}")
       }
+
+      case (YearNode(qq, y1, y2, y3), FinancialYearAnswer(aq, y)) if qq.id === aq => Right {
+        y match {
+          case FinancialYear.First        => y1
+          case FinancialYear.Second       => y2
+          case FinancialYear.ThirdOrLater => y3
+        }
+      }
+
+      case (DecisionNode(decision), a) => Left(s"Expected a question for answer $a but got decision $decision")
+      case (YesNoNode(q, _, _), a)     => Left(s"Answer $a did not match question ${q.id}")
+      case (YearNode(q, _, _, _), a)   => Left(s"Answer $a did not match question ${q.id}")
     }
   }
 }
