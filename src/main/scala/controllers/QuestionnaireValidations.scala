@@ -36,10 +36,4 @@ object QuestionnaireValidations {
     "questionId" -> number,
     "answer" -> financialYear
   )(FinancialYearAnswer.apply)(FinancialYearAnswer.unapply)
-
-  val thresholds: Mapping[Thresholds] = mapping(
-    "turnover" -> optional(yesNo),
-    "balanceSheet" -> optional(yesNo),
-    "employees" -> optional(yesNo)
-  )(Thresholds.apply)(Thresholds.unapply)
 }
