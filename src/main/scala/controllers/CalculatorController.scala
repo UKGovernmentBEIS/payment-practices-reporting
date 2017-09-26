@@ -23,7 +23,7 @@ import calculator.{Calculator, FinancialYear}
 import config.{PageConfig, ServiceConfig}
 import forms.DateRange
 import forms.Validations.dateRange
-import org.joda.time.format.DateTimeFormat
+import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
 import play.api.data.Form
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, Controller, RequestHeader}
@@ -33,7 +33,9 @@ class CalculatorController @Inject()(implicit messages: MessagesApi,
                                      val serviceConfig: ServiceConfig) extends Controller with PageHelper {
 
   import CalculatorController._
+  private val backCrumb = breadcrumbs("link-back", Breadcrumb(routes.CalculatorController.start().url, "Back"))
 
+  //noinspection TypeAnnotation
   def calculatorPage(form: Form[DateRange])(implicit rh: RequestHeader) =
     page("Calculate reporting periods and deadlines")(home, views.html.calculator.calculator(form, implicitly[ExternalRouter]))
 
@@ -44,14 +46,14 @@ class CalculatorController @Inject()(implicit messages: MessagesApi,
   def calculate = Action { implicit request =>
     emptyForm.bindFromRequest().fold(
       formWithErrs => BadRequest(calculatorPage(discardErrorsIfEmpty(formWithErrs))),
-      dr => Ok(page("Reporting periods and deadlines")(home, views.html.calculator.answer(isGroup = false, Calculator(FinancialYear(dr)), df)))
+      dr => Ok(page("Reporting periods and deadlines")(backCrumb, views.html.calculator.answer(isGroup = false, Calculator(FinancialYear(dr)), df)))
     )
   }
 }
 
 object CalculatorController {
-  val emptyForm = Form[DateRange](dateRange)
+  val emptyForm: Form[DateRange] = Form[DateRange](dateRange)
 
-  val df = DateTimeFormat.forPattern("d MMMM YYYY")
+  val df: DateTimeFormatter = DateTimeFormat.forPattern("d MMMM YYYY")
 
 }
