@@ -104,12 +104,14 @@ class ReportController @Inject()(
 
   //noinspection TypeAnnotation
   def colleague(companiesHouseId: CompaniesHouseId) = Action.async { implicit request =>
-    withCompany(companiesHouseId)(co => page("If you want a colleague to publish a report")(home, pages.askColleague(co.companyName, companiesHouseId)))
+    val backCrumb = breadcrumbs("link-back", Breadcrumb(routes.CoHoCodeController.code(companiesHouseId).url, "Back"))
+    withCompany(companiesHouseId)(co => page("If you want a colleague to publish a report")(backCrumb, pages.askColleague(co.companyName, companiesHouseId)))
   }
 
   //noinspection TypeAnnotation
   def register(companiesHouseId: CompaniesHouseId) = Action.async { implicit request =>
-    withCompany(companiesHouseId)(co => page("Request an authentication code")(home, pages.requestAccessCode(co.companyName, companiesHouseId)))
+    val backCrumb = breadcrumbs("link-back", Breadcrumb(routes.CoHoCodeController.code(companiesHouseId).url, "Back"))
+    withCompany(companiesHouseId)(co => page("Request an authentication code")(backCrumb, pages.requestAccessCode(co.companyName, companiesHouseId)))
   }
 
   def applyForAuthCode(companiesHouseId: CompaniesHouseId) = Action { implicit request =>
