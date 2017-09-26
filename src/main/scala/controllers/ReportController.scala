@@ -67,6 +67,7 @@ class ReportController @Inject()(
 
   private def pageLink(query: Option[String], itemsPerPage: Option[Int], pageNumber: Int) = routes.ReportController.search(query, Some(pageNumber), itemsPerPage).url
 
+  //noinspection TypeAnnotation
   def search(query: Option[String], pageNumber: Option[Int], itemsPerPage: Option[Int]) = Action.async { implicit request =>
     val externalRouter = implicitly[ExternalRouter]
 
@@ -76,9 +77,11 @@ class ReportController @Inject()(
     doSearch(query, pageNumber, itemsPerPage, resultsPage).map(Ok(_))
   }
 
+  //noinspection TypeAnnotation
   def start(companiesHouseId: CompaniesHouseId) = Action.async { implicit request =>
+    val backCrumb = breadcrumbs("link-back", Breadcrumb(routes.ReportController.search(None, None, None).url, "Back"))
     companySearch.find(companiesHouseId).map {
-      case Some(co) => Ok(page(publishTitle(co.companyName))(home, pages.start(co.companyName, co.companiesHouseId)))
+      case Some(co) => Ok(page(publishTitle(co.companyName))(backCrumb, pages.start(co.companyName, co.companiesHouseId)))
       case None     => NotFound(s"Could not find a company with id ${companiesHouseId.id}")
     }
   }
@@ -99,10 +102,12 @@ class ReportController @Inject()(
     )
   }
 
+  //noinspection TypeAnnotation
   def colleague(companiesHouseId: CompaniesHouseId) = Action.async { implicit request =>
     withCompany(companiesHouseId)(co => page("If you want a colleague to publish a report")(home, pages.askColleague(co.companyName, companiesHouseId)))
   }
 
+  //noinspection TypeAnnotation
   def register(companiesHouseId: CompaniesHouseId) = Action.async { implicit request =>
     withCompany(companiesHouseId)(co => page("Request an authentication code")(home, pages.requestAccessCode(co.companyName, companiesHouseId)))
   }
@@ -111,6 +116,7 @@ class ReportController @Inject()(
     Redirect(companyAuth.authoriseUrl(companiesHouseId), companyAuth.authoriseParams(companiesHouseId))
   }
 
+  //noinspection TypeAnnotation
   def view(reportId: ReportId) = Action.async { implicit request =>
     val f = for {
       report <- OptionT(reportService.find(reportId))

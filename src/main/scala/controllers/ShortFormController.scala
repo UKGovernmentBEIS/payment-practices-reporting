@@ -60,12 +60,13 @@ class ShortFormController @Inject()(
 
   //noinspection TypeAnnotation
   def show(companiesHouseId: CompaniesHouseId, change: Option[Boolean]) = companyAuthAction(companiesHouseId).async { implicit request =>
+    val backCrumb = breadcrumbs("link-back", Breadcrumb(routes.ReportingPeriodController.show(companiesHouseId, change).url, "Back"))
     val title = publishTitle(request.companyDetail.companyName)
 
     checkValidFromSession(emptyReportingPeriod, ShortFormName.ReportingPeriod.entryName).flatMap {
       case false => Future.successful(Redirect(routes.ReportingPeriodController.show(companiesHouseId, change)))
       case true  => loadFormData(emptyShortForm, ShortFormName.ShortForm).map { form =>
-        Ok(page(title)(home, pages.shortForm(reportPageHeader, form, companiesHouseId, df, serviceStartDate, change)))
+        Ok(page(title)(backCrumb, pages.shortForm(reportPageHeader, form, companiesHouseId, df, serviceStartDate, change)))
       }
     }
   }
@@ -78,6 +79,20 @@ class ShortFormController @Inject()(
       _ <- saveFormData(handler.formName, handler.bind.form)
       result <- handlePostFormPage(handler.formName, request.companyDetail, change.contains(true))
     } yield result
+  }
+
+  //noinspection TypeAnnotation
+  def back(companiesHouseId: CompaniesHouseId, change:Option[Boolean]) = companyAuthAction(companiesHouseId).async { implicit request =>
+    bindUpToPage(formHandlers, ShortFormName.ShortForm).map {
+      case FormHasErrors(handler) => handler
+      case FormIsOk(handler, _)   => handler
+      case FormIsBlank(handler)   => handler
+    }.map { handler =>
+      previousFormHandler(handler) match {
+        case Some(previousHandler) => Redirect(previousHandler.callPage(companiesHouseId, change.getOrElse(false)))
+        case None => Redirect(routes.ReportingPeriodController.show(companiesHouseId, change))
+      }
+    }
   }
 
   private def handlePostFormPage(formName: ShortFormName, companyDetail: CompanyDetail, change: Boolean)(implicit request: CompanyAuthRequest[Map[String, Seq[String]]]): Future[Result] = {

@@ -83,5 +83,7 @@ trait FormPageModel[H <: FormHandler[_, N], N <: FormName] {
 
   def formHandlers: Seq[H] = formNames.map(handlerFor)
   def nextFormName(formName: N): Option[N] = formNames.dropWhile(_ !== formName).drop(1).headOption
+  def previousFormName(formName: N): Option[N] = formNames.takeWhile(_ !== formName).headOption
   def nextFormHandler(handler: H): Option[H] = nextFormName(handler.formName).map(handlerFor)
+  def previousFormHandler(handler: H): Option[H] = previousFormName(handler.formName).map(handlerFor)
 }
