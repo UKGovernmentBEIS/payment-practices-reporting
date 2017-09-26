@@ -30,6 +30,7 @@ import play.api.data.Forms._
 import play.api.data._
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, Controller}
+import play.twirl.api.Html
 import services.{ReportService, _}
 import utils.YesNo
 
@@ -79,9 +80,9 @@ class ReportController @Inject()(
 
   //noinspection TypeAnnotation
   def start(companiesHouseId: CompaniesHouseId) = Action.async { implicit request =>
-    val backCrumb = breadcrumbs("link-back", Breadcrumb(routes.ReportController.search(None, None, None).url, "Back"))
+    val back = backCrumb(routes.ReportController.search(None, None, None).url)
     companySearch.find(companiesHouseId).map {
-      case Some(co) => Ok(page(publishTitle(co.companyName))(backCrumb, pages.start(co.companyName, co.companiesHouseId)))
+      case Some(co) => Ok(page(publishTitle(co.companyName))(back, pages.start(co.companyName, co.companiesHouseId)))
       case None     => NotFound(s"Could not find a company with id ${companiesHouseId.id}")
     }
   }
@@ -89,8 +90,8 @@ class ReportController @Inject()(
   val hasAccountChoice = Form(single("account" -> Validations.yesNo))
 
   def preLogin(companiesHouseId: CompaniesHouseId) = Action { implicit request =>
-    val backCrumb = breadcrumbs("link-back", Breadcrumb(routes.ReportController.start(companiesHouseId).url, "Back"))
-    Ok(page(signInPageTitle)(backCrumb, pages.preLogin(companiesHouseId, hasAccountChoice))).removingFromSession(SessionAction.sessionIdKey)
+    val back = backCrumb(routes.ReportController.start(companiesHouseId).url)
+    Ok(page(signInPageTitle)(back, pages.preLogin(companiesHouseId, hasAccountChoice))).removingFromSession(SessionAction.sessionIdKey)
   }
 
   def login(companiesHouseId: CompaniesHouseId) = Action { implicit request =>
@@ -104,14 +105,14 @@ class ReportController @Inject()(
 
   //noinspection TypeAnnotation
   def colleague(companiesHouseId: CompaniesHouseId) = Action.async { implicit request =>
-    val backCrumb = breadcrumbs("link-back", Breadcrumb(routes.CoHoCodeController.code(companiesHouseId).url, "Back"))
-    withCompany(companiesHouseId)(co => page("If you want a colleague to publish a report")(backCrumb, pages.askColleague(co.companyName, companiesHouseId)))
+    val back = backCrumb(routes.CoHoCodeController.code(companiesHouseId).url)
+    withCompany(companiesHouseId)(co => page("If you want a colleague to publish a report")(back, pages.askColleague(co.companyName, companiesHouseId)))
   }
 
   //noinspection TypeAnnotation
   def register(companiesHouseId: CompaniesHouseId) = Action.async { implicit request =>
-    val backCrumb = breadcrumbs("link-back", Breadcrumb(routes.CoHoCodeController.code(companiesHouseId).url, "Back"))
-    withCompany(companiesHouseId)(co => page("Request an authentication code")(backCrumb, pages.requestAccessCode(co.companyName, companiesHouseId)))
+    val back = backCrumb(routes.CoHoCodeController.code(companiesHouseId).url)
+    withCompany(companiesHouseId)(co => page("Request an authentication code")(back, pages.requestAccessCode(co.companyName, companiesHouseId)))
   }
 
   def applyForAuthCode(companiesHouseId: CompaniesHouseId) = Action { implicit request =>

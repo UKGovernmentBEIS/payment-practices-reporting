@@ -56,14 +56,14 @@ class SinglePageFormController @Inject()(
   //noinspection TypeAnnotation
   def show(companiesHouseId: CompaniesHouseId, change: Option[Boolean]) = companyAuthAction(companiesHouseId).async { implicit request =>
     val title = publishTitle(request.companyDetail.companyName)
-    val backCrumb =
-      if (change.contains(true)) breadcrumbs("link-back", Breadcrumb(routes.SinglePageFormReviewController.showReview(companiesHouseId).url, "Back"))
-      else breadcrumbs("link-back", Breadcrumb(routes.ReportingPeriodController.show(companiesHouseId, change).url, "Back"))
+    val back =
+      if (change.contains(true)) backCrumb(routes.SinglePageFormReviewController.showReview(companiesHouseId).url)
+      else backCrumb(routes.ReportingPeriodController.show(companiesHouseId, change).url)
 
     checkValidFromSession(emptyReportingPeriod, SinglePageFormName.ReportingPeriod.entryName).flatMap {
       case false => Future.successful(Redirect(routes.ReportingPeriodController.show(companiesHouseId, change)))
       case true  => loadFormData(emptyLongForm, SinglePageFormName.SinglePageForm).map { form =>
-        Ok(page(title)(backCrumb, pages.longForm(reportPageHeader, form, companiesHouseId, df, serviceStartDate, change)))
+        Ok(page(title)(back, pages.longForm(reportPageHeader, form, companiesHouseId, df, serviceStartDate, change)))
       }
     }
   }

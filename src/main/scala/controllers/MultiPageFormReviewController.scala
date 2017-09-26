@@ -99,15 +99,15 @@ class MultiPageFormReviewController @Inject()(
 
   private def renderReview(request: CompanyAuthRequest[_], r: ReportingPeriodFormModel, lf: LongFormModel): Future[Result] = {
     implicit val req: CompanyAuthRequest[_] = request
-    val backCrumb = longFormPageModel.formHandlers.lastOption match {
-      case Some(handler) => breadcrumbs("link-back", Breadcrumb(handler.callPage(request.companyDetail.companiesHouseId, change = false).url, "Back"))
+    val back = longFormPageModel.formHandlers.lastOption match {
+      case Some(handler) => backCrumb(handler.callPage(request.companyDetail.companiesHouseId, change = false).url)
       // The form handlers list should never be empty so we should ever hit this case, but just to be sure...
-      case None => breadcrumbs("link-back", Breadcrumb(routes.ReportController.search(None, None, None).url, "Back"))
+      case None => backCrumb(routes.ReportController.search(None, None, None).url)
     }
     val title = publishTitle(request.companyDetail.companyName)
     val action: Call = routes.MultiPageFormReviewController.postReview(request.companyDetail.companiesHouseId)
     val formGroups = reviewPageData.formGroups(r, lf)
-    Future.successful(Ok(page(title)(backCrumb, views.html.report.review(emptyReview, formGroups, action))))
+    Future.successful(Ok(page(title)(back, views.html.report.review(emptyReview, formGroups, action))))
   }
 
   private def handleReviewPost(request: CompanyAuthRequest[Map[String, Seq[String]]], reportingPeriod: ReportingPeriodFormModel, longForm: LongFormModel): Future[Result] = {

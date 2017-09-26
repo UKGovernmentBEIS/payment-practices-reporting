@@ -55,9 +55,9 @@ class MultiPageFormController @Inject()(
 
   def show(formName: MultiPageFormName, companiesHouseId: CompaniesHouseId, change: Option[Boolean] = None): Action[AnyContent] = companyAuthAction(companiesHouseId).async { implicit request =>
     val companyDetail = request.companyDetail
-    val backCrumb = breadcrumbs("link-back", Breadcrumb(backLink(formName, companiesHouseId, change), "Back"))
+    val back = backCrumb(backLink(formName, companiesHouseId, change))
 
-    handleShowPage(formName, companyDetail, change.contains(true), backCrumb)
+    handleShowPage(formName, companyDetail, change.contains(true), back)
   }
 
   private[controllers] def handleShowPage(formName: MultiPageFormName, companyDetail: CompanyDetail, change: Boolean, crumb: Html)(implicit sessionId: SessionId, pageContext: PageContext) = {
@@ -79,11 +79,11 @@ class MultiPageFormController @Inject()(
   //noinspection TypeAnnotation
   def post(formName: MultiPageFormName, companiesHouseId: CompaniesHouseId, change: Option[Boolean] = None) = companyAuthAction(companiesHouseId).async(parse.urlFormEncoded) { implicit request =>
     val handler = handlerFor(formName)
-    val backCrumb = breadcrumbs("link-back", Breadcrumb(backLink(formName, companiesHouseId, change), "Back"))
+    val back = backCrumb(backLink(formName, companiesHouseId, change))
 
     for {
       _ <- saveFormData(handler.formName, handler.bind.form)
-      result <- handlePostFormPage(formName, request.companyDetail, change.contains(true), backCrumb)
+      result <- handlePostFormPage(formName, request.companyDetail, change.contains(true), back)
     } yield result
   }
 

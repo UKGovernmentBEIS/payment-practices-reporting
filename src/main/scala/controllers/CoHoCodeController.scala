@@ -50,8 +50,8 @@ class CoHoCodeController @Inject()(
   private def codePage(companiesHouseId: CompaniesHouseId, form: Form[CodeOption] = emptyForm, foundResult: Html => Result = Ok(_))
     (implicit messages: MessagesApi, rh: RequestHeader) =
     withCompany(companiesHouseId, foundResult) { co =>
-      val backCrumb = breadcrumbs("link-back", Breadcrumb(routes.ReportController.preLogin(companiesHouseId).url, "Back"))
-      page("If you don't have a Companies House authentication code")(backCrumb, pages.companiesHouseOptions(co.companyName, companiesHouseId, form))
+      val back = backCrumb(routes.ReportController.preLogin(companiesHouseId).url)
+      page("If you don't have a Companies House authentication code")(back, pages.companiesHouseOptions(co.companyName, companiesHouseId, form))
 
     }
 

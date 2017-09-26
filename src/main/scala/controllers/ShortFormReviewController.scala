@@ -96,11 +96,11 @@ class ShortFormReviewController @Inject()(
 
   private def renderReview(request: CompanyAuthRequest[_], reportingPeriod: ReportingPeriodFormModel, shortForm: ShortFormModel): Future[Result] = {
     implicit val req: CompanyAuthRequest[_] = request
-    val backCrumb = breadcrumbs("link-back", Breadcrumb(routes.ShortFormController.show(request.companyDetail.companiesHouseId, None).url, "Back"))
+    val backLink = backCrumb(routes.ShortFormController.show(request.companyDetail.companiesHouseId, None).url)
 
     val action: Call = routes.ShortFormReviewController.postReview(request.companyDetail.companiesHouseId)
     val formGroups = reviewPageData.formGroups(reportingPeriod, shortForm)
-    Future.successful(Ok(page(reviewPageTitle)(backCrumb, pages.review(emptyReview, formGroups, action))))
+    Future.successful(Ok(page(reviewPageTitle)(backLink, pages.review(emptyReview, formGroups, action))))
   }
 
   private def handleReviewPost(request: CompanyAuthRequest[Map[String, Seq[String]]], reportingPeriod: ReportingPeriodFormModel, shortForm: ShortFormModel): Future[Result] = {

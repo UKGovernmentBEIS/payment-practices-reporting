@@ -59,8 +59,8 @@ class ReportingPeriodController @Inject()(
   private def title(implicit request: CompanyAuthRequest[_]): String = publishTitle(request.companyDetail.companyName)
 
   private def backCrumb(id: CompaniesHouseId, change: Option[Boolean]): Html =
-    if (change.contains(true)) breadcrumbs("link-back", Breadcrumb(routes.ShortFormReviewController.showReview(id).url, "Back"))
-    else breadcrumbs("link-back", Breadcrumb(routes.ReportController.start(id).url, "Back"))
+    if (change.contains(true)) backCrumb(routes.ShortFormReviewController.showReview(id).url)
+    else backCrumb(routes.ReportController.start(id).url)
 
   //noinspection TypeAnnotation
   def show(companiesHouseId: CompaniesHouseId, change: Option[Boolean]) = companyAuthAction(companiesHouseId).async { implicit request =>
