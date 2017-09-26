@@ -86,7 +86,8 @@ class ReportController @Inject()(
   val hasAccountChoice = Form(single("account" -> Validations.yesNo))
 
   def preLogin(companiesHouseId: CompaniesHouseId) = Action { implicit request =>
-    Ok(page(signInPageTitle)(home, pages.preLogin(companiesHouseId, hasAccountChoice))).removingFromSession(SessionAction.sessionIdKey)
+    val backCrumb = breadcrumbs("link-back", Breadcrumb(routes.ReportController.start(companiesHouseId).url, "Back"))
+    Ok(page(signInPageTitle)(backCrumb, pages.preLogin(companiesHouseId, hasAccountChoice))).removingFromSession(SessionAction.sessionIdKey)
   }
 
   def login(companiesHouseId: CompaniesHouseId) = Action { implicit request =>
