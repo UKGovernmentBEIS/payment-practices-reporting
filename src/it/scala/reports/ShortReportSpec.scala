@@ -82,7 +82,7 @@ class ShortReportSpec extends PlaySpec with WebSpec with GuiceOneServerPerSuite 
           Table(ReviewPage.reviewTableId) should {
             ContainRow("Start date of reporting period") having Value("1 May 2017") and
               ContainRow("End date of reporting period") having Value("1 June 2017") and
-              ContainRow(ReviewPageData.codeOfConductText) having Value("Yes – payment codes")
+              ContainRow(ReviewPageData.codeOfConductText) having Value("Yes – payment codes")  // note: that hyphen is a non-ascii n-dash from the html page
           }
         }
       }
