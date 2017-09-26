@@ -29,7 +29,8 @@ import play.api.i18n.MessagesApi
 import play.twirl.api.Html
 
 class SinglePageFormPageModel @Inject()(validations: Validations, serviceConfig: ServiceConfig)(implicit messagesApi: MessagesApi)
-  extends FormPageModel[SinglePageFormHandler[_], SinglePageFormName] {
+  extends FormPageModel[SinglePageFormHandler[_], SinglePageFormName]
+    with FormPageHelpers[SinglePageFormHandler[_], SinglePageFormName] {
 
   import FormPageDefs.SinglePageFormName
   import SinglePageFormName._
@@ -40,7 +41,7 @@ class SinglePageFormPageModel @Inject()(validations: Validations, serviceConfig:
 
   private val serviceStartDate = serviceConfig.startDate.getOrElse(ServiceConfig.defaultServiceStartDate)
 
-  override def formNames : Seq[SinglePageFormName] = SinglePageFormName.values
+  override def formNames: Seq[SinglePageFormName] = SinglePageFormName.values
 
   override def handlerFor(formName: SinglePageFormName): SinglePageFormHandler[_] = formName match {
     case ReportingPeriod =>
@@ -49,7 +50,7 @@ class SinglePageFormPageModel @Inject()(validations: Validations, serviceConfig:
         emptyReportingPeriod,
         (header: Html, companiesHouseId: CompaniesHouseId, change: Boolean) => (form: Form[ReportingPeriodFormModel]) =>
           pages.reportingPeriod(header, form, companiesHouseId, df, serviceStartDate, if (change) Some(true) else None),
-        (companiesHouseId: CompaniesHouseId, change:Boolean) =>
+        (companiesHouseId: CompaniesHouseId, change: Boolean) =>
           routes.ReportingPeriodController.show(companiesHouseId, if (change) Some(true) else None)
       )
 
@@ -57,9 +58,9 @@ class SinglePageFormPageModel @Inject()(validations: Validations, serviceConfig:
       FormHandler(
         SinglePageForm,
         emptyLongForm,
-        (header: Html, companiesHouseId: CompaniesHouseId, change:Boolean) => (form: Form[LongFormModel]) =>
+        (header: Html, companiesHouseId: CompaniesHouseId, change: Boolean) => (form: Form[LongFormModel]) =>
           pages.longForm(header, form, companiesHouseId, df, serviceStartDate, if (change) Some(true) else None),
-        (companiesHouseId: CompaniesHouseId, change :Boolean) =>
+        (companiesHouseId: CompaniesHouseId, change: Boolean) =>
           routes.ShortFormController.show(companiesHouseId, if (change) Some(true) else None)
       )
   }

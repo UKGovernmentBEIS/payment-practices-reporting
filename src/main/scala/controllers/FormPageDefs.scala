@@ -80,10 +80,13 @@ object FormPageDefs {
 trait FormPageModel[H <: FormHandler[_, N], N <: FormName] {
   def formNames: Seq[N]
   def handlerFor(formName: N): H
+}
 
+trait FormPageHelpers[H <: FormHandler[_, N], N <: FormName] {
+  self: FormPageModel[H, N] =>
   def formHandlers: Seq[H] = formNames.map(handlerFor)
   def nextFormName(formName: N): Option[N] = formNames.dropWhile(_ !== formName).drop(1).headOption
-  def previousFormName(formName: N): Option[N] = formNames.takeWhile(_ !== formName).headOption
+  def previousFormName(formName: N): Option[N] = formNames.takeWhile(_ !== formName).lastOption
   def nextFormHandler(handler: H): Option[H] = nextFormName(handler.formName).map(handlerFor)
   def previousFormHandler(handler: H): Option[H] = previousFormName(handler.formName).map(handlerFor)
 }

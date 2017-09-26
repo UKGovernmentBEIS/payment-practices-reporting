@@ -55,7 +55,7 @@ class MultiPageFormController @Inject()(
 
   def show(formName: MultiPageFormName, companiesHouseId: CompaniesHouseId, change: Option[Boolean] = None): Action[AnyContent] = companyAuthAction(companiesHouseId).async { implicit request =>
     val companyDetail = request.companyDetail
-    val backCrumb = breadcrumbs("link-back", Breadcrumb(routes.ReportingPeriodController.show(companiesHouseId, None).url, "Back"))
+    val backCrumb = breadcrumbs("link-back", Breadcrumb(backLink(formName, companiesHouseId, change), "Back"))
 
     handleShowPage(formName, companyDetail, change.contains(true), backCrumb)
   }
@@ -79,7 +79,7 @@ class MultiPageFormController @Inject()(
   //noinspection TypeAnnotation
   def post(formName: MultiPageFormName, companiesHouseId: CompaniesHouseId, change: Option[Boolean] = None) = companyAuthAction(companiesHouseId).async(parse.urlFormEncoded) { implicit request =>
     val handler = handlerFor(formName)
-    val backCrumb = breadcrumbs("link-back", Breadcrumb(routes.ReportingPeriodController.show(companiesHouseId, None).url, "Back"))
+    val backCrumb = breadcrumbs("link-back", Breadcrumb(backLink(formName, companiesHouseId, change), "Back"))
 
     for {
       _ <- saveFormData(handler.formName, handler.bind.form)
@@ -87,7 +87,7 @@ class MultiPageFormController @Inject()(
     } yield result
   }
 
-  private def handlePostFormPage(formName: MultiPageFormName, companyDetail: CompanyDetail, change: Boolean, crumb:Html)(implicit sessionId: SessionId, pageContext: PageContext): Future[Result] = {
+  private def handlePostFormPage(formName: MultiPageFormName, companyDetail: CompanyDetail, change: Boolean, crumb: Html)(implicit sessionId: SessionId, pageContext: PageContext): Future[Result] = {
     val title = publishTitle(companyDetail.companyName)
 
     bindUpToPage(formHandlers, formName).map {
@@ -102,16 +102,11 @@ class MultiPageFormController @Inject()(
   }
 
   //noinspection TypeAnnotation
-  def back(formName: MultiPageFormName, companiesHouseId: CompaniesHouseId, change: Option[Boolean]) = companyAuthAction(companiesHouseId).async { implicit request =>
-    bindUpToPage(formHandlers, formName).map {
-      case FormHasErrors(handler) => handler
-      case FormIsOk(handler, _)   => handler
-      case FormIsBlank(handler)   => handler
-    }.map { handler =>
-      previousFormHandler(handler) match {
-        case Some(previousHandler) => Redirect(previousHandler.callPage(companiesHouseId, change = false))
-        case None                  => Redirect(routes.ReportingPeriodController.show(companiesHouseId, None))
-      }
+  private def backLink(formName: MultiPageFormName, companiesHouseId: CompaniesHouseId, change: Option[Boolean]): String = {
+    if (change.contains(true)) routes.MultiPageFormReviewController.showReview(companiesHouseId).url
+    else previousFormName(formName).map(handlerFor) match {
+      case Some(previousHandler) => previousHandler.callPage(companiesHouseId, change = false).url
+      case None                  => routes.ReportController.search(None, None, None).url
     }
   }
 }

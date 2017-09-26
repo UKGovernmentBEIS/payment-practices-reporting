@@ -30,11 +30,9 @@ GET         /publish/company/:id/apply-for-code                  controllers.Rep
 GET         /publish/company/:id/file/long                       controllers.SinglePageFormController.show(id: CompaniesHouseId, change: Option[Boolean])
 POST        /publish/company/:id/file/long                       controllers.SinglePageFormController.post(id: CompaniesHouseId, change: Option[Boolean])
 
-GET         /publish/company/:id/file/page/back/:formName        controllers.MultiPageFormController.back(formName: MultiPageFormName, id: CompaniesHouseId, change: Option[Boolean])
 GET         /publish/company/:id/file/page/:formName             controllers.MultiPageFormController.show(formName: MultiPageFormName, id: CompaniesHouseId, change: Option[Boolean])
 POST        /publish/company/:id/file/page/:formName             controllers.MultiPageFormController.post(formName: MultiPageFormName, id: CompaniesHouseId, change: Option[Boolean])
 
-GET         /publish/company/:id/file/short/back                 controllers.ShortFormController.back(id:CompaniesHouseId, change: Option[Boolean])
 GET         /publish/company/:id/file/short                      controllers.ShortFormController.show(id:CompaniesHouseId, change: Option[Boolean])
 POST        /publish/company/:id/file/short                      controllers.ShortFormController.post(id:CompaniesHouseId, change: Option[Boolean])
 

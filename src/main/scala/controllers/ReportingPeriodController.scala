@@ -58,13 +58,15 @@ class ReportingPeriodController @Inject()(
 
   private def title(implicit request: CompanyAuthRequest[_]): String = publishTitle(request.companyDetail.companyName)
 
-  private def backCrumb(id: CompaniesHouseId) = breadcrumbs("link-back", Breadcrumb(routes.ReportController.start(id).url, "Back"))
+  private def backCrumb(id: CompaniesHouseId, change: Option[Boolean]): Html =
+    if (change.contains(true)) breadcrumbs("link-back", Breadcrumb(routes.ShortFormReviewController.showReview(id).url, "Back"))
+    else breadcrumbs("link-back", Breadcrumb(routes.ReportController.start(id).url, "Back"))
 
   //noinspection TypeAnnotation
   def show(companiesHouseId: CompaniesHouseId, change: Option[Boolean]) = companyAuthAction(companiesHouseId).async { implicit request =>
 
     loadFormData(emptyReportingPeriod, MultiPageFormName.ReportingPeriod).map { form =>
-      Ok(page(title)(backCrumb(companiesHouseId), pages.reportingPeriod(reportPageHeader, form, companiesHouseId, df, serviceStartDate, change)))
+      Ok(page(title)(backCrumb(companiesHouseId, change), pages.reportingPeriod(reportPageHeader, form, companiesHouseId, df, serviceStartDate, change)))
     }
   }
 
@@ -73,7 +75,7 @@ class ReportingPeriodController @Inject()(
     val reportingPeriodForm = emptyReportingPeriod.bindForm
     saveFormData(MultiPageFormName.ReportingPeriod, reportingPeriodForm).map { _ =>
       reportingPeriodForm.fold(
-        errs => BadRequest(page(title)(backCrumb(companiesHouseId), pages.reportingPeriod(reportPageHeader, errs, companiesHouseId, df, serviceStartDate, change))),
+        errs => BadRequest(page(title)(backCrumb(companiesHouseId, change), pages.reportingPeriod(reportPageHeader, errs, companiesHouseId, df, serviceStartDate, change))),
         reportingPeriod => whereNext(companiesHouseId, change, reportingPeriod)
       )
     }

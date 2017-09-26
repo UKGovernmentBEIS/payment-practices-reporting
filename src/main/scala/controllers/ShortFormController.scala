@@ -60,7 +60,9 @@ class ShortFormController @Inject()(
 
   //noinspection TypeAnnotation
   def show(companiesHouseId: CompaniesHouseId, change: Option[Boolean]) = companyAuthAction(companiesHouseId).async { implicit request =>
-    val backCrumb = breadcrumbs("link-back", Breadcrumb(routes.ReportingPeriodController.show(companiesHouseId, change).url, "Back"))
+    val backCrumb =
+      if (change.contains(true)) breadcrumbs("link-back", Breadcrumb(routes.ShortFormReviewController.showReview(companiesHouseId).url, "Back"))
+      else breadcrumbs("link-back", Breadcrumb(routes.ReportingPeriodController.show(companiesHouseId, change).url, "Back"))
     val title = publishTitle(request.companyDetail.companyName)
 
     checkValidFromSession(emptyReportingPeriod, ShortFormName.ReportingPeriod.entryName).flatMap {
@@ -82,16 +84,11 @@ class ShortFormController @Inject()(
   }
 
   //noinspection TypeAnnotation
-  def back(companiesHouseId: CompaniesHouseId, change:Option[Boolean]) = companyAuthAction(companiesHouseId).async { implicit request =>
-    bindUpToPage(formHandlers, ShortFormName.ShortForm).map {
-      case FormHasErrors(handler) => handler
-      case FormIsOk(handler, _)   => handler
-      case FormIsBlank(handler)   => handler
-    }.map { handler =>
-      previousFormHandler(handler) match {
-        case Some(previousHandler) => Redirect(previousHandler.callPage(companiesHouseId, change.getOrElse(false)))
-        case None => Redirect(routes.ReportingPeriodController.show(companiesHouseId, change))
-      }
+  def back(companiesHouseId: CompaniesHouseId, change: Option[Boolean]) = companyAuthAction(companiesHouseId) { implicit request =>
+    if (change.contains(true)) Redirect(routes.ShortFormReviewController.showReview(companiesHouseId))
+    else previousFormHandler(handlerFor(ShortFormName.ShortForm)) match {
+      case Some(previousHandler) => Redirect(previousHandler.callPage(companiesHouseId, change = false))
+      case None                  => Redirect(routes.ReportingPeriodController.show(companiesHouseId, None))
     }
   }
 
