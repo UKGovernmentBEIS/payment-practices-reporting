@@ -3,7 +3,7 @@
   "scripts": {
   },
   "env": {
-    "CRYTPO_SECRET": "not so secret",
+    "CRYPTO_SECRET": "notsosecret",
     "APPLY_EVOLUTIONS": "true",
     "APPLY_EVOLUTIONS_DOWNS": "true",
     "SERVICE_START_DATE":"2017-1-1",

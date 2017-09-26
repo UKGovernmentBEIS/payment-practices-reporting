@@ -17,19 +17,8 @@
 
 package questionnaire
 
-import enumeratum.EnumEntry.Lowercase
-import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
-import utils.EnumFormatter
-
-sealed trait FinancialYear extends EnumEntry with Lowercase
-
-object FinancialYear extends Enum[FinancialYear] with PlayJsonEnum[FinancialYear] with EnumFormatter[FinancialYear] {
-  override def values = findValues
-
-  case object First extends FinancialYear
-
-  case object Second extends FinancialYear
-
-  case object ThirdOrLater extends FinancialYear
-}
-
+case class ThresholdQuestions(
+  turnoverQuestion: YesNoQuestion,
+  balanceSheetQuestion: YesNoQuestion,
+  employeesQuestion: YesNoQuestion
+)

@@ -1,9 +1,18 @@
-@(crumbs: Seq[Breadcrumb])
+@(crumbs: Seq[Breadcrumb], extraClasses: String = "")
 
-<div class="breadcrumbs">
-    <ol>
+
+@if(crumbs.length > 1) {
+    <div class="breadcrumbs @extraClasses">
+        <ol>
         @crumbs.map { crumb =>
             <li><a href="@crumb.href">@crumb.name</a></li>
         }
-    </ol>
-</div>
+        </ol>
+    </div>
+} else {
+    <div class="@extraClasses">
+    @crumbs.map { crumb =>
+        <a href="@crumb.href">@crumb.name</a>
+    }
+    </div>
+}

@@ -27,7 +27,7 @@ import play.twirl.api.Html
 
 import scala.collection.immutable
 
-case class Breadcrumb(href: Call, name: String)
+case class Breadcrumb(href: String, name: String)
 
 case class PageContext(googleAnalyticsConfig: GoogleAnalyticsConfig, externalRouter: ExternalRouter)
 
@@ -58,10 +58,12 @@ trait PageHelper {
 
   def h1(text: String) = views.html.shared._h1(Html(text))
 
-  val homeBreadcrumb = Breadcrumb(routes.HomeController.index(), "Payment practices reporting")
-  val home: Html     = breadcrumbs(homeBreadcrumb)
+  val homeBreadcrumb = Breadcrumb(routes.HomeController.index().url, "Payment practices reporting")
+  val govuk          = Breadcrumb("https://www.gov.uk", "Home")
+  val pprGuidance    = Breadcrumb("https://www.gov.uk/government/publications/business-payment-practices-and-performance-reporting-requirements", "Business payment practices and performance: reporting requirements")
+  val home           = breadcrumbs("", govuk, pprGuidance)
 
-  def breadcrumbs(crumbs: Breadcrumb*): Html = views.html.shared._breadcrumbs(crumbs)
+  def breadcrumbs(extraClasses: String, crumbs: Breadcrumb*): Html = views.html.shared._breadcrumbs(crumbs, extraClasses)
 
   /**
     * If all the fields are empty then don't report any errors

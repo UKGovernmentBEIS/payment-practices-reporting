@@ -43,7 +43,7 @@ class SessionTable @Inject()(dbConfigProvider: DatabaseConfigProvider, timeSourc
 
   import profile.api._
 
-  def sessionQ(sessionId: Rep[SessionId]) = sessionTable.filter(s => s.id === sessionId && s.expiresAt >= timeSource.now())
+  private def sessionQ(sessionId: Rep[SessionId]) = sessionTable.filter(s => s.id === sessionId && s.expiresAt >= timeSource.now())
 
   val sessionC = Compiled(sessionQ _)
 
@@ -66,9 +66,20 @@ class SessionTable @Inject()(dbConfigProvider: DatabaseConfigProvider, timeSourc
       _.flatMap { row =>
         (row.sessionData \ key).validateOpt[T] match {
           case JsSuccess(t, _) => t
-          case JsError(_) => None
+          case JsError(_)      => None
         }
       }
+    }
+  }
+
+  override def getOrElse[T: Reads](sessionId: SessionId, key: String, default: T): Future[T] = db.run {
+    sessionC(sessionId).result.headOption.map {
+      _.flatMap { row =>
+        (row.sessionData \ key).validateOpt[T] match {
+          case JsSuccess(t, _) => t
+          case JsError(_)      => None
+        }
+      }.getOrElse(default)
     }
   }
 
@@ -77,7 +88,7 @@ class SessionTable @Inject()(dbConfigProvider: DatabaseConfigProvider, timeSourc
       _.flatMap { row =>
         row.sessionData.validateOpt[T] match {
           case JsSuccess(t, _) => t
-          case JsError(errs) =>
+          case JsError(errs)   =>
             Logger.debug(errs.toString)
             None
         }
@@ -86,7 +97,7 @@ class SessionTable @Inject()(dbConfigProvider: DatabaseConfigProvider, timeSourc
   }
 
   override def clear(sessionId: SessionId, key: String): Future[Unit] = db.run {
-    sessionC(sessionId).result.headOption.map {
+    sessionC(sessionId).result.headOption.flatMap {
       case Some(s) =>
         val newSessionData = s.sessionData - key
         sessionC(sessionId).update(s.copy(sessionData = newSessionData))
@@ -103,7 +114,7 @@ class SessionTable @Inject()(dbConfigProvider: DatabaseConfigProvider, timeSourc
     Logger.trace(s"asked to refresh $sessionId")
     sessionC(sessionId).result.headOption.flatMap {
       case Some(s) => sessionC(sessionId).update(s.copy(expiresAt = sessionExpiryTime))
-      case None => DBIO.successful(())
+      case None    => DBIO.successful(())
     }.transactionally.map(_ => ())
   }
 
