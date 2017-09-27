@@ -15,7 +15,7 @@
     You will usually have two reporting periods per financial year. If you're not sure what your reporting periods are,
     use the <a href="@routes.CalculatorController.start()">'Calculate your reporting periods'</a> tool.
 </div>
-
+<br>
 <div class="form-group @dateErrorClass" id="reportDates">
     @dateErrors.map { e => <span class="error-message">@messages(e.message, e.args: _*)</span> }
     @_dateField(form, "reportDates.startDate")
