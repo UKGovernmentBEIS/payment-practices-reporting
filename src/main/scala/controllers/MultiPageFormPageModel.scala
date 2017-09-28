@@ -29,7 +29,6 @@ import play.api.data.Forms.mapping
 import play.api.data.{Form, Mapping}
 import play.api.i18n.MessagesApi
 import play.twirl.api.Html
-import services.CompanyDetail
 
 case class PaymentStatisticsForm(paymentStatistics: forms.report.PaymentStatistics)
 case class PaymentTermsForm(paymentTerms: forms.report.PaymentTerms)
@@ -37,7 +36,8 @@ case class DisputeResolutionForm(disputeResolution: forms.report.DisputeResoluti
 case class OtherInformationForm(otherInformation: forms.report.OtherInformation)
 
 class MultiPageFormPageModel @Inject()(validations: Validations, serviceConfig: ServiceConfig)(implicit messagesApi: MessagesApi)
-  extends FormPageModel[MultiPageFormHandler[_], MultiPageFormName] {
+  extends FormPageModel[MultiPageFormHandler[_], MultiPageFormName]
+    with FormPageHelpers[MultiPageFormHandler[_], MultiPageFormName] {
 
   import validations._
   import views.html.{report => pages}

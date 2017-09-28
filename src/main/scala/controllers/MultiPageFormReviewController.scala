@@ -99,11 +99,15 @@ class MultiPageFormReviewController @Inject()(
 
   private def renderReview(request: CompanyAuthRequest[_], r: ReportingPeriodFormModel, lf: LongFormModel): Future[Result] = {
     implicit val req: CompanyAuthRequest[_] = request
-
+    val back = longFormPageModel.formHandlers.lastOption match {
+      case Some(handler) => backCrumb(handler.callPage(request.companyDetail.companiesHouseId, change = false).url)
+      // The form handlers list should never be empty so we should ever hit this case, but just to be sure...
+      case None => backCrumb(routes.ReportController.search(None, None, None).url)
+    }
     val title = publishTitle(request.companyDetail.companyName)
     val action: Call = routes.MultiPageFormReviewController.postReview(request.companyDetail.companiesHouseId)
     val formGroups = reviewPageData.formGroups(r, lf)
-    Future.successful(Ok(page(title)(views.html.report.review(emptyReview, formGroups, action))))
+    Future.successful(Ok(page(title)(back, views.html.report.review(emptyReview, formGroups, action))))
   }
 
   private def handleReviewPost(request: CompanyAuthRequest[Map[String, Seq[String]]], reportingPeriod: ReportingPeriodFormModel, longForm: LongFormModel): Future[Result] = {
@@ -120,7 +124,7 @@ class MultiPageFormReviewController @Inject()(
           for {
             reportId <- createReport(request.companyDetail, request.emailAddress, reportingPeriod, longForm, review.confirmedBy, urlFunction)
             _ <- clearFormData
-          }yield Redirect(controllers.routes.ConfirmationController.showConfirmation(reportId))
+          } yield Redirect(controllers.routes.ConfirmationController.showConfirmation(reportId))
         } else {
           Future.successful(BadRequest(page(reviewPageTitle)(home, pages.review(emptyReview.fill(review), formGroups, action))))
         }

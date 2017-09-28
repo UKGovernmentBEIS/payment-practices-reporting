@@ -19,11 +19,19 @@ package questionnaire
 
 import enumeratum.EnumEntry.Lowercase
 import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
+import questionnaire.FinancialYear.{First, Second, ThirdOrLater}
 import utils.EnumFormatter
 
-sealed trait FinancialYear extends EnumEntry with Lowercase
+sealed trait FinancialYear extends EnumEntry with Lowercase {
+  def fold[T](first: => T, second: => T, third: => T): T = this match {
+    case First        => first
+    case Second       => second
+    case ThirdOrLater => third
+  }
+}
 
 object FinancialYear extends Enum[FinancialYear] with PlayJsonEnum[FinancialYear] with EnumFormatter[FinancialYear] {
+  //noinspection TypeAnnotation
   override def values = findValues
 
   case object First extends FinancialYear
