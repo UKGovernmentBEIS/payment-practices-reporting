@@ -30,6 +30,7 @@ import play.api.data.Forms._
 import play.api.data._
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, Controller}
+import play.twirl.api.Html
 import services.{ReportService, _}
 import utils.YesNo
 
@@ -67,6 +68,7 @@ class ReportController @Inject()(
 
   private def pageLink(query: Option[String], itemsPerPage: Option[Int], pageNumber: Int) = routes.ReportController.search(query, Some(pageNumber), itemsPerPage).url
 
+  //noinspection TypeAnnotation
   def search(query: Option[String], pageNumber: Option[Int], itemsPerPage: Option[Int]) = Action.async { implicit request =>
     val externalRouter = implicitly[ExternalRouter]
 
@@ -76,9 +78,11 @@ class ReportController @Inject()(
     doSearch(query, pageNumber, itemsPerPage, resultsPage).map(Ok(_))
   }
 
+  //noinspection TypeAnnotation
   def start(companiesHouseId: CompaniesHouseId) = Action.async { implicit request =>
+    val back = backCrumb(routes.ReportController.search(None, None, None).url)
     companySearch.find(companiesHouseId).map {
-      case Some(co) => Ok(page(publishTitle(co.companyName))(home, pages.start(co.companyName, co.companiesHouseId)))
+      case Some(co) => Ok(page(publishTitle(co.companyName))(back, pages.start(co.companyName, co.companiesHouseId)))
       case None     => NotFound(s"Could not find a company with id ${companiesHouseId.id}")
     }
   }
@@ -86,7 +90,8 @@ class ReportController @Inject()(
   val hasAccountChoice = Form(single("account" -> Validations.yesNo))
 
   def preLogin(companiesHouseId: CompaniesHouseId) = Action { implicit request =>
-    Ok(page(signInPageTitle)(home, pages.preLogin(companiesHouseId, hasAccountChoice))).removingFromSession(SessionAction.sessionIdKey)
+    val back = backCrumb(routes.ReportController.start(companiesHouseId).url)
+    Ok(page(signInPageTitle)(back, pages.preLogin(companiesHouseId, hasAccountChoice))).removingFromSession(SessionAction.sessionIdKey)
   }
 
   def login(companiesHouseId: CompaniesHouseId) = Action { implicit request =>
@@ -98,18 +103,23 @@ class ReportController @Inject()(
     )
   }
 
+  //noinspection TypeAnnotation
   def colleague(companiesHouseId: CompaniesHouseId) = Action.async { implicit request =>
-    withCompany(companiesHouseId)(co => page("If you want a colleague to publish a report")(home, pages.askColleague(co.companyName, companiesHouseId)))
+    val back = backCrumb(routes.CoHoCodeController.code(companiesHouseId).url)
+    withCompany(companiesHouseId)(co => page("If you want a colleague to publish a report")(back, pages.askColleague(co.companyName, companiesHouseId)))
   }
 
+  //noinspection TypeAnnotation
   def register(companiesHouseId: CompaniesHouseId) = Action.async { implicit request =>
-    withCompany(companiesHouseId)(co => page("Request an authentication code")(home, pages.requestAccessCode(co.companyName, companiesHouseId)))
+    val back = backCrumb(routes.CoHoCodeController.code(companiesHouseId).url)
+    withCompany(companiesHouseId)(co => page("Request an authentication code")(back, pages.requestAccessCode(co.companyName, companiesHouseId)))
   }
 
   def applyForAuthCode(companiesHouseId: CompaniesHouseId) = Action { implicit request =>
     Redirect(companyAuth.authoriseUrl(companiesHouseId), companyAuth.authoriseParams(companiesHouseId))
   }
 
+  //noinspection TypeAnnotation
   def view(reportId: ReportId) = Action.async { implicit request =>
     val f = for {
       report <- OptionT(reportService.find(reportId))

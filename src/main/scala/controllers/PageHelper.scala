@@ -61,7 +61,8 @@ trait PageHelper {
   val homeBreadcrumb = Breadcrumb(routes.HomeController.index().url, "Payment practices reporting")
   val govuk          = Breadcrumb("https://www.gov.uk", "Home")
   val pprGuidance    = Breadcrumb("https://www.gov.uk/government/publications/business-payment-practices-and-performance-reporting-requirements", "Business payment practices and performance: reporting requirements")
-  val home           = breadcrumbs("", govuk, pprGuidance)
+  val home: Html     = breadcrumbs("", govuk, pprGuidance)
+  def backCrumb(url: String): Html = breadcrumbs("link-back", Breadcrumb(url, "Back"))
 
   def breadcrumbs(extraClasses: String, crumbs: Breadcrumb*): Html = views.html.shared._breadcrumbs(crumbs, extraClasses)
 

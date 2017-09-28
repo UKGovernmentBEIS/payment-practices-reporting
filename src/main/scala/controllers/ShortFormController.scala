@@ -60,12 +60,15 @@ class ShortFormController @Inject()(
 
   //noinspection TypeAnnotation
   def show(companiesHouseId: CompaniesHouseId, change: Option[Boolean]) = companyAuthAction(companiesHouseId).async { implicit request =>
+    val back =
+      if (change.contains(true)) backCrumb(routes.ShortFormReviewController.showReview(companiesHouseId).url)
+      else backCrumb(routes.ReportingPeriodController.show(companiesHouseId, change).url)
     val title = publishTitle(request.companyDetail.companyName)
 
     checkValidFromSession(emptyReportingPeriod, ShortFormName.ReportingPeriod.entryName).flatMap {
       case false => Future.successful(Redirect(routes.ReportingPeriodController.show(companiesHouseId, change)))
       case true  => loadFormData(emptyShortForm, ShortFormName.ShortForm).map { form =>
-        Ok(page(title)(home, pages.shortForm(reportPageHeader, form, companiesHouseId, df, serviceStartDate, change)))
+        Ok(page(title)(back, pages.shortForm(reportPageHeader, form, companiesHouseId, df, serviceStartDate, change)))
       }
     }
   }
@@ -78,6 +81,15 @@ class ShortFormController @Inject()(
       _ <- saveFormData(handler.formName, handler.bind.form)
       result <- handlePostFormPage(handler.formName, request.companyDetail, change.contains(true))
     } yield result
+  }
+
+  //noinspection TypeAnnotation
+  def back(companiesHouseId: CompaniesHouseId, change: Option[Boolean]) = companyAuthAction(companiesHouseId) { implicit request =>
+    if (change.contains(true)) Redirect(routes.ShortFormReviewController.showReview(companiesHouseId))
+    else previousFormHandler(handlerFor(ShortFormName.ShortForm)) match {
+      case Some(previousHandler) => Redirect(previousHandler.callPage(companiesHouseId, change = false))
+      case None                  => Redirect(routes.ReportingPeriodController.show(companiesHouseId, None))
+    }
   }
 
   private def handlePostFormPage(formName: ShortFormName, companyDetail: CompanyDetail, change: Boolean)(implicit request: CompanyAuthRequest[Map[String, Seq[String]]]): Future[Result] = {

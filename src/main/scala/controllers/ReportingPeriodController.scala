@@ -58,10 +58,15 @@ class ReportingPeriodController @Inject()(
 
   private def title(implicit request: CompanyAuthRequest[_]): String = publishTitle(request.companyDetail.companyName)
 
+  private def backCrumb(id: CompaniesHouseId, change: Option[Boolean]): Html =
+    if (change.contains(true)) backCrumb(routes.ShortFormReviewController.showReview(id).url)
+    else backCrumb(routes.ReportController.start(id).url)
+
   //noinspection TypeAnnotation
   def show(companiesHouseId: CompaniesHouseId, change: Option[Boolean]) = companyAuthAction(companiesHouseId).async { implicit request =>
+
     loadFormData(emptyReportingPeriod, MultiPageFormName.ReportingPeriod).map { form =>
-      Ok(page(title)(home, pages.reportingPeriod(reportPageHeader, form, companiesHouseId, df, serviceStartDate, change)))
+      Ok(page(title)(backCrumb(companiesHouseId, change), pages.reportingPeriod(reportPageHeader, form, companiesHouseId, df, serviceStartDate, change)))
     }
   }
 
@@ -70,7 +75,7 @@ class ReportingPeriodController @Inject()(
     val reportingPeriodForm = emptyReportingPeriod.bindForm
     saveFormData(MultiPageFormName.ReportingPeriod, reportingPeriodForm).map { _ =>
       reportingPeriodForm.fold(
-        errs => BadRequest(page(title)(home, pages.reportingPeriod(reportPageHeader, errs, companiesHouseId, df, serviceStartDate, change))),
+        errs => BadRequest(page(title)(backCrumb(companiesHouseId, change), pages.reportingPeriod(reportPageHeader, errs, companiesHouseId, df, serviceStartDate, change))),
         reportingPeriod => whereNext(companiesHouseId, change, reportingPeriod)
       )
     }

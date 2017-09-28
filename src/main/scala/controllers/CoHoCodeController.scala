@@ -33,12 +33,12 @@ import utils.AdjustErrors
 import scala.concurrent.{ExecutionContext, Future}
 
 class CoHoCodeController @Inject()(
-                                    companyAuth: CompanyAuthService,
-                                    val companySearch: CompanySearchService,
-                                    val reportService: ReportService,
-                                    val pageConfig: PageConfig,
-                                    val serviceConfig: ServiceConfig
-                                  )(implicit val ec: ExecutionContext, messages: MessagesApi)
+  companyAuth: CompanyAuthService,
+  val companySearch: CompanySearchService,
+  val reportService: ReportService,
+  val pageConfig: PageConfig,
+  val serviceConfig: ServiceConfig
+)(implicit val ec: ExecutionContext, messages: MessagesApi)
   extends Controller
     with PageHelper
     with SearchHelper
@@ -48,18 +48,23 @@ class CoHoCodeController @Inject()(
   import views.html.{report => pages}
 
   private def codePage(companiesHouseId: CompaniesHouseId, form: Form[CodeOption] = emptyForm, foundResult: Html => Result = Ok(_))
-                      (implicit messages: MessagesApi, rh: RequestHeader) =
+    (implicit messages: MessagesApi, rh: RequestHeader) =
     withCompany(companiesHouseId, foundResult) { co =>
-      page("If you don't have a Companies House authentication code")(home, pages.companiesHouseOptions(co.companyName, companiesHouseId, form))
+      val back = backCrumb(routes.ReportController.preLogin(companiesHouseId).url)
+      page("If you don't have a Companies House authentication code")(back, pages.companiesHouseOptions(co.companyName, companiesHouseId, form))
+
     }
 
+
+  //noinspection TypeAnnotation
   def code(companiesHouseId: CompaniesHouseId) = Action.async(implicit request => codePage(companiesHouseId))
 
+  //noinspection TypeAnnotation
   def codeOptions(companiesHouseId: CompaniesHouseId) = Action.async { implicit request =>
     def resultFor(codeOption: CodeOption): Future[Result] = Future {
       codeOption match {
         case Colleague => Redirect(routes.ReportController.colleague(companiesHouseId))
-        case Register => Redirect(routes.ReportController.register(companiesHouseId))
+        case Register  => Redirect(routes.ReportController.register(companiesHouseId))
       }
     }
 
@@ -71,12 +76,13 @@ class CoHoCodeController @Inject()(
 object CoHoCodeController {
 
   import enumeratum.EnumEntry.Lowercase
-  import enumeratum.{EnumEntry, Enum}
+  import enumeratum.{Enum, EnumEntry}
   import utils.EnumFormatter
 
   sealed trait CodeOption extends EnumEntry with Lowercase
 
   object CodeOption extends Enum[CodeOption] with EnumFormatter[CodeOption] {
+    //noinspection TypeAnnotation
     override def values = findValues
 
     case object Colleague extends CodeOption
@@ -89,7 +95,7 @@ object CoHoCodeController {
     * Override any error from the EnumFormatter with a simple "need to choose
     * an option to continue" error.
     */
-  val codeOptionMapping = AdjustErrors(Forms.of[CodeOption]) { (k, errs) =>
+  private val codeOptionMapping = AdjustErrors(Forms.of[CodeOption]) { (k, errs) =>
     if (errs.isEmpty) errs else Seq(FormError(k, "error.needchoicetocontinue"))
   }
 
