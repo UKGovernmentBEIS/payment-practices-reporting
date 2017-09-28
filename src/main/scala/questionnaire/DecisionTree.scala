@@ -50,9 +50,12 @@ object Answer {
   val fyFormat: OFormat[FinancialYearAnswer] = Json.format
 
   implicit val format: OFormat[Answer] = new OFormat[Answer] {
+    private val yesno         = "yesno"
+    private val financialyear = "financialyear"
+
     override def writes(a: Answer): JsObject = a match {
-      case yn: YesNoAnswer         => obj(("yesno", Json.toJson(yn)(ynFormat)))
-      case fy: FinancialYearAnswer => obj(("financialyear", Json.toJson(fy)(fyFormat)))
+      case yn: YesNoAnswer         => obj((yesno, Json.toJson(yn)(ynFormat)))
+      case fy: FinancialYearAnswer => obj((financialyear, Json.toJson(fy)(fyFormat)))
     }
 
     override def reads(json: JsValue): JsResult[Answer] = {
@@ -60,8 +63,8 @@ object Answer {
       obj.flatMap { o =>
         val field = o.fields.headOption
         field match {
-          case Some(("yesno", a))         => ynFormat.reads(a)
-          case Some(("financialyear", a)) => fyFormat.reads(a)
+          case Some((`yesno`, a))         => ynFormat.reads(a)
+          case Some((`financialyear`, a)) => fyFormat.reads(a)
           case _                          => JsError(s"could not decode $o")
         }
       }
@@ -130,7 +133,9 @@ object DecisionTree {
     case (YearNode(qq, y1, y2, y3), FinancialYearAnswer(aq, y)) if qq.id === aq => Right(y.fold(y1, y2, y3))
 
     case (DecisionNode(decision), a) => Left(s"Expected a question for answer $a but got decision $decision")
-    case (YesNoNode(q, _, _), a)     => Left(s"Answer $a did not match question ${q.id}")
-    case (YearNode(q, _, _, _), a)   => Left(s"Answer $a did not match question ${q.id}")
+    case (YesNoNode(q, _, _), a)     => Left(answerDidNotMatch(q, a))
+    case (YearNode(q, _, _, _), a)   => Left(answerDidNotMatch(q, a))
   }
+
+  private def answerDidNotMatch(q: Question, a: Answer) = s"Answer $a did not match question ${q.id}"
 }
