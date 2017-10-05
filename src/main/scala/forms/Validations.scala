@@ -51,19 +51,24 @@ object Validations {
   }
 
   def words(minWords: Int = 0, maxWords: Int = Int.MaxValue): Mapping[String] = (minWords, maxWords) match {
-    case (0, Int.MaxValue) => text
+    case (0, Int.MaxValue)   => text
     case (min, Int.MaxValue) => text.verifying(minWordConstraint(min))
-    case (0, max) => text.verifying(maxWordConstraint(max), Constraints.maxLength(max * averageWordLength))
-    case (min, max) =>
+    case (0, max)            => text.verifying(maxWordConstraint(max), Constraints.maxLength(max * averageWordLength))
+    case (min, max)          =>
       text.verifying(
         minWordConstraint(min),
         maxWordConstraint(max), Constraints.maxLength(max * averageWordLength))
   }
 
+  /**
+    * Allow users to enter "17" when they mean "2017" by adjusting numbers below 100.
+    */
+  private val year: Mapping[Int] = number(min = 0).transform(i => if (i < 100) i + 2000 else i, i => i)
+
   private[forms] val dateFields: Mapping[DateFields] = mapping(
-    "day" -> number,
-    "month" -> number,
-    "year" -> number
+    "day" -> number(min = 0),
+    "month" -> number(min = 0),
+    "year" -> year
   )(DateFields.apply)(DateFields.unapply)
     .verifying(errorDate, fields => validateDate(fields))
 
