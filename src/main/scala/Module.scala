@@ -73,7 +73,7 @@ class Module(environment: Environment, configuration: Configuration) extends Abs
     bind(classOf[ServiceConfig])
       .toInstance(config.service.getOrElse(ServiceConfig.empty))
 
-    config.service.foreach(s => s"Service config is $s")
+    s"Service config is ${config.service}")
 
     bindActor[ConfirmationActor]("confirmation-actor")
 
