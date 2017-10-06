@@ -20,6 +20,7 @@ package controllers
 import javax.inject.Inject
 
 import config.{PageConfig, ServiceConfig}
+import play.api.Logger
 import play.api.mvc.{Action, Controller}
 
 class HomeController @Inject()(
@@ -32,7 +33,9 @@ class HomeController @Inject()(
   def index = Action { implicit request =>
     serviceConfig.rootRedirectURL match {
       case None      => Ok(page(pateTitle)(views.html.index()))
-      case Some(url) => Redirect(url)
+      case Some(url) =>
+        Logger.debug(s"root redirect is set to $url - redirecting")
+        Redirect(url)
     }
   }
 
