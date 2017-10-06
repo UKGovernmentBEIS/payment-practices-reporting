@@ -21,9 +21,9 @@ import javax.inject.{Inject, Singleton}
 
 import org.joda.time.LocalDate
 import org.joda.time.format.DateTimeFormat
-import play.api.Configuration
+import play.api.{Configuration, Logger}
 
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 case class CompaniesHouseConfig(apiKey: String)
 
@@ -95,9 +95,21 @@ class AppConfig @Inject()(configuration: Configuration) {
   import pureconfig._
   import ConfigConvert._
 
-  private def load[T: ConfigConvert](path: String): Option[T] = Try {
-    loadConfig[T](configuration.underlying, path).toOption
-  }.toOption.flatten
+  private def load[T: ConfigConvert](path: String): Option[T] =
+    Try {
+      loadConfig[T](configuration.underlying, path) match {
+        case Failure(t) =>
+          Logger.debug(s"Failed to load config from path $path", t)
+          None
+        case Success(c) => Some(c)
+      }
+    } match {
+      case Failure(t) =>
+        Logger.debug(s"Failed to load config from path $path", t)
+        None
+
+      case Success(c) => c
+    }
 
   implicit val localDateConvert: ConfigConvert[LocalDate] = ConfigConvert.stringConvert[LocalDate](s => Try(df.parseLocalDate(s)), df.print(_))
 
