@@ -99,13 +99,13 @@ class AppConfig @Inject()(configuration: Configuration) {
     Try {
       loadConfig[T](configuration.underlying, path) match {
         case Failure(t) =>
-          Logger.debug(s"Failed to load config from path $path", t)
+          Logger.trace(s"Failed to load config from path $path", t)
           None
         case Success(c) => Some(c)
       }
     } match {
       case Failure(t) =>
-        Logger.debug(s"Failed to load config from path $path", t)
+        Logger.trace(s"Failed to load config from path $path", t)
         None
 
       case Success(c) => c
