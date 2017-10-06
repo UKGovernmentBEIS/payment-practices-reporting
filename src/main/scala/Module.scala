@@ -73,7 +73,7 @@ class Module(environment: Environment, configuration: Configuration) extends Abs
     bind(classOf[ServiceConfig])
       .toInstance(config.service.getOrElse(ServiceConfig.empty))
 
-    s"Service config is ${config.service}")
+    Logger.debug(s"Service config is ${config.service}")
 
     bindActor[ConfirmationActor]("confirmation-actor")
 
