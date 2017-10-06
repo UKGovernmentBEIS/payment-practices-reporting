@@ -73,7 +73,7 @@ class Module(environment: Environment, configuration: Configuration) extends Abs
     bind(classOf[ServiceConfig])
       .toInstance(config.service.getOrElse(ServiceConfig.empty))
 
-    config.service.foreach(_.rootRedirectURL.foreach(url => Logger.debug(s"Root redirect URL is set to $url")))
+    config.service.foreach(s => s"Service config is $s")
 
     bindActor[ConfirmationActor]("confirmation-actor")
 
