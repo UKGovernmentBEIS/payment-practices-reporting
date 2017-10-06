@@ -33,14 +33,14 @@ class Module(environment: Environment, configuration: Configuration) extends Abs
     val dbDriver = configuration.getString("slick.dbs.default.db.driver")
     dbDriver match {
       case Some(d) => Logger.debug(s"Using database driver $d")
-      case None => Logger.warn("No database driver is configured!")
+      case None    => Logger.warn("No database driver is configured!")
     }
 
     config.companiesHouse match {
       case Some(ch) =>
         bind(classOf[CompaniesHouseConfig]).toInstance(ch)
         bind(classOf[CompanySearchService]).to(classOf[CompaniesHouseSearch])
-      case None =>
+      case None     =>
         Logger.debug("Wiring in Company Search Mock")
         bind(classOf[CompanySearchService]).to(classOf[MockCompanySearch])
     }
@@ -49,7 +49,7 @@ class Module(environment: Environment, configuration: Configuration) extends Abs
       case Some(o) =>
         bind(classOf[OAuthConfig]).toInstance(o)
         bind(classOf[CompanyAuthService]).to(classOf[CompaniesHouseAuth])
-      case None =>
+      case None    =>
         Logger.debug("Wiring in Company Auth Mock")
         bind(classOf[CompanyAuthService]).to(classOf[MockCompanyAuth])
     }
@@ -72,6 +72,8 @@ class Module(environment: Environment, configuration: Configuration) extends Abs
 
     bind(classOf[ServiceConfig])
       .toInstance(config.service.getOrElse(ServiceConfig.empty))
+
+    config.service.foreach(_.rootRedirectURL.foreach(url => Logger.debug(s"Root redirect URL is set to $url")))
 
     bindActor[ConfirmationActor]("confirmation-actor")
 
