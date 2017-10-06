@@ -54,12 +54,14 @@ case class ServiceConfig(
   featureFlags: Option[FeatureFlags],
   logRequests: Option[Boolean],
   logAssets: Option[Boolean],
-  sessionTimeoutInMinutes: Option[Int]) {
+  sessionTimeoutInMinutes: Option[Int],
+  rootRedirectURL: Option[String]
+) {
   def multiPageForm: Boolean = featureFlags.map(_.multiPageForm).getOrElse(ServiceConfig.defaultFeatureFlags.multiPageForm)
 }
 
 object ServiceConfig {
-  val empty                   = ServiceConfig(None, None, None, None, None)
+  val empty                   = ServiceConfig(None, None, None, None, None, None)
   val defaultServiceStartDate = new LocalDate(2017, 4, 6)
   val defaultFeatureFlags     = FeatureFlags(true)
 }
@@ -99,10 +101,10 @@ class AppConfig @Inject()(configuration: Configuration) {
 
   implicit val localDateConvert: ConfigConvert[LocalDate] = ConfigConvert.stringConvert[LocalDate](s => Try(df.parseLocalDate(s)), df.print(_))
 
-  private val service                : Option[ServiceConfig]        = load[ServiceConfig]("service")
-  private val companiesHouse         : Option[CompaniesHouseConfig] = load[CompaniesHouseConfig]("companiesHouse")
-  private val notifyService          : Option[NotifyConfig]         = load[NotifyConfig]("notifyService")
-  private val oAuth                  : Option[OAuthConfig]          = load[OAuthConfig]("oAuth")
+  private val service       : Option[ServiceConfig]        = load[ServiceConfig]("service")
+  private val companiesHouse: Option[CompaniesHouseConfig] = load[CompaniesHouseConfig]("companiesHouse")
+  private val notifyService : Option[NotifyConfig]         = load[NotifyConfig]("notifyService")
+  private val oAuth         : Option[OAuthConfig]          = load[OAuthConfig]("oAuth")
 
   private val googleAnalytics   : GoogleAnalyticsConfig = load[GoogleAnalyticsConfig]("googleAnalytics").getOrElse(GoogleAnalyticsConfig(None))
   private val routesConfig      : RoutesConfig          = load[RoutesConfig]("externalRouter").getOrElse(RoutesConfig.empty)

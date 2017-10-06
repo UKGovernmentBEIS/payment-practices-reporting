@@ -22,13 +22,18 @@ import javax.inject.Inject
 import config.{PageConfig, ServiceConfig}
 import play.api.mvc.{Action, Controller}
 
-class HomeController @Inject()(val pageConfig: PageConfig,
-                               val serviceConfig: ServiceConfig) extends Controller with PageHelper {
+class HomeController @Inject()(
+  val pageConfig: PageConfig,
+  val serviceConfig: ServiceConfig
+) extends Controller with PageHelper {
 
   private val pateTitle = "Report on payment practices"
 
   def index = Action { implicit request =>
-    Ok(page(pateTitle)(views.html.index()))
+    serviceConfig.rootRedirectURL match {
+      case None      => Ok(page(pateTitle)(views.html.index()))
+      case Some(url) => Redirect(url)
+    }
   }
 
   def start = Action { implicit request =>
