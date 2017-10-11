@@ -109,7 +109,6 @@ class CompaniesHouseAuth @Inject()(val ws: WSClient, config: OAuthConfig)(implic
       response.status match {
         case 200 => response.json.validate[AccessTokenResponse] match {
           case JsSuccess(resp, _) =>
-            Logger.debug(s"converted code to token $resp")
             OAuthToken(resp.access_token, LocalDateTime.now().plusSeconds(resp.expires_in), resp.refresh_token)
           case JsError(errs) =>
             Logger.warn(s"response json is ${response.json}")
