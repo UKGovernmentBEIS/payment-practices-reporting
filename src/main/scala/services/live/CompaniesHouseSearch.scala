@@ -47,7 +47,8 @@ class CompaniesHouseSearch @Inject()(val ws: WSClient, config: CompaniesHouseCon
       val t = System.currentTimeMillis() - start
       Logger.debug(s"Companies house search took ${t}ms")
       val results = resultsPage.items.map(i => CompanySearchResult(i.company_number, i.title, i.address_snippet))
-      PagedResults(results, resultsPage.items_per_page, resultsPage.page_number, resultsPage.total_results)
+      // CoHo search api returns a 416 response if we try to retrieve results above number 400
+      PagedResults(results, resultsPage.items_per_page, resultsPage.page_number, resultsPage.total_results, Some(400))
     }
   }
 

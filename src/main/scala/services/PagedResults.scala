@@ -17,8 +17,16 @@
 
 package services
 
-case class PagedResults[T](items: Seq[T], pageSize: Int, pageNumber: Int, totalResults: Int) {
-  val pageCount = (totalResults / pageSize.toDouble).ceil
+case class PagedResults[T](items: Seq[T], pageSize: Int, pageNumber: Int, private val totalResults: Int, resultLimit: Option[Int] = None) {
+
+  val effectiveTotal: Int = resultLimit match {
+    case None        => totalResults
+    case Some(limit) => totalResults.min(limit)
+  }
+
+  val totalResultsLimited: Boolean = resultLimit.exists(_ < totalResults)
+
+  val pageCount: Int = (totalResults / pageSize.toDouble).ceil.toInt
 
   private def isValidRange(pageNumber: Int) = pageNumber <= pageCount && pageNumber >= 1
 
@@ -32,7 +40,7 @@ case class PagedResults[T](items: Seq[T], pageSize: Int, pageNumber: Int, totalR
 }
 
 object PagedResults {
-  def empty[T] = PagedResults[T](Seq.empty[T], 0, 0, 0)
+  def empty[T]: PagedResults[T] = PagedResults[T](Seq.empty[T], 0, 0, 0)
 
   def page[T](items: Seq[T], pageNumber: Int, pageSize: Int = 25): PagedResults[T] = {
     PagedResults(items.drop((pageNumber - 1) * pageSize).take(pageSize), pageSize, pageNumber, items.length)
