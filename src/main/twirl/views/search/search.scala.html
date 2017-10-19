@@ -26,7 +26,8 @@
                     @if(results.items.nonEmpty) {
                         <ul class="searchresults">
                             <p>
-                                @results.totalResults @(if(results.totalResults == 1) "match" else "matches") found
+                                @if(results.totalResultsLimited) {More than}
+                                @results.effectiveTotal @(if(results.effectiveTotal == 1) "match" else "matches") found
                             </p>
                             @for(result <- results.items) {
                                 @views.html.shared._companySummary(result, counts.getOrElse(result.companiesHouseId, 0), companyLink(result.companiesHouseId))
