@@ -26,7 +26,7 @@ case class PagedResults[T](items: Seq[T], pageSize: Int, pageNumber: Int, privat
 
   val totalResultsLimited: Boolean = resultLimit.exists(_ < totalResults)
 
-  val pageCount: Int = (totalResults / pageSize.toDouble).ceil.toInt
+  val pageCount: Int = (effectiveTotal / pageSize.toDouble).ceil.toInt
 
   private def isValidRange(pageNumber: Int) = pageNumber <= pageCount && pageNumber >= 1
 
