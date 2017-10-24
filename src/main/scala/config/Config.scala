@@ -55,13 +55,14 @@ case class ServiceConfig(
   logRequests: Option[Boolean],
   logAssets: Option[Boolean],
   sessionTimeoutInMinutes: Option[Int],
-  rootRedirectURL: Option[String]
+  rootRedirectURL: Option[String],
+  webhookURL: Option[String]
 ) {
   def multiPageForm: Boolean = featureFlags.map(_.multiPageForm).getOrElse(ServiceConfig.defaultFeatureFlags.multiPageForm)
 }
 
 object ServiceConfig {
-  val empty                   = ServiceConfig(None, None, None, None, None, None)
+  val empty                   = ServiceConfig(None, None, None, None, None, None, None)
   val defaultServiceStartDate = new LocalDate(2017, 4, 6)
   val defaultFeatureFlags     = FeatureFlags(true)
 }
