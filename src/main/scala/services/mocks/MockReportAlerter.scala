@@ -22,5 +22,5 @@ import services.{CompanyDetail, ReportAlerter}
 
 class MockReportAlerter extends ReportAlerter {
   override def alert(companyDetail: CompanyDetail, url: String): Unit =
-    Logger.debug(s"Report filed for ${companyDetail.companyName}. $url")
+    Logger.debug(s"Report filed for ${companyDetail.companyName} - $url")
 }
