@@ -15,20 +15,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package services.live
+package services
 
-import javax.inject.{Inject, Named}
+import com.google.inject.ImplementedBy
+import services.live.EventHandlerImpl
 
-import play.api.libs.json.Json._
-import play.api.libs.ws.WSClient
-import services.{CompanyDetail, ReportAlerter}
-
-class ReportAlerterImpl @Inject()(ws: WSClient, @Named("webhookUrl") webhookUrl: String) extends ReportAlerter {
-  override def alert(companyDetail: CompanyDetail, url: String): Unit = {
-    ws.url(webhookUrl).post(
-      obj(
-        "username" -> "Publish Payment Report",
-        "text" -> s"Report published for ${companyDetail.companyName}\n$url"
-      ))
-  }
+@ImplementedBy(classOf[EventHandlerImpl])
+trait EventHandler {
+  def reportPublished(companyDetail: CompanyDetail, url: String): Unit
 }

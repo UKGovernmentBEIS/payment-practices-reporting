@@ -49,8 +49,7 @@ class ShortFormReviewController @Inject()(
   val sessionService: SessionService,
   shortFormPageModel: ShortFormPageModel,
   reviewPageData: ReviewPageData,
-  alerter: ReportAlerter,
-  @Named("confirmation-actor") confirmationActor: ActorRef
+  eventHandler: EventHandler
 )(implicit val ec: ExecutionContext, messages: MessagesApi)
   extends Controller
     with BaseFormController
@@ -125,16 +124,10 @@ class ShortFormReviewController @Inject()(
     )
   }
 
-  private def createReport(companyDetail: CompanyDetail, emailAddress: String, reportingPeriod: ReportingPeriodFormModel, shortForm: ShortFormModel, confirmedBy: String, urlFunction: ReportId => String): Future[ReportId] = {
-    val f = for {
-      reportId <- reports.createShortReport(companyDetail, reportingPeriod, shortForm, confirmedBy, emailAddress, urlFunction)
-      _ <- Future.successful(confirmationActor ! 'poll)
-    } yield reportId
-
-    f.onSuccess {
-      case reportId => alerter.alert(companyDetail, urlFunction(reportId))
+  private[controllers] def createReport(companyDetail: CompanyDetail, emailAddress: String, reportingPeriod: ReportingPeriodFormModel, shortForm: ShortFormModel, confirmedBy: String, urlFunction: ReportId => String): Future[ReportId] = {
+    reports.createShortReport(companyDetail, reportingPeriod, shortForm, confirmedBy, emailAddress, urlFunction).map { reportId =>
+      eventHandler.reportPublished(companyDetail, urlFunction(reportId))
+      reportId
     }
-
-    f
   }
 }
