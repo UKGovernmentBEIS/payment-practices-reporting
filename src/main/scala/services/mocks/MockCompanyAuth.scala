@@ -26,7 +26,7 @@ import scala.concurrent.Future
 class MockCompanyAuth extends CompanyAuthService {
 
   val emails: Map[CompaniesHouseId, String] = Map(
-    CompaniesHouseId("000000001") -> "doug@wellfactored.com",
+    CompaniesHouseId("000000001") -> "foo@bar.com",
     CompaniesHouseId("000000002") -> "bar@baz.com"
   )
 
