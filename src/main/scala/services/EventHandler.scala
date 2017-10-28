@@ -15,12 +15,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package services.mocks
+package services
 
-import play.api.Logger
-import services.{CompanyDetail, ReportAlerter}
+import com.google.inject.ImplementedBy
+import services.live.EventHandlerImpl
 
-class MockReportAlerter extends ReportAlerter {
-  override def alert(companyDetail: CompanyDetail, url: String): Unit =
-    Logger.debug(s"Report filed for ${companyDetail.companyName} - $url")
+@ImplementedBy(classOf[EventHandlerImpl])
+trait EventHandler {
+  def reportPublished(companyDetail: CompanyDetail, url: String): Unit
 }

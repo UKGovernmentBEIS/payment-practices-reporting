@@ -17,6 +17,8 @@
 
 package services
 
-trait ReportAlerter {
-  def alert(companyDetail: CompanyDetail, url: String): Unit
+import cats.effect.IO
+
+trait WebhookService {
+  def send(text: String): IO[Unit]
 }

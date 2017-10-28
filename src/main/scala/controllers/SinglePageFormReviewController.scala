@@ -45,8 +45,7 @@ class SinglePageFormReviewController @Inject()(
   val sessionService: SessionService,
   singlePageFormPageModel: SinglePageFormPageModel,
   reviewPageData: ReviewPageData,
-  alerter: ReportAlerter,
-  @Named("confirmation-actor") confirmationActor: ActorRef
+  eventHandler: EventHandler
 )(implicit val ec: ExecutionContext, messages: MessagesApi)
   extends Controller
     with BaseFormController
@@ -118,16 +117,10 @@ class SinglePageFormReviewController @Inject()(
     )
   }
 
-  private def createReport(companyDetail: CompanyDetail, emailAddress: String, reportingPeriod: ReportingPeriodFormModel, longForm: LongFormModel, confirmedBy: String, urlFunction: ReportId => String): Future[ReportId] = {
-    val f = for {
-      reportId <- reports.createLongReport(companyDetail, reportingPeriod, longForm, confirmedBy, emailAddress, urlFunction)
-      _ <- Future.successful(confirmationActor ! 'poll)
-    } yield reportId
-
-    f.onSuccess {
-      case reportId => alerter.alert(companyDetail, urlFunction(reportId))
+  private[controllers] def createReport(companyDetail: CompanyDetail, emailAddress: String, reportingPeriod: ReportingPeriodFormModel, longForm: LongFormModel, confirmedBy: String, urlFunction: ReportId => String): Future[ReportId] = {
+    reports.createLongReport(companyDetail, reportingPeriod, longForm, confirmedBy, emailAddress, urlFunction).map { reportId =>
+      eventHandler.reportPublished(companyDetail, urlFunction(reportId))
+      reportId
     }
-
-    f
   }
 }

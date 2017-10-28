@@ -17,10 +17,9 @@
 
 package controllers
 
-import javax.inject.{Inject, Named}
+import javax.inject.Inject
 
 import actions.{CompanyAuthAction, CompanyAuthRequest}
-import akka.actor.ActorRef
 import config.{PageConfig, ServiceConfig}
 import controllers.FormPageDefs.MultiPageFormName._
 import controllers.FormPageDefs._
@@ -48,8 +47,7 @@ class MultiPageFormReviewController @Inject()(
   val sessionService: SessionService,
   longFormPageModel: MultiPageFormPageModel,
   reviewPageData: ReviewPageData,
-  alerter: ReportAlerter,
-  @Named("confirmation-actor") confirmationActor: ActorRef
+  eventHandler: EventHandler
 )(implicit val ec: ExecutionContext, messages: MessagesApi)
   extends Controller
     with BaseFormController
@@ -133,17 +131,10 @@ class MultiPageFormReviewController @Inject()(
     )
   }
 
-  private def createReport(companyDetail: CompanyDetail, emailAddress: String, reportingPeriod: ReportingPeriodFormModel, longForm: LongFormModel, confirmedBy: String, urlFunction: ReportId => String): Future[ReportId] = {
-    val f = for {
-      reportId <- reports.createLongReport(companyDetail, reportingPeriod, longForm, confirmedBy, emailAddress, urlFunction)
-      _ <- Future.successful(confirmationActor ! 'poll)
-    } yield reportId
-
-
-    f.onSuccess {
-      case reportId => alerter.alert(companyDetail, urlFunction(reportId))
+  private[controllers] def createReport(companyDetail: CompanyDetail, emailAddress: String, reportingPeriod: ReportingPeriodFormModel, longForm: LongFormModel, confirmedBy: String, urlFunction: ReportId => String): Future[ReportId] = {
+    reports.createLongReport(companyDetail, reportingPeriod, longForm, confirmedBy, emailAddress, urlFunction).map { reportId =>
+      eventHandler.reportPublished(companyDetail, urlFunction(reportId))
+      reportId
     }
-
-    f
   }
 }

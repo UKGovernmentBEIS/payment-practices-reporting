@@ -27,12 +27,15 @@ class MockNotify extends NotifyService {
   val json =
     """
       |{
-      |  "data":{
-      |    "notification": {
-      |      "id":"1"
-      |    },
+      |  "id":"36ccf3ec-bbd6-11e7-abc4-cec278b6b50a",
+      |  "content":{
+      |    "subject":"report published",
       |    "body":"Your report has been published.",
-      |    "template_version":1
+      |  },
+      |  "template": {
+      |    "id":"36ccf3ec-bbd6-11e7-abc4-cec278b6b50a",
+      |    "version":1,
+      |    "uri" :"http://localhost"
       |  }
       |}
     """.stripMargin
