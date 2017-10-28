@@ -28,6 +28,9 @@ import scala.concurrent.Future
 
 @ImplementedBy(classOf[ConfirmationTable])
 trait ConfirmationService {
+
+  def createPendingConfirmations(urlFunction: ReportId => String): Future[Unit]
+
   /**
     * Look for a single confirmation record that is ready to be sent and, lock it for the configured
     * locking period. If one is found, return both the confirmation detail and the report it relates

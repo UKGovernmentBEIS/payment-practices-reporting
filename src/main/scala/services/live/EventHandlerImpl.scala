@@ -20,30 +20,23 @@ package services.live
 import javax.inject.{Inject, Named}
 
 import akka.actor.ActorRef
-import config.ServiceConfig
-import play.api.libs.json.Json._
-import play.api.libs.ws.WSClient
-import services.{CompanyDetail, EventHandler}
+import cats.effect.IO
+import play.api.Logger
+import services.{CompanyDetail, EventHandler, WebhookService}
 
 import scala.concurrent.ExecutionContext
 
 class EventHandlerImpl @Inject()(
-  ws: WSClient,
-  serviceConfig: ServiceConfig,
+  webhookService: WebhookService,
   @Named("confirmation-actor") confirmationActor: ActorRef
 )(implicit ec: ExecutionContext) extends EventHandler {
-  /**
-    * If a webhook url is configured then send an event to it.
-    *
-    * Also send a poll message to the confirmation actor to trigger an email to
-    * the user who published the report.
-    */
-  override def reportPublished(companyDetail: CompanyDetail, reportURL: String): Unit = {
-    serviceConfig.webhookURL.map { whURL =>
-      val text = s"Report published for ${companyDetail.companyName}\n$reportURL"
-      ws.url(whURL).post(obj("username" -> "Publish Payment Report", "text" -> text))
-    }
+  private def logDebug(msg: String)(e: Either[Throwable, Unit]): Unit = e match {
+    case Left(t)  => Logger.debug(msg, t)
+    case Right(_) => ()
+  }
 
-    confirmationActor ! 'poll
+  override def reportPublished(companyDetail: CompanyDetail, reportURL: String): Unit = {
+    webhookService.send(s"Report published for ${companyDetail.companyName}\n$reportURL").unsafeRunAsync(logDebug("Error sending webhook message"))
+    IO(confirmationActor ! 'poll).unsafeRunAsync(logDebug("Error sending poll message to confirmation actor"))
   }
 }

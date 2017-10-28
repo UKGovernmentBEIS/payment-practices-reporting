@@ -44,6 +44,27 @@ class ConfirmationTable @Inject()(dbConfigProvider: DatabaseConfigProvider)(impl
 
   import profile.api._
 
+  private val unconfirmedReportsQ = reportTable
+    .joinLeft(confirmationPendingTable).on((r, p) => r.id === p.reportId)
+    .joinLeft(confirmationSentTable).on { case ((r, p), s) => r.id === s.reportId }
+    .joinLeft(confirmationFailedTable).on { case (((r, p), s), f) => r.id === f.reportId }
+    .map {
+      case (((r, p), s), f) => (r, p, s, f)
+    }.filter { case (r, p, s, f) => p.isEmpty && s.isEmpty && f.isEmpty }
+    .map { case (r, p, s, f) => r }
+
+  private val unconfirmedReportsC = Compiled(unconfirmedReportsQ)
+
+  override def createPendingConfirmations(urlFunction: ReportId => String): Future[Unit] = db.run {
+    unconfirmedReportsC.result.flatMap { rs => {
+      val confirmationPendingRows = rs.map { r =>
+        ConfirmationPendingRow(r.id, r.confirmationEmailAddress, urlFunction(r.id), 0, None, None, None)
+      }
+      confirmationPendingTable ++= confirmationPendingRows
+    }.map(_ => ())
+    }.transactionally
+  }
+
   override def findUnconfirmedAndLock(): Future[Option[(ConfirmationPendingRow, Report)]] = db.run {
     val lockTimeout = LocalDateTime.now().minusSeconds(30)
 
@@ -70,7 +91,7 @@ class ConfirmationTable @Inject()(dbConfigProvider: DatabaseConfigProvider)(impl
   override def confirmationFailed(reportId: ReportId, when: LocalDateTime, ex: NotificationClientException): Future[Unit] = {
     val failure = NotificationClientErrorProcessing.parseNotificationMessage(ex.getHttpResult, ex.getMessage) match {
       case Some(err) => NotificationClientErrorProcessing.processError(err)
-      case None => PermanentFailure(0, s"Unable to parse error body: ${ex.getMessage}")
+      case None      => PermanentFailure(0, s"Unable to parse error body: ${ex.getMessage}")
     }
 
     failure match {

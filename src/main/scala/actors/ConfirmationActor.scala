@@ -23,9 +23,10 @@ import akka.actor.Actor
 import play.api.Logger
 import services.ConfirmationDeliveryService
 
+import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 import scala.language.postfixOps
-import scala.util.Success
+import scala.util.{Failure, Success}
 
 /**
   * This actor manages the sending of confirmation emails via the GDS Notify service.
@@ -47,18 +48,20 @@ class ConfirmationActor @Inject()(deliveryService: ConfirmationDeliveryService) 
     * Use the execution context, and hence the thread pool, for this actor for scheduling
     * the poll events and for making the network calls to deliver notifications.
     */
-  implicit val ec = context.dispatcher
+  implicit val ec: ExecutionContext = context.dispatcher
 
   Logger.debug(s"ConfirmationActor started")
   Logger.debug(s"dispatcher is ${context.dispatcher}")
 
   context.system.scheduler.schedule(1 second, 10 seconds, self, 'poll)
 
+  //noinspection TypeAnnotation
   def receive = {
     case 'poll => deliveryService.attemptDelivery.onComplete {
       // some delivery attempt was made. Immediately see if there are more pending
       case Success(Some(_)) => self ! 'poll
-      case _ => // do nothing
+      case Success(None)    => ()
+      case Failure(t)       => Logger.warn("delivery failed", t)
     }
   }
 }

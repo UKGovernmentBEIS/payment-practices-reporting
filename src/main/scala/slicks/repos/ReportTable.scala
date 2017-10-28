@@ -19,6 +19,7 @@ package slicks.repos
 
 import javax.inject.Inject
 
+import dbrows.ConfirmationPendingRow
 import forms.report.{LongFormModel, ReportingPeriodFormModel, ShortFormModel}
 import models.{CompaniesHouseId, ReportId}
 import org.joda.time.LocalDate
@@ -27,7 +28,7 @@ import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfig}
 import services.{CompanyDetail, Report, ReportService}
 import slick.jdbc.JdbcProfile
 import slicks.helpers.RowBuilders
-import slicks.modules.{CoreModule, ReportModule}
+import slicks.modules.{ConfirmationModule, CoreModule, ReportModule}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -35,6 +36,7 @@ class ReportTable @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit e
   extends CoreModule
     with ReportService
     with ReportModule
+    with ConfirmationModule
     with ReportQueries
     with RowBuilders
     with HasDatabaseConfig[JdbcProfile] {
@@ -84,6 +86,7 @@ class ReportTable @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit e
       for {
         reportId <- reportTable.returning(reportTable.map(_.id)) += reportRow
         _ <- contractDetailsTable += buildContractDetails(reportId, longForm)
+        _ <- confirmationPendingTable += ConfirmationPendingRow(reportId, confirmationEmailAddress, reportUrl(reportId), 0, None, None, None)
       } yield reportId
     }.transactionally
   }
@@ -97,6 +100,12 @@ class ReportTable @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit e
     reportUrl: (ReportId) => String
   ): Future[ReportId] = db.run {
     val reportRow = buildReport(companyDetail, confirmedBy, reportingPeriod, shortFormModel.paymentCodes, confirmationEmailAddress)
-    reportTable.returning(reportTable.map(_.id)) += reportRow
+
+    {
+      for {
+        reportId <- reportTable.returning(reportTable.map(_.id)) += reportRow
+        _ <- confirmationPendingTable += ConfirmationPendingRow(reportId, confirmationEmailAddress, reportUrl(reportId), 0, None, None, None)
+      } yield reportId
+    }.transactionally
   }
 }

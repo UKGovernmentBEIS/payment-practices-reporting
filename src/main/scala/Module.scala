@@ -22,8 +22,8 @@ import config._
 import play.api.libs.concurrent.AkkaGuiceSupport
 import play.api.{Configuration, Environment, Logger}
 import services._
-import services.live.{CompaniesHouseAuth, CompaniesHouseSearch, NotifyServiceImpl}
-import services.mocks.{MockCompanyAuth, MockCompanySearch, MockNotify}
+import services.live.{CompaniesHouseAuth, CompaniesHouseSearch, NotifyServiceImpl, WebhookServiceImpl}
+import services.mocks.{MockCompanyAuth, MockCompanySearch, MockNotify, MockWebhookService}
 
 class Module(environment: Environment, configuration: Configuration) extends AbstractModule with AkkaGuiceSupport {
   override def configure(): Unit = {
@@ -62,6 +62,16 @@ class Module(environment: Environment, configuration: Configuration) extends Abs
       case None =>
         Logger.debug("Wiring in Notify Mock")
         bind(classOf[NotifyService]).to(classOf[MockNotify])
+    }
+
+    config.service.flatMap(_.webhookURL) match {
+      case Some(url) =>
+        bind(classOf[String]).annotatedWith(Names.named("WebhookURL")).toInstance(url)
+        bind(classOf[WebhookService]).to(classOf[WebhookServiceImpl])
+
+      case None =>
+        Logger.debug("Wiring in Webhook Mock")
+        bind(classOf[WebhookService]).to(classOf[MockWebhookService])
     }
 
     bind(classOf[Int])

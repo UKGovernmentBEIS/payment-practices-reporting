@@ -17,30 +17,9 @@
 
 package services.mocks
 
-import services.NotifyService
-import uk.gov.service.notify.SendEmailResponse
+import cats.effect.IO
+import services.WebhookService
 
-import scala.concurrent.{ExecutionContext, Future}
-
-class MockNotify extends NotifyService {
-
-  val json =
-    """
-      |{
-      |  "id":"36ccf3ec-bbd6-11e7-abc4-cec278b6b50a",
-      |  "content":{
-      |    "subject":"report published",
-      |    "body":"Your report has been published.",
-      |  },
-      |  "template": {
-      |    "id":"36ccf3ec-bbd6-11e7-abc4-cec278b6b50a",
-      |    "version":1,
-      |    "uri" :"http://localhost"
-      |  }
-      |}
-    """.stripMargin
-
-  override def sendEmail(recipient: String, params: Map[String, String])(implicit ec: ExecutionContext): Future[SendEmailResponse] = {
-    Future.successful(new SendEmailResponse(json))
-  }
+class MockWebhookService extends WebhookService{
+  override def send(text: String): IO[Unit] = IO.unit
 }

@@ -51,6 +51,7 @@ libraryDependencies ++= Seq(
   "org.joda" % "joda-convert" % "1.8.1",
   "com.github.nscala-time" %% "nscala-time" % "2.16.0",
   "org.typelevel" %% "cats-core" % "1.0.0-MF",
+  "org.typelevel" %% "cats-effect" % "0.4",
 
   "com.beachape" %% "enumeratum" % enumeratumVersion,
   "com.beachape" %% "enumeratum-play" % enumeratumVersion,
