@@ -15,13 +15,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package forms.report
+package generators
 
 import forms.DateRange
+import forms.report._
+import models.CompaniesHouseId
 import org.joda.time.LocalDate
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen.{alphaLowerChar, alphaUpperChar, frequency}
 import org.scalacheck.{Arbitrary, Gen}
+import services.CompanyDetail
 import utils.YesNo
 import utils.YesNo._
 
@@ -36,6 +39,15 @@ object ReportModelGenerators {
   def alphaSpaceString: Gen[String] = Gen.listOf(alphaSpaceChar).map(_.mkString)
 
   def genText(maxLength: Int): Gen[String] = alphaSpaceString.map(_.take(maxLength))
+
+  val genCompanyName: Gen[String] = genText(255)
+
+  val genCompaniesHouseId: Gen[CompaniesHouseId] = Gen.alphaStr.map(_.take(255)).map(CompaniesHouseId)
+
+  val genCompanyDetails:Gen[CompanyDetail] = for {
+    name <- genCompanyName
+    id <- genCompaniesHouseId
+  } yield CompanyDetail(id, name)
 
   def genConditionalText(maxLength: Int): Gen[ConditionalText] =
     Gen.option(genText(maxLength)).map(ConditionalText.apply)
