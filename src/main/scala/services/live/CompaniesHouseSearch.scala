@@ -40,7 +40,7 @@ class CompaniesHouseSearch @Inject()(val ws: WSClient, config: CompaniesHouseCon
   override def searchCompanies(search: String, page: Int, itemsPerPage: Int): Future[PagedResults[CompanySearchResult]] = {
     val s = views.html.helper.urlEncode(search)
     val startIndex = (page - 1) * itemsPerPage
-    val url = s"https://api.companieshouse.gov.uk/search/companies?q=$s&items_per_page=$itemsPerPage&start_index=$startIndex"
+    val url = s"${config.getProtocol}://${config.getHostname}/search/companies?q=$s&items_per_page=$itemsPerPage&start_index=$startIndex"
     val start = System.currentTimeMillis()
 
     get[ResultsPage](url, basicAuth).map { resultsPage =>

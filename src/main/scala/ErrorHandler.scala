@@ -40,19 +40,18 @@ class ErrorHandler @Inject()(
   extends DefaultHttpErrorHandler(env, conf, sourceMapper, router)
     with PageHelper {
 
-  override protected def onProdServerError(request: RequestHeader, exception: UsefulException) = {
-    implicit val r = request
+  override protected def onProdServerError(request: RequestHeader, exception: UsefulException): Future[Result] = {
+    implicit val r: RequestHeader = request
     Future.successful(InternalServerError(page("Something went wrong at our end")(home, views.html.errors.error500())))
   }
 
-
-  override protected def onBadRequest(request: RequestHeader, message: String) = {
-    implicit val r = request
+  override protected def onBadRequest(request: RequestHeader, message: String): Future[Result] = {
+    implicit val r: RequestHeader = request
     Future.successful(InternalServerError(page("We could not handle that request")(home, views.html.errors.error400())))
   }
 
   override protected def onNotFound(request: RequestHeader, message: String): Future[Result] = {
-    implicit val r = request
+    implicit val r: RequestHeader = request
     if (env.mode !== Mode.Prod) super.onNotFound(request, message)
     else Future.successful(NotFound(page("Page not found")(home, views.html.errors.error404())))
   }

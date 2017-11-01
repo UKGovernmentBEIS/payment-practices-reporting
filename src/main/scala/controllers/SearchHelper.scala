@@ -18,10 +18,12 @@
 package controllers
 
 import models.CompaniesHouseId
+import play.api.Logger
 import play.twirl.api.Html
 import services.{CompanySearchResult, CompanySearchService, PagedResults, ReportService}
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.control.NonFatal
 
 trait SearchHelper {
   def companySearch: CompanySearchService
@@ -31,8 +33,9 @@ trait SearchHelper {
   implicit def ec: ExecutionContext
 
   type ResultsPageFunction = (String, Option[PagedResults[CompanySearchResult]], Map[CompaniesHouseId, Int]) => Html
+  type ResultsErrorFunction = (String, String) => Html
 
-  def doSearch(query: Option[String], pageNumber: Option[Int], itemsPerPage: Option[Int], resultsPage: ResultsPageFunction) = {
+  def doSearch(query: Option[String], pageNumber: Option[Int], itemsPerPage: Option[Int], resultsPage: ResultsPageFunction, resultsError: ResultsErrorFunction): Future[Html] = {
     query match {
       case Some(q) => companySearch.searchCompanies(q, pageNumber.getOrElse(1), itemsPerPage.getOrElse(25)).flatMap { results =>
         val countsF = results.items.map { result =>
@@ -40,6 +43,10 @@ trait SearchHelper {
         }
 
         Future.sequence(countsF).map(counts => resultsPage(q, Some(results), Map(counts: _*)))
+      }.recover {
+        case NonFatal(e) =>
+          Logger.warn(e.getMessage)
+          resultsError(q, "We're having trouble connecting to the Companies House search service. Please try again in a few minutes.")
       }
 
       case None => Future.successful(resultsPage("", None, Map.empty))
