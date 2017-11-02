@@ -30,4 +30,4 @@ class Filters @Inject()(
                          log: LoggingFilter,
                          rest: RestErrorFilter,
                          securityHeadersFilter: SecurityHeadersFilter
-                       ) extends DefaultHttpFilters(log, tls, rest, securityHeadersFilter)
+                       ) extends DefaultHttpFilters(log, tls, securityHeadersFilter)

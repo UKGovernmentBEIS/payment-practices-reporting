@@ -25,7 +25,10 @@ import play.api.{Configuration, Logger}
 
 import scala.util.{Failure, Success, Try}
 
-case class CompaniesHouseConfig(apiKey: String)
+case class CompaniesHouseConfig(apiKey: String, hostname: Option[String], secure: Option[Boolean]) {
+  val getHostname: String = hostname.getOrElse("api.companieshouse.gov.uk")
+  val getProtocol: String = if (secure.getOrElse(true)) "https" else "http"
+}
 
 case class NotifyConfig(
   apiKey: String,

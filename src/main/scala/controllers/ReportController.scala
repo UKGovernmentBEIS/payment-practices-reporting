@@ -30,11 +30,12 @@ import play.api.data.Forms._
 import play.api.data._
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, Controller}
-import play.twirl.api.Html
 import services.{ReportService, _}
 import utils.YesNo
 
 import scala.concurrent.ExecutionContext
+import scala.concurrent.duration._
+import scala.language.postfixOps
 
 object ReportController {
   val searchPageTitle = "Publish a report"
@@ -73,9 +74,12 @@ class ReportController @Inject()(
     val externalRouter = implicitly[ExternalRouter]
 
     def resultsPage(q: String, results: Option[PagedResults[CompanySearchResult]], countMap: Map[CompaniesHouseId, Int]) =
-      page(searchPageTitle)(home, views.html.search.search(searchHeader, q, results, countMap, searchLink, companyLink, pageLink(query, itemsPerPage, _), externalRouter))
+      page(searchPageTitle)(home, views.html.search.search(searchHeader, q, None, results, countMap, searchLink, companyLink, pageLink(query, itemsPerPage, _), externalRouter))
 
-    doSearch(query, pageNumber, itemsPerPage, resultsPage).map(Ok(_))
+    def resultsError(q: String, errorMessage: String) =
+      page(searchPageTitle)(home, views.html.search.search(searchHeader, q, Some(errorMessage), None, Map(), searchLink, companyLink, pageLink(query, itemsPerPage, _), externalRouter))
+
+    doSearch(query, pageNumber, itemsPerPage, resultsPage, resultsError, Some(20 seconds)).map(Ok(_))
   }
 
   //noinspection TypeAnnotation

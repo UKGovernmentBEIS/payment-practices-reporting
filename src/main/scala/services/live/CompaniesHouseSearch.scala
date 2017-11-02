@@ -26,6 +26,7 @@ import play.api.Logger
 import play.api.libs.ws.WSClient
 import services._
 
+import scala.concurrent.duration.Duration
 import scala.concurrent.{ExecutionContext, Future}
 
 class CompaniesHouseSearch @Inject()(val ws: WSClient, config: CompaniesHouseConfig)(implicit val ec: ExecutionContext)
@@ -37,18 +38,21 @@ class CompaniesHouseSearch @Inject()(val ws: WSClient, config: CompaniesHouseCon
 
   def targetScope(companiesHouseId: CompaniesHouseId): String = s"https://api.companieshouse.gov.uk/company/${companiesHouseId.id}"
 
-  override def searchCompanies(search: String, page: Int, itemsPerPage: Int): Future[PagedResults[CompanySearchResult]] = {
+  // CoHo search api returns a 416 response if we try to retrieve results above number 400
+  private val maxResultIndex = 400
+
+  override def searchCompanies(search: String, page: Int, itemsPerPage: Int, timeout: Option[Duration]): Future[PagedResults[CompanySearchResult]] = {
     val s = views.html.helper.urlEncode(search)
-    val startIndex = (page - 1) * itemsPerPage
-    val url = s"https://api.companieshouse.gov.uk/search/companies?q=$s&items_per_page=$itemsPerPage&start_index=$startIndex"
+    val maxPage = maxResultIndex / itemsPerPage
+    val startIndex = (maxPage.min(page) - 1) * itemsPerPage
+    val url = s"${config.getProtocol}://${config.getHostname}/search/companies?q=$s&items_per_page=$itemsPerPage&start_index=$startIndex"
     val start = System.currentTimeMillis()
 
-    get[ResultsPage](url, basicAuth).map { resultsPage =>
+    get[ResultsPage](url, basicAuth, timeout).map { resultsPage =>
       val t = System.currentTimeMillis() - start
       Logger.debug(s"Companies house search took ${t}ms")
       val results = resultsPage.items.map(i => CompanySearchResult(i.company_number, i.title, i.address_snippet))
-      // CoHo search api returns a 416 response if we try to retrieve results above number 400
-      PagedResults(results, resultsPage.items_per_page, resultsPage.page_number, resultsPage.total_results, Some(400))
+      PagedResults(results, resultsPage.items_per_page, resultsPage.page_number, resultsPage.total_results, Some(maxResultIndex))
     }
   }
 

@@ -1,6 +1,7 @@
 @(
     searchHeader: Html,
     searchTerm: String,
+    errorMessage: Option[String],
     resultsO: Option[services.PagedResults[services.CompanySearchResult]],
     counts: Map[CompaniesHouseId, Int],
     searchLink: String,
@@ -34,6 +35,15 @@
                             }
                         </ul>
                         @shared._pageLinks(results, pageLink)
+                    }
+                }
+
+                @if(resultsO.isEmpty && errorMessage.isDefined) {
+                    @errorMessage.map { msg =>
+                        <div class="scannable-wrapper">
+                            <p class="bold-medium">Something went wrong at our end</p>
+                            <p>@msg</p>
+                        </div>
                     }
                 }
             }

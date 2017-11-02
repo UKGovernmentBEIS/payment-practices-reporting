@@ -19,20 +19,21 @@ package services
 
 import com.wellfactored.playbindings.ValueClassFormats
 import models.CompaniesHouseId
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 import scala.concurrent.Future
+import scala.concurrent.duration.Duration
 
 case class CompanySearchResult(companiesHouseId: CompaniesHouseId, companyName: String, companyAddress: Option[String])
 
 case class CompanyDetail(companiesHouseId: CompaniesHouseId, companyName: String)
 
 object CompanyDetail extends ValueClassFormats {
-  implicit val fmt = Json.format[CompanyDetail]
+  implicit val fmt: OFormat[CompanyDetail] = Json.format
 }
 
 trait CompanySearchService {
-  def searchCompanies(search: String, page: Int, itemsPerPage: Int): Future[PagedResults[CompanySearchResult]]
+  def searchCompanies(search: String, page: Int, itemsPerPage: Int, timeout: Option[Duration]): Future[PagedResults[CompanySearchResult]]
 
   def find(companiesHouseId: CompaniesHouseId): Future[Option[CompanyDetail]]
 }
