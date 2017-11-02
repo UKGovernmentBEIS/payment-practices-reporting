@@ -22,6 +22,7 @@ import play.api.Logger
 import play.twirl.api.Html
 import services.{CompanySearchResult, CompanySearchService, PagedResults, ReportService}
 
+import scala.concurrent.duration.Duration
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
 
@@ -35,9 +36,9 @@ trait SearchHelper {
   type ResultsPageFunction = (String, Option[PagedResults[CompanySearchResult]], Map[CompaniesHouseId, Int]) => Html
   type ResultsErrorFunction = (String, String) => Html
 
-  def doSearch(query: Option[String], pageNumber: Option[Int], itemsPerPage: Option[Int], resultsPage: ResultsPageFunction, resultsError: ResultsErrorFunction): Future[Html] = {
+  def doSearch(query: Option[String], pageNumber: Option[Int], itemsPerPage: Option[Int], resultsPage: ResultsPageFunction, resultsError: ResultsErrorFunction, timeout: Option[Duration] = None): Future[Html] = {
     query match {
-      case Some(q) => companySearch.searchCompanies(q, pageNumber.getOrElse(1), itemsPerPage.getOrElse(25)).flatMap { results =>
+      case Some(q) => companySearch.searchCompanies(q, pageNumber.getOrElse(1), itemsPerPage.getOrElse(25), timeout).flatMap { results =>
         val countsF = results.items.map { result =>
           reportService.byCompanyNumber(result.companiesHouseId).map(rs => (result.companiesHouseId, rs.length))
         }

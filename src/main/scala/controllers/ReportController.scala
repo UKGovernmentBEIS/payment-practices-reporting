@@ -34,6 +34,8 @@ import services.{ReportService, _}
 import utils.YesNo
 
 import scala.concurrent.ExecutionContext
+import scala.concurrent.duration._
+import scala.language.postfixOps
 
 object ReportController {
   val searchPageTitle = "Publish a report"
@@ -77,7 +79,7 @@ class ReportController @Inject()(
     def resultsError(q: String, errorMessage: String) =
       page(searchPageTitle)(home, views.html.search.search(searchHeader, q, Some(errorMessage), None, Map(), searchLink, companyLink, pageLink(query, itemsPerPage, _), externalRouter))
 
-    doSearch(query, pageNumber, itemsPerPage, resultsPage, resultsError).map(Ok(_))
+    doSearch(query, pageNumber, itemsPerPage, resultsPage, resultsError, Some(20 seconds)).map(Ok(_))
   }
 
   //noinspection TypeAnnotation
