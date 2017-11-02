@@ -23,6 +23,7 @@ import play.api.libs.json._
 import play.api.libs.ws.{WSClient, WSRequest, WSResponse}
 import services.RestService.{JsonParseException, RestFailure}
 
+import scala.concurrent.duration.Duration
 import scala.concurrent.{ExecutionContext, Future}
 
 trait RestService {
@@ -40,10 +41,10 @@ trait RestService {
         response.status match {
           case 200 => response.json.validate[A] match {
             case JsSuccess(a, _) => Some(a)
-            case JsError(errs) => throw JsonParseException("GET", request, response, errs)
+            case JsError(errs)   => throw JsonParseException("GET", request, response, errs)
           }
           case 404 => None
-          case _ => throw RestFailure("GET", request, response)
+          case _   => throw RestFailure("GET", request, response)
         }
       }
     }
@@ -58,16 +59,25 @@ trait RestService {
     }
   }
 
-  def get[A: Reads](url: String, auth: String): Future[A] = {
-    val request: WSRequest = ws.url(url).withHeaders((authorizationHeader, auth))
+  implicit class RequestSyntax(request: WSRequest) {
+    def withRequestTimeout(requestTimeout: Option[Duration]): WSRequest =
+      requestTimeout match {
+        case Some(dur) => request.withRequestTimeout(dur)
+        case None      => request
+      }
+  }
+
+  def get[A: Reads](url: String, auth: String, requestTimeout: Option[Duration] = None): Future[A] = {
+    val request: WSRequest = ws.url(url).withHeaders((authorizationHeader, auth)).withRequestTimeout(requestTimeout)
+
     loggingAndTiming("GET", request) {
       request.get.map { response =>
         response.status match {
           case 200 => response.json.validate[A] match {
             case JsSuccess(as, _) => as
-            case JsError(errs) => throw JsonParseException("GET", request, response, errs)
+            case JsError(errs)    => throw JsonParseException("GET", request, response, errs)
           }
-          case _ => throw RestFailure("GET", request, response)
+          case _   => throw RestFailure("GET", request, response)
         }
       }
     }
@@ -80,9 +90,9 @@ trait RestService {
         response.status match {
           case 200 => response.json.validate[Seq[A]] match {
             case JsSuccess(as, _) => as
-            case JsError(errs) => throw JsonParseException("GET", request, response, errs)
+            case JsError(errs)    => throw JsonParseException("GET", request, response, errs)
           }
-          case _ => throw RestFailure("GET", request, response)
+          case _   => throw RestFailure("GET", request, response)
         }
       }
     }
@@ -110,10 +120,10 @@ trait RestService {
         response.status match {
           case 200 => response.json.validate[A] match {
             case JsSuccess(a, _) => Some(a)
-            case JsError(errs) => throw JsonParseException("POST", request, response, errs)
+            case JsError(errs)   => throw JsonParseException("POST", request, response, errs)
           }
           case 404 => None
-          case _ => throw RestFailure("POST", request, response)
+          case _   => throw RestFailure("POST", request, response)
         }
       }
     }

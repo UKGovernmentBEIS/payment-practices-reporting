@@ -26,7 +26,9 @@ import play.api.Logger
 import play.api.libs.ws.WSClient
 import services._
 
+import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
+import scala.language.postfixOps
 
 class CompaniesHouseSearch @Inject()(val ws: WSClient, config: CompaniesHouseConfig)(implicit val ec: ExecutionContext)
   extends RestService with CompanySearchService {
@@ -43,7 +45,7 @@ class CompaniesHouseSearch @Inject()(val ws: WSClient, config: CompaniesHouseCon
     val url = s"${config.getProtocol}://${config.getHostname}/search/companies?q=$s&items_per_page=$itemsPerPage&start_index=$startIndex"
     val start = System.currentTimeMillis()
 
-    get[ResultsPage](url, basicAuth).map { resultsPage =>
+    get[ResultsPage](url, basicAuth, Some(20 seconds)).map { resultsPage =>
       val t = System.currentTimeMillis() - start
       Logger.debug(s"Companies house search took ${t}ms")
       val results = resultsPage.items.map(i => CompanySearchResult(i.company_number, i.title, i.address_snippet))
