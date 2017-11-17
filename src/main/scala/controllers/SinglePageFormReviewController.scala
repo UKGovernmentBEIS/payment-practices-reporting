@@ -105,9 +105,8 @@ class SinglePageFormReviewController @Inject()(
       errs => Future.successful(BadRequest(page(reviewPageTitle)(home, pages.review(errs, formGroups, action)))),
       review => {
         if (review.confirmed) verifyingOAuthScope(request.companyDetail.companiesHouseId, request.oAuthToken) {
-          val urlFunction: ReportId => String = (id: ReportId) => controllers.routes.ReportController.view(id).absoluteURL()
           for {
-            reportId <- createReport(request.companyDetail, request.emailAddress, reportingPeriod, longForm, review.confirmedBy, urlFunction)
+            reportId <- createReport(request.companyDetail, request.emailAddress, reportingPeriod, longForm, review.confirmedBy, er.report)
             _ <- clearFormData
           } yield Redirect(controllers.routes.ConfirmationController.showConfirmation(reportId))
         } else {

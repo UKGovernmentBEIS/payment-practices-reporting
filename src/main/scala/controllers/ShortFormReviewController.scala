@@ -17,10 +17,9 @@
 
 package controllers
 
-import javax.inject.{Inject, Named}
+import javax.inject.Inject
 
 import actions.{CompanyAuthAction, CompanyAuthRequest}
-import akka.actor.ActorRef
 import config.{PageConfig, ServiceConfig}
 import controllers.FormPageDefs._
 import forms.report._
@@ -112,9 +111,8 @@ class ShortFormReviewController @Inject()(
       errs => Future.successful(BadRequest(page(reviewPageTitle)(home, pages.review(errs, formGroups, action)))),
       review => {
         if (review.confirmed) verifyingOAuthScope(request.companyDetail.companiesHouseId, request.oAuthToken) {
-          val urlFunction: ReportId => String = (id: ReportId) => controllers.routes.ReportController.view(id).absoluteURL()
           for {
-            reportId <- createReport(request.companyDetail, request.emailAddress, reportingPeriod, shortForm, review.confirmedBy, urlFunction)
+            reportId <- createReport(request.companyDetail, request.emailAddress, reportingPeriod, shortForm, review.confirmedBy, er.report)
             _ <- clearFormData
           } yield Redirect(controllers.routes.ConfirmationController.showConfirmation(reportId))
         } else {

@@ -1,4 +1,4 @@
-@(reportId: ReportId, email: String, surveyMonkeyConfig: config.SurveyMonkeyConfig)
+@(reportId: ReportId, email: String, surveyMonkeyConfig: config.SurveyMonkeyConfig, reportUrl: String)
 
 <div id="contentStart" class="scannable-wrapper">
     <div class="govuk-box-highlight">
@@ -12,7 +12,7 @@
         <p>We have sent a confirmation email to @email</p>
     }
     <p>
-        You can view your published report <a href="@routes.ReportController.view(reportId)">here</a>.
+        You can view your published report <a href="@reportUrl">here</a>.
     </p>
 
     @surveyMonkeyConfig.feedbackFormCode.map { code =>
