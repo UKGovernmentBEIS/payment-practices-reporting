@@ -18,32 +18,36 @@
 package controllers
 
 import config.RoutesConfig
+import models.ReportId
+
+import scala.util.matching.Regex
 
 trait ExternalRouter {
   def root: String
-
   def search(): String
-
   def download(): String
+  def report(reportId: ReportId): String
 }
 
 class ExternalRoutes(routesConfig: RoutesConfig) {
-  val HerokuPattern = "beis-ppr-(.*)".r
+  val HerokuPattern: Regex = "beis-ppr-(.*)".r
 
-  private val searchPath = "search"
+  private val searchPath   = "search"
   private val downloadPath = "export"
 
-  def apply(requestHostname: String) = new ExternalRouter {
-    override val root = routesConfig.searchHost match {
+  def apply(requestHostname: String): ExternalRouter = new ExternalRouter {
+    override val root: String = routesConfig.searchHost match {
       case Some(hostname) => s"https://$hostname"
-      case None => requestHostname match {
+      case None           => requestHostname match {
         case HerokuPattern(environment) => s"https://beis-spp-$environment"
-        case _ => s"http://localhost:9001"
+        case _                          => s"http://localhost:9001"
       }
     }
 
     override def search(): String = s"$root/$searchPath"
 
     override def download(): String = s"$root/$downloadPath"
+
+    override def report(reportId: ReportId): String = s"$root/report/${reportId.id}"
   }
 }

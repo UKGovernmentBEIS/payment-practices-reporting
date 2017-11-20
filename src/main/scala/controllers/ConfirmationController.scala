@@ -37,11 +37,12 @@ class ConfirmationController @Inject()(
 
   private def publishTitle(companyName: String) = s"Publish a report for $companyName"
   
+  //noinspection TypeAnnotation
   def showConfirmation(reportId: ReportId) = Action.async { implicit request =>
     reports.find(reportId).map {
       case Some(report) => Ok(
         page(s"You have published a report for ${report.companyName}")
-        (home, pages.filingSuccess(reportId, report.confirmationEmailAddress, pageConfig.surveyMonkeyConfig)))
+        (home, pages.filingSuccess(reportId, report.confirmationEmailAddress, pageConfig.surveyMonkeyConfig, er.report(reportId))))
       case None => BadRequest(s"Could not find a report with id ${reportId.id}")
     }
   }
