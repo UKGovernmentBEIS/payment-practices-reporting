@@ -57,7 +57,7 @@ summary.subsidiaries.employees.y3=had an average of more than 250 employees duri
 
 field.reportDates.startDate.label=Start date of reporting period
 field.reportDates.endDate.label=End date of reporting period
-field.hasQualifyingContracts.label=Did your business enter into qualifying contracts in the reporting period?
+field.hasQualifyingContracts.label=Were you in any qualifying contracts during the reporting period?
 field.hasQualifyingContracts.hint=
 
 field.paymentStatistics.averageDaysToPay.label=Average time to pay in days
