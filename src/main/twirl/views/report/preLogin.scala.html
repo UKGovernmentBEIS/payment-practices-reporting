@@ -7,7 +7,10 @@
         <p class="panel">You need your Companies House Single Service login details and the business authentication code to verify your identity.</p>
         <p class="bold-medium">Do you have Companies House Single Service login details and an authentication code?</p>
         <p class="form-hint">
-            If you’re not sure, this is the authentication code you use to submit your Confirmation Statement through Webfiling on the Companies House website.</p>
+            Please note that older WebFiling and WebCHeck service login details will not work. Users should re-register
+            for the Companies House Single Service to get new login details. This does not change your company
+            authentication code (used to submit you Confirmation Statement through Webfiling), which remains valid
+            for the new service.</p>
 
         <form action="@routes.ReportController.login(company)" method="POST">
             <div class="form-group @errorClass(form(""))" id="account">
