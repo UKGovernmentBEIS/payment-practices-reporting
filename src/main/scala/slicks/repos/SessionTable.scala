@@ -118,8 +118,8 @@ class SessionTable @Inject()(dbConfigProvider: DatabaseConfigProvider, timeSourc
     }.transactionally.map(_ => ())
   }
 
-  override def removeExpired(): Future[Unit] = db.run {
-    sessionTable.filter(_.expiresAt <= timeSource.now()).delete.map(_ => ())
+  override def removeExpired(): Future[Int] = db.run {
+    sessionTable.filter(_.expiresAt <= timeSource.now()).delete
   }
 
   override def newSession: Future[SessionId] = db.run {

@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import actors.ConfirmationActor
+import actors.{ConfirmationActor, SessionReaperActor}
 import com.google.inject.AbstractModule
 import com.google.inject.name.Names
 import config._
@@ -86,7 +86,6 @@ class Module(environment: Environment, configuration: Configuration) extends Abs
     Logger.debug(s"Service config is ${config.service}")
 
     bindActor[ConfirmationActor]("confirmation-actor")
-
-    bind(classOf[SessionCleaner]).asEagerSingleton()
+    bindActor[SessionReaperActor]("session-reaper-actor")
   }
 }

@@ -83,15 +83,6 @@ trait SessionService {
     * Find any expired sessions (i.e. sessions that have expiry times that are earlier
     * than the current time) and remove them from the session store.
     */
-  def removeExpired(): Future[Unit]
+  def removeExpired(): Future[Int]
 
-}
-
-/**
-  * Schedule a process that will call the `SessionService.removeExpired` method periodically
-  * to ensure that stale sessions are cleaned up.
-  */
-@Singleton
-class SessionCleaner @Inject()(sessionService: SessionService, system: ActorSystem)(implicit ec: ExecutionContext) {
-  system.scheduler.schedule(10 seconds, 30 seconds)(sessionService.removeExpired())
 }
