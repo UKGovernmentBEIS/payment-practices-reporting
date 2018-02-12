@@ -45,15 +45,17 @@ class ReportTable @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit e
 
   import profile.api._
 
-  def reportByIdQ(reportId: Rep[ReportId]) = reportQuery.filter(_._1.id === reportId)
+  //noinspection TypeAnnotation
+  def activeReportByIdQ(reportId: Rep[ReportId]) = activeReportQuery.filter(_._1.id === reportId)
 
-  val reportByIdC = Compiled(reportByIdQ _)
+  val activeReportByIdC = Compiled(activeReportByIdQ _)
 
   def find(id: ReportId): Future[Option[Report]] = db.run {
-    reportByIdC(id).result.headOption.map(_.map(Report.apply))
+    activeReportByIdC(id).result.headOption.map(_.map(Report.apply))
   }
 
-  def reportByCoNoQ(cono: Rep[CompaniesHouseId]) = reportQuery.filter(_._1.companyId === cono)
+  //noinspection TypeAnnotation
+  def reportByCoNoQ(cono: Rep[CompaniesHouseId]) = activeReportQuery.filter(_._1.companyId === cono)
 
   val reportByCoNoC = Compiled(reportByCoNoQ _)
 
@@ -67,7 +69,7 @@ class ReportTable @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit e
     */
   def list(cutoffDate: LocalDate): Publisher[Report] = {
     val disableAutocommit = SimpleDBIO(_.connection.setAutoCommit(false))
-    val action = reportQueryC.result.withStatementParameters(fetchSize = 10000)
+    val action = activeReportQueryC.result.withStatementParameters(fetchSize = 10000)
 
     db.stream(disableAutocommit andThen action).mapResult(Report.apply)
   }
