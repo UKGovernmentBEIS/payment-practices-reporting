@@ -18,7 +18,6 @@
 package slicks.modules
 
 
-import com.wellfactored.slickgen.IdType
 import dbrows._
 import models.{CompaniesHouseId, ReportId}
 import org.joda.time.LocalDate
@@ -49,6 +48,8 @@ trait ReportModule {
     def startDate = column[LocalDate]("start_date")
     def endDate = column[LocalDate]("end_date")
     def paymentCodes = column[Option[String]]("payment_codes", O.Length(paymentCodesCharCount))
+    def archivedOn = column[Option[LocalDate]]("archived_on")
+    def archiveComment = column[Option[String]]("archive_comment")
 
     def * = (id,
       companyName,
@@ -58,7 +59,9 @@ trait ReportModule {
       confirmationEmailAddress,
       startDate,
       endDate,
-      paymentCodes
+      paymentCodes,
+      archivedOn,
+      archiveComment
     ) <> (ReportRow.tupled, ReportRow.unapply)
   }
 

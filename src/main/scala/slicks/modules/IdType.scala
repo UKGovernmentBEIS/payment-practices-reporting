@@ -15,13 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package slicks.moduledefs
+package slicks.modules
 
-import com.wellfactored.slickgen.{ModuleDefinition, ModuleSpec}
-import dbrows._
-
-object ReportModuleDef extends ModuleDefinition {
-  override def spec = ModuleSpec("ReportModule")
-    .withTableFor[ReportRow]
-    .withTableFor[ContractDetailsRow]
+object IdType {
+  val length = 36
 }

@@ -41,7 +41,6 @@ addCompilerPlugin("org.scalamacros" %% "paradise" % "2.1.0" cross CrossVersion.f
 libraryDependencies ++= Seq(
   ws,
   "com.wellfactored" %% "play-bindings" % "2.0.0",
-  "com.wellfactored" %% "slick-gen" % "0.0.4",
   "com.github.melrief" %% "pureconfig" % "0.4.0",
   "org.postgresql" % "postgresql" % "9.4.1211",
   "com.h2database" % "h2" % "1.4.191",
