@@ -34,7 +34,7 @@ val playSlickVersion = "2.1.0"
 // This is the highest version that supports Play 2.5
 val enumeratumVersion = "1.5.11"
 
-val monocleVersion = "1.5.0-cats-M1"
+val monocleVersion = "1.5.0"
 addCompilerPlugin("org.scalamacros" %% "paradise" % "2.1.0" cross CrossVersion.full)
 
 libraryDependencies ++= Seq(
