@@ -29,7 +29,7 @@ import scala.collection.JavaConversions._
 import scala.concurrent.{ExecutionContext, Future}
 
 class NotifyServiceImpl @Inject()(actorSystem: ActorSystem, config: NotifyConfig) extends NotifyService {
-  val key = config.apiKey
+  val key: String = config.apiKey
 
   /**
     * @param ec - the `sendEmail` call is blocking on the network call (because we're using the Java implementation
