@@ -1,9 +1,11 @@
 # --- !Ups
 
+create table "comment" ("id" BIGSERIAL NOT NULL PRIMARY KEY,"report_id" BIGINT NOT NULL,"comment" VARCHAR NOT NULL,"timestamp" TIMESTAMP NOT NULL);
+alter table "comment" add constraint "comment_report_fk" foreign key("report_id") references "report"("report_id") on update NO ACTION on delete CASCADE;
+
 alter table "report" add COLUMN "archived_on" TIMESTAMP NULL;
-alter table "report" add COLUMN "archive_comment" TEXT NULL;
 
 # --- !Downs
 
 alter table "report" drop COLUMN "archived_on";
-alter table "report" drop COLUMN "archive_comment";
+drop table "comment";

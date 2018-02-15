@@ -19,8 +19,8 @@ package slicks.modules
 
 
 import dbrows._
-import models.{CompaniesHouseId, ReportId}
-import org.joda.time.LocalDate
+import models.{CommentId, CompaniesHouseId, ReportId}
+import org.joda.time.{LocalDate, LocalDateTime}
 import utils.YesNo
 
 trait ReportModule {
@@ -31,6 +31,7 @@ trait ReportModule {
 
   implicit def yesNoMapper: BaseColumnType[YesNo] = MappedColumnType.base[YesNo, Boolean](_.toBoolean, YesNo.fromBoolean)
   implicit def reportIdMapper: BaseColumnType[ReportId] = MappedColumnType.base[ReportId, Long](_.id, ReportId)
+  implicit def commentIdMapper: BaseColumnType[CommentId] = MappedColumnType.base[CommentId, Long](_.id, CommentId)
   implicit def companiesHouseIdMapper: BaseColumnType[CompaniesHouseId] = MappedColumnType.base[CompaniesHouseId, String](_.id, CompaniesHouseId)
 
   type ReportQuery = Query[ReportTable, ReportRow, Seq]
@@ -49,7 +50,6 @@ trait ReportModule {
     def endDate = column[LocalDate]("end_date")
     def paymentCodes = column[Option[String]]("payment_codes", O.Length(paymentCodesCharCount))
     def archivedOn = column[Option[LocalDate]]("archived_on")
-    def archiveComment = column[Option[String]]("archive_comment")
 
     def * = (id,
       companyName,
@@ -60,8 +60,7 @@ trait ReportModule {
       startDate,
       endDate,
       paymentCodes,
-      archivedOn,
-      archiveComment
+      archivedOn
     ) <> (ReportRow.tupled, ReportRow.unapply)
   }
 
@@ -118,6 +117,22 @@ trait ReportModule {
   }
 
   lazy val contractDetailsTable = TableQuery[ContractDetailsTable]
+
+  type CommentQuery = Query[CommentTable, CommentRow, Seq]
+
+  class CommentTable(tag: Tag) extends Table[CommentRow](tag, "comment") {
+    def id = column[CommentId]("id", O.Length(IdType.length), O.PrimaryKey, O.AutoInc)
+
+    def reportId = column[ReportId](reportIdColumnName, O.Length(IdType.length), O.Unique)
+    def reportIdFK = foreignKey("comment_report_fk", reportId, reportTable)(_.id, onDelete = ForeignKeyAction.Cascade)
+
+    def comment = column[String]("comment")
+    def timestamp = column[LocalDateTime]("timestamp")
+
+    def * = (id, reportId, comment, timestamp) <> (CommentRow.tupled, CommentRow.unapply)
+  }
+
+  lazy val commentTable = TableQuery[CommentTable]
 
 }
 

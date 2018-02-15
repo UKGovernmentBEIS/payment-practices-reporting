@@ -17,10 +17,10 @@
 
 package dbrows
 
-import models.{CompaniesHouseId, ReportId}
-import org.joda.time.LocalDate
-import utils.YesNo
 
+import models.{CommentId, CompaniesHouseId, ReportId}
+import org.joda.time.{LocalDate, LocalDateTime}
+import utils.YesNo
 
 case class ReportRow(
   id: ReportId,
@@ -33,8 +33,7 @@ case class ReportRow(
   startDate: LocalDate,
   endDate: LocalDate,
   paymentCodes: Option[String],
-  archivedOn: Option[LocalDate] = None,
-  archiveComment: Option[String]= None
+  archivedOn: Option[LocalDate] = None
 )
 
 case class ContractDetailsRow(
@@ -60,4 +59,11 @@ case class ContractDetailsRow(
   percentInvoicesWithin30Days: Int,
   percentInvoicesWithin60Days: Int,
   percentInvoicesBeyond60Days: Int
+)
+
+case class CommentRow(
+  id: CommentId,
+  reportId: ReportId,
+  comment: String,
+  timestamp: LocalDateTime
 )
