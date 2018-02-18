@@ -25,7 +25,7 @@ import models.{CommentId, CompaniesHouseId, ReportId}
 import org.joda.time.{LocalDate, LocalDateTime}
 import org.reactivestreams.Publisher
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfig}
-import services.{CompanyDetail, Report, ReportService}
+import services._
 import slick.jdbc.JdbcProfile
 import slicks.helpers.RowBuilders
 import slicks.modules.{ConfirmationModule, CoreModule, ReportModule}
@@ -121,27 +121,26 @@ class ReportTable @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit e
     }.transactionally
   }
 
-  override def archive(id: ReportId, timestamp: LocalDateTime, comment: String): Future[Int] =
-    find(id).flatMap {
-      case Some(report) => db.run {
-        for {
-          updateCount <- reportTable.filter(_.id === report.id).map(_.archivedOn).update(Some(timestamp))
-          _ <- commentTable += CommentRow(CommentId(0), id, comment, timestamp)
-        } yield updateCount
-      }
 
-      case None => Future.successful(0)
-    }
+  override def archive(id: ReportId, timestamp: LocalDateTime, comment: String): Future[ArchiveResult] = db.run {
+    reportTable.filter(_.id === id).result.headOption.flatMap {
+      case None                                        => DBIO.successful(ArchiveResult.NotFound)
+      case Some(report) if report.archivedOn.isDefined => DBIO.successful(ArchiveResult.AlreadyArchived)
+      case Some(report)                                => for {
+        _ <- reportTable.filter(_.id === report.id).map(_.archivedOn).update(Some(timestamp))
+        _ <- commentTable += CommentRow(CommentId(0), id, comment, timestamp)
+      } yield ArchiveResult.Archived
+    }.transactionally
+  }
 
-  override def unarchive(id: ReportId, timestamp: LocalDateTime, comment: String): Future[Int] =
-    findArchived(id).flatMap {
-      case Some(report) => db.run {
-        for {
-          updateCount <- reportTable.filter(_.id === report.id).map(_.archivedOn).update(None)
-          _ <- commentTable += CommentRow(CommentId(0), id, comment, timestamp)
-        } yield updateCount
-      }
-
-      case None => Future.successful(0)
-    }
+  override def unarchive(id: ReportId, timestamp: LocalDateTime, comment: String): Future[UnarchiveResult] = db.run {
+    reportTable.filter(_.id === id).result.headOption.flatMap {
+      case None                                      => DBIO.successful(UnarchiveResult.NotFound)
+      case Some(report) if report.archivedOn.isEmpty => DBIO.successful(UnarchiveResult.NotArchived)
+      case Some(report)                              => for {
+        _ <- reportTable.filter(_.id === report.id).map(_.archivedOn).update(Some(timestamp))
+        _ <- commentTable += CommentRow(CommentId(0), id, comment, timestamp)
+      } yield UnarchiveResult.Unarchived
+    }.transactionally
+  }
 }

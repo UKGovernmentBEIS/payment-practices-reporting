@@ -46,8 +46,9 @@ class ReportsController @Inject()(
     val comment = request.body.comment.getOrElse(s"Archived via an api call.")
 
     reportService.archive(reportId, timestamp, comment).map {
-      case 1 => NoContent
-      case _ => NotFound
+      case ArchiveResult.Archived        => NoContent
+      case ArchiveResult.AlreadyArchived => Conflict("The report is already archived.")
+      case ArchiveResult.NotFound        => NotFound
     }
   }
   //noinspection TypeAnnotation
@@ -56,8 +57,9 @@ class ReportsController @Inject()(
     val comment = request.body.comment.getOrElse(s"Un-archived via an api call.")
 
     reportService.unarchive(reportId, timestamp, comment).map {
-      case 1 => NoContent
-      case _ => NotFound
+      case UnarchiveResult.Unarchived  => NoContent
+      case UnarchiveResult.NotArchived => Conflict("The report is not currently archived.")
+      case UnarchiveResult.NotFound    => NotFound
     }
   }
 }
