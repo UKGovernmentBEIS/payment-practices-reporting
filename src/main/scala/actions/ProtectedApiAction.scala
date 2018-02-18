@@ -22,24 +22,23 @@ import javax.inject.Inject
 import cats.instances.string._
 import cats.syntax.eq._
 import config.ApiConfig
-import play.api.Logger
 import play.api.mvc.{ActionBuilder, Request, Result, Results}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class ProtectedApiAction @Inject()(apiConfig: ApiConfig)(implicit ec: ExecutionContext) extends ActionBuilder[Request] {
 
-  import Results.Unauthorized
+  import Results.{ServiceUnavailable, Unauthorized}
 
   override def invokeBlock[A](request: Request[A], body: Request[A] => Future[Result]): Future[Result] = {
-    Logger.debug(s"configured api token is: ${apiConfig.token}")
     val auth = request.headers.get("Authorization")
-    Logger.debug(s"auth header is $auth")
+
     (auth, apiConfig.token) match {
       case (Some(Bearer(suppliedToken)), Some(configuredToken)) if suppliedToken === configuredToken =>
         body(request).map(_.withHeaders("Access-Control-Allow-Origin" -> "*"))
 
-      case _ => Future.successful(Unauthorized)
+      case (_, None) => Future.successful(ServiceUnavailable)
+      case _         => Future.successful(Unauthorized)
     }
   }
 }
