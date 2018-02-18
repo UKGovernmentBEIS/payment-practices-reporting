@@ -22,7 +22,7 @@ import dbrows.{ContractDetailsRow, ReportRow}
 import forms.DateRange
 import forms.report._
 import models.{CompaniesHouseId, ReportId}
-import org.joda.time.LocalDate
+import org.joda.time.{LocalDate, LocalDateTime}
 import org.reactivestreams.Publisher
 import slicks.repos.ReportTable
 
@@ -129,4 +129,7 @@ trait ReportService {
     confirmationEmailAddress: String,
     reportUrl: (ReportId) => String
   ): Future[ReportId]
+
+  def archive(id: ReportId, timestamp: LocalDateTime, comment: String): Future[Int]
+  def unarchive(id: ReportId, timestamp: LocalDateTime, comment: String): Future[Int]
 }

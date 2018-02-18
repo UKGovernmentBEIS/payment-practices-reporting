@@ -33,7 +33,7 @@ case class ReportRow(
   startDate: LocalDate,
   endDate: LocalDate,
   paymentCodes: Option[String],
-  archivedOn: Option[LocalDate] = None
+  archivedOn: Option[LocalDateTime] = None
 )
 
 case class ContractDetailsRow(

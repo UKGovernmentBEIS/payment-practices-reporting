@@ -19,10 +19,10 @@ package slicks.repos
 
 import javax.inject.Inject
 
-import dbrows.ConfirmationPendingRow
+import dbrows.{CommentRow, ConfirmationPendingRow}
 import forms.report.{LongFormModel, ReportingPeriodFormModel, ShortFormModel}
-import models.{CompaniesHouseId, ReportId}
-import org.joda.time.LocalDate
+import models.{CommentId, CompaniesHouseId, ReportId}
+import org.joda.time.{LocalDate, LocalDateTime}
 import org.reactivestreams.Publisher
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfig}
 import services.{CompanyDetail, Report, ReportService}
@@ -53,6 +53,16 @@ class ReportTable @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit e
   def find(id: ReportId): Future[Option[Report]] = db.run {
     activeReportByIdC(id).result.headOption.map(_.map(Report.apply))
   }
+
+  //noinspection TypeAnnotation
+  def archivedReportByIdQ(reportId: Rep[ReportId]) = archivedReportQuery.filter(_._1.id === reportId)
+
+  val archivedReportByIdC = Compiled(archivedReportByIdQ _)
+
+  def findArchived(id: ReportId): Future[Option[Report]] = db.run {
+    archivedReportByIdC(id).result.headOption.map(_.map(Report.apply))
+  }
+
 
   //noinspection TypeAnnotation
   def reportByCoNoQ(cono: Rep[CompaniesHouseId]) = activeReportQuery.filter(_._1.companyId === cono)
@@ -110,4 +120,28 @@ class ReportTable @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit e
       } yield reportId
     }.transactionally
   }
+
+  override def archive(id: ReportId, timestamp: LocalDateTime, comment: String): Future[Int] =
+    find(id).flatMap {
+      case Some(report) => db.run {
+        for {
+          updateCount <- reportTable.filter(_.id === report.id).map(_.archivedOn).update(Some(timestamp))
+          _ <- commentTable += CommentRow(CommentId(0), id, comment, timestamp)
+        } yield updateCount
+      }
+
+      case None => Future.successful(0)
+    }
+
+  override def unarchive(id: ReportId, timestamp: LocalDateTime, comment: String): Future[Int] =
+    findArchived(id).flatMap {
+      case Some(report) => db.run {
+        for {
+          updateCount <- reportTable.filter(_.id === report.id).map(_.archivedOn).update(None)
+          _ <- commentTable += CommentRow(CommentId(0), id, comment, timestamp)
+        } yield updateCount
+      }
+
+      case None => Future.successful(0)
+    }
 }
