@@ -138,7 +138,7 @@ class ReportTable @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit e
       case None                                      => DBIO.successful(UnarchiveResult.NotFound)
       case Some(report) if report.archivedOn.isEmpty => DBIO.successful(UnarchiveResult.NotArchived)
       case Some(report)                              => for {
-        _ <- reportTable.filter(_.id === report.id).map(_.archivedOn).update(Some(timestamp))
+        _ <- reportTable.filter(_.id === report.id).map(_.archivedOn).update(None)
         _ <- commentTable += CommentRow(CommentId(0), id, comment, timestamp)
       } yield UnarchiveResult.Unarchived
     }.transactionally
