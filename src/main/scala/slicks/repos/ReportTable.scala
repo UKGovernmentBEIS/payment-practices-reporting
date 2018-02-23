@@ -55,16 +55,6 @@ class ReportTable @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit e
   }
 
   //noinspection TypeAnnotation
-  def archivedReportByIdQ(reportId: Rep[ReportId]) = archivedReportQuery.filter(_._1.id === reportId)
-
-  val archivedReportByIdC = Compiled(archivedReportByIdQ _)
-
-  def findArchived(id: ReportId): Future[Option[Report]] = db.run {
-    archivedReportByIdC(id).result.headOption.map(_.map(Report.apply))
-  }
-
-
-  //noinspection TypeAnnotation
   def reportByCoNoQ(cono: Rep[CompaniesHouseId]) = activeReportQuery.filter(_._1.companyId === cono)
 
   val reportByCoNoC = Compiled(reportByCoNoQ _)
