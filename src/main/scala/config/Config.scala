@@ -52,6 +52,13 @@ object GoogleAnalyticsConfig {
 
 case class FeatureFlags(multiPageForm: Boolean)
 
+case class ApiConfig(token: Option[String])
+
+object ApiConfig {
+  val empty = ApiConfig(None)
+}
+
+
 case class ServiceConfig(
   startDate: Option[LocalDate],
   featureFlags: Option[FeatureFlags],
@@ -89,7 +96,8 @@ case class Config(
   companiesHouse: Option[CompaniesHouseConfig],
   notifyService: Option[NotifyConfig],
   oAuth: Option[OAuthConfig],
-  pageConfig: PageConfig
+  pageConfig: PageConfig,
+  apiConfig: ApiConfig
 )
 
 @Singleton
@@ -97,7 +105,6 @@ class AppConfig @Inject()(configuration: Configuration) {
   private val df = DateTimeFormat.forPattern("yyyy-M-d")
 
   import pureconfig._
-  import ConfigConvert._
 
   private def load[T: ConfigConvert](path: String): Option[T] =
     Try {
@@ -127,6 +134,7 @@ class AppConfig @Inject()(configuration: Configuration) {
   private val surveyMonkeyConfig: SurveyMonkeyConfig    = load[SurveyMonkeyConfig]("surveyMonkey").getOrElse(SurveyMonkeyConfig.empty)
 
   private val pageConfig = PageConfig(googleAnalytics, routesConfig, surveyMonkeyConfig)
+  private val apiConfig  = load[ApiConfig]("api").getOrElse(ApiConfig.empty)
 
-  val config = Config(service, companiesHouse, notifyService, oAuth, pageConfig)
+  val config = Config(service, companiesHouse, notifyService, oAuth, pageConfig, apiConfig)
 }

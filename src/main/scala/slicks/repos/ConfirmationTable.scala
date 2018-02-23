@@ -70,7 +70,7 @@ class ConfirmationTable @Inject()(dbConfigProvider: DatabaseConfigProvider)(impl
 
     val q = for {
       c <- confirmationPendingTable if c.lockedAt.isEmpty || c.lockedAt < lockTimeout
-      r <- reportQuery if r._1.id === c.reportId
+      r <- activeReportQuery if r._1.id === c.reportId
     } yield (c, r)
 
     val action = q.result.headOption.map(_.map { case (c, r) => (c, Report.apply(r)) })

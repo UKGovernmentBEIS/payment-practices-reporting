@@ -15,13 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package slicks.moduledefs
+package models
 
-import com.wellfactored.slickgen.{ModuleDefinition, ModuleSpec}
-import dbrows._
+case class ReportId(id: Long) extends AnyVal
+case class CommentId(id: Long) extends AnyVal
 
-object ReportModuleDef extends ModuleDefinition {
-  override def spec = ModuleSpec("ReportModule")
-    .withTableFor[ReportRow]
-    .withTableFor[ContractDetailsRow]
-}

@@ -34,14 +34,12 @@ val playSlickVersion = "2.1.0"
 // This is the highest version that supports Play 2.5
 val enumeratumVersion = "1.5.11"
 
-val monocleVersion = "1.5.0-cats-M1"
+val monocleVersion = "1.5.0"
 addCompilerPlugin("org.scalamacros" %% "paradise" % "2.1.0" cross CrossVersion.full)
-
 
 libraryDependencies ++= Seq(
   ws,
   "com.wellfactored" %% "play-bindings" % "2.0.0",
-  "com.wellfactored" %% "slick-gen" % "0.0.4",
   "com.github.melrief" %% "pureconfig" % "0.4.0",
   "org.postgresql" % "postgresql" % "9.4.1211",
   "com.h2database" % "h2" % "1.4.191",
@@ -50,8 +48,9 @@ libraryDependencies ++= Seq(
   "joda-time" % "joda-time" % "2.9.7",
   "org.joda" % "joda-convert" % "1.8.1",
   "com.github.nscala-time" %% "nscala-time" % "2.16.0",
-  "org.typelevel" %% "cats-core" % "1.0.0-MF",
-  "org.typelevel" %% "cats-effect" % "0.4",
+
+  "org.typelevel" %% "cats-core" % "1.0.1",
+  "org.typelevel" %% "cats-effect" % "0.5",
 
   "com.beachape" %% "enumeratum" % enumeratumVersion,
   "com.beachape" %% "enumeratum-play" % enumeratumVersion,

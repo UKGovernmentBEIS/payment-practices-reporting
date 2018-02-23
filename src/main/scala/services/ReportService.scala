@@ -22,7 +22,7 @@ import dbrows.{ContractDetailsRow, ReportRow}
 import forms.DateRange
 import forms.report._
 import models.{CompaniesHouseId, ReportId}
-import org.joda.time.LocalDate
+import org.joda.time.{LocalDate, LocalDateTime}
 import org.reactivestreams.Publisher
 import slicks.repos.ReportTable
 
@@ -96,6 +96,20 @@ case class ContractDetails(
   otherInformation: OtherInformation
 )
 
+sealed trait ArchiveResult
+object ArchiveResult {
+  case object NotFound extends ArchiveResult
+  case object AlreadyArchived extends ArchiveResult
+  case object Archived extends ArchiveResult
+}
+
+sealed trait UnarchiveResult
+object UnarchiveResult {
+  case object NotFound extends UnarchiveResult
+  case object NotArchived extends UnarchiveResult
+  case object Unarchived extends UnarchiveResult
+}
+
 
 @ImplementedBy(classOf[ReportTable])
 trait ReportService {
@@ -129,4 +143,7 @@ trait ReportService {
     confirmationEmailAddress: String,
     reportUrl: (ReportId) => String
   ): Future[ReportId]
+
+  def archive(id: ReportId, timestamp: LocalDateTime, comment: String): Future[ArchiveResult]
+  def unarchive(id: ReportId, timestamp: LocalDateTime, comment: String): Future[UnarchiveResult]
 }

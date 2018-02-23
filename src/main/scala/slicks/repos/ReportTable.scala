@@ -19,13 +19,13 @@ package slicks.repos
 
 import javax.inject.Inject
 
-import dbrows.ConfirmationPendingRow
+import dbrows.{CommentRow, ConfirmationPendingRow}
 import forms.report.{LongFormModel, ReportingPeriodFormModel, ShortFormModel}
-import models.{CompaniesHouseId, ReportId}
-import org.joda.time.LocalDate
+import models.{CommentId, CompaniesHouseId, ReportId}
+import org.joda.time.{LocalDate, LocalDateTime}
 import org.reactivestreams.Publisher
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfig}
-import services.{CompanyDetail, Report, ReportService}
+import services._
 import slick.jdbc.JdbcProfile
 import slicks.helpers.RowBuilders
 import slicks.modules.{ConfirmationModule, CoreModule, ReportModule}
@@ -45,15 +45,17 @@ class ReportTable @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit e
 
   import profile.api._
 
-  def reportByIdQ(reportId: Rep[ReportId]) = reportQuery.filter(_._1.id === reportId)
+  //noinspection TypeAnnotation
+  def activeReportByIdQ(reportId: Rep[ReportId]) = activeReportQuery.filter(_._1.id === reportId)
 
-  val reportByIdC = Compiled(reportByIdQ _)
+  val activeReportByIdC = Compiled(activeReportByIdQ _)
 
   def find(id: ReportId): Future[Option[Report]] = db.run {
-    reportByIdC(id).result.headOption.map(_.map(Report.apply))
+    activeReportByIdC(id).result.headOption.map(_.map(Report.apply))
   }
 
-  def reportByCoNoQ(cono: Rep[CompaniesHouseId]) = reportQuery.filter(_._1.companyId === cono)
+  //noinspection TypeAnnotation
+  def reportByCoNoQ(cono: Rep[CompaniesHouseId]) = activeReportQuery.filter(_._1.companyId === cono)
 
   val reportByCoNoC = Compiled(reportByCoNoQ _)
 
@@ -67,7 +69,7 @@ class ReportTable @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit e
     */
   def list(cutoffDate: LocalDate): Publisher[Report] = {
     val disableAutocommit = SimpleDBIO(_.connection.setAutoCommit(false))
-    val action = reportQueryC.result.withStatementParameters(fetchSize = 10000)
+    val action = activeReportQueryC.result.withStatementParameters(fetchSize = 10000)
 
     db.stream(disableAutocommit andThen action).mapResult(Report.apply)
   }
@@ -106,6 +108,29 @@ class ReportTable @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit e
         reportId <- reportTable.returning(reportTable.map(_.id)) += reportRow
         _ <- confirmationPendingTable += ConfirmationPendingRow(reportId, confirmationEmailAddress, reportUrl(reportId), 0, None, None, None)
       } yield reportId
+    }.transactionally
+  }
+
+
+  override def archive(id: ReportId, timestamp: LocalDateTime, comment: String): Future[ArchiveResult] = db.run {
+    reportTable.filter(_.id === id).result.headOption.flatMap {
+      case None                                        => DBIO.successful(ArchiveResult.NotFound)
+      case Some(report) if report.archivedOn.isDefined => DBIO.successful(ArchiveResult.AlreadyArchived)
+      case Some(report)                                => for {
+        _ <- reportTable.filter(_.id === report.id).map(_.archivedOn).update(Some(timestamp))
+        _ <- commentTable += CommentRow(CommentId(0), id, comment, timestamp)
+      } yield ArchiveResult.Archived
+    }.transactionally
+  }
+
+  override def unarchive(id: ReportId, timestamp: LocalDateTime, comment: String): Future[UnarchiveResult] = db.run {
+    reportTable.filter(_.id === id).result.headOption.flatMap {
+      case None                                      => DBIO.successful(UnarchiveResult.NotFound)
+      case Some(report) if report.archivedOn.isEmpty => DBIO.successful(UnarchiveResult.NotArchived)
+      case Some(report)                              => for {
+        _ <- reportTable.filter(_.id === report.id).map(_.archivedOn).update(None)
+        _ <- commentTable += CommentRow(CommentId(0), id, comment, timestamp)
+      } yield UnarchiveResult.Unarchived
     }.transactionally
   }
 }
