@@ -18,7 +18,6 @@
 package slicks.modules
 
 
-import com.wellfactored.slickgen.IdType
 import dbrows.{ConfirmationFailedRow, ConfirmationPendingRow, ConfirmationSentRow}
 import models.ReportId
 import org.joda.time.LocalDateTime

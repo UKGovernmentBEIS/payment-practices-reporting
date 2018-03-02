@@ -15,7 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package models
+package slicks.modules
 
-case class ReportId(id: Long) extends AnyVal
-
+object IdType {
+  val length = 36
+}

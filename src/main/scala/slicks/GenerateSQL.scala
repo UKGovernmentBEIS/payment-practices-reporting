@@ -31,9 +31,10 @@ object GenerateSQL
 
   import profile.api._
 
-  val schema =
+  val schema: profile.DDL =
     reportTable.schema ++
       contractDetailsTable.schema ++
+      commentTable.schema ++
       confirmationPendingTable.schema ++
       confirmationSentTable.schema ++
       confirmationFailedTable.schema ++
