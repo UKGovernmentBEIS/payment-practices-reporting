@@ -30,7 +30,7 @@ import scala.util.Try
 
 object Validations {
 
-  val averageWordLength = ReportConstants.averageWordLength
+  val averageWordLength: Int = ReportConstants.averageWordLength
 
   private val errorDate = "error.date"
 
@@ -38,7 +38,7 @@ object Validations {
     * Very simple word-count algorithm - just split at whitespace and count the results.
     * I'm sure we can do better, but do we need to?
     */
-  def countWords(s: String) = s.split("\\s+").count(_ !== "")
+  def countWords(s: String): Int = s.split("\\s+").count(_ !== "")
 
   def minWordConstraint(words: Int): Constraint[String] = Constraint[String]("constraint.minWords", words) { s =>
     require(words >= 0, "string minWords must not be negative")
@@ -60,6 +60,12 @@ object Validations {
         maxWordConstraint(max), Constraints.maxLength(max * averageWordLength))
   }
 
+  def optionalWords(minWords: Int = 0, maxWords: Int = Int.MaxValue): Mapping[Option[String]] = {
+    val value = words(minWords, maxWords)
+    value
+      .transform({ s => if (s.trim.isEmpty) None else Some(s) }, _.getOrElse(""))
+  }
+
   /**
     * Allow users to enter "17" when they mean "2017" by adjusting numbers below 100.
     */
@@ -74,7 +80,7 @@ object Validations {
 
   private val dff: Mapping[LocalDate] = dateFields.transform(fieldsToDate, dateToFields)
 
-  val dateFromFields = AdjustErrors(dff) { (key, errs) =>
+  val dateFromFields: AdjustErrors[LocalDate] = AdjustErrors(dff) { (key, errs) =>
     // We don't care what the specific errors were, just raise an error against
     // the whole date structure
     if (errs.isEmpty) errs else List(FormError(key, List(errorDate)))

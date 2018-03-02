@@ -4,15 +4,17 @@ import com.gargoylesoftware.htmlunit.html.{HtmlPage, HtmlParagraph}
 import controllers.{ReportController, ReportingPeriodController, ReviewPage, ShortFormController}
 import forms.DateFields
 import org.openqa.selenium.WebDriver
+import org.scalatest.prop.GeneratorDrivenPropertyChecks
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import org.scalatestplus.play.{HtmlUnitFactory, OneBrowserPerTest, PlaySpec}
 import play.api.i18n.MessagesApi
+import services.mocks.MockCompanySearch
 import views.html.helpers.ReviewPageData
 import webspec.{Scenario, WebSpec}
 
 import scala.language.postfixOps
 
-class ShortReportSpec extends PlaySpec with WebSpec with GuiceOneServerPerSuite with OneBrowserPerTest with HtmlUnitFactory with ReportingSteps {
+class ShortReportSpec extends PlaySpec with WebSpec with GuiceOneServerPerSuite with OneBrowserPerTest with HtmlUnitFactory with ReportingSteps with GeneratorDrivenPropertyChecks {
 
   override def createWebDriver(): WebDriver = HtmlUnitFactory.createWebDriver(false)
 
@@ -82,9 +84,25 @@ class ShortReportSpec extends PlaySpec with WebSpec with GuiceOneServerPerSuite 
           Table(ReviewPage.reviewTableId) should {
             ContainRow("Start date of reporting period") having Value("1 May 2017") and
               ContainRow("End date of reporting period") having Value("1 June 2017") and
-              ContainRow(ReviewPageData.codeOfConductText) having Value("Yes – payment codes")  // note: that hyphen is a non-ascii n-dash from the html page
+              ContainRow(ReviewPageData.codeOfConductText) having Value("Yes – payment codes") // note: that hyphen is a non-ascii n-dash from the html page
           }
         }
+      }
+    }
+  }
+
+
+  val tooLong: String =
+    "This is a value for the payment code field that exceeds the 245 character limit and should result in the form being re-displayed with an error rather than being accepted" +
+    "This is a value for the payment code field that exceeds the 245 character limit and should result in the form being re-displayed with an error rather than being accepted"
+
+  "entering a value for payment code that is too long and submitting" should {
+    "show the form page with an error" in webSpec {
+      NavigateToShortForm(testCompanyName) andThen
+        ChooseRadioButton("paymentCodes.yesNo-yes") andThen
+        SetTextField("paymentCodes.text", tooLong) andThen
+        SubmitForm("Continue") should {
+        ShowPageWithErrors(ShortFormPage(MockCompanySearch.company1))
       }
     }
   }
