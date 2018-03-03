@@ -47,17 +47,19 @@ object Validations {
 
   def maxWordConstraint(words: Int): Constraint[String] = Constraint[String]("constraint.maxWords", words) { s =>
     require(words >= 0, "string maxWords must not be negative")
-    if (countWords(s) <= words) Valid else Invalid(ValidationError("error.maxWords", words))
+    if (countWords(s) <= words) {
+      val chars = words * averageWordLength
+      if (s.length <= chars) Valid
+      else Invalid(ValidationError("error.maxLength", chars))
+    }
+    else Invalid(ValidationError("error.maxWords", words))
   }
 
   def words(minWords: Int = 0, maxWords: Int = Int.MaxValue): Mapping[String] = (minWords, maxWords) match {
     case (0, Int.MaxValue)   => text
     case (min, Int.MaxValue) => text.verifying(minWordConstraint(min))
-    case (0, max)            => text.verifying(maxWordConstraint(max), Constraints.maxLength(max * averageWordLength))
-    case (min, max)          =>
-      text.verifying(
-        minWordConstraint(min),
-        maxWordConstraint(max), Constraints.maxLength(max * averageWordLength))
+    case (0, max)            => text.verifying(maxWordConstraint(max))
+    case (min, max)          => text.verifying(minWordConstraint(min), maxWordConstraint(max))
   }
 
   def optionalWords(minWords: Int = 0, maxWords: Int = Int.MaxValue): Mapping[Option[String]] = {

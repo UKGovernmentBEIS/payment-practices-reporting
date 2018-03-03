@@ -38,6 +38,9 @@ class Validations$Test extends WordSpecLike with Matchers with EitherValues {
       val result = m.bind(Map("test" -> s))
 
       result shouldBe a[Left[_, _]]
+      val errors = result.left.value
+      errors.length shouldBe 1
+      errors.head.message shouldBe "error.maxWords"
     }
 
     "fail when the words count is okay but overall string is too long" in {
@@ -46,6 +49,9 @@ class Validations$Test extends WordSpecLike with Matchers with EitherValues {
       val result = m.bind(Map("test" -> s))
 
       result shouldBe a[Left[_, _]]
+      val errors = result.left.value
+      errors.length shouldBe 1
+      errors.head.message shouldBe "error.maxLength"
     }
   }
 
