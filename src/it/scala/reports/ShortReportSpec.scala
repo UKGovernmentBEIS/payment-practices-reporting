@@ -93,8 +93,7 @@ class ShortReportSpec extends PlaySpec with WebSpec with GuiceOneServerPerSuite 
 
 
   val tooLong: String =
-    "This is a value for the payment code field that exceeds the 245 character limit and should result in the form being re-displayed with an error rather than being accepted" +
-    "This is a value for the payment code field that exceeds the 245 character limit and should result in the form being re-displayed with an error rather than being accepted"
+    Seq.fill(2)("This is a value for the payment code field that exceeds the 245 character limit and should result in the form being re-displayed with an error rather than being accepted").mkString(" ")
 
   "entering a value for payment code that is too long and submitting" should {
     "show the form page with an error" in webSpec {
