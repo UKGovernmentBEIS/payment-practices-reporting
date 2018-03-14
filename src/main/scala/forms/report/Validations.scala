@@ -17,10 +17,9 @@
 
 package forms.report
 
-import javax.inject.Inject
-
 import config.ServiceConfig
 import forms.DateRange
+import javax.inject.Inject
 import org.joda.time.LocalDate
 import org.joda.time.format.DateTimeFormat
 import org.scalactic.TripleEquals._
@@ -216,9 +215,9 @@ object ConditionalTextValidations {
     * field is discarded. No further validations are applied (so there is no check that the text is
     * supplied when the yesNo is `Yes` - see `conditionalText` for that)
     */
-  def yesNoText(maxWords: Int): Mapping[ConditionalText] = mapping(
+  def yesNoText(maxWords:Int): Mapping[ConditionalText] = mapping(
     "yesNo" -> yesNo,
-    "text" -> optional(text)
+    "text" -> optional(words(1, maxWords))
   )(ConditionalText.apply)(ConditionalText.unapply)
     .transform(_.normalize, (ct: ConditionalText) => ct)
 

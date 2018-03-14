@@ -17,11 +17,12 @@ case class PublishFor(companyName: String) extends PageInfo {
   override val title: String = ReportController.publishTitle(companyName)
 }
 
-case class ShortFormPage(company:CompanySearchResult) extends PageInfo {
+case class ShortFormPage(company: CompanySearchResult) extends PageInfo {
   override val url: String = routes.ShortFormController.show(company.companiesHouseId, None).url
 
   override val title: String = ShortFormController.publishTitle(company.companyName)
 }
+
 object ShortReviewPage extends PageInfo {
   override def title = "Review your report"
 }
