@@ -19,7 +19,7 @@ package services.mocks
 
 import models.CompaniesHouseId
 import org.joda.time.LocalDateTime
-import services.{CodeConversionError, CompanyAuthService, OAuthToken}
+import services.{CodeAlreadySeen, CodeConversionError, CompanyAuthService, OAuthToken}
 
 import scala.concurrent.Future
 
@@ -30,7 +30,7 @@ class MockCompanyAuth extends CompanyAuthService {
     CompaniesHouseId("000000002") -> "bar@baz.com"
   )
 
-  override def authoriseUrl(companiesHouseId: CompaniesHouseId) = controllers.routes.CoHoOAuthMockController.login(companiesHouseId).url
+  override def authoriseUrl(companiesHouseId: CompaniesHouseId): String = controllers.routes.CoHoOAuthMockController.login(companiesHouseId).url
 
   override def authoriseParams(companiesHouseId: CompaniesHouseId) = Map()
 
@@ -41,9 +41,10 @@ class MockCompanyAuth extends CompanyAuthService {
 
   override def targetScope(companiesHouseId: CompaniesHouseId): String = ""
 
-  override def convertCode(code: String): Future[Either[CodeConversionError, OAuthToken]] =
-    Future.successful(Right(OAuthToken("accessToken", LocalDateTime.now().plusMinutes(60), "refreshToken")))
-  //Future.successful(Left(CodeAlreadySeen))
+  override def convertCode(code: String): Future[Either[CodeConversionError, OAuthToken]] = Future.successful {
+    if (code == "error") Left(CodeAlreadySeen)
+    else Right(OAuthToken("accessToken", LocalDateTime.now().plusMinutes(60), "refreshToken"))
+  }
 
   override def refreshAccessToken(oAuthToken: OAuthToken): Future[OAuthToken] = Future.successful(OAuthToken("accessToken", LocalDateTime.now().plusMinutes(60), "refreshToken"))
 }
