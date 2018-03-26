@@ -19,7 +19,7 @@ package services.mocks
 
 import models.CompaniesHouseId
 import org.joda.time.LocalDateTime
-import services.{CompanyAuthService, OAuthToken}
+import services.{CodeConversionError, CompanyAuthService, OAuthToken}
 
 import scala.concurrent.Future
 
@@ -39,10 +39,11 @@ class MockCompanyAuth extends CompanyAuthService {
   override def emailAddress(companiesHouseId: CompaniesHouseId, oAuthToken: OAuthToken): Future[Option[String]] =
     Future.successful(Some(emails.getOrElse(companiesHouseId, "test@barbaz.com")))
 
-
   override def targetScope(companiesHouseId: CompaniesHouseId): String = ""
 
-  override def convertCode(code: String): Future[OAuthToken] = Future.successful(OAuthToken("accessToken", LocalDateTime.now().plusMinutes(60), "refreshToken"))
+  override def convertCode(code: String): Future[Either[CodeConversionError, OAuthToken]] =
+    Future.successful(Right(OAuthToken("accessToken", LocalDateTime.now().plusMinutes(60), "refreshToken")))
+  //Future.successful(Left(CodeAlreadySeen))
 
   override def refreshAccessToken(oAuthToken: OAuthToken): Future[OAuthToken] = Future.successful(OAuthToken("accessToken", LocalDateTime.now().plusMinutes(60), "refreshToken"))
 }

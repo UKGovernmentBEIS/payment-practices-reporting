@@ -32,8 +32,8 @@ class ErrorController @Inject()(val pageConfig: PageConfig,
     Unauthorized(page("Your session timed out")(home, views.html.errors.sessionTimeout())).removingFromSession(SessionAction.sessionIdKey)
   }
 
+  //noinspection TypeAnnotation
   def invalidScope(companiesHouseId: CompaniesHouseId) = companyAuthAction(companiesHouseId) { implicit request =>
     Ok(page("Your report has not been filed because of an error")(home, views.html.errors.invalidScope(request.companyDetail)))
   }
-
 }
