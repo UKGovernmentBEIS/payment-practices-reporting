@@ -17,14 +17,13 @@
 
 package services.live
 
-import javax.inject.Inject
-
 import config.OAuthConfig
+import javax.inject.Inject
 import models.CompaniesHouseId
 import org.joda.time.LocalDateTime
 import org.scalactic.TripleEquals._
 import play.api.Logger
-import play.api.libs.json.{JsError, JsSuccess, Json}
+import play.api.libs.json.{JsError, JsSuccess, Json, OFormat}
 import play.api.libs.ws.{WSClient, WSResponse}
 import services._
 
@@ -37,15 +36,15 @@ case class RefreshTokenResponse(access_token: String, expires_in: Int)
 class CompaniesHouseAuth @Inject()(val ws: WSClient, config: OAuthConfig)(implicit val ec: ExecutionContext)
   extends RestService with CompanyAuthService {
 
-  val clientIdParam = "client_id"
+  val clientIdParam     = "client_id"
   val clientSecretParam = "client_secret"
-  val grantTypeParam = "grant_type"
-  val redirectUriParam = "redirect_uri"
+  val grantTypeParam    = "grant_type"
+  val redirectUriParam  = "redirect_uri"
   val refreshTokenParam = "refresh_token"
   val responseTypeParam = "response_type"
-  val codeParam = "code"
-  val scopeParam = "scope"
-  val stateParam = "state"
+  val codeParam         = "code"
+  val scopeParam        = "scope"
+  val stateParam        = "state"
 
   private def bearerAuth(oAuthToken: OAuthToken) = s"Bearer ${oAuthToken.accessToken}"
 
@@ -86,7 +85,8 @@ class CompaniesHouseAuth @Inject()(val ws: WSClient, config: OAuthConfig)(implic
     clientSecretParam -> config.clientSecret
   )
 
-  implicit val atrFormat = Json.format[AccessTokenResponse]
+  implicit val atrFormat                             = Json.format[AccessTokenResponse]
+  implicit val oauthErrorFormat: OFormat[OAuthError] = Json.format
 
   private[services] def mkParams(ps: Seq[(String, String)]): Map[String, Seq[String]] =
     (clientDetails ++ ps).map { case (k, v) => k -> Seq(v) }
@@ -95,9 +95,8 @@ class CompaniesHouseAuth @Inject()(val ws: WSClient, config: OAuthConfig)(implic
     ws.url(config.accessTokenUri).withMethod("POST").withBody(mkParams(params)).execute()
   }
 
-  def convertCode(code: String): Future[OAuthToken] = {
+  def convertCode(code: String): Future[Either[CodeConversionError, OAuthToken]] = {
     Logger.debug("convert code")
-
 
     val params = Seq(
       grantTypeParam -> "authorization_code",
@@ -105,12 +104,23 @@ class CompaniesHouseAuth @Inject()(val ws: WSClient, config: OAuthConfig)(implic
       redirectUriParam -> config.callbackURL
     )
 
+    val codeSeenBefore = "Code has been seen before"
+
     call(params).map { response =>
       response.status match {
         case 200 => response.json.validate[AccessTokenResponse] match {
           case JsSuccess(resp, _) =>
-            OAuthToken(resp.access_token, LocalDateTime.now().plusSeconds(resp.expires_in), resp.refresh_token)
+            Right(OAuthToken(resp.access_token, LocalDateTime.now().plusSeconds(resp.expires_in), resp.refresh_token))
+
           case JsError(errs) =>
+            Logger.warn(s"response json is ${response.json}")
+            throw new Exception(s"could not decode token response: $errs")
+        }
+
+        case 400 => response.json.validate[OAuthError] match {
+          case JsSuccess(error, _) if error.error_description == codeSeenBefore => Left(CodeAlreadySeen)
+          case JsSuccess(error, _)                                              => Left(ErrorInConversion(error))
+          case JsError(errs)                                                    =>
             Logger.warn(s"response json is ${response.json}")
             throw new Exception(s"could not decode token response: $errs")
         }
@@ -143,7 +153,7 @@ class CompaniesHouseAuth @Inject()(val ws: WSClient, config: OAuthConfig)(implic
           case JsSuccess(rtr, _) =>
             Logger.debug(rtr.toString)
             OAuthToken(rtr.access_token, LocalDateTime.now().plusSeconds(rtr.expires_in - 10), oAuthToken.refreshToken)
-          case JsError(errs) => throw new Exception(errs.toString)
+          case JsError(errs)     => throw new Exception(errs.toString)
         }
 
         case s =>

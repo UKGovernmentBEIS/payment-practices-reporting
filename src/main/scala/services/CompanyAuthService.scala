@@ -21,10 +21,17 @@ import models.CompaniesHouseId
 
 import scala.concurrent.Future
 
+case class OAuthError(error_description: String, error: String)
+
+sealed trait CodeConversionError
+case object CodeAlreadySeen extends CodeConversionError
+case class ErrorInConversion(oAuthError: OAuthError) extends CodeConversionError
+
+
 trait CompanyAuthService {
   def authoriseUrl(companiesHouseId: CompaniesHouseId): String
 
-  def convertCode(code: String): Future[OAuthToken]
+  def convertCode(code: String): Future[Either[CodeConversionError, OAuthToken]]
 
   def refreshAccessToken(oAuthToken: OAuthToken): Future[OAuthToken]
 
