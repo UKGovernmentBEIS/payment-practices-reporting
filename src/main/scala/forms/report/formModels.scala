@@ -83,16 +83,18 @@ case class PercentageSplit(
 }
 
 case class PaymentStatistics(
-  averageDaysToPay: Int,
-  percentageSplit: PercentageSplit,
+  didMakePayment: Option[YesNo],
+  averageDaysToPay: Option[Int],
+  percentageSplit: Option[PercentageSplit],
   percentPaidLaterThanAgreedTerms: Int
 )
 
 object PaymentStatistics {
   def apply(row: ContractDetailsRow): PaymentStatistics =
     PaymentStatistics(
-      row.averageDaysToPay,
-      PercentageSplit(row.percentInvoicesWithin30Days, row.percentInvoicesWithin60Days, row.percentInvoicesBeyond60Days),
+      row.didMakePayment,
+      Some(row.averageDaysToPay),
+      Some(PercentageSplit(row.percentInvoicesWithin30Days, row.percentInvoicesWithin60Days, row.percentInvoicesBeyond60Days)),
       row.percentPaidLaterThanAgreedTerms
     )
 }
@@ -147,7 +149,8 @@ object PaymentTerms {
 
 case class ReportingPeriodFormModel(
   reportDates: DateRange,
-  hasQualifyingContracts: YesNo
+  hasQualifyingContracts: YesNo,
+  didMakePayments: YesNo
 )
 
 case class ShortFormModel(

@@ -63,7 +63,7 @@ class SinglePageFormController @Inject()(
     checkValidFromSession(emptyReportingPeriod, SinglePageFormName.ReportingPeriod.entryName).flatMap {
       case false => Future.successful(Redirect(routes.ReportingPeriodController.show(companiesHouseId, change)))
       case true  => loadFormData(emptyLongForm, SinglePageFormName.SinglePageForm).map { form =>
-        Ok(page(title)(back, pages.longForm(reportPageHeader, form, companiesHouseId, df, serviceStartDate, change)))
+        Ok(page(title)(back, pages.longForm(reportPageHeader, form, false, companiesHouseId, df, serviceStartDate, change)))
       }
     }
   }

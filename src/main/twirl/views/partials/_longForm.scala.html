@@ -7,9 +7,9 @@
     Invoices paid:
 </p>
 <ul class="list list-bullet">
-    <li>within 30 days: <span class="datum">@longForm.paymentStatistics.percentageSplit.percentWithin30Days%</span></li>
-    <li>in 31 to 60 days: <span class="datum">@longForm.paymentStatistics.percentageSplit.percentWithin60Days%</span></li>
-    <li>in 61 days or more: <span class="datum">@longForm.paymentStatistics.percentageSplit.percentBeyond60Days%</span></li>
+    <li>within 30 days: <span class="datum">@longForm.paymentStatistics.percentageSplit.get.percentWithin30Days%</span></li>
+    <li>in 31 to 60 days: <span class="datum">@longForm.paymentStatistics.percentageSplit.get.percentWithin60Days%</span></li>
+    <li>in 61 days or more: <span class="datum">@longForm.paymentStatistics.percentageSplit.get.percentBeyond60Days%</span></li>
 </ul>
 
 <p>Invoices due but not paid within agreed terms: <span class="datum">@longForm.paymentStatistics.percentPaidLaterThanAgreedTerms

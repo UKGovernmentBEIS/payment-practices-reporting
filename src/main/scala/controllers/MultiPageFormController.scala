@@ -18,11 +18,10 @@
 package controllers
 
 import javax.inject.Inject
-
 import actions.{CompanyAuthAction, CompanyAuthRequest}
 import config.{PageConfig, ServiceConfig}
 import controllers.FormPageDefs._
-import forms.report.Validations
+import forms.report.{ReportingPeriodFormModel, Validations}
 import models.CompaniesHouseId
 import org.scalactic.TripleEquals._
 import play.api.i18n.MessagesApi
@@ -67,12 +66,12 @@ class MultiPageFormController @Inject()(
       case FormHasErrors(boundHandler) if boundHandler.formName !== formName => Redirect(boundHandler.callPage(companyDetail.companiesHouseId, change))
       case FormIsBlank(boundHandler) if boundHandler.formName !== formName   => Redirect(boundHandler.callPage(companyDetail.companiesHouseId, change))
 
-      case FormHasErrors(boundHandler) => BadRequest(page(title)(crumb, boundHandler.renderPage(reportPageHeader(companyDetail), companyDetail.companiesHouseId, change)))
+      case FormHasErrors(boundHandler) => BadRequest(page(title)(crumb, boundHandler.renderPage(reportPageHeader(companyDetail), companyDetail.companiesHouseId, change, Some(loadAllFormData))))
       // Form is blank, so the user hasn't filled it in yet. In this case we don't
       // want to show errors, so use the empty form handler for the formName
-      case FormIsBlank(_) => Ok(page(title)(crumb, handlerFor(formName).renderPage(reportPageHeader(companyDetail), companyDetail.companiesHouseId, change)))
+      case FormIsBlank(_) => Ok(page(title)(crumb, handlerFor(formName).renderPage(reportPageHeader(companyDetail), companyDetail.companiesHouseId, change, Some(loadAllFormData))))
 
-      case FormIsOk(handler, value) => Ok(page(title)(crumb, handler.renderPage(reportPageHeader(companyDetail), companyDetail.companiesHouseId, change)))
+      case FormIsOk(handler, value) => Ok(page(title)(crumb, handler.renderPage(reportPageHeader(companyDetail), companyDetail.companiesHouseId, change, Some(loadAllFormData))))
     }
   }
 
@@ -91,8 +90,8 @@ class MultiPageFormController @Inject()(
     val title = publishTitle(companyDetail.companyName)
 
     bindUpToPage(formHandlers, formName).map {
-      case FormHasErrors(handler) => BadRequest(page(title)(crumb, handler.renderPage(reportPageHeader(companyDetail), companyDetail.companiesHouseId, change)))
-      case FormIsBlank(handler)   => BadRequest(page(title)(crumb, handler.renderPage(reportPageHeader(companyDetail), companyDetail.companiesHouseId, change)))
+      case FormHasErrors(handler) => BadRequest(page(title)(crumb, handler.renderPage(reportPageHeader(companyDetail), companyDetail.companiesHouseId, change, Some(loadAllFormData))))
+      case FormIsBlank(handler)   => BadRequest(page(title)(crumb, handler.renderPage(reportPageHeader(companyDetail), companyDetail.companiesHouseId, change, Some(loadAllFormData))))
 
       case FormIsOk(handler, value) => nextFormHandler(handler) match {
         case Some(nextHandler) if !change => Redirect(nextHandler.callPage(companyDetail.companiesHouseId, change))

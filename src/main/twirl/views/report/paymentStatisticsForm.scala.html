@@ -1,6 +1,7 @@
 @(
     header: Html,
     form: Form[controllers.PaymentStatisticsForm],
+    session: scala.concurrent.Future[play.api.libs.json.JsObject],
     companyId: CompaniesHouseId,
     df: DateTimeFormatter,
     serviceStartDate: LocalDate,
@@ -8,6 +9,17 @@
 )(implicit messages: MessagesApi, lang: Lang)
 
 @import FormPageDefs.MultiPageFormName
+@import scala.concurrent.ExecutionContext.Implicits.global
+@import scala.concurrent.duration.DurationInt
+@import scala.concurrent.Future
+
+@didMakePayments = @{
+    scala.concurrent.Await.result(
+        session.map(_.value("reportingPeriod")
+            .as[play.api.libs.json.JsObject]
+            .value("didMakePayments")
+            .as[play.api.libs.json.JsString].value == "yes"), 30.seconds)
+}
 
 @buttonLabel = @{
     if (change.contains(true)) "Review your answers"
@@ -29,15 +41,16 @@
     </div>
     <p></p>
 
-
-    @shared._day1Calculation()
+    @if(didMakePayments) {
+        @shared._day1Calculation()
+    }
 
     <form action="@routes.MultiPageFormController.post(MultiPageFormName.PaymentStatistics, companyId, change)" method="POST" id="longForm-report">
         <p class="small-aside">
             Companies House number: @companyId.id
         </p>
 
-        @report._paymentStatistics(form)
+        @report._paymentStatistics(form, didMakePayments)
 
         <input type="submit" class="button" name="Continue" value="@buttonLabel">
     </form>

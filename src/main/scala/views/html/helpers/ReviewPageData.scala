@@ -112,13 +112,20 @@ class ReviewPageData @Inject()(fieldCallTable: FieldCallTable) extends HtmlHelpe
   private val days = "days"
 
   def paymentStatisticsRows(r: LongFormModel)(implicit companyDetail: CompanyDetail): Seq[RowDescriptor] = {
-    Seq(
-      ("Average number of " + days + " for making payment", (r.paymentStatistics.averageDaysToPay, days), call("paymentStatistics.averageDaysToPay")),
-      ("Percentage of invoices paid within 30 " + days, (r.paymentStatistics.percentageSplit.percentWithin30Days, percent), call("paymentStatistics.percentageSplit.percentWithin30Days")),
-      ("Percentage of invoices paid within 31 to 60 " + days, (r.paymentStatistics.percentageSplit.percentWithin60Days, percent), call("paymentStatistics.percentageSplit.percentWithin60Days")),
-      ("Percentage of invoices paid on or after day 61", (r.paymentStatistics.percentageSplit.percentBeyond60Days, percent), call("paymentStatistics.percentageSplit.percentBeyond60Days")),
-      ("Percentage of invoices not paid within agreed terms", (r.paymentStatistics.percentPaidLaterThanAgreedTerms, percent), call("paymentStatistics.percentPaidLaterThanAgreedTerms"))
-    )
+    if(r.paymentStatistics.didMakePayment.contains(YesNo.Yes)) {
+      Seq(
+        ("Average number of " + days + " for making payment", (r.paymentStatistics.averageDaysToPay, days), call("paymentStatistics.averageDaysToPay")),
+        ("Percentage of invoices paid within 30 " + days, (r.paymentStatistics.percentageSplit.get.percentWithin30Days, percent), call("paymentStatistics.percentageSplit.percentWithin30Days")),
+        ("Percentage of invoices paid within 31 to 60 " + days, (r.paymentStatistics.percentageSplit.get.percentWithin60Days, percent), call("paymentStatistics.percentageSplit.percentWithin60Days")),
+        ("Percentage of invoices paid on or after day 61", (r.paymentStatistics.percentageSplit.get.percentBeyond60Days, percent), call("paymentStatistics.percentageSplit.percentBeyond60Days")),
+        ("Percentage of invoices not paid within agreed terms", (r.paymentStatistics.percentPaidLaterThanAgreedTerms, percent), call("paymentStatistics.percentPaidLaterThanAgreedTerms"))
+      )
+    }
+    else {
+      Seq(
+          ("Percentage of invoices not paid within agreed terms", (r.paymentStatistics.percentPaidLaterThanAgreedTerms, percent), call("paymentStatistics.percentPaidLaterThanAgreedTerms"))
+      )
+    }
   }
 
   def paymentTermsRows(r: LongFormModel)(implicit companyDetail: CompanyDetail): Seq[RowDescriptor] = Seq(
