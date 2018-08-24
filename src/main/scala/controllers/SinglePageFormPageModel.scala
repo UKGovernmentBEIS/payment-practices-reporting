@@ -50,7 +50,7 @@ class SinglePageFormPageModel @Inject()(validations: Validations, serviceConfig:
       FormHandler(
         ReportingPeriod,
         emptyReportingPeriod,
-        (header: Html, companiesHouseId: CompaniesHouseId, change: Boolean, session: Option[Future[JsObject]]) => (form: Form[ReportingPeriodFormModel]) =>
+        (header: Html, companiesHouseId: CompaniesHouseId, change: Boolean, session: Option[JsObject]) => (form: Form[ReportingPeriodFormModel]) =>
           pages.reportingPeriod(header, form, companiesHouseId, df, serviceStartDate, if (change) Some(true) else None),
         (companiesHouseId: CompaniesHouseId, change: Boolean) =>
           routes.ReportingPeriodController.show(companiesHouseId, if (change) Some(true) else None)
@@ -60,7 +60,7 @@ class SinglePageFormPageModel @Inject()(validations: Validations, serviceConfig:
       FormHandler(
         SinglePageForm,
         emptyLongForm,
-        (header: Html, companiesHouseId: CompaniesHouseId, change: Boolean, session: Option[Future[JsObject]]) => (form: Form[LongFormModel]) =>
+        (header: Html, companiesHouseId: CompaniesHouseId, change: Boolean, session: Option[JsObject]) => (form: Form[LongFormModel]) =>
           pages.longForm(header, form, false, companiesHouseId, df, serviceStartDate, if (change) Some(true) else None),
         (companiesHouseId: CompaniesHouseId, change: Boolean) =>
           routes.ShortFormController.show(companiesHouseId, if (change) Some(true) else None)

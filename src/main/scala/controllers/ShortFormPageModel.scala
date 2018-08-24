@@ -50,7 +50,7 @@ class ShortFormPageModel @Inject()(validations: Validations, serviceConfig: Serv
       FormHandler(
         ReportingPeriod,
         emptyReportingPeriod,
-        (header: Html, companiesHouseId: CompaniesHouseId, change: Boolean, session: Option[Future[JsObject]]) => (form: Form[ReportingPeriodFormModel]) =>
+        (header: Html, companiesHouseId: CompaniesHouseId, change: Boolean, session: Option[JsObject]) => (form: Form[ReportingPeriodFormModel]) =>
           pages.reportingPeriod(header, form, companiesHouseId, df, serviceStartDate, if (change) Some(true) else None),
         (companiesHouseId: CompaniesHouseId, change: Boolean) =>
           routes.ReportingPeriodController.show(companiesHouseId, if (change) Some(true) else None)
@@ -60,7 +60,7 @@ class ShortFormPageModel @Inject()(validations: Validations, serviceConfig: Serv
       FormHandler(
         ShortForm,
         emptyShortForm,
-        (header: Html, companiesHouseId: CompaniesHouseId, change: Boolean, session: Option[Future[JsObject]]) => (form: Form[ShortFormModel]) =>
+        (header: Html, companiesHouseId: CompaniesHouseId, change: Boolean, session: Option[JsObject]) => (form: Form[ShortFormModel]) =>
           pages.shortForm(header, form, companiesHouseId, df, serviceStartDate, if (change) Some(true) else None),
         (companiesHouseId: CompaniesHouseId, change: Boolean) =>
           routes.ShortFormController.show(companiesHouseId, if (change) Some(true) else None)

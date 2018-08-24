@@ -32,7 +32,7 @@ import scala.concurrent.Future
 case class FormHandler[T, N <: FormName](
   formName: N,
   form: Form[T],
-  private val renderPageFunction: (Html, CompaniesHouseId, Boolean, Option[Future[JsObject]]) => (Form[T]) => Html,
+  private val renderPageFunction: (Html, CompaniesHouseId, Boolean, Option[JsObject]) => (Form[T]) => Html,
   private val callPageFunction: (CompaniesHouseId, Boolean) => Call
 ) {
   def bind(implicit request: Request[Map[String, Seq[String]]]): FormHandler[T, N] = copy(form = form.bindForm)
@@ -44,6 +44,6 @@ case class FormHandler[T, N <: FormName](
   def callPage(companiesHouseId: CompaniesHouseId, change: Boolean): Call =
     callPageFunction(companiesHouseId, change)
 
-  def renderPage(reportPageHeader: Html, companiesHouseId: CompaniesHouseId, change: Boolean, session: Option[Future[JsObject]] = Option.empty[Future[JsObject]]): Html =
+  def renderPage(reportPageHeader: Html, companiesHouseId: CompaniesHouseId, change: Boolean, session: Option[JsObject] = Option.empty[JsObject]): Html =
     renderPageFunction(reportPageHeader, companiesHouseId, change, session)(form)
 }

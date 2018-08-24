@@ -1,7 +1,7 @@
 @(
     header: Html,
     form: Form[controllers.PaymentStatisticsForm],
-    session: scala.concurrent.Future[play.api.libs.json.JsObject],
+    session: play.api.libs.json.JsObject,
     companyId: CompaniesHouseId,
     df: DateTimeFormatter,
     serviceStartDate: LocalDate,
@@ -9,16 +9,10 @@
 )(implicit messages: MessagesApi, lang: Lang)
 
 @import FormPageDefs.MultiPageFormName
-@import scala.concurrent.ExecutionContext.Implicits.global
-@import scala.concurrent.duration.DurationInt
-@import scala.concurrent.Future
+@import utils.Session.SessionUtils
 
 @didMakePayments = @{
-    scala.concurrent.Await.result(
-        session.map(_.value("reportingPeriod")
-            .as[play.api.libs.json.JsObject]
-            .value("didMakePayments")
-            .as[play.api.libs.json.JsString].value == "yes"), 30.seconds)
+    session.formValueEquals(MultiPageFormName.ReportingPeriod.entryName, "didMakePayments", "yes")
 }
 
 @buttonLabel = @{

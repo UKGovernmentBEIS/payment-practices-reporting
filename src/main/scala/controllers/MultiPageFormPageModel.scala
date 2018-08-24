@@ -78,7 +78,7 @@ class MultiPageFormPageModel @Inject()(validations: Validations, serviceConfig: 
       FormHandler(
         ReportingPeriod,
         emptyReportingPeriod,
-        (header: Html, companiesHouseId: CompaniesHouseId, change: Boolean, session: Option[Future[JsObject]]) => (form: Form[ReportingPeriodFormModel]) =>
+        (header: Html, companiesHouseId: CompaniesHouseId, change: Boolean, session: Option[JsObject]) => (form: Form[ReportingPeriodFormModel]) =>
           pages.reportingPeriod(header, form, companiesHouseId, df, serviceStartDate, if (change) Some(true) else None),
         (companiesHouseId: CompaniesHouseId, change: Boolean) =>
           routes.ReportingPeriodController.show(companiesHouseId, if (change) Some(true) else None)
@@ -87,7 +87,7 @@ class MultiPageFormPageModel @Inject()(validations: Validations, serviceConfig: 
       FormHandler(
         PaymentStatistics,
         emptyPaymentStatisticsForm,
-        (header: Html, companiesHouseId: CompaniesHouseId, change: Boolean, session: Option[Future[JsObject]]) =>
+        (header: Html, companiesHouseId: CompaniesHouseId, change: Boolean, session: Option[JsObject]) =>
           (form: Form[PaymentStatisticsForm]) => {
             pages.paymentStatisticsForm(header, form, session.get, companiesHouseId, df, serviceStartDate, if (change) Some(true) else None)
           },
@@ -98,7 +98,7 @@ class MultiPageFormPageModel @Inject()(validations: Validations, serviceConfig: 
       FormHandler(
         PaymentTerms,
         emptyPaymentTermsForm,
-        (header: Html, companiesHouseId: CompaniesHouseId, change: Boolean, session: Option[Future[JsObject]]) =>
+        (header: Html, companiesHouseId: CompaniesHouseId, change: Boolean, session: Option[JsObject]) =>
           (form: Form[PaymentTermsForm]) => pages.paymentTermsForm(header, form, companiesHouseId, df, serviceStartDate, if (change) Some(true) else None),
         (companiesHouseId: CompaniesHouseId, change: Boolean) =>
           routes.MultiPageFormController.show(PaymentTerms, companiesHouseId, if (change) Some(true) else None)
@@ -107,7 +107,7 @@ class MultiPageFormPageModel @Inject()(validations: Validations, serviceConfig: 
       FormHandler(
         DisputeResolution,
         emptyDisputeResolutionForm,
-        (header: Html, companiesHouseId: CompaniesHouseId, change: Boolean, session: Option[Future[JsObject]]) =>
+        (header: Html, companiesHouseId: CompaniesHouseId, change: Boolean, session: Option[JsObject]) =>
           (form: Form[DisputeResolutionForm]) => pages.disputeResolutionForm(header, form, companiesHouseId, df, serviceStartDate, if (change) Some(true) else None),
         (companiesHouseId: CompaniesHouseId, change: Boolean) =>
           routes.MultiPageFormController.show(DisputeResolution, companiesHouseId, if (change) Some(true) else None)
@@ -116,7 +116,7 @@ class MultiPageFormPageModel @Inject()(validations: Validations, serviceConfig: 
       FormHandler(
         OtherInformation,
         emptyOtherInformationForm,
-        (header: Html, companiesHouseId: CompaniesHouseId, change: Boolean, session: Option[Future[JsObject]]) =>
+        (header: Html, companiesHouseId: CompaniesHouseId, change: Boolean, session: Option[JsObject]) =>
           (form: Form[OtherInformationForm]) => pages.otherInformationForm(header, form, companiesHouseId, df, serviceStartDate, if (change) Some(true) else None),
         (companiesHouseId: CompaniesHouseId, change: Boolean) =>
           routes.MultiPageFormController.show(OtherInformation, companiesHouseId, if (change) Some(true) else None)
