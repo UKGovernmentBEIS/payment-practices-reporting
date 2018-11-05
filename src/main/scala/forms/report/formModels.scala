@@ -150,7 +150,7 @@ object PaymentTerms {
 case class ReportingPeriodFormModel(
   reportDates: DateRange,
   hasQualifyingContracts: YesNo,
-  didMakePayments: YesNo
+  didMakePayments: Option[YesNo]
 )
 
 case class ShortFormModel(

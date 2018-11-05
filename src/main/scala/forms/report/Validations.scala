@@ -111,7 +111,7 @@ class Validations @Inject()(timeSource: TimeSource, serviceConfig: ServiceConfig
   val reportingPeriodFormModel: Mapping[ReportingPeriodFormModel] = mapping(
     "reportDates" -> reportDates,
     "hasQualifyingContracts" -> yesNo,
-    "didMakePayments" -> yesNo
+    "didMakePayments" -> mandatoryIf(isEqual("hasQualifyingContracts", "yes"), yesNo)
   )(ReportingPeriodFormModel.apply)(ReportingPeriodFormModel.unapply)
 
   private val paymentCodesValidation = "paymentCodes" -> conditionalText(paymentCodesWordCount)
