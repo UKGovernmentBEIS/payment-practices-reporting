@@ -4,6 +4,7 @@ GET         /public/*file                                   controllers.Assets.a
 GET         /                                               controllers.HomeController.index()
 
 GET         /start                                          controllers.HomeController.start()
+GET         /maintenance                                    controllers.HomeController.maintenance()
 
 GET         /robots.txt                                     controllers.HomeController.robots()
 

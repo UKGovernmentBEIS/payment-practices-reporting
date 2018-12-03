@@ -43,6 +43,10 @@ class HomeController @Inject()(
     Ok(page(pateTitle)(views.html.start()))
   }
 
+  def maintenance = Action { implicit request =>
+    Ok(page(pateTitle)(views.html.maintenance()))
+  }
+
   /**
     * See https://www.gov.uk/service-manual/technology/managing-domain-names#using-robotstxt-and-root-level-redirections
     */
