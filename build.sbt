@@ -28,6 +28,7 @@ lazy val `payment-practices-reporting` = project.in(file("."))
   .settings(Defaults.itSettings: _*)
 
 resolvers += Resolver.bintrayRepo("gov-uk-notify", "maven")
+resolvers += Resolver.bintrayRepo("hmrc", "releases")
 
 val playSlickVersion = "2.1.0"
 
@@ -62,6 +63,8 @@ libraryDependencies ++= Seq(
   "eu.timepit" %% "refined" % "0.6.1",
   "org.scalactic" %% "scalactic" % "3.0.1",
   "uk.gov.service.notify" % "notifications-java-client" % "3.1.1-RELEASE",
+
+  "uk.gov.hmrc" %% "play-conditional-form-mapping" % "0.2.0",
 
   "org.scalatest" %% "scalatest" % "3.0.1" % Test,
   "org.scalacheck" %% "scalacheck" % "1.13.4" % Test) ++

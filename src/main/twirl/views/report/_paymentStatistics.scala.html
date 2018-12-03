@@ -1,6 +1,6 @@
-@(form: Form[_])(implicit messages: MessagesApi)
+@(form: Form[_], didMakePayments: Boolean)(implicit messages: MessagesApi)
 
-@import shared._numberField
+@import shared._numberField, shared._hiddenField
 
 @errorMessage(fieldName: String) = @{
     form(fieldName).error.map(msg => messages(msg.message))
@@ -12,18 +12,22 @@
 <h2 class="heading-large">Payment statistics</h2>
 <p>Round all figures up or down to the nearest whole number.</p>
 
-@_numberField(form, "paymentStatistics.averageDaysToPay", Some("days"))
+@_hiddenField(form, "paymentStatistics.didMakePayment", if(didMakePayments) "yes" else "no")
 
-<div class="form-group @errorClass("paymentStatistics.percentageSplit")">
-    <label class="form-label">
-        <span class="form-label-bold">Split of payments made under qualifying contracts in the reporting period</span>
-        <span class="form-hint">Figures A, B and C should add up to 100%</span>
-        <span class="error-message" id="paymentStatistics.percentageSplit">@errorMessage("paymentStatistics.percentageSplit")</span>
-    </label>
+@if(didMakePayments) {
+    @_numberField(form, "paymentStatistics.averageDaysToPay", Some("days"))
 
-    @_numberField(form, "paymentStatistics.percentageSplit.percentWithin30Days", Some("%"))
-    @_numberField(form, "paymentStatistics.percentageSplit.percentWithin60Days", Some("%"))
-    @_numberField(form, "paymentStatistics.percentageSplit.percentBeyond60Days", Some("%"))
-</div>
+    <div class="form-group @errorClass("paymentStatistics.percentageSplit")">
+        <label class="form-label">
+            <span class="form-label-bold">Split of payments made under qualifying contracts in the reporting period</span>
+            <span class="form-hint">Figures A, B and C should add up to 100%</span>
+            <span class="error-message" id="paymentStatistics.percentageSplit">@errorMessage("paymentStatistics.percentageSplit")</span>
+        </label>
+
+        @_numberField(form, "paymentStatistics.percentageSplit.percentWithin30Days", Some("%"))
+        @_numberField(form, "paymentStatistics.percentageSplit.percentWithin60Days", Some("%"))
+        @_numberField(form, "paymentStatistics.percentageSplit.percentBeyond60Days", Some("%"))
+    </div>
+}
 
 @_numberField(form, "paymentStatistics.percentPaidLaterThanAgreedTerms", Some("%"))

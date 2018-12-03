@@ -94,6 +94,8 @@ trait ReportModule {
     def percentInvoicesWithin60Days = column[Int]("percent_invoices_within60days")
     def percentInvoicesBeyond60Days = column[Int]("percent_invoices_beyond60days")
 
+    def didMakePayment = column[Option[YesNo]]("did_make_payment")
+
     def * = (reportId,
       paymentTerms,
       shortestPaymentPeriod,
@@ -112,7 +114,8 @@ trait ReportModule {
       percentPaidLaterThanAgreedTerms,
       percentInvoicesWithin30Days,
       percentInvoicesWithin60Days,
-      percentInvoicesBeyond60Days
+      percentInvoicesBeyond60Days,
+      didMakePayment
     ) <> (ContractDetailsRow.tupled, ContractDetailsRow.unapply)
   }
 

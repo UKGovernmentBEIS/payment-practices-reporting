@@ -60,6 +60,9 @@ field.reportDates.endDate.label=End date of reporting period
 field.hasQualifyingContracts.label=Were you in any qualifying contracts during the reporting period?
 field.hasQualifyingContracts.hint=
 
+field.didMakePayments.label=Did your business make any payments in the reporting period?
+field.didMakePayments.hint=
+
 field.paymentStatistics.averageDaysToPay.label=Average time to pay in days
 field.paymentStatistics.averageDaysToPay.hint=The average time it took to make payments under qualifying contracts in the reporting period.
 

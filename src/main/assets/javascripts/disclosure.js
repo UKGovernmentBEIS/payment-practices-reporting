@@ -5,7 +5,8 @@ function gradualDisclosure() {
         ["show-if-payment-codes-short", "paymentCodes.yesNo"],
         ["show-if-payment-codes-long", "otherInformation.paymentCodes.yesNo"],
         ["show-if-payment-changes", "paymentTerms.paymentTermsChanged.changed.yesNo"],
-        ["show-if-payment-changes-notified", "paymentTerms.paymentTermsChanged.notified.yesNo"]
+        ["show-if-payment-changes-notified", "paymentTerms.paymentTermsChanged.notified.yesNo"],
+        ["show-if-has-qualifying-contracts-changed", "hasQualifyingContracts"]
     ];
 
     function showPanelIfYes(panelId, checkboxName) {

@@ -61,10 +61,11 @@ trait RowBuilders {
       longForm.otherInformation.offerSupplyChainFinance,
       longForm.otherInformation.retentionChargesInPolicy,
       longForm.otherInformation.retentionChargesInPast,
-      longForm.paymentStatistics.averageDaysToPay,
+      longForm.paymentStatistics.averageDaysToPay.getOrElse(0),
       longForm.paymentStatistics.percentPaidLaterThanAgreedTerms,
-      longForm.paymentStatistics.percentageSplit.percentWithin30Days,
-      longForm.paymentStatistics.percentageSplit.percentWithin60Days,
-      longForm.paymentStatistics.percentageSplit.percentBeyond60Days
+      if(longForm.paymentStatistics.percentageSplit.isDefined) longForm.paymentStatistics.percentageSplit.get.percentWithin30Days else 0,
+      if(longForm.paymentStatistics.percentageSplit.isDefined) longForm.paymentStatistics.percentageSplit.get.percentWithin60Days else 0,
+      if(longForm.paymentStatistics.percentageSplit.isDefined) longForm.paymentStatistics.percentageSplit.get.percentBeyond60Days else 0,
+      longForm.paymentStatistics.didMakePayment
     )
 }

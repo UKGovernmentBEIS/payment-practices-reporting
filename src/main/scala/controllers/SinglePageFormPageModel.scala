@@ -18,7 +18,6 @@
 package controllers
 
 import javax.inject.Inject
-
 import config.ServiceConfig
 import controllers.FormPageDefs.{SinglePageFormHandler, SinglePageFormName}
 import forms.report.{LongFormModel, ReportingPeriodFormModel, Validations}
@@ -26,7 +25,10 @@ import models.CompaniesHouseId
 import org.joda.time.format.DateTimeFormat
 import play.api.data.Form
 import play.api.i18n.MessagesApi
+import play.api.libs.json.JsObject
 import play.twirl.api.Html
+
+import scala.concurrent.Future
 
 class SinglePageFormPageModel @Inject()(validations: Validations, serviceConfig: ServiceConfig)(implicit messagesApi: MessagesApi)
   extends FormPageModel[SinglePageFormHandler[_], SinglePageFormName]
@@ -48,7 +50,7 @@ class SinglePageFormPageModel @Inject()(validations: Validations, serviceConfig:
       FormHandler(
         ReportingPeriod,
         emptyReportingPeriod,
-        (header: Html, companiesHouseId: CompaniesHouseId, change: Boolean) => (form: Form[ReportingPeriodFormModel]) =>
+        (header: Html, companiesHouseId: CompaniesHouseId, change: Boolean, session: Option[JsObject]) => (form: Form[ReportingPeriodFormModel]) =>
           pages.reportingPeriod(header, form, companiesHouseId, df, serviceStartDate, if (change) Some(true) else None),
         (companiesHouseId: CompaniesHouseId, change: Boolean) =>
           routes.ReportingPeriodController.show(companiesHouseId, if (change) Some(true) else None)
@@ -58,8 +60,8 @@ class SinglePageFormPageModel @Inject()(validations: Validations, serviceConfig:
       FormHandler(
         SinglePageForm,
         emptyLongForm,
-        (header: Html, companiesHouseId: CompaniesHouseId, change: Boolean) => (form: Form[LongFormModel]) =>
-          pages.longForm(header, form, companiesHouseId, df, serviceStartDate, if (change) Some(true) else None),
+        (header: Html, companiesHouseId: CompaniesHouseId, change: Boolean, session: Option[JsObject]) => (form: Form[LongFormModel]) =>
+          pages.longForm(header, form, false, companiesHouseId, df, serviceStartDate, if (change) Some(true) else None),
         (companiesHouseId: CompaniesHouseId, change: Boolean) =>
           routes.ShortFormController.show(companiesHouseId, if (change) Some(true) else None)
       )

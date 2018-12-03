@@ -64,8 +64,9 @@ object Report {
     import longForm._
     ContractDetails(
       PaymentStatistics(
-        averageDaysToPay,
-        PercentageSplit(percentInvoicesWithin30Days, percentInvoicesWithin60Days, percentInvoicesBeyond60Days),
+        didMakePayment,
+        Some(averageDaysToPay),
+        Some(PercentageSplit(percentInvoicesWithin30Days, percentInvoicesWithin60Days, percentInvoicesBeyond60Days)),
         percentPaidLaterThanAgreedTerms
       ),
       PaymentTerms(

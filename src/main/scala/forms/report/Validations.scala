@@ -17,7 +17,10 @@
 
 package forms.report
 
+import actions.CompanyAuthRequest
+import akka.dispatch.ExecutionContexts
 import config.ServiceConfig
+import controllers.FormSessionHelpers
 import forms.DateRange
 import javax.inject.Inject
 import org.joda.time.LocalDate
@@ -27,10 +30,13 @@ import play.api.Logger
 import play.api.data.Forms._
 import play.api.data.validation.{Constraint, Invalid, Valid}
 import play.api.data.{Form, FormError, Mapping}
+import play.mvc.Http
+import services.{SessionId, SessionService}
 import utils.YesNo.{No, Yes}
-import utils.{AdjustErrors, TimeSource}
+import utils.{AdjustErrors, TimeSource, YesNo}
+import uk.gov.voa.play.form.ConditionalMappings._
 
-class Validations @Inject()(timeSource: TimeSource, serviceConfig: ServiceConfig) {
+class Validations @Inject()(timeSource: TimeSource, serviceConfig: ServiceConfig, val sessionService: SessionService) {
 
   import ConditionalTextValidations._
   import PaymentTermsChangedValidations._
@@ -51,11 +57,11 @@ class Validations @Inject()(timeSource: TimeSource, serviceConfig: ServiceConfig
     .verifying("error.sumto100", sumTo100)
 
   val paymentStatistics: Mapping[PaymentStatistics] = mapping(
-    "averageDaysToPay" -> number(min = 0),
-    "percentageSplit" -> percentageSplit,
+    "didMakePayment" -> optional(yesNo),
+    "averageDaysToPay" -> mandatoryIf(isEqual("paymentStatistics.didMakePayment", "yes"), number(min = 0)),
+    "percentageSplit" -> mandatoryIf(isEqual("paymentStatistics.didMakePayment", "yes"), percentageSplit),
     "percentPaidLaterThanAgreedTerms" -> percentage
   )(PaymentStatistics.apply)(PaymentStatistics.unapply)
-
 
   val errorLongestMessage = "error.shortestNotLessThanLongest"
 
@@ -104,7 +110,8 @@ class Validations @Inject()(timeSource: TimeSource, serviceConfig: ServiceConfig
 
   val reportingPeriodFormModel: Mapping[ReportingPeriodFormModel] = mapping(
     "reportDates" -> reportDates,
-    "hasQualifyingContracts" -> yesNo
+    "hasQualifyingContracts" -> yesNo,
+    "didMakePayments" -> mandatoryIf(isEqual("hasQualifyingContracts", "yes"), yesNo)
   )(ReportingPeriodFormModel.apply)(ReportingPeriodFormModel.unapply)
 
   private val paymentCodesValidation = "paymentCodes" -> conditionalText(paymentCodesWordCount)

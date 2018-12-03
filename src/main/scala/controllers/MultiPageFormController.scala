@@ -18,11 +18,10 @@
 package controllers
 
 import javax.inject.Inject
-
 import actions.{CompanyAuthAction, CompanyAuthRequest}
 import config.{PageConfig, ServiceConfig}
 import controllers.FormPageDefs._
-import forms.report.Validations
+import forms.report.{ReportingPeriodFormModel, Validations}
 import models.CompaniesHouseId
 import org.scalactic.TripleEquals._
 import play.api.i18n.MessagesApi
@@ -32,6 +31,7 @@ import services._
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.existentials
+import scala.util.Success
 
 class MultiPageFormController @Inject()(
   validations: Validations,
@@ -63,17 +63,17 @@ class MultiPageFormController @Inject()(
   private[controllers] def handleShowPage(formName: MultiPageFormName, companyDetail: CompanyDetail, change: Boolean, crumb: Html)(implicit sessionId: SessionId, pageContext: PageContext) = {
     val title = publishTitle(companyDetail.companyName)
 
-    bindUpToPage(formHandlers, formName).map {
-      case FormHasErrors(boundHandler) if boundHandler.formName !== formName => Redirect(boundHandler.callPage(companyDetail.companiesHouseId, change))
-      case FormIsBlank(boundHandler) if boundHandler.formName !== formName   => Redirect(boundHandler.callPage(companyDetail.companiesHouseId, change))
+    loadAllFormData.flatMap(session => {
+      bindUpToPage(formHandlers, formName).map {
+        case FormHasErrors(boundHandler) if boundHandler.formName !== formName => Redirect(boundHandler.callPage(companyDetail.companiesHouseId, change))
+        case FormIsBlank(boundHandler) if boundHandler.formName !== formName   => Redirect(boundHandler.callPage(companyDetail.companiesHouseId, change))
 
-      case FormHasErrors(boundHandler) => BadRequest(page(title)(crumb, boundHandler.renderPage(reportPageHeader(companyDetail), companyDetail.companiesHouseId, change)))
-      // Form is blank, so the user hasn't filled it in yet. In this case we don't
-      // want to show errors, so use the empty form handler for the formName
-      case FormIsBlank(_) => Ok(page(title)(crumb, handlerFor(formName).renderPage(reportPageHeader(companyDetail), companyDetail.companiesHouseId, change)))
-
-      case FormIsOk(handler, value) => Ok(page(title)(crumb, handler.renderPage(reportPageHeader(companyDetail), companyDetail.companiesHouseId, change)))
-    }
+        case FormHasErrors(boundHandler) => BadRequest(page(title)(crumb, boundHandler.renderPage(reportPageHeader(companyDetail), companyDetail.companiesHouseId, change, Some(session))))
+        // Form is blank, so the user hasn't filled it in yet. In this case we don't
+        // want to show errors, so use the empty form handler for the formName
+        case FormIsBlank(_) => Ok(page(title)(crumb, handlerFor(formName).renderPage(reportPageHeader(companyDetail), companyDetail.companiesHouseId, change, Some(session))))
+      }
+    })
   }
 
   //noinspection TypeAnnotation
@@ -90,15 +90,17 @@ class MultiPageFormController @Inject()(
   private def handlePostFormPage(formName: MultiPageFormName, companyDetail: CompanyDetail, change: Boolean, crumb: Html)(implicit sessionId: SessionId, pageContext: PageContext): Future[Result] = {
     val title = publishTitle(companyDetail.companyName)
 
-    bindUpToPage(formHandlers, formName).map {
-      case FormHasErrors(handler) => BadRequest(page(title)(crumb, handler.renderPage(reportPageHeader(companyDetail), companyDetail.companiesHouseId, change)))
-      case FormIsBlank(handler)   => BadRequest(page(title)(crumb, handler.renderPage(reportPageHeader(companyDetail), companyDetail.companiesHouseId, change)))
+    loadAllFormData.flatMap(session => {
+      bindUpToPage(formHandlers, formName).map {
+        case FormHasErrors(handler) => BadRequest(page(title)(crumb, handler.renderPage(reportPageHeader(companyDetail), companyDetail.companiesHouseId, change, Some(session))))
+        case FormIsBlank(handler) => BadRequest(page(title)(crumb, handler.renderPage(reportPageHeader(companyDetail), companyDetail.companiesHouseId, change, Some(session))))
 
-      case FormIsOk(handler, value) => nextFormHandler(handler) match {
-        case Some(nextHandler) if !change => Redirect(nextHandler.callPage(companyDetail.companiesHouseId, change))
-        case _                            => Redirect(routes.MultiPageFormReviewController.showReview(companyDetail.companiesHouseId))
+        case FormIsOk(handler, value) => nextFormHandler(handler) match {
+          case Some(nextHandler) if !change => Redirect(nextHandler.callPage(companyDetail.companiesHouseId, change))
+          case _ => Redirect(routes.MultiPageFormReviewController.showReview(companyDetail.companiesHouseId))
+        }
       }
-    }
+    })
   }
 
   //noinspection TypeAnnotation

@@ -20,9 +20,10 @@ package controllers
 import controllers.FormPageDefs.FormName
 import models.CompaniesHouseId
 import play.api.data.Form
-import play.api.libs.json.JsValue
+import play.api.libs.json.{JsObject, JsValue}
 import play.api.mvc.{Call, Request}
 import play.twirl.api.Html
+import scala.concurrent.Future
 
 /**
   * @tparam T the type of the form that is being processed by this page
@@ -31,7 +32,7 @@ import play.twirl.api.Html
 case class FormHandler[T, N <: FormName](
   formName: N,
   form: Form[T],
-  private val renderPageFunction: (Html, CompaniesHouseId, Boolean) => (Form[T]) => Html,
+  private val renderPageFunction: (Html, CompaniesHouseId, Boolean, Option[JsObject]) => (Form[T]) => Html,
   private val callPageFunction: (CompaniesHouseId, Boolean) => Call
 ) {
   def bind(implicit request: Request[Map[String, Seq[String]]]): FormHandler[T, N] = copy(form = form.bindForm)
@@ -43,6 +44,6 @@ case class FormHandler[T, N <: FormName](
   def callPage(companiesHouseId: CompaniesHouseId, change: Boolean): Call =
     callPageFunction(companiesHouseId, change)
 
-  def renderPage(reportPageHeader: Html, companiesHouseId: CompaniesHouseId, change: Boolean): Html =
-    renderPageFunction(reportPageHeader, companiesHouseId, change)(form)
+  def renderPage(reportPageHeader: Html, companiesHouseId: CompaniesHouseId, change: Boolean, session: Option[JsObject] = Option.empty[JsObject]): Html =
+    renderPageFunction(reportPageHeader, companiesHouseId, change, session)(form)
 }
