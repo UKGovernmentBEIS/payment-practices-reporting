@@ -55,7 +55,7 @@ class CompaniesHouseAuth @Inject()(val ws: WSClient, config: OAuthConfig)(implic
   override def isInScope(companiesHouseId: CompaniesHouseId, oAuthToken: OAuthToken): Future[Boolean] = {
     implicit val verifyReads = Json.reads[VerifyResult]
     val url = "https://account.companieshouse.gov.uk/oauth2/verify"
-    get[VerifyResult](url, bearerAuth(oAuthToken)).map(_.scope === targetScope(companiesHouseId))
+    get[VerifyResult](url, bearerAuth(oAuthToken)).map(_.scope.contains(targetScope(companiesHouseId)))
   }
 
   case class Email(email: String)
