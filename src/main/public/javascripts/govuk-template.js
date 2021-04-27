@@ -85,6 +85,9 @@
       }
     }
     window.GOVUK.setCookie('cookies_policy', JSON.stringify(cookieConsent), { days: 365 });
+    if (document.location.protocol === 'https:') {
+      document.cookie += ';Secure';
+    }
     window.GOVUK.showConfirmationMessage(options.analytics);
   };
 
