@@ -5,6 +5,7 @@ GET         /                                               controllers.HomeCont
 
 GET         /start                                          controllers.HomeController.start()
 GET         /maintenance                                    controllers.HomeController.maintenance()
+GET         /cookies                                        controllers.HomeController.cookies()
 
 GET         /robots.txt                                     controllers.HomeController.robots()
 

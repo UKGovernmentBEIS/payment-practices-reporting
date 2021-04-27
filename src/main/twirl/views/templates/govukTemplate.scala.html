@@ -81,13 +81,28 @@
       </div>
     </div>
 
-    @*
-    <div id="global-cookie-message">
+    <div id="global-cookie-message" class="notify-cookie-banner" data-module="cookie-banner" role="region" aria-describedby="notify-cookie-banner__heading">
+      <div class="notify-cookie-banner__wrapper govuk-width-container">
+        <h2 class="notify-cookie-banner__heading govuk-heading-m" id="notify-cookie-banner__heading">Can we store analytics cookies on your device?</h2>
+        <p class="govuk-body">Analytics cookies help us understand how our website is being used.</p>
+        <div class="notify-cookie-banner__buttons">
+          <button class="govuk-button notify-cookie-banner__button notify-cookie-banner__button-accept" type="submit" data-accept-cookies="true" aria-describedby="notify-cookie-banner__heading">
+            Yes<span class="govuk-visually-hidden">, Notify can store analytics cookies on your device</span>
+          </button>
+          <button class="govuk-button notify-cookie-banner__button notify-cookie-banner__button-reject" type="submit" data-accept-cookies="false" aria-describedby="notify-cookie-banner__heading">
+            No<span class="govuk-visually-hidden">, Notify cannot store analytics cookies on your device</span>
+          </button>
+          <a class="govuk-link notify-cookie-banner__link" href="/cookies">How Notify uses cookies</a>
+        </div>
+      </div>
 
-      @cookieMessage.getOrElse(Html("<p>GOV.UK uses cookies to make the site simpler. <a href=\"https://www.gov.uk/help/cookies\">Find out more about cookies</a></p>"))
-
+      <div class="notify-cookie-banner__confirmation govuk-width-container" tabindex="-1">
+        <p class="notify-cookie-banner__confirmation-message govuk-body">
+          You can <a class="govuk-link" href="/cookies">change your cookie settings</a> at any time.
+        </p>
+        <button class="notify-cookie-banner__hide-button govuk-link" data-hide-cookie-banner="true" role="link">Hide<span class="govuk-visually-hidden"> cookies message</span></button>
+      </div>
     </div>
-    *@
 
 
     <header role="banner" id="global-header" class="@headerClass">
@@ -137,8 +152,8 @@
 
     <div id="global-app-error" class="app-error hidden"></div>
 
-    <script src="@controllers.routes.Assets.at("javascripts/govuk-template.js")"></script>
-    <script src="@controllers.routes.Assets.at("javascripts/vendor/details.polyfill.js")"></script>
+    <script src='@controllers.routes.Assets.at("javascripts/govuk-template.js")'</script>
+    <script src='@controllers.routes.Assets.at("javascripts/vendor/details.polyfill.js")'></script>
 
     @bodyEnd
     </body>

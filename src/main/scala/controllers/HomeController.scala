@@ -28,11 +28,11 @@ class HomeController @Inject()(
   val serviceConfig: ServiceConfig
 ) extends Controller with PageHelper {
 
-  private val pateTitle = "Report on payment practices"
+  private val pageTitle = "Report on payment practices"
 
   def index = Action { implicit request =>
     serviceConfig.rootRedirectURL match {
-      case None      => Ok(page(pateTitle)(views.html.index()))
+      case None      => Ok(page(pageTitle)(views.html.index()))
       case Some(url) =>
         Logger.debug(s"root redirect is set to $url - redirecting")
         Redirect(url)
@@ -40,11 +40,15 @@ class HomeController @Inject()(
   }
 
   def start = Action { implicit request =>
-    Ok(page(pateTitle)(views.html.start()))
+    Ok(page(pageTitle)(views.html.start()))
   }
 
   def maintenance = Action { implicit request =>
-    Ok(page(pateTitle)(views.html.maintenance()))
+    Ok(page(pageTitle)(views.html.maintenance()))
+  }
+
+  def cookies = Action { implicit request =>
+    Ok(page(pageTitle)(views.html.cookies()))
   }
 
   /**
