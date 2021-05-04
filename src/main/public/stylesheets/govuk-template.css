@@ -595,7 +595,13 @@ button:focus,
       }
 
       .notify-cookie-banner__button, .notify-cookie-banner__link {
-          vertical-align: baseline;
+        vertical-align: baseline !important;
+      }
+
+      button.notify-cookie-banner__button-accept,
+      button.notify-cookie-banner__button-reject {
+        padding-top: 9px;
+        padding-bottom: 6px;
       }
 
       .govuk-button {
@@ -897,7 +903,7 @@ button:focus,
             flex: 0 0 150px;
             padding-left: 10px;
             padding-right: 10px;
-            margin-bottom: 5px;
+            margin-bottom: 5px !important;
         }
 
         .govuk-button {
